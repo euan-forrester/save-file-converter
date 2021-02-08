@@ -12,7 +12,7 @@ export default {
       const reader = new FileReader();
 
       reader.onload = (e) => this.$emit('load', e.target.result);
-      reader.readAsText(file);
+      reader.readAsArrayBuffer(file);
     },
   },
 };

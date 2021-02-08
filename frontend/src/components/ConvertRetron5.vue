@@ -1,8 +1,8 @@
 <template>
   <div class="hello">
-    <textarea rows="10" v-model="text"></textarea>
+    <textarea rows="40" cols="100" v-model="text"></textarea>
     <br>
-    <file-reader @load="text = $event"></file-reader>
+    <file-reader @load="text = $event.byteLength"></file-reader>
   </div>
 </template>
 
