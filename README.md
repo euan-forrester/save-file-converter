@@ -1,5 +1,8 @@
-# sample-project
-An example project that can be used as the basis of a real one
+# save-file-converter
+Web-based tool to convert save files from retro game consoles to different formats
+
+Retron5 save file format: https://www.retro5.net/viewtopic.php?f=5&t=67&start=10
+PSP PS1 virtual memory card format: https://psdevwiki.com/ps3/PS1_Savedata#Virtual_Memory_Card_PSP_.28.VMP.29
 
 ## Instructions
 
