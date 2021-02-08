@@ -1,0 +1,6 @@
+.terraform/
+.terraform*
+terraform.tfvars
+terraform.*.tfvars
+terraform.tfstate*
+aws_credentials
