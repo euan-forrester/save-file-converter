@@ -1,4 +1,4 @@
-/* eslint no-bitwise: ["error", { "allow": ["&"] }] */
+/* eslint no-bitwise: ["error", { "allow": ["&", ">>>"] }] */
 
 /*
 The Retron5 data format is:
@@ -17,6 +17,7 @@ typedef struct
 */
 
 import pako from 'pako';
+import crc32 from 'crc-32';
 
 const LITTLE_ENDIAN = true;
 const FLAG_ZLIB_PACKED = 0x01;
@@ -56,6 +57,9 @@ export default class Retron5SaveData {
   }
 
   getRawSaveData() {
+    // TODO: Reorganize this function so that the size and CRC32 of the
+    // data are still checked if it's uncompressed
+
     const rawSaveData = this.blob.slice(this.getDataOffset());
     if ((this.getFlags() & FLAG_ZLIB_PACKED) === 0) {
       return rawSaveData;
@@ -65,6 +69,12 @@ export default class Retron5SaveData {
 
     if (uncompressedSaveData.byteLength !== this.getOriginalSize()) {
       throw new Error(`Decompressed save buffer to ${uncompressedSaveData.byteLength} bytes but expected ${this.getOriginalSize()} bytes`);
+    }
+
+    const checksum = crc32.buf(uncompressedSaveData) >>> 0; // '>>> 0' means interpret the result as an unsigned integer: https://stackoverflow.com/questions/1822350/what-is-the-javascript-operator-and-how-do-you-use-it
+
+    if (checksum !== this.getCrc32()) {
+      throw new Error(`Expected CRC32 of 0x${this.getCrc32().toString(16)} for save data, but found 0x${checksum.toString(16)}`);
     }
 
     return uncompressedSaveData;
