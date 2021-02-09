@@ -29,7 +29,8 @@ export default {
         + `Original Size: ${retron5SaveData.getOriginalSize()} `
         + `Packed size: ${retron5SaveData.getPackedSize()} `
         + `Data offset: ${retron5SaveData.getDataOffset()} `
-        + `CRC32: 0x${retron5SaveData.getCrc32().toString(16)}`;
+        + `CRC32: 0x${retron5SaveData.getCrc32().toString(16)} `
+        + `Save data: ${retron5SaveData.getRawSaveData()}`;
     },
   },
 };

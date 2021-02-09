@@ -16,7 +16,7 @@ typedef struct
 } t_retronDataHdr;
 */
 
-const pako = import('pako');
+import pako from 'pako';
 
 const LITTLE_ENDIAN = true;
 const FLAG_ZLIB_PACKED = 0x01;
@@ -62,6 +62,10 @@ export default class Retron5SaveData {
     }
 
     const uncompressedSaveData = pako.inflate(rawSaveData);
+
+    if (uncompressedSaveData.byteLength !== this.getOriginalSize()) {
+      throw new Error(`Decompressed save buffer to ${uncompressedSaveData.byteLength} bytes but expected ${this.getOriginalSize()} bytes`);
+    }
 
     return uncompressedSaveData;
   }
