@@ -23,13 +23,13 @@ export default {
   methods: {
     readRetron5SaveData(blob) {
       const retron5SaveData = new Retron5SaveData(blob);
-      this.text = `Magic: ${retron5SaveData.getMagic()} `
+      this.text = `Magic: 0x${retron5SaveData.getMagic().toString(16)} `
         + `Format version: ${retron5SaveData.getFormatVersion()} `
-        + `Flags: ${retron5SaveData.getFlags()} `
+        + `Flags: 0x${retron5SaveData.getFlags().toString(16)} `
         + `Original Size: ${retron5SaveData.getOriginalSize()} `
         + `Packed size: ${retron5SaveData.getPackedSize()} `
         + `Data offset: ${retron5SaveData.getDataOffset()} `
-        + `CRC32: ${retron5SaveData.getCrc32()}`;
+        + `CRC32: 0x${retron5SaveData.getCrc32().toString(16)}`;
     },
   },
 };

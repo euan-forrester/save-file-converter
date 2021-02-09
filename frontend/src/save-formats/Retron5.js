@@ -1,3 +1,5 @@
+/* eslint no-bitwise: ["error", { "allow": ["&"] }] */
+
 /*
 The Retron5 data format is:
 
@@ -14,12 +16,15 @@ typedef struct
 } t_retronDataHdr;
 */
 
+const pako = import('pako');
+
 const LITTLE_ENDIAN = true;
+const FLAG_ZLIB_PACKED = 0x01;
 
 export default class Retron5SaveData {
   constructor(blob) {
+    this.blob = blob;
     this.dataView = new DataView(blob);
-    this.byteLength = blob.byteLength;
   }
 
   getMagic() {
@@ -51,7 +56,13 @@ export default class Retron5SaveData {
   }
 
   getRawSaveData() {
-    // FIXME: How to get ArrayBuffer starting at an offset from the ArrayBuffer we were passed?
-    return this.byteLength;
+    const rawSaveData = this.blob.slice(this.getDataOffset());
+    if ((this.getFlags() & FLAG_ZLIB_PACKED) === 0) {
+      return rawSaveData;
+    }
+
+    const uncompressedSaveData = pako.inflate(rawSaveData);
+
+    return uncompressedSaveData;
   }
 }
