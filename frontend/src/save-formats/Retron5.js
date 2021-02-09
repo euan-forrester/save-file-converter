@@ -33,7 +33,7 @@ export default class Retron5SaveData {
     // First make sure that the stuff in the header all makes sense
 
     if (this.getMagic() !== MAGIC) {
-      throw new Error(`Invalid data format: magic doesn't match. Expected 0x${MAGIC.getString(16)} but found 0x${this.getMagic().getString(16)}`);
+      throw new Error(`Invalid data format: magic doesn't match. Expected 0x${MAGIC.toString(16)} but found 0x${this.getMagic().toString(16)}`);
     }
 
     if (this.getFormatVersion() > FORMAT_VERSION) {

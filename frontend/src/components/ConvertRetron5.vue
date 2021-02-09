@@ -3,6 +3,9 @@
     <textarea rows="20" cols="100" v-model="text"></textarea>
     <br>
     <file-reader @load="readRetron5SaveData($event)"></file-reader>
+    <b-alert variant="danger" :show="this.errorMessage !== null">
+      {{this.errorMessage}}
+    </b-alert>
   </div>
 </template>
 
@@ -15,6 +18,7 @@ export default {
   data() {
     return {
       text: '',
+      errorMessage: null,
     };
   },
   components: {
@@ -22,15 +26,19 @@ export default {
   },
   methods: {
     readRetron5SaveData(blob) {
-      const retron5SaveData = new Retron5SaveData(blob);
-      this.text = `Magic: 0x${retron5SaveData.getMagic().toString(16)} `
-        + `Format version: ${retron5SaveData.getFormatVersion()} `
-        + `Flags: 0x${retron5SaveData.getFlags().toString(16)} `
-        + `Original Size: ${retron5SaveData.getOriginalSize()} `
-        + `Packed size: ${retron5SaveData.getPackedSize()} `
-        + `Data offset: ${retron5SaveData.getDataOffset()} `
-        + `CRC32: 0x${retron5SaveData.getCrc32().toString(16)} `
-        + `Save data: ${retron5SaveData.getRawSaveData()}`;
+      try {
+        const retron5SaveData = new Retron5SaveData(blob);
+        this.text = `Magic: 0x${retron5SaveData.getMagic().toString(16)} `
+          + `Format version: ${retron5SaveData.getFormatVersion()} `
+          + `Flags: 0x${retron5SaveData.getFlags().toString(16)} `
+          + `Original Size: ${retron5SaveData.getOriginalSize()} `
+          + `Packed size: ${retron5SaveData.getPackedSize()} `
+          + `Data offset: ${retron5SaveData.getDataOffset()} `
+          + `CRC32: 0x${retron5SaveData.getCrc32().toString(16)} `
+          + `Save data: ${retron5SaveData.getRawSaveData()}`;
+      } catch (e) {
+        this.errorMessage = e.message;
+      }
     },
   },
 };
