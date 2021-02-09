@@ -1,6 +1,6 @@
 <template>
   <div class="hello">
-    <textarea rows="40" cols="100" v-model="text"></textarea>
+    <textarea rows="20" cols="100" v-model="text"></textarea>
     <br>
     <file-reader @load="readRetron5SaveData($event)"></file-reader>
   </div>

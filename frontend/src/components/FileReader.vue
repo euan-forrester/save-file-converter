@@ -1,13 +1,13 @@
 <template>
   <label class="text-reader">
-    <input type="file" @change="loadTextFromFile">
+    <b-form-file @change="loadFile"/>
   </label>
 </template>
 
 <script>
 export default {
   methods: {
-    loadTextFromFile(ev) {
+    loadFile(ev) {
       const file = ev.target.files[0];
       const reader = new FileReader();
 

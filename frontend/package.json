@@ -11,10 +11,12 @@
     "deploy:cleanup": "vue-cli-service s3-deploy-cleanup"
   },
   "dependencies": {
+    "bootstrap": "^4.6.0",
+    "bootstrap-vue": "^2.21.2",
     "core-js": "^3.6.5",
     "crc-32": "^1.2.0",
     "pako": "^2.0.3",
-    "vue": "^2.6.11",
+    "vue": "^2.6.12",
     "vue-cli-plugin-s3-deploy": "^3.0.0",
     "vue-router": "^3.2.0",
     "vuex": "^3.4.0"
