@@ -1,11 +1,18 @@
 <template>
-  <div class="hello">
-    <textarea rows="20" cols="100" v-model="text"></textarea>
-    <br>
-    <file-reader @load="readRetron5SaveData($event)"></file-reader>
-    <b-alert variant="danger" :show="this.errorMessage !== null">
-      {{this.errorMessage}}
-    </b-alert>
+  <div>
+    <b-container>
+      <b-row no-gutters align-h="center">
+        <b-col sm=12 md=10 lg=8 xl=6>
+          <b-jumbotron :header-level="$mq | mq({ xs: 5, sm: 4, md: 3 })">
+            <template v-slot:header>Retron 5</template>
+          </b-jumbotron>
+          <file-reader @load="readRetron5SaveData($event)"></file-reader>
+          <b-alert variant="danger" :show="this.errorMessage !== null">
+            {{this.errorMessage}}
+          </b-alert>
+        </b-col>
+      </b-row>
+    </b-container>
   </div>
 </template>
 
@@ -18,7 +25,6 @@ export default {
   name: 'ConvertRetron5',
   data() {
     return {
-      text: '',
       errorMessage: null,
     };
   },
@@ -29,14 +35,6 @@ export default {
     readRetron5SaveData(arrayBuffer) {
       try {
         const retron5SaveData = new Retron5SaveData(arrayBuffer);
-        this.text = `Magic: 0x${retron5SaveData.getMagic().toString(16)} `
-          + `Format version: ${retron5SaveData.getFormatVersion()} `
-          + `Flags: 0x${retron5SaveData.getFlags().toString(16)} `
-          + `Original Size: ${retron5SaveData.getOriginalSize()} `
-          + `Packed size: ${retron5SaveData.getPackedSize()} `
-          + `Data offset: ${retron5SaveData.getDataOffset()} `
-          + `CRC32: 0x${retron5SaveData.getCrc32().toString(16)} `
-          + `Save data: ${retron5SaveData.getRawSaveData()}`;
 
         const rawSaveDataArrayBuffer = retron5SaveData.getRawSaveData();
 

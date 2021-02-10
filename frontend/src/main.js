@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import './plugins/bootstrap-vue';
 import './plugins/fontawesome-vue';
+import './plugins/mediaquery-vue';
 import App from './App.vue';
 import router from './router';
 import store from './store';

@@ -18,6 +18,7 @@ import Vue from 'vue';
 import {
   AlertPlugin,
   FormFilePlugin,
+  JumbotronPlugin,
 } from 'bootstrap-vue';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -25,3 +26,4 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 Vue.use(AlertPlugin);
 Vue.use(FormFilePlugin);
+Vue.use(JumbotronPlugin);
