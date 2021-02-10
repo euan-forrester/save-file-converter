@@ -10,6 +10,7 @@
 </template>
 
 <script>
+import { saveAs } from 'file-saver';
 import FileReader from './FileReader.vue';
 import Retron5SaveData from '../save-formats/Retron5';
 
@@ -25,9 +26,9 @@ export default {
     FileReader,
   },
   methods: {
-    readRetron5SaveData(blob) {
+    readRetron5SaveData(arrayBuffer) {
       try {
-        const retron5SaveData = new Retron5SaveData(blob);
+        const retron5SaveData = new Retron5SaveData(arrayBuffer);
         this.text = `Magic: 0x${retron5SaveData.getMagic().toString(16)} `
           + `Format version: ${retron5SaveData.getFormatVersion()} `
           + `Flags: 0x${retron5SaveData.getFlags().toString(16)} `
@@ -36,6 +37,12 @@ export default {
           + `Data offset: ${retron5SaveData.getDataOffset()} `
           + `CRC32: 0x${retron5SaveData.getCrc32().toString(16)} `
           + `Save data: ${retron5SaveData.getRawSaveData()}`;
+
+        const rawSaveDataArrayBuffer = retron5SaveData.getRawSaveData();
+
+        const rawSaveDataBlob = new Blob([rawSaveDataArrayBuffer], { type: 'application/octet-stream' });
+
+        saveAs(rawSaveDataBlob, 'temp.srm');
       } catch (e) {
         this.errorMessage = e.message;
       }

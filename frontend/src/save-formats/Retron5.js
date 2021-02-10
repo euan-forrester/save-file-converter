@@ -26,9 +26,9 @@ const FLAG_ZLIB_PACKED = 0x01;
 const DATA_HEADER_SIZE = 24;
 
 export default class Retron5SaveData {
-  constructor(blob) {
-    this.blob = blob;
-    this.dataView = new DataView(blob);
+  constructor(arrayBuffer) {
+    this.arrayBuffer = arrayBuffer;
+    this.dataView = new DataView(arrayBuffer);
 
     // First make sure that the stuff in the header all makes sense
 
@@ -44,14 +44,14 @@ export default class Retron5SaveData {
       throw new Error(`Invalid data format: expected header size of ${DATA_HEADER_SIZE} bytes but found header size of ${this.getDataOffset()} bytes`);
     }
 
-    const packedDataSize = this.blob.byteLength - DATA_HEADER_SIZE;
+    const packedDataSize = this.arrayBuffer.byteLength - DATA_HEADER_SIZE;
     if (this.getPackedSize() !== packedDataSize) {
       throw new Error(`Invalid data format: expected packed data size of ${this.getPackedSize()} bytes but found packed data size of ${packedDataSize} bytes`);
     }
 
     // Now decompress the saved data and check its size and CRC32
 
-    let rawSaveData = this.blob.slice(this.getDataOffset());
+    let rawSaveData = this.arrayBuffer.slice(this.getDataOffset());
     if ((this.getFlags() & FLAG_ZLIB_PACKED) !== 0) {
       rawSaveData = pako.inflate(rawSaveData);
     }
