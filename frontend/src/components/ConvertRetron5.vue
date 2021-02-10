@@ -42,7 +42,7 @@ export default {
 
         const rawSaveDataBlob = new Blob([rawSaveDataArrayBuffer], { type: 'application/octet-stream' });
 
-        saveAs(rawSaveDataBlob, 'temp.srm');
+        saveAs(rawSaveDataBlob, 'temp.srm'); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
       } catch (e) {
         this.errorMessage = e.message;
       }
