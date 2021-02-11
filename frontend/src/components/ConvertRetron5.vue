@@ -1,11 +1,27 @@
 <template>
   <div>
     <b-container>
-      <b-row no-gutters align-h="center">
+      <b-row no-gutters align-h="center" align-v="center">
         <b-col sm=12 md=5 align-self="center">
-          <b-jumbotron :header-level="$mq | mq({ xs: 5, sm: 4, md: 4, lg: 3 })">
-            <template v-slot:header>Retron 5</template>
-          </b-jumbotron>
+          <b-row no-gutters align-h="center" align-v="center">
+            <b-col cols=12>
+              <b-jumbotron :header-level="$mq | mq({ xs: 5, sm: 4, md: 4, lg: 3 })">
+                <template v-slot:header>Retron 5</template>
+              </b-jumbotron>
+            </b-col>
+          </b-row>
+          <b-row no-gutters align-h="center" align-v="center">
+            <b-col cols=12>
+              <file-reader @load="readRetron5SaveData($event)"></file-reader>
+            </b-col>
+          </b-row>
+          <b-row no-gutters align-h="center" align-v="center">
+            <b-col cols=12>
+              <b-alert variant="danger" :show="this.errorMessage !== null">
+                {{this.errorMessage}}
+              </b-alert>
+            </b-col>
+          </b-row>
         </b-col>
         <b-col sm=12 md=1 align-self="center">
           <mq-layout mq="md+">
@@ -16,21 +32,18 @@
           </mq-layout>
         </b-col>
         <b-col sm=12 md=5 align-self="center">
-          <b-jumbotron :header-level="$mq | mq({ xs: 5, sm: 4, md: 4, lg: 3 })">
-            <template v-slot:header>Emulator</template>
-          </b-jumbotron>
-        </b-col>
-      </b-row>
-      <b-row no-gutters align-h="center">
-        <b-col sm=12 md=5>
-          <file-reader @load="readRetron5SaveData($event)"></file-reader>
-          <b-alert variant="danger" :show="this.errorMessage !== null">
-            {{this.errorMessage}}
-          </b-alert>
-        </b-col>
-        <b-col sm=12 md=1 align-self="center">
-        </b-col>
-        <b-col sm=12 md=5>
+          <b-row no-gutters align-h="center" align-v="center">
+            <b-col cols=12>
+              <b-jumbotron :header-level="$mq | mq({ xs: 5, sm: 4, md: 4, lg: 3 })">
+                <template v-slot:header>Emulator</template>
+              </b-jumbotron>
+            </b-col>
+          </b-row>
+          <b-row no-gutters align-h="center" align-v="center">
+            <b-col cols=12>
+              <input v-model="outputFilenameEmulator" placeholder="output-filename.srm">
+            </b-col>
+          </b-row>
         </b-col>
       </b-row>
     </b-container>
@@ -47,6 +60,7 @@ export default {
   data() {
     return {
       errorMessage: null,
+      outputFilenameEmulator: '',
     };
   },
   components: {
