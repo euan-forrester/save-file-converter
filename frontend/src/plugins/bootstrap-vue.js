@@ -16,6 +16,7 @@ import Vue from 'vue';
 // Place all imports from 'bootstrap-vue' in a single import
 // statement for optimal bundle sizes
 import {
+  LayoutPlugin,
   AlertPlugin,
   FormFilePlugin,
   JumbotronPlugin,
@@ -24,6 +25,7 @@ import {
 import 'bootstrap/dist/css/bootstrap.min.css';
 // import 'bootstrap-vue/dist/bootstrap-vue.css'; // Is this file necessary? The docs say it is, but I don't see anything missing without it: https://bootstrap-vue.js.org/docs/
 
+Vue.use(LayoutPlugin);
 Vue.use(AlertPlugin);
 Vue.use(FormFilePlugin);
 Vue.use(JumbotronPlugin);
