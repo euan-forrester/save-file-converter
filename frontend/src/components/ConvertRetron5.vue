@@ -46,6 +46,18 @@
           </b-row>
         </b-col>
       </b-row>
+      <b-row class="justify-content-md-center">
+        <b-col sm=4 md=4 lg=2 align-self="center">
+          <b-button
+            variant="success"
+            block
+            :disabled="!this.retron5SaveData"
+            @click="convertFile()"
+          >
+          Convert!
+          </b-button>
+        </b-col>
+      </b-row>
     </b-container>
   </div>
 </template>
@@ -60,6 +72,7 @@ export default {
   data() {
     return {
       errorMessage: null,
+      retron5SaveData: null,
       outputFilenameEmulator: '',
     };
   },
@@ -69,16 +82,18 @@ export default {
   methods: {
     readRetron5SaveData(arrayBuffer) {
       try {
-        const retron5SaveData = new Retron5SaveData(arrayBuffer);
-
-        const rawSaveDataArrayBuffer = retron5SaveData.getRawSaveData();
-
-        const rawSaveDataBlob = new Blob([rawSaveDataArrayBuffer], { type: 'application/octet-stream' });
-
-        saveAs(rawSaveDataBlob, 'temp.srm'); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
+        this.retron5SaveData = new Retron5SaveData(arrayBuffer);
       } catch (e) {
         this.errorMessage = e.message;
+        this.retron5SaveData = null;
       }
+    },
+    convertFile() {
+      const rawSaveDataArrayBuffer = this.retron5SaveData.getRawSaveData();
+
+      const rawSaveDataBlob = new Blob([rawSaveDataArrayBuffer], { type: 'application/octet-stream' });
+
+      saveAs(rawSaveDataBlob, this.outputFilenameEmulator); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
     },
   },
 };
