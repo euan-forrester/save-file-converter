@@ -41,7 +41,7 @@
           </b-row>
           <b-row no-gutters align-h="center" align-v="center">
             <b-col cols=12>
-              <input v-model="outputFilenameEmulator" placeholder="output-filename.srm">
+              <input v-model="outputFilenameEmulator" placeholder="Output filename">
             </b-col>
           </b-row>
         </b-col>
@@ -51,7 +51,7 @@
           <b-button
             variant="success"
             block
-            :disabled="!this.retron5SaveData"
+            :disabled="!this.retron5SaveData || !outputFilenameEmulator"
             @click="convertFile()"
           >
           Convert!
@@ -63,6 +63,7 @@
 </template>
 
 <script>
+import path from 'path';
 import { saveAs } from 'file-saver';
 import FileReader from './FileReader.vue';
 import Retron5SaveData from '../save-formats/Retron5';
@@ -80,13 +81,14 @@ export default {
     FileReader,
   },
   methods: {
-    readRetron5SaveData(arrayBuffer) {
+    readRetron5SaveData(event) {
       try {
-        this.retron5SaveData = new Retron5SaveData(arrayBuffer);
+        this.retron5SaveData = new Retron5SaveData(event.arrayBuffer);
       } catch (e) {
         this.errorMessage = e.message;
         this.retron5SaveData = null;
       }
+      this.outputFilenameEmulator = `${path.basename(event.filename, path.extname(event.filename))}.srm`;
     },
     convertFile() {
       const rawSaveDataArrayBuffer = this.retron5SaveData.getRawSaveData();
