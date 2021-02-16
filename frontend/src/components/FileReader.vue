@@ -1,18 +1,22 @@
 <template>
   <label class="text-reader">
-    <b-form-file @change="loadFile"/>
+    <b-form-file @input="loadFile" v-model="file"/>
   </label>
 </template>
 
 <script>
 export default {
+  data() {
+    return {
+      file: null,
+    };
+  },
   methods: {
-    loadFile(ev) {
-      const file = ev.target.files[0];
+    loadFile() {
       const reader = new FileReader();
 
-      reader.onload = (e) => this.$emit('load', e.target.result);
-      reader.readAsArrayBuffer(file);
+      reader.onload = (e) => this.$emit('load', { filename: this.file.name, arrayBuffer: e.target.result });
+      reader.readAsArrayBuffer(this.file);
     },
   },
 };
