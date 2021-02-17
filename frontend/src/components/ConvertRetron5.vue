@@ -24,7 +24,11 @@
           </b-row>
         </b-col>
         <b-col sm=12 md=1 align-self="center">
-          <conversion-direction :conversionDirection.sync="conversionDirection"/>
+          <conversion-direction
+            :horizontalLayout="['md', 'lg', 'xl']"
+            :verticalLayout="['xs', 'sm']"
+            :conversionDirection.sync="conversionDirection"
+          />
         </b-col>
         <b-col sm=12 md=5 align-self="center">
           <b-row no-gutters align-h="center" align-v="center">
