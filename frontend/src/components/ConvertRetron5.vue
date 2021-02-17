@@ -24,7 +24,7 @@
           </b-row>
         </b-col>
         <b-col sm=12 md=1 align-self="center">
-          <conversion-direction/>
+          <conversion-direction :conversionDirection.sync="conversionDirection"/>
         </b-col>
         <b-col sm=12 md=5 align-self="center">
           <b-row no-gutters align-h="center" align-v="center">
@@ -71,6 +71,7 @@ export default {
       errorMessage: null,
       retron5SaveData: null,
       outputFilenameEmulator: '',
+      conversionDirection: 'convertToEmulator',
     };
   },
   components: {
