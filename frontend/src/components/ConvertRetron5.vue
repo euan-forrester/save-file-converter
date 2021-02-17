@@ -24,12 +24,7 @@
           </b-row>
         </b-col>
         <b-col sm=12 md=1 align-self="center">
-          <mq-layout mq="md+">
-            <font-awesome-icon icon="arrow-circle-right" size="3x"/>
-          </mq-layout>
-          <mq-layout :mq="['xs', 'sm']">
-            <font-awesome-icon icon="arrow-circle-down" size="3x"/>
-          </mq-layout>
+          <conversion-direction/>
         </b-col>
         <b-col sm=12 md=5 align-self="center">
           <b-row no-gutters align-h="center" align-v="center">
@@ -66,6 +61,7 @@
 import path from 'path';
 import { saveAs } from 'file-saver';
 import FileReader from './FileReader.vue';
+import ConversionDirection from './ConversionDirection.vue';
 import Retron5SaveData from '../save-formats/Retron5';
 
 export default {
@@ -79,6 +75,7 @@ export default {
   },
   components: {
     FileReader,
+    ConversionDirection,
   },
   methods: {
     readRetron5SaveData(event) {
