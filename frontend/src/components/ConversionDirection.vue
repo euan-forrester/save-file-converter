@@ -6,6 +6,7 @@
           v-model="conversionDirectionInternal"
           :options="optionsHorizontal"
           :aria-describedby="ariaDescribedby"
+          button-variant="outline-info"
           stacked
           buttons
         />
@@ -17,6 +18,7 @@
           v-model="conversionDirectionInternal"
           :options="optionsVertical"
           :aria-describedby="ariaDescribedby"
+          button-variant="outline-info"
           buttons
         />
       </b-form-group>
