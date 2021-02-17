@@ -1,20 +1,25 @@
 <template>
   <div>
     <mq-layout :mq="this.horizontalLayout">
-      <div v-if="this.conversionDirection ==='convertToEmulator'">
-        <font-awesome-icon icon="arrow-circle-right" size="3x"/>
-      </div>
-      <div v-else>
-        <font-awesome-icon icon="arrow-circle-left" size="3x"/>
-      </div>
+      <b-form-group v-slot="{ ariaDescribedby }">
+        <b-form-radio-group
+          v-model="conversionDirectionInternal"
+          :options="optionsHorizontal"
+          :aria-describedby="ariaDescribedby"
+          stacked
+          buttons
+        />
+      </b-form-group>
     </mq-layout>
     <mq-layout :mq="this.verticalLayout">
-      <div v-if="this.conversionDirection ==='convertToEmulator'">
-        <font-awesome-icon icon="arrow-circle-down" size="3x"/>
-      </div>
-      <div v-else>
-        <font-awesome-icon icon="arrow-circle-up" size="3x"/>
-      </div>
+      <b-form-group v-slot="{ ariaDescribedby }">
+        <b-form-radio-group
+          v-model="conversionDirectionInternal"
+          :options="optionsVertical"
+          :aria-describedby="ariaDescribedby"
+          buttons
+        />
+      </b-form-group>
     </mq-layout>
   </div>
 </template>
@@ -25,6 +30,19 @@ export default {
     horizontalLayout: Array,
     verticalLayout: Array,
     conversionDirection: String,
+  },
+  data() {
+    return {
+      conversionDirectionInternal: this.conversionDirection,
+      optionsHorizontal: [
+        { html: '<i class="fa fa-arrow-circle-right fa-3x"></i>', value: 'convertToEmulator' },
+        { html: '<i class="fa fa-arrow-circle-left fa-3x"></i>', value: 'convertToRetron5' },
+      ],
+      optionsVertical: [
+        { html: '<i class="fa fa-arrow-circle-down fa-3x"></i>', value: 'convertToEmulator' },
+        { html: '<i class="fa fa-arrow-circle-up fa-3x"></i>', value: 'convertToRetron5' },
+      ],
+    };
   },
 };
 </script>
