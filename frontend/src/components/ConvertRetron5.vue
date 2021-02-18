@@ -39,11 +39,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <b-row no-gutters align-h="center" align-v="center">
-            <b-col cols=12>
-              <input v-model="outputFilenameEmulator" placeholder="Output filename">
-            </b-col>
-          </b-row>
+          <output-filename v-model="outputFilenameEmulator"/>
         </b-col>
       </b-row>
       <b-row class="justify-content-md-center">
@@ -66,6 +62,7 @@
 import path from 'path';
 import { saveAs } from 'file-saver';
 import FileReader from './FileReader.vue';
+import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import Retron5SaveData from '../save-formats/Retron5';
 
@@ -82,6 +79,7 @@ export default {
   components: {
     FileReader,
     ConversionDirection,
+    OutputFilename,
   },
   methods: {
     readRetron5SaveData(event) {
