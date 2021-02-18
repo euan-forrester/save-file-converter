@@ -27,7 +27,8 @@
           <conversion-direction
             :horizontalLayout="['md', 'lg', 'xl']"
             :verticalLayout="['xs', 'sm']"
-            :conversionDirection.sync="conversionDirection"
+            :conversionDirection="this.conversionDirection"
+            @change="conversionDirection=$event"
           />
         </b-col>
         <b-col sm=12 md=5 align-self="center">
