@@ -11,6 +11,7 @@
 
 <script>
 export default {
+  name: 'OutputFilename',
   props: [
     'value',
   ],

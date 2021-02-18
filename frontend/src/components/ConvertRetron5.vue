@@ -10,18 +10,10 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <b-row no-gutters align-h="center" align-v="center">
-            <b-col cols=12>
-              <file-reader @load="readRetron5SaveData($event)"></file-reader>
-            </b-col>
-          </b-row>
-          <b-row no-gutters align-h="center" align-v="center">
-            <b-col cols=12>
-              <b-alert variant="danger" :show="this.errorMessage !== null">
-                {{this.errorMessage}}
-              </b-alert>
-            </b-col>
-          </b-row>
+          <input-file
+            @load="readRetron5SaveData($event)"
+            :errorMessage="this.errorMessage"
+          />
         </b-col>
         <b-col sm=12 md=1 align-self="center">
           <conversion-direction
@@ -61,7 +53,7 @@
 <script>
 import path from 'path';
 import { saveAs } from 'file-saver';
-import FileReader from './FileReader.vue';
+import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import Retron5SaveData from '../save-formats/Retron5';
@@ -77,8 +69,8 @@ export default {
     };
   },
   components: {
-    FileReader,
     ConversionDirection,
+    InputFile,
     OutputFilename,
   },
   methods: {
