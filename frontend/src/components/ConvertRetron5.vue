@@ -10,17 +10,22 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <input-file
-            @load="readRetron5SaveData($event)"
-            :errorMessage="this.errorMessage"
-          />
+          <div v-if="this.conversionDirection === 'convertToEmulator'">
+            <input-file
+              @load="readRetron5SaveData($event)"
+              :errorMessage="this.errorMessage"
+            />
+          </div>
+          <div v-else>
+            <output-filename v-model="outputFilename"/>
+          </div>
         </b-col>
         <b-col sm=12 md=1 align-self="center">
           <conversion-direction
             :horizontalLayout="['md', 'lg', 'xl']"
             :verticalLayout="['xs', 'sm']"
             :conversionDirection="this.conversionDirection"
-            @change="conversionDirection=$event"
+            @change="changeConversionDirection($event)"
           />
         </b-col>
         <b-col sm=12 md=5 align-self="center">
@@ -31,7 +36,15 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <output-filename v-model="outputFilenameEmulator"/>
+          <div v-if="this.conversionDirection === 'convertToEmulator'">
+            <output-filename v-model="outputFilename"/>
+          </div>
+          <div v-else>
+            <input-file
+              @load="readEmulatorSaveData($event)"
+              :errorMessage="this.errorMessage"
+            />
+          </div>
         </b-col>
       </b-row>
       <b-row class="justify-content-md-center">
@@ -39,7 +52,7 @@
           <b-button
             variant="success"
             block
-            :disabled="!this.retron5SaveData || !outputFilenameEmulator"
+            :disabled="!this.retron5SaveData || !outputFilename"
             @click="convertFile()"
           >
           Convert!
@@ -62,9 +75,9 @@ export default {
   name: 'ConvertRetron5',
   data() {
     return {
-      errorMessage: null,
       retron5SaveData: null,
-      outputFilenameEmulator: '',
+      errorMessage: null,
+      outputFilename: null,
       conversionDirection: 'convertToEmulator',
     };
   },
@@ -74,21 +87,39 @@ export default {
     OutputFilename,
   },
   methods: {
+    changeConversionDirection(newDirection) {
+      this.conversionDirection = newDirection;
+      this.retron5SaveData = null;
+      this.errorMessage = null;
+      this.outputFilename = null;
+    },
+    changeFilenameExtension(filename, newExtension) {
+      return `${path.basename(filename, path.extname(filename))}.${newExtension}`;
+    },
     readRetron5SaveData(event) {
       try {
-        this.retron5SaveData = new Retron5SaveData(event.arrayBuffer);
+        this.retron5SaveData = Retron5SaveData.createFromRetron5Data(event.arrayBuffer);
       } catch (e) {
         this.errorMessage = e.message;
         this.retron5SaveData = null;
       }
-      this.outputFilenameEmulator = `${path.basename(event.filename, path.extname(event.filename))}.srm`;
+      this.outputFilename = this.changeFilenameExtension(event.filename, 'srm');
+    },
+    readEmulatorSaveData(event) {
+      try {
+        this.retron5SaveData = Retron5SaveData.createFromEmulatorData(event.arrayBuffer);
+      } catch (e) {
+        this.errorMessage = e.message;
+        this.retron5SaveData = null;
+      }
+      this.outputFilename = this.changeFilenameExtension(event.filename, 'sav');
     },
     convertFile() {
-      const rawSaveDataArrayBuffer = this.retron5SaveData.getRawSaveData();
+      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.retron5SaveData.getRawSaveData() : this.retron5SaveData.getArrayBuffer();
 
-      const rawSaveDataBlob = new Blob([rawSaveDataArrayBuffer], { type: 'application/octet-stream' });
+      const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 
-      saveAs(rawSaveDataBlob, this.outputFilenameEmulator); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
+      saveAs(outputBlob, this.outputFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
     },
   },
 };
