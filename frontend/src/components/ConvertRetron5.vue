@@ -10,26 +10,23 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <b-row no-gutters align-h="center" align-v="center">
-            <b-col cols=12>
-              <file-reader @load="readRetron5SaveData($event)"></file-reader>
-            </b-col>
-          </b-row>
-          <b-row no-gutters align-h="center" align-v="center">
-            <b-col cols=12>
-              <b-alert variant="danger" :show="this.errorMessage !== null">
-                {{this.errorMessage}}
-              </b-alert>
-            </b-col>
-          </b-row>
+          <div v-if="this.conversionDirection === 'convertToEmulator'">
+            <input-file
+              @load="readRetron5SaveData($event)"
+              :errorMessage="this.errorMessage"
+            />
+          </div>
+          <div v-else>
+            <output-filename v-model="outputFilename"/>
+          </div>
         </b-col>
         <b-col sm=12 md=1 align-self="center">
-          <mq-layout mq="md+">
-            <font-awesome-icon icon="arrow-circle-right" size="3x"/>
-          </mq-layout>
-          <mq-layout :mq="['xs', 'sm']">
-            <font-awesome-icon icon="arrow-circle-down" size="3x"/>
-          </mq-layout>
+          <conversion-direction
+            :horizontalLayout="['md', 'lg', 'xl']"
+            :verticalLayout="['xs', 'sm']"
+            :conversionDirection="this.conversionDirection"
+            @change="changeConversionDirection($event)"
+          />
         </b-col>
         <b-col sm=12 md=5 align-self="center">
           <b-row no-gutters align-h="center" align-v="center">
@@ -39,11 +36,15 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <b-row no-gutters align-h="center" align-v="center">
-            <b-col cols=12>
-              <input v-model="outputFilenameEmulator" placeholder="Output filename">
-            </b-col>
-          </b-row>
+          <div v-if="this.conversionDirection === 'convertToEmulator'">
+            <output-filename v-model="outputFilename"/>
+          </div>
+          <div v-else>
+            <input-file
+              @load="readEmulatorSaveData($event)"
+              :errorMessage="this.errorMessage"
+            />
+          </div>
         </b-col>
       </b-row>
       <b-row class="justify-content-md-center">
@@ -51,7 +52,7 @@
           <b-button
             variant="success"
             block
-            :disabled="!this.retron5SaveData || !outputFilenameEmulator"
+            :disabled="!this.retron5SaveData || !outputFilename"
             @click="convertFile()"
           >
           Convert!
@@ -65,57 +66,68 @@
 <script>
 import path from 'path';
 import { saveAs } from 'file-saver';
-import FileReader from './FileReader.vue';
+import InputFile from './InputFile.vue';
+import OutputFilename from './OutputFilename.vue';
+import ConversionDirection from './ConversionDirection.vue';
 import Retron5SaveData from '../save-formats/Retron5';
 
 export default {
   name: 'ConvertRetron5',
   data() {
     return {
-      errorMessage: null,
       retron5SaveData: null,
-      outputFilenameEmulator: '',
+      errorMessage: null,
+      outputFilename: null,
+      conversionDirection: 'convertToEmulator',
     };
   },
   components: {
-    FileReader,
+    ConversionDirection,
+    InputFile,
+    OutputFilename,
   },
   methods: {
+    changeConversionDirection(newDirection) {
+      this.conversionDirection = newDirection;
+      this.retron5SaveData = null;
+      this.errorMessage = null;
+      this.outputFilename = null;
+    },
+    changeFilenameExtension(filename, newExtension) {
+      return `${path.basename(filename, path.extname(filename))}.${newExtension}`;
+    },
     readRetron5SaveData(event) {
+      this.errorMessage = null;
       try {
-        this.retron5SaveData = new Retron5SaveData(event.arrayBuffer);
+        this.retron5SaveData = Retron5SaveData.createFromRetron5Data(event.arrayBuffer);
       } catch (e) {
         this.errorMessage = e.message;
         this.retron5SaveData = null;
       }
-      this.outputFilenameEmulator = `${path.basename(event.filename, path.extname(event.filename))}.srm`;
+      this.outputFilename = this.changeFilenameExtension(event.filename, 'srm');
+    },
+    readEmulatorSaveData(event) {
+      this.errorMessage = null;
+      try {
+        this.retron5SaveData = Retron5SaveData.createFromEmulatorData(event.arrayBuffer);
+      } catch (e) {
+        this.errorMessage = e.message;
+        this.retron5SaveData = null;
+      }
+      this.outputFilename = this.changeFilenameExtension(event.filename, 'sav');
     },
     convertFile() {
-      const rawSaveDataArrayBuffer = this.retron5SaveData.getRawSaveData();
+      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.retron5SaveData.getRawSaveData() : this.retron5SaveData.getArrayBuffer();
 
-      const rawSaveDataBlob = new Blob([rawSaveDataArrayBuffer], { type: 'application/octet-stream' });
+      const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 
-      saveAs(rawSaveDataBlob, this.outputFilenameEmulator); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
+      saveAs(outputBlob, this.outputFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
     },
   },
 };
 
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+
 </style>

@@ -1,7 +1,5 @@
 <template>
-  <label class="text-reader">
-    <b-form-file @input="loadFile" v-model="file"/>
-  </label>
+  <b-form-file @input="loadFile" v-model="file" class="text-left"/>
 </template>
 
 <script>

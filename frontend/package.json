@@ -56,7 +56,18 @@
     "parserOptions": {
       "parser": "babel-eslint"
     },
-    "rules": {},
+    "rules": {
+      "max-len": [
+        "error",
+        {
+          "code": 200,
+          "tabWidth": 2,
+          "ignoreComments": true,
+          "ignoreTrailingComments": true,
+          "ignoreUrls": true
+        }
+      ]
+    },
     "overrides": [
       {
         "files": [

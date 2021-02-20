@@ -21,6 +21,9 @@ import {
   FormFilePlugin,
   JumbotronPlugin,
   ButtonPlugin,
+  FormRadioPlugin,
+  FormGroupPlugin,
+  FormInputPlugin,
 } from 'bootstrap-vue';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -31,3 +34,6 @@ Vue.use(AlertPlugin);
 Vue.use(FormFilePlugin);
 Vue.use(JumbotronPlugin);
 Vue.use(ButtonPlugin);
+Vue.use(FormRadioPlugin);
+Vue.use(FormGroupPlugin);
+Vue.use(FormInputPlugin);

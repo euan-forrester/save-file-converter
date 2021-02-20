@@ -1,6 +1,6 @@
 import Vue from 'vue';
 
-import { library } from '@fortawesome/fontawesome-svg-core';
+import { library, dom } from '@fortawesome/fontawesome-svg-core';
 import {
   faArrowCircleLeft,
   faArrowCircleRight,
@@ -16,3 +16,6 @@ library.add(faArrowCircleUp);
 library.add(faArrowCircleDown);
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);
+
+// This will kick of the initial replacement of i to svg tags and configure a MutationObserver
+dom.watch();
