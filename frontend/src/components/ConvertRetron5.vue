@@ -97,6 +97,7 @@ export default {
       return `${path.basename(filename, path.extname(filename))}.${newExtension}`;
     },
     readRetron5SaveData(event) {
+      this.errorMessage = null;
       try {
         this.retron5SaveData = Retron5SaveData.createFromRetron5Data(event.arrayBuffer);
       } catch (e) {
@@ -106,6 +107,7 @@ export default {
       this.outputFilename = this.changeFilenameExtension(event.filename, 'srm');
     },
     readEmulatorSaveData(event) {
+      this.errorMessage = null;
       try {
         this.retron5SaveData = Retron5SaveData.createFromEmulatorData(event.arrayBuffer);
       } catch (e) {
