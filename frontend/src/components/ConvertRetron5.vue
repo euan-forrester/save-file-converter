@@ -20,7 +20,7 @@
             <output-filename v-model="outputFilename"/>
           </div>
         </b-col>
-        <b-col sm=12 md=1 align-self="center">
+        <b-col sm=12 md=2 lg=1 xl=1 align-self="center">
           <conversion-direction
             :horizontalLayout="['md', 'lg', 'xl']"
             :verticalLayout="['xs', 'sm']"
