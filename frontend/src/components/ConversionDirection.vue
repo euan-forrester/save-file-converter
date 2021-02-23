@@ -31,6 +31,7 @@
 <style scoped>
 
 .horizontal-arrangement {
+  margin-top: -45px;
   margin-left: 10px;
   margin-right: 10px;
 }
