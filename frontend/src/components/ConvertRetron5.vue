@@ -47,9 +47,10 @@
           </div>
         </b-col>
       </b-row>
-      <b-row class="justify-content-md-center">
-        <b-col sm=4 md=4 lg=2 align-self="center">
+      <b-row class="justify-content-md-center" align-h="center">
+        <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
           <b-button
+            class="convert-button"
             variant="success"
             block
             :disabled="!this.retron5SaveData || !outputFilename"
@@ -129,5 +130,9 @@ export default {
 </script>
 
 <style scoped>
+
+.convert-button {
+  margin-top: 10px;
+}
 
 </style>
