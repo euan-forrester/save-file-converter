@@ -24,6 +24,7 @@ import {
   FormRadioPlugin,
   FormGroupPlugin,
   FormInputPlugin,
+  LinkPlugin,
 } from 'bootstrap-vue';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -37,3 +38,4 @@ Vue.use(ButtonPlugin);
 Vue.use(FormRadioPlugin);
 Vue.use(FormGroupPlugin);
 Vue.use(FormInputPlugin);
+Vue.use(LinkPlugin);
