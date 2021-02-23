@@ -20,7 +20,7 @@
             <output-filename v-model="outputFilename"/>
           </div>
         </b-col>
-        <b-col sm=12 md=1 align-self="center">
+        <b-col sm=12 md=2 lg=2 xl=2 align-self="center">
           <conversion-direction
             :horizontalLayout="['md', 'lg', 'xl']"
             :verticalLayout="['xs', 'sm']"
@@ -47,9 +47,10 @@
           </div>
         </b-col>
       </b-row>
-      <b-row class="justify-content-md-center">
-        <b-col sm=4 md=4 lg=2 align-self="center">
+      <b-row class="justify-content-md-center" align-h="center">
+        <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
           <b-button
+            class="convert-button"
             variant="success"
             block
             :disabled="!this.retron5SaveData || !outputFilename"
@@ -62,6 +63,14 @@
     </b-container>
   </div>
 </template>
+
+<style scoped>
+
+.convert-button {
+  margin-top: 15px;
+}
+
+</style>
 
 <script>
 import path from 'path';
@@ -127,7 +136,3 @@ export default {
 };
 
 </script>
-
-<style scoped>
-
-</style>

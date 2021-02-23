@@ -1,7 +1,7 @@
 <template>
   <div>
     <mq-layout :mq="this.horizontalLayout">
-      <b-form-group v-slot="{ ariaDescribedby }">
+      <b-form-group class="horizontal-arrangement" v-slot="{ ariaDescribedby }">
         <b-form-radio-group
           v-model="conversionDirectionInternal"
           :options="optionsHorizontal"
@@ -14,7 +14,7 @@
       </b-form-group>
     </mq-layout>
     <mq-layout :mq="this.verticalLayout">
-      <b-form-group v-slot="{ ariaDescribedby }">
+      <b-form-group class="vertical-arrangement" v-slot="{ ariaDescribedby }">
         <b-form-radio-group
           v-model="conversionDirectionInternal"
           :options="optionsVertical"
@@ -27,6 +27,20 @@
     </mq-layout>
   </div>
 </template>
+
+<style scoped>
+
+.horizontal-arrangement {
+  margin-top: -45px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.vertical-arrangement {
+  margin-top: 15px;
+}
+
+</style>
 
 <script>
 export default {
