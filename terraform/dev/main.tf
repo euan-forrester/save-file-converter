@@ -7,7 +7,7 @@ module "frontend" {
 
   bucketname_user_string = var.bucketname_user_string
 
-  application_name   = var.application_name
+  application_name      = var.application_name
 
   days_to_keep_old_versions = 1
 
@@ -25,11 +25,11 @@ module "alarms" {
   topic_name        = var.application_name
   alarms_email      = var.alarms_email
 
-  bucket_name = module.frontend.bucket_name
+  bucket_name       = module.frontend.bucket_name
   bucket_metrics_filter_id = module.frontend.bucket_metrics_filter_id
   s3_access_alarm_threshold = 1
 
-  enable_alarms     = true
+  enable_alarms     = false
 }
 
 module "dashboard" {
@@ -40,6 +40,6 @@ module "dashboard" {
 
   application_name  = var.application_name
 
-  bucket_name = module.frontend.bucket_name
+  bucket_name       = module.frontend.bucket_name
   bucket_metrics_filter_id = module.frontend.bucket_metrics_filter_id
 }
