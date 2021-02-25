@@ -18,6 +18,6 @@ resource "aws_cloudwatch_metric_alarm" "s3_access" {
 
   dimensions = {
     BucketName = var.bucket_name
-    FilterId = var.bucket_metrics_filter_id # "RequestsIndexHtml" # var.bucket_metrics_filter_id
+    FilterId = var.bucket_metrics_filter_id
   }
 }
