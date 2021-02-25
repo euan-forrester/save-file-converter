@@ -15,3 +15,17 @@ module "frontend" {
   retain_frontend_access_logs_after_destroy = false # For dev, we don't care about retaining these logs after doing a terraform destroy
   days_to_keep_frontend_access_logs         = 1
 }
+
+module "alarms" {
+  source = "../modules/alarms"
+
+  environment       = var.environment
+  region            = var.region
+
+  topic_name        = var.application_name
+  alarms_email      = var.alarms_email
+
+  s3_access_alarm_threshold = 1
+
+  enable_alarms     = true
+}

@@ -40,6 +40,25 @@ resource "aws_s3_bucket" "frontend" {
   }
 }
 
+resource "aws_s3_bucket_metric" "frontend" {
+  bucket = aws_s3_bucket.frontend.bucket
+  name   = "GetRequests"
+
+  filter {
+    prefix = "index.html"
+  }
+}
+
+locals {
+  # This value is needed to get CloudWatch metrics using the filter above. 
+  # I can't figure out where this value comes from though -- it just 
+  # appears in CloudWatch and I can't find it anywhere else
+  #
+  # aws_s3_bucket_matric.frontend.id is "save-file-converter-dev:GetRequests", and
+  # aws_s3_bucket_matric.frontend.name is "GetRequests"
+  bucket_filter_id = "RequestsIndexHtml" 
+}
+
 resource "aws_s3_bucket_public_access_block" "frontend" {
   bucket = aws_s3_bucket.frontend.id
 

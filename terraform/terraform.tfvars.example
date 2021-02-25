@@ -1,3 +1,4 @@
 # This is added to the various bucket names so that they don't conflict with other instances of this project
 # e.g. if it's set to "-dave-" then the bucket "sample-project-dev" will become "sample-project-dave-dev"
 bucketname_user_string = ""
+alarms_email = ""
