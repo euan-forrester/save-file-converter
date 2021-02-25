@@ -16,3 +16,6 @@ variable "application_name" {
 
 variable "bucketname_user_string" {
 }
+
+variable "alarms_email" {
+}

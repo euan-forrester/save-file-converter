@@ -11,8 +11,11 @@ variable "environment_long_name" {
 }
 
 variable "application_name" {
-  default = "sample-project"
+  default = "save-file-converter"
 }
 
 variable "bucketname_user_string" {
+}
+
+variable "alarms_email" {
 }

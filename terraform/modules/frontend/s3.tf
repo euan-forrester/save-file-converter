@@ -40,6 +40,15 @@ resource "aws_s3_bucket" "frontend" {
   }
 }
 
+resource "aws_s3_bucket_metric" "frontend" {
+  bucket = aws_s3_bucket.frontend.bucket
+  name   = "GetRequests"
+
+  filter {
+    prefix = "index.html"
+  }
+}
+
 resource "aws_s3_bucket_public_access_block" "frontend" {
   bucket = aws_s3_bucket.frontend.id
 
