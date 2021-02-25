@@ -1,5 +1,5 @@
 <template>
-  <b-form-file @input="loadFile" v-model="file" class="text-left"/>
+  <b-form-file @input="loadFile" v-model="file" class="text-left" placeholder="Choose a file to convert"/>
 </template>
 
 <script>
