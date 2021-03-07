@@ -59,7 +59,7 @@ resource "aws_s3_bucket_public_access_block" "frontend" {
   # and trying to go to the website link for this bucket gives a 403 forbidden (as desired)
   # I wrote up an issue here: https://github.com/multiplegeorges/vue-cli-plugin-s3-deploy/issues/79
   block_public_policy     = true
-  ignore_public_acls      = true
+  ignore_public_acls      = var.use_custom_domain # Need to be able to access this bucket publicly in dev if there's no CloudFront in front of it
   restrict_public_buckets = true
 }
 

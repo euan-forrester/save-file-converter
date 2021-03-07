@@ -13,6 +13,7 @@ locals {
 }
 
 resource "aws_cloudfront_distribution" "application" {
+  count               = var.use_custom_domain ? 1 : 0
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"

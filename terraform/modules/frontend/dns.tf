@@ -43,8 +43,8 @@ resource "aws_route53_record" "cloudfront-ipv4" {
   type    = "A"
 
   alias {
-    zone_id = aws_cloudfront_distribution.application.hosted_zone_id
-    name = aws_cloudfront_distribution.application.domain_name
+    zone_id = element(concat(aws_cloudfront_distribution.application.*.hosted_zone_id, [""]), 0)
+    name = element(concat(aws_cloudfront_distribution.application.*.domain_name, [""]), 0)
     evaluate_target_health = false
   }
 }
@@ -56,8 +56,8 @@ resource "aws_route53_record" "cloudfront-ipv6" {
   type    = "AAAA"
 
   alias {
-    zone_id = aws_cloudfront_distribution.application.hosted_zone_id
-    name = aws_cloudfront_distribution.application.domain_name
+    zone_id = element(concat(aws_cloudfront_distribution.application.*.hosted_zone_id, [""]), 0)
+    name = element(concat(aws_cloudfront_distribution.application.*.domain_name, [""]), 0)
     evaluate_target_health = false
   }
 }
