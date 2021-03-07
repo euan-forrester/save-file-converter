@@ -19,3 +19,9 @@ variable "bucketname_user_string" {
 
 variable "alarms_email" {
 }
+
+variable "application_domain" {
+}
+
+variable "route_53_zone_id" {
+}

@@ -25,3 +25,13 @@ variable "days_to_keep_frontend_access_logs" {
 
 variable "bucketname_user_string" {
 }
+
+variable "use_custom_domain" {
+  type = bool
+}
+
+variable "application_domain" {
+}
+
+variable "zone_id" {
+}

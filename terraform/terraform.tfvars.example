@@ -2,3 +2,5 @@
 # e.g. if it's set to "-dave-" then the bucket "sample-project-dev" will become "sample-project-dave-dev"
 bucketname_user_string = ""
 alarms_email = ""
+application_domain = ""
+route_53_zone_id = "" # Zone created by Route 53 for our application domain
