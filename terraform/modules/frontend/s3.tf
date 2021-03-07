@@ -59,8 +59,45 @@ resource "aws_s3_bucket_public_access_block" "frontend" {
   # and trying to go to the website link for this bucket gives a 403 forbidden (as desired)
   # I wrote up an issue here: https://github.com/multiplegeorges/vue-cli-plugin-s3-deploy/issues/79
   block_public_policy     = true
-  ignore_public_acls      = false # Needed to allow bucket hosting to work. Set back to false if we put CloudFront in front of this bucket and no longer want people ot be able to access it directly
+  ignore_public_acls      = true
   restrict_public_buckets = true
+}
+
+# We need to give the cloudfront user the ability to read from this bucket, and our current
+# user the ability to write to it
+
+# Setting the acl to "bucket-owner-full-control" gives the *account* owner full control, but no control
+# to the IAM user who created the bucket. That's the same IAM user who will be deploying files
+# into this bucket, so it needs an individual permission
+
+data "aws_caller_identity" "current" {
+}
+
+data "aws_iam_policy_document" "allow_cloudfront_and_current_user" {
+  statement {
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.frontend.arn}/*"]
+
+    principals {
+      type        = "AWS"
+      identifiers = [aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn]
+    }
+  }
+
+  statement {
+    actions   = ["s3:ListBucket"]
+    resources = [aws_s3_bucket.frontend.arn]
+
+    principals {
+      type        = "AWS"
+      identifiers = [aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "frontend_cloudfront_current_user" {
+  bucket = aws_s3_bucket.frontend.id
+  policy = data.aws_iam_policy_document.allow_cloudfront_and_current_user.json
 }
 
 resource "aws_s3_bucket" "frontend_access_logs" {

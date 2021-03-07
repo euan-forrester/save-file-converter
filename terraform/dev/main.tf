@@ -14,6 +14,10 @@ module "frontend" {
   frontend_access_logs_bucket               = "${var.application_name}-frontend-access-logs"
   retain_frontend_access_logs_after_destroy = false # For dev, we don't care about retaining these logs after doing a terraform destroy
   days_to_keep_frontend_access_logs         = 1
+
+  use_custom_domain     = false
+  application_domain    = var.application_domain
+  zone_id               = var.route_53_zone_id
 }
 
 module "alarms" {

@@ -33,6 +33,8 @@ Note: Run terraform with the environment variable `TF_LOG=1` to help debug permi
 
 For convenience we will create a symlink to our `terraform.tfvars` file. You can also import these variables from the command line when you run terraform if you prefer.
 
+In your `terraform.tfvars` file, fill in the various parts. If you choose to create a domain, do so manually in the AWS console, then put the domain name and Route 53 Zone ID created by Route 53 into this file.
+
 ```
 cd terraform/dev
 ln -s ../terraform.tfvars terraform.tfvars
