@@ -2,7 +2,7 @@
 
 Web-based tool to convert save files from retro game consoles to different formats
 
-![Retron 5 conversion](https://github.com/euan-forrester/save-file-converter/raw/master/images/Retron5-window.png "Retron 5 conversion")
+![Retron 5 conversion](https://github.com/euan-forrester/save-file-converter/raw/main/images/Retron5-window.png "Retron 5 conversion")
 
 Production instance found at https://savefileconverter.com
 
