@@ -69,20 +69,20 @@ export default class Retron5SaveData {
     // First make sure that the stuff in the header all makes sense
 
     if (this.getMagic() !== MAGIC) {
-      throw new Error(`Invalid data format: magic doesn't match. Expected 0x${MAGIC.toString(16)} but found 0x${this.getMagic().toString(16)}`);
+      throw new Error('This does not appear to be a Retron5 save file');
     }
 
     if (this.getFormatVersion() > FORMAT_VERSION) {
-      throw new Error(`Unrecognized format version found in data. Expected version ${FORMAT_VERSION} or less, but found version ${this.getFormatVersion()}`);
+      throw new Error('Sorry this tool does not support this format of Retron5 save files');
     }
 
     if (this.getDataOffset() !== DATA_HEADER_SIZE) {
-      throw new Error(`Invalid data format: expected header size of ${DATA_HEADER_SIZE} bytes but found header size of ${this.getDataOffset()} bytes`);
+      throw new Error('Sorry this file appears to be corrupted');
     }
 
     const packedDataSize = this.arrayBuffer.byteLength - DATA_HEADER_SIZE;
     if (this.getPackedSize() !== packedDataSize) {
-      throw new Error(`Invalid data format: expected packed data size of ${this.getPackedSize()} bytes but found packed data size of ${packedDataSize} bytes`);
+      throw new Error('Sorry this file appears to be corrupted');
     }
 
     // Now decompress the saved data and check its size and CRC32
@@ -93,13 +93,13 @@ export default class Retron5SaveData {
     }
 
     if (rawSaveData.byteLength !== this.getOriginalSize()) {
-      throw new Error(`Found save buffer of ${rawSaveData.byteLength} bytes but expected ${this.getOriginalSize()} bytes`);
+      throw new Error('Sorry this file appears to be corrupted');
     }
 
     const checksum = crc32.buf(rawSaveData) >>> 0; // '>>> 0' interprets the result as an unsigned integer: https://stackoverflow.com/questions/1822350/what-is-the-javascript-operator-and-how-do-you-use-it
 
     if (checksum !== this.getCrc32()) {
-      throw new Error(`Expected CRC32 of 0x${this.getCrc32().toString(16)} for save data, but found 0x${checksum.toString(16)}`);
+      throw new Error('Sorry this file appears to be corrupted');
     }
 
     // Everything looks good
