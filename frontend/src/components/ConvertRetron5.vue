@@ -60,6 +60,13 @@
           </b-button>
         </b-col>
       </b-row>
+      <b-row>
+        <b-col>
+          <div class="help">
+            Help: how do I&nbsp;<b-link href="https://projectpokemon.org/home/tutorials/save-editing/managing-gb-gbc-saves/using-the-retron-5-r53/">copy files to and from my Retron 5</b-link>?
+          </div>
+        </b-col>
+      </b-row>
     </b-container>
   </div>
 </template>
@@ -70,6 +77,9 @@
   margin-top: 15px;
 }
 
+.help {
+  margin-top: 30px;
+}
 </style>
 
 <script>
