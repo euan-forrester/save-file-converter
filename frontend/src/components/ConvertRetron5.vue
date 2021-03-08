@@ -1,9 +1,9 @@
 <template>
   <div>
     <b-container>
-      <b-row no-gutters align-h="center" align-v="center">
+      <b-row no-gutters align-h="center" align-v="start">
         <b-col sm=12 md=5 align-self="center">
-          <b-row no-gutters align-h="center" align-v="center">
+          <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
               <b-jumbotron :header-level="$mq | mq({ xs: 5, sm: 4, md: 4, lg: 3 })">
                 <template v-slot:header>Retron 5</template>
@@ -20,7 +20,7 @@
             <output-filename v-model="outputFilename"/>
           </div>
         </b-col>
-        <b-col sm=12 md=2 lg=2 xl=2 align-self="center">
+        <b-col sm=12 md=2 lg=2 xl=2 align-self="start">
           <conversion-direction
             :horizontalLayout="['md', 'lg', 'xl']"
             :verticalLayout="['xs', 'sm']"
@@ -28,8 +28,8 @@
             @change="changeConversionDirection($event)"
           />
         </b-col>
-        <b-col sm=12 md=5 align-self="center">
-          <b-row no-gutters align-h="center" align-v="center">
+        <b-col sm=12 md=5 align-self="start">
+          <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
               <b-jumbotron :header-level="$mq | mq({ xs: 5, sm: 4, md: 4, lg: 3 })">
                 <template v-slot:header>Emulator</template>
@@ -109,21 +109,21 @@ export default {
       this.errorMessage = null;
       try {
         this.retron5SaveData = Retron5SaveData.createFromRetron5Data(event.arrayBuffer);
+        this.outputFilename = this.changeFilenameExtension(event.filename, 'srm');
       } catch (e) {
         this.errorMessage = e.message;
         this.retron5SaveData = null;
       }
-      this.outputFilename = this.changeFilenameExtension(event.filename, 'srm');
     },
     readEmulatorSaveData(event) {
       this.errorMessage = null;
       try {
         this.retron5SaveData = Retron5SaveData.createFromEmulatorData(event.arrayBuffer);
+        this.outputFilename = this.changeFilenameExtension(event.filename, 'sav');
       } catch (e) {
         this.errorMessage = e.message;
         this.retron5SaveData = null;
       }
-      this.outputFilename = this.changeFilenameExtension(event.filename, 'sav');
     },
     convertFile() {
       const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.retron5SaveData.getRawSaveData() : this.retron5SaveData.getArrayBuffer();
