@@ -7,7 +7,7 @@
     </div>
     <br/>
     <div>
-      Keep up with news and upcoming features at:
+      Keep up with news and upcoming features (or contribute code!):
       <b-link href="https://github.com/euan-forrester/save-file-converter">
         https://github.com/euan-forrester/save-file-converter
       </b-link>
