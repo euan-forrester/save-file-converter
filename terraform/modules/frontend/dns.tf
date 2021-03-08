@@ -38,7 +38,7 @@ resource "aws_acm_certificate_validation" "cert" {
 
 resource "aws_route53_record" "cloudfront-ipv4" {
   count   = var.use_custom_domain ? 1 : 0
-  name    = ""
+  name    = "" # This is the subdomain, so we'll leave this blank
   zone_id = var.zone_id
   type    = "A"
 
@@ -51,7 +51,7 @@ resource "aws_route53_record" "cloudfront-ipv4" {
 
 resource "aws_route53_record" "cloudfront-ipv6" {
   count   = var.use_custom_domain ? 1 : 0
-  name    = ""
+  name    = "" # This is the subdomain, so we'll leave this blank
   zone_id = var.zone_id
   type    = "AAAA"
 
