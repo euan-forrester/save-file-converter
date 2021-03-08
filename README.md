@@ -1,14 +1,35 @@
-# save-file-converter
+# Save File Converter
+
 Web-based tool to convert save files from retro game consoles to different formats
 
-- Retron5 save file format: https://www.retro5.net/viewtopic.php?f=5&t=67&start=10
-- PSP PS1 virtual memory card format: https://psdevwiki.com/ps3/PS1_Savedata#Virtual_Memory_Card_PSP_.28.VMP.29
+![Retron 5 conversion](https://github.com/euan-forrester/save-file-converter/raw/master/images/Retron5-window.png "Retron 5 conversion")
 
-## Instructions
+Production instance found at https://savefileconverter.com
+
+Instructions:
+1. Find the file you want to convert to or from the Retron 5 format. See instructions here for how to get files off of or onto the Retron 5: https://projectpokemon.org/home/tutorials/save-editing/managing-gb-gbc-saves/using-the-retron-5-r53/
+2. Click the arrow for which way you want to do the conversion
+3. Choose the file to convert
+4. Change the output filename if necessary
+5. Click Convert!
+
+## Upcoming features
+
+- Convert PS1 saves to/from PSP/PS3 virtual memory cards
+- Convert Retro Freak files
+- I need suggestions!
+
+## Save file formats
+
+- Retron5: https://www.retro5.net/viewtopic.php?f=5&t=67&start=10
+- PSP PS1 virtual memory card: https://psdevwiki.com/ps3/PS1_Savedata#Virtual_Memory_Card_PSP_.28.VMP.29
+- PS3 PS1 virtual memory card: https://psdevwiki.com/ps3/PS1_Savedata#Virtual_Memory_Card_PS1_.28.VM1.29
+
+## Deployment instructions
 
 ### Backend setup: AWS and terraform
 
-First we need to create the infrastructure that the various parts of the system will run on
+First we need to create the infrastructure that the system will run on
 
 #### Install packages
 
@@ -33,7 +54,7 @@ Note: Run terraform with the environment variable `TF_LOG=1` to help debug permi
 
 For convenience we will create a symlink to our `terraform.tfvars` file. You can also import these variables from the command line when you run terraform if you prefer.
 
-In your `terraform.tfvars` file, fill in the various parts. If you choose to create a domain, do so manually in the AWS console, then put the domain name and Route 53 Zone ID created by Route 53 into this file.
+In your `terraform.tfvars` file, fill in the various parts. If you choose to create a domain, do so manually in the AWS console then put the domain name and Route 53 Zone ID created by Route 53 into this file.
 
 ```
 cd terraform/dev
@@ -69,7 +90,13 @@ Edit the bucket names in `frontend/vue.config.js` and `frontend/.env.production`
 yarn build --mode development
 yarn deploy --mode development
 ```
+and for production:
+```
+yarn build --mode production
+yarn deploy --mode production
+yarn deploy:cleanup --mode production
+```
 
-Go into S3 to get the domain for our bucket. 
+Go into S3 to get the domain for your bucket. 
 
 Point your browser there and enjoy!
