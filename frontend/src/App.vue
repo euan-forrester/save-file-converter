@@ -2,6 +2,7 @@
   <div id="app">
     <div id="nav">
       <router-link to="/">Retron 5</router-link> |
+      <router-link to="/other-converters">Other converters</router-link> |
       <router-link to="/about">About</router-link>
     </div>
     <router-view/>

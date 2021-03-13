@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
+import OtherConverters from '../views/OtherConverters.vue';
 
 Vue.use(VueRouter);
 
@@ -9,6 +10,11 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home,
+  },
+  {
+    path: '/other-converters',
+    name: 'OtherConverters',
+    component: OtherConverters,
   },
   {
     path: '/about',
