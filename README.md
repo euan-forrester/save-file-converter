@@ -24,6 +24,13 @@ Instructions:
 - Retron5: https://www.retro5.net/viewtopic.php?f=5&t=67&start=10
 - PSP PS1 virtual memory card: https://psdevwiki.com/ps3/PS1_Savedata#Virtual_Memory_Card_PSP_.28.VMP.29
 - PS3 PS1 virtual memory card: https://psdevwiki.com/ps3/PS1_Savedata#Virtual_Memory_Card_PS1_.28.VM1.29
+- MemcardRex format: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs
+- DexDrive format (?): https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/Hardware/DexDrive.cs
+- GameShark format (GBA, partial): https://gbatemp.net/threads/converting-gsv-or-sps-files-to-sav.51838/#post-664786
+- GameShark format (GBA [reading], partial): https://github.com/visualboyadvance-m/visualboyadvance-m/blob/master/src/gba/GBA.cpp#L1025
+- GameShark format (GBA [writing], partial): https://github.com/visualboyadvance-m/visualboyadvance-m/blob/master/src/gba/GBA.cpp#L1146
+- GameShark SP format (GBA [reading], partial): https://github.com/visualboyadvance-m/visualboyadvance-m/blob/master/src/gba/GBA.cpp#L1078
+- GameShark format (PS2, partial): https://www.ps2savetools.com/documents/xps-format/
 
 ## Deployment instructions
 
