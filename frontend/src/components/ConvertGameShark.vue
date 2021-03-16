@@ -6,13 +6,13 @@
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
               <b-jumbotron :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 4 })">
-                <template v-slot:header>Retron 5</template>
+                <template v-slot:header>GameShark</template>
               </b-jumbotron>
             </b-col>
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'">
             <input-file
-              @load="readRetron5SaveData($event)"
+              @load="readGameSharkSaveData($event)"
               :errorMessage="this.errorMessage"
             />
           </div>
@@ -53,7 +53,7 @@
             class="convert-button"
             variant="success"
             block
-            :disabled="!this.retron5SaveData || !outputFilename"
+            :disabled="!this.gameSharkSaveData || !outputFilename"
             @click="convertFile()"
           >
           Convert!
@@ -63,7 +63,7 @@
       <b-row>
         <b-col>
           <div class="help">
-            Help: how do I&nbsp;<b-link href="https://projectpokemon.org/home/tutorials/save-editing/managing-gb-gbc-saves/using-the-retron-5-r53/">copy files to and from my Retron 5</b-link>?
+            Help: how do I&nbsp;<b-link href="https://gamehacking.org/vb/forum/video-game-hacking-and-development/school-of-hacking/14153-gameshark-advance-and-color-save-backup">copy files to and from my GameShark</b-link>?
           </div>
         </b-col>
       </b-row>
@@ -88,13 +88,13 @@ import { saveAs } from 'file-saver';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
-import Retron5SaveData from '../save-formats/Retron5';
+import GameSharkSaveData from '../save-formats/GameShark';
 
 export default {
-  name: 'ConvertRetron5',
+  name: 'ConvertGameShark',
   data() {
     return {
-      retron5SaveData: null,
+      gameSharkSaveData: null,
       errorMessage: null,
       outputFilename: null,
       conversionDirection: 'convertToEmulator',
@@ -108,7 +108,7 @@ export default {
   methods: {
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
-      this.retron5SaveData = null;
+      this.gameSharkSaveData = null;
       this.errorMessage = null;
       this.outputFilename = null;
     },
@@ -118,25 +118,25 @@ export default {
     readRetron5SaveData(event) {
       this.errorMessage = null;
       try {
-        this.retron5SaveData = Retron5SaveData.createFromRetron5Data(event.arrayBuffer);
+        this.gameSharkSaveData = GameSharkSaveData.createFromGameSharkData(event.arrayBuffer);
         this.outputFilename = this.changeFilenameExtension(event.filename, 'srm');
       } catch (e) {
         this.errorMessage = e.message;
-        this.retron5SaveData = null;
+        this.gameSharkSaveData = null;
       }
     },
     readEmulatorSaveData(event) {
       this.errorMessage = null;
       try {
-        this.retron5SaveData = Retron5SaveData.createFromEmulatorData(event.arrayBuffer);
-        this.outputFilename = this.changeFilenameExtension(event.filename, 'sav');
+        this.gameSharkSaveData = GameSharkSaveData.createFromEmulatorData(event.arrayBuffer);
+        this.outputFilename = this.changeFilenameExtension(event.filename, 'sps');
       } catch (e) {
         this.errorMessage = e.message;
-        this.retron5SaveData = null;
+        this.gameSharkSaveData = null;
       }
     },
     convertFile() {
-      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.retron5SaveData.getRawSaveData() : this.retron5SaveData.getArrayBuffer();
+      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.gameSharkSaveData.getRawSaveData() : this.gameSharkSaveData.getArrayBuffer();
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 
