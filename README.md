@@ -29,6 +29,7 @@ Instructions:
 - GameShark format (GBA, partial): https://gbatemp.net/threads/converting-gsv-or-sps-files-to-sav.51838/#post-664786
 - GameShark format (GBA [reading], partial): https://github.com/visualboyadvance-m/visualboyadvance-m/blob/master/src/gba/GBA.cpp#L1025
 - GameShark format (GBA [writing], partial): https://github.com/visualboyadvance-m/visualboyadvance-m/blob/master/src/gba/GBA.cpp#L1146
+- GameShark format (partial): https://github.com/mgba-emu/mgba/blob/master/src/gba/sharkport.c
 - GameShark SP format (GBA [reading], partial): https://github.com/visualboyadvance-m/visualboyadvance-m/blob/master/src/gba/GBA.cpp#L1078
 - GameShark format (PS2, partial): https://www.ps2savetools.com/documents/xps-format/
 

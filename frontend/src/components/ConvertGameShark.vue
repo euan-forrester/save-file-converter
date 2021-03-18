@@ -44,6 +44,10 @@
               @load="readEmulatorSaveData($event)"
               :errorMessage="this.errorMessage"
             />
+            <input-file
+              @load="readRomData($event)"
+              :errorMessage="null"
+            />
           </div>
         </b-col>
       </b-row>
@@ -65,6 +69,9 @@
           <div class="help">
             Help: how do I&nbsp;<b-link href="https://gamehacking.org/vb/forum/video-game-hacking-and-development/school-of-hacking/14153-gameshark-advance-and-color-save-backup">copy files to and from my GameShark</b-link>?
           </div>
+          <div class="help">
+            Help: how do I copy save files to and from a GBA cartridge?<br><b-link href="https://github.com/FIX94/gba-link-cable-dumper">GBA + GameCube + link cable</b-link> or <b-link href="https://www.gc-forever.com/wiki/index.php?title=Game_Boy_Interface#GBA_dumper">GameCube + GameBoy Player</b-link> or <b-link href="https://projectpokemon.org/home/tutorials/save-editing/managing-gba-saves/using-gba-backup-tool-r55/">Nintendo DS</b-link>
+          </div>
         </b-col>
       </b-row>
     </b-container>
@@ -84,6 +91,7 @@
 
 <script>
 import path from 'path';
+import dayjs from 'dayjs';
 import { saveAs } from 'file-saver';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
@@ -95,6 +103,7 @@ export default {
   data() {
     return {
       gameSharkSaveData: null,
+      romData: null,
       errorMessage: null,
       outputFilename: null,
       conversionDirection: 'convertToEmulator',
@@ -109,13 +118,20 @@ export default {
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
       this.gameSharkSaveData = null;
+      this.romData = null;
       this.errorMessage = null;
       this.outputFilename = null;
     },
     changeFilenameExtension(filename, newExtension) {
       return `${path.basename(filename, path.extname(filename))}.${newExtension}`;
     },
-    readRetron5SaveData(event) {
+    removeFilenameExtension(filename) {
+      return `${path.basename(filename, path.extname(filename))}`;
+    },
+    readRomData(event) {
+      this.romData = event.arrayBuffer;
+    },
+    readGameSharkSaveData(event) {
       this.errorMessage = null;
       try {
         this.gameSharkSaveData = GameSharkSaveData.createFromGameSharkData(event.arrayBuffer);
@@ -128,7 +144,10 @@ export default {
     readEmulatorSaveData(event) {
       this.errorMessage = null;
       try {
-        this.gameSharkSaveData = GameSharkSaveData.createFromEmulatorData(event.arrayBuffer);
+        const title = this.removeFilenameExtension(event.filename);
+        const date = dayjs().format('DD/MM/YYYY hh:mm:ss a');
+        const notes = 'Created with savefileconverter.com';
+        this.gameSharkSaveData = GameSharkSaveData.createFromEmulatorData(event.arrayBuffer, title, date, notes, this.romData);
         this.outputFilename = this.changeFilenameExtension(event.filename, 'sps');
       } catch (e) {
         this.errorMessage = e.message;
