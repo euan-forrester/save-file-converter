@@ -73,7 +73,10 @@
             Help: how do I&nbsp;<b-link href="https://gamehacking.org/vb/forum/video-game-hacking-and-development/school-of-hacking/14153-gameshark-advance-and-color-save-backup">copy files to and from my GameShark</b-link>?
           </div>
           <div class="help">
-            Help: how do I copy save files to and from a GBA cartridge?<br><b-link href="https://github.com/FIX94/gba-link-cable-dumper">GBA + GameCube + link cable</b-link> or <b-link href="https://www.gc-forever.com/wiki/index.php?title=Game_Boy_Interface#GBA_dumper">GameCube + GameBoy Player</b-link> or <b-link href="https://projectpokemon.org/home/tutorials/save-editing/managing-gba-saves/using-gba-backup-tool-r55/">Nintendo DS</b-link>
+            Help: how do I copy save files to and from a GBA cartridge?<br><b-link href="https://github.com/FIX94/gba-link-cable-dumper">GBA + GameCube/Wii + link cable</b-link> or <b-link href="https://www.gc-forever.com/wiki/index.php?title=Game_Boy_Interface#GBA_dumper">GameCube + GameBoy Player</b-link> or <b-link href="https://projectpokemon.org/home/tutorials/save-editing/managing-gba-saves/using-gba-backup-tool-r55/">Nintendo DS</b-link> or <router-link to="/retron-5">Retron 5</router-link>
+          </div>
+          <div class="help">
+            Help: how do I run homebrew software on my <b-link href="https://www.gc-forever.com/wiki/index.php?title=Booting_Homebrew">GameCube</b-link>, <b-link href="https://wii.guide">Wii</b-link>, or <b-link href="https://www.google.com/search?q=best+r4+card+no+timebomb">Nintendo DS</b-link>?
           </div>
         </b-col>
       </b-row>
