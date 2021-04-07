@@ -14,6 +14,7 @@
             <input-file
               @load="readGameSharkSaveData($event)"
               :errorMessage="this.errorMessage"
+              placeholderText="Choose a file to convert"
             />
           </div>
           <div v-else>
@@ -43,10 +44,12 @@
             <input-file
               @load="readEmulatorSaveData($event)"
               :errorMessage="this.errorMessage"
+              placeholderText="Choose a file to convert"
             />
             <input-file
               @load="readRomData($event)"
               :errorMessage="null"
+              placeholderText="Choose the ROM for this file"
             />
           </div>
         </b-col>
@@ -135,7 +138,7 @@ export default {
       this.errorMessage = null;
       try {
         this.gameSharkSaveData = GameSharkSaveData.createFromGameSharkData(event.arrayBuffer);
-        this.outputFilename = this.changeFilenameExtension(event.filename, 'srm');
+        this.outputFilename = this.changeFilenameExtension(event.filename, 'sav');
       } catch (e) {
         this.errorMessage = e.message;
         this.gameSharkSaveData = null;

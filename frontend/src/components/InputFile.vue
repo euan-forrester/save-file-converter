@@ -2,7 +2,7 @@
   <div>
     <b-row no-gutters>
       <b-col cols=12>
-        <file-reader @load="$emit('load', $event)"></file-reader>
+        <file-reader @load="$emit('load', $event)" :placeholderText="this.placeholderText"></file-reader>
       </b-col>
     </b-row>
     <b-row no-gutters align-h="center" align-v="center">
@@ -25,6 +25,7 @@ export default {
   },
   props: [
     'errorMessage',
+    'placeholderText',
   ],
   data() {
     return {

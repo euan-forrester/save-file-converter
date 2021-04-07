@@ -14,6 +14,7 @@
             <input-file
               @load="readRetron5SaveData($event)"
               :errorMessage="this.errorMessage"
+              placeholderText="Choose a file to convert"
             />
           </div>
           <div v-else>
@@ -43,6 +44,7 @@
             <input-file
               @load="readEmulatorSaveData($event)"
               :errorMessage="this.errorMessage"
+              placeholderText="Choose a file to convert"
             />
           </div>
         </b-col>
