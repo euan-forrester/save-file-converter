@@ -33,6 +33,10 @@ Instructions:
 - GameShark SP format (GBA [reading], partial): https://github.com/visualboyadvance-m/visualboyadvance-m/blob/master/src/gba/GBA.cpp#L1078
 - GameShark format (PS2, partial): https://www.ps2savetools.com/documents/xps-format/
 
+## GBA save file size difficulty
+- https://zork.net/~st/jottings/GBA_saves.html
+- https://dillonbeliveau.com/2020/06/05/GBA-FLASH.html
+
 ## Deployment instructions
 
 ### Backend setup: AWS and terraform
