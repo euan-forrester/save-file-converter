@@ -19,6 +19,7 @@
           </div>
           <div v-else>
             <output-filename v-model="outputFilename"/>
+            <output-filesize v-model="outputFilesize"/>
           </div>
         </b-col>
         <b-col sm=12 md=2 lg=2 xl=2 align-self="start">
@@ -39,6 +40,7 @@
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'">
             <output-filename v-model="outputFilename"/>
+            <output-filesize v-model="outputFilesize"/>
           </div>
           <div v-else>
             <input-file
@@ -101,6 +103,7 @@ import dayjs from 'dayjs';
 import { saveAs } from 'file-saver';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
+import OutputFilesize from './OutputFilesize.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import GameSharkSaveData from '../save-formats/GameShark';
 
@@ -112,6 +115,7 @@ export default {
       romData: null,
       errorMessage: null,
       outputFilename: null,
+      outputFilesize: null,
       conversionDirection: 'convertToEmulator',
     };
   },
@@ -119,6 +123,7 @@ export default {
     ConversionDirection,
     InputFile,
     OutputFilename,
+    OutputFilesize,
   },
   methods: {
     changeConversionDirection(newDirection) {
