@@ -37,6 +37,9 @@ Instructions:
 - https://zork.net/~st/jottings/GBA_saves.html
 - https://dillonbeliveau.com/2020/06/05/GBA-FLASH.html
 
+## GBA save converter
+- https://github.com/libretro/vbam-libretro/blob/master/src/libretro/gbaconv/gbaconv.c
+
 ## Deployment instructions
 
 ### Backend setup: AWS and terraform
