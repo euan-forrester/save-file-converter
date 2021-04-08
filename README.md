@@ -32,13 +32,11 @@ Instructions:
 - GameShark format (partial): https://github.com/mgba-emu/mgba/blob/master/src/gba/sharkport.c
 - GameShark SP format (GBA [reading], partial): https://github.com/visualboyadvance-m/visualboyadvance-m/blob/master/src/gba/GBA.cpp#L1078
 - GameShark format (PS2, partial): https://www.ps2savetools.com/documents/xps-format/
+- PS2 memory card formats: http://www.csclub.uwaterloo.ca:11068/mymc/
 
 ## GBA save file size difficulty
 - https://zork.net/~st/jottings/GBA_saves.html
 - https://dillonbeliveau.com/2020/06/05/GBA-FLASH.html
-
-## GBA save converter
-- https://github.com/libretro/vbam-libretro/blob/master/src/libretro/gbaconv/gbaconv.c
 
 ## Deployment instructions
 
