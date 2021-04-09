@@ -136,6 +136,7 @@ export default {
       this.emulatorSaveDataFilename = null;
       this.errorMessage = null;
       this.outputFilename = null;
+      this.outputFilesize = null;
     },
     changeFilenameExtension(filename, newExtension) {
       return `${path.basename(filename, path.extname(filename))}.${newExtension}`;
