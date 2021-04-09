@@ -10,14 +10,14 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToEmulator'" class="inputs-row">
             <input-file
               @load="readGameSharkSaveData($event)"
               :errorMessage="this.errorMessage"
               placeholderText="Choose a file to convert"
             />
           </div>
-          <div v-else>
+          <div v-else class="inputs-row">
             <output-filename v-model="outputFilename"/>
             <output-filesize v-model="outputFilesize"/>
           </div>
@@ -38,11 +38,11 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToEmulator'" class="inputs-row">
             <output-filename v-model="outputFilename"/>
             <output-filesize v-model="outputFilesize"/>
           </div>
-          <div v-else>
+          <div v-else class="inputs-row">
             <input-file
               @load="readEmulatorSaveData($event)"
               :errorMessage="this.errorMessage"
@@ -95,6 +95,11 @@
 .help {
   margin-top: 1em;
 }
+
+.inputs-row {
+  min-height: 4.8em;
+}
+
 </style>
 
 <script>
