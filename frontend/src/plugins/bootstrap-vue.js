@@ -26,6 +26,7 @@ import {
   FormInputPlugin,
   LinkPlugin,
   FormSelectPlugin,
+  PopoverPlugin,
 } from 'bootstrap-vue';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -41,3 +42,4 @@ Vue.use(FormGroupPlugin);
 Vue.use(FormInputPlugin);
 Vue.use(LinkPlugin);
 Vue.use(FormSelectPlugin);
+Vue.use(PopoverPlugin);
