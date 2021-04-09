@@ -113,6 +113,8 @@ export default {
     return {
       gameSharkSaveData: null,
       romData: null,
+      emulatorSaveData: null,
+      emulatorSaveDataFilename: null,
       errorMessage: null,
       outputFilename: null,
       outputFilesize: null,
@@ -130,6 +132,8 @@ export default {
       this.conversionDirection = newDirection;
       this.gameSharkSaveData = null;
       this.romData = null;
+      this.emulatorSaveData = null;
+      this.emulatorSaveDataFilename = null;
       this.errorMessage = null;
       this.outputFilename = null;
     },
@@ -141,6 +145,12 @@ export default {
     },
     readRomData(event) {
       this.romData = event.arrayBuffer;
+      this.tryToCreateGameSharkSaveDataFromEmulatorSaveData();
+    },
+    readEmulatorSaveData(event) {
+      this.emulatorSaveData = event.arrayBuffer;
+      this.emulatorSaveDataFilename = event.filename;
+      this.tryToCreateGameSharkSaveDataFromEmulatorSaveData();
     },
     readGameSharkSaveData(event) {
       this.errorMessage = null;
@@ -155,20 +165,23 @@ export default {
         this.outputFilesize = null;
       }
     },
-    readEmulatorSaveData(event) {
-      this.errorMessage = null;
-      try {
-        const title = this.removeFilenameExtension(event.filename);
-        const date = dayjs().format('DD/MM/YYYY hh:mm:ss a');
-        const notes = 'Created with savefileconverter.com';
-        this.gameSharkSaveData = GameSharkSaveData.createFromEmulatorData(event.arrayBuffer, title, date, notes, this.romData);
-        this.outputFilename = this.changeFilenameExtension(event.filename, 'sps');
-        this.outputFilesize = this.gameSharkSaveData.getRawSaveData().byteLength;
-      } catch (e) {
-        this.errorMessage = e.message;
-        this.gameSharkSaveData = null;
-        this.outputFilename = null;
-        this.outputFilesize = null;
+    tryToCreateGameSharkSaveDataFromEmulatorSaveData() {
+      if ((this.romData !== null) && (this.emulatorSaveData !== null) && (this.emulatorSaveDataFilename !== null)) { // Need to be careful that the user can choose the save data and ROM files in any order, so only proceed once both have been chosen
+        this.errorMessage = null;
+
+        try {
+          const title = this.removeFilenameExtension(this.emulatorSaveDataFilename);
+          const date = dayjs().format('DD/MM/YYYY hh:mm:ss a');
+          const notes = 'Created with savefileconverter.com';
+          this.gameSharkSaveData = GameSharkSaveData.createFromEmulatorData(this.emulatorSaveData, title, date, notes, this.romData);
+          this.outputFilename = this.changeFilenameExtension(this.emulatorSaveDataFilename, 'sps');
+          this.outputFilesize = this.gameSharkSaveData.getRawSaveData().byteLength;
+        } catch (e) {
+          this.errorMessage = e.message;
+          this.gameSharkSaveData = null;
+          this.outputFilename = null;
+          this.outputFilesize = null;
+        }
       }
     },
     convertFile() {
