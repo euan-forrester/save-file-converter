@@ -31,13 +31,13 @@
 <style scoped>
 
 .horizontal-arrangement {
-  margin-top: 50px;
-  margin-left: 10px;
-  margin-right: 10px;
+  margin-top: 2.5em;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
 }
 
 .vertical-arrangement {
-  margin-top: 15px;
+  margin-top: 1em;
 }
 
 </style>

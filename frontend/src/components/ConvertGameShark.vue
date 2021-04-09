@@ -89,11 +89,11 @@
 <style scoped>
 
 .convert-button {
-  margin-top: 15px;
+  margin-top: 1em;
 }
 
 .help {
-  margin-top: 30px;
+  margin-top: 1em;
 }
 </style>
 
