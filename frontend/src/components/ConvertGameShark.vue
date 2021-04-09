@@ -147,9 +147,12 @@ export default {
       try {
         this.gameSharkSaveData = GameSharkSaveData.createFromGameSharkData(event.arrayBuffer);
         this.outputFilename = this.changeFilenameExtension(event.filename, 'sav');
+        this.outputFilesize = this.gameSharkSaveData.getRawSaveData().byteLength;
       } catch (e) {
         this.errorMessage = e.message;
         this.gameSharkSaveData = null;
+        this.outputFilename = null;
+        this.outputFilesize = null;
       }
     },
     readEmulatorSaveData(event) {
@@ -160,12 +163,19 @@ export default {
         const notes = 'Created with savefileconverter.com';
         this.gameSharkSaveData = GameSharkSaveData.createFromEmulatorData(event.arrayBuffer, title, date, notes, this.romData);
         this.outputFilename = this.changeFilenameExtension(event.filename, 'sps');
+        this.outputFilesize = this.gameSharkSaveData.getRawSaveData().byteLength;
       } catch (e) {
         this.errorMessage = e.message;
         this.gameSharkSaveData = null;
+        this.outputFilename = null;
+        this.outputFilesize = null;
       }
     },
     convertFile() {
+      if (this.gameSharkSaveData.getRawSaveData().byteLength !== this.outputFilesize) {
+        this.gameSharkSaveData = GameSharkSaveData.createWithNewSize(this.gameSharkSaveData, this.outputFilesize);
+      }
+
       const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.gameSharkSaveData.getRawSaveData() : this.gameSharkSaveData.getArrayBuffer();
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });

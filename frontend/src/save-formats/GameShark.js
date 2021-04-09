@@ -58,16 +58,10 @@ function getText(arrayBuffer, dataView, textDecoder, currentByte) {
 function copyUint8ArrayUpToMaxLength(copyFrom, maxLength) {
   const copyTo = new Uint8Array(maxLength);
 
-  let i = 0;
+  copyTo.fill(0);
 
-  while (i < Math.min(copyFrom.length, maxLength)) {
+  for (let i = 0; i < Math.min(copyFrom.length, maxLength); i += 1) {
     copyTo[i] = copyFrom[i];
-    i += 1;
-  }
-
-  while (i < maxLength) {
-    copyTo[i] = 0;
-    i += 1;
   }
 
   return copyTo;
@@ -82,25 +76,39 @@ function parseSecondHeader(arrayBuffer, textDecoder) {
   return {
     gameInternalName: textDecoder.decode(gameInternalNameArray),
     romChecksum: dataView.getUint16(SECOND_HEADER_INTERNAL_NAME_LENGTH, LITTLE_ENDIAN),
-    maker: dataView.getUint8(SECOND_HEADER_INTERNAL_NAME_LENGTH + 2),
-    flag: dataView.getUint8(SECOND_HEADER_INTERNAL_NAME_LENGTH + 3),
+    romComplimentCheck: dataView.getUint8(SECOND_HEADER_INTERNAL_NAME_LENGTH + 2),
+    maker: dataView.getUint8(SECOND_HEADER_INTERNAL_NAME_LENGTH + 3),
+    flag: dataView.getUint8(SECOND_HEADER_INTERNAL_NAME_LENGTH + 4),
   };
 }
 
-function createSecondHeader(romArrayBuffer, textEncoder) {
+function createSecondHeaderFromRom(romArrayBuffer) {
   const gbaRom = new GbaRom(romArrayBuffer);
 
+  const secondHeader = {
+    gameInternalName: gbaRom.getInternalName(),
+    romChecksum: gbaRom.getChecksum(),
+    romComplimentCheck: gbaRom.getComplimentCheck(),
+    maker: gbaRom.getMaker(),
+    flag: 1,
+  };
+
+  return secondHeader;
+}
+
+function createSecondHeaderArrayBuffer(secondHeader, textEncoder) {
   const headerArrayBuffer = new ArrayBuffer(SECOND_HEADER_LENGTH);
   const headerDataView = new DataView(headerArrayBuffer);
   const headerUint8Array = new Uint8Array(headerArrayBuffer);
 
-  const encodedInternalName = textEncoder.encode(gbaRom.getInternalName());
+  const encodedInternalName = textEncoder.encode(secondHeader.gameInternalName);
   const encodedInternalNameMaxLength = copyUint8ArrayUpToMaxLength(encodedInternalName, SECOND_HEADER_INTERNAL_NAME_LENGTH);
 
   headerUint8Array.set(encodedInternalNameMaxLength, 0);
-  headerDataView.setUint16(SECOND_HEADER_INTERNAL_NAME_LENGTH, gbaRom.getChecksum(), LITTLE_ENDIAN);
-  headerDataView.setUint8(SECOND_HEADER_INTERNAL_NAME_LENGTH + 2, gbaRom.getMaker());
-  headerDataView.setUint8(SECOND_HEADER_INTERNAL_NAME_LENGTH + 3, gbaRom.getFlag());
+  headerDataView.setUint16(SECOND_HEADER_INTERNAL_NAME_LENGTH, secondHeader.romChecksum, LITTLE_ENDIAN);
+  headerDataView.setUint8(SECOND_HEADER_INTERNAL_NAME_LENGTH + 2, secondHeader.romComplimentCheck);
+  headerDataView.setUint8(SECOND_HEADER_INTERNAL_NAME_LENGTH + 3, secondHeader.maker);
+  headerDataView.setUint8(SECOND_HEADER_INTERNAL_NAME_LENGTH + 4, secondHeader.flag);
 
   return headerArrayBuffer;
 }
@@ -128,12 +136,53 @@ export default class GameSharkSaveData {
     return new GameSharkSaveData(gameSharkArrayBuffer);
   }
 
+  static createWithNewSize(gameSharkSaveData, newSize) {
+    // Sometimes we may need to change the size of our raw buffer. This is because it's very difficult to determine
+    // what the save game size is for a particular game and so some emulators get this wrong and there are many files
+    // floating around the Internet that are the wrong size.
+    //
+    // So we can either truncate them (most likely), or pad them with zeros to make them the size
+    // that the game/emulator actually expects.
+    //
+    // More information:
+    // - https://zork.net/~st/jottings/GBA_saves.html
+    // - https://dillonbeliveau.com/2020/06/05/GBA-FLASH.html
+
+    let newRawSaveData = gameSharkSaveData.getRawSaveData();
+
+    if (newSize < gameSharkSaveData.getRawSaveData().byteLength) {
+      newRawSaveData = gameSharkSaveData.getRawSaveData().slice(0, newSize);
+    } else if (newSize > gameSharkSaveData.getRawSaveData().byteLength) {
+      newRawSaveData = new ArrayBuffer(newSize);
+
+      const newRawSaveDataArray = new Uint8Array(newRawSaveData);
+      const oldRawSaveDataArray = new Uint8Array(gameSharkSaveData.getRawSaveData());
+
+      newRawSaveDataArray.fill(0); // Redundant but let's be explicit
+      newRawSaveDataArray.set(oldRawSaveDataArray, 0);
+    }
+
+    return GameSharkSaveData.createFromEmulatorDataAndSecondHeader(
+      newRawSaveData,
+      gameSharkSaveData.getTitle(),
+      gameSharkSaveData.getDate(),
+      gameSharkSaveData.getNotes(),
+      gameSharkSaveData.getSecondHeader(),
+    );
+  }
+
   static createFromEmulatorData(emulatorArrayBuffer, title, date, notes, romArrayBuffer) {
+    const secondHeader = createSecondHeaderFromRom(romArrayBuffer);
+
+    return GameSharkSaveData.createFromEmulatorDataAndSecondHeader(emulatorArrayBuffer, title, date, notes, secondHeader);
+  }
+
+  static createFromEmulatorDataAndSecondHeader(emulatorArrayBuffer, title, date, notes, secondHeader) {
     // A bit inefficient to promptly go and re-parse the save data, but this
     // has the nice benefit of verifying that we put everything in the correct endianness
     // and got everything in the right spot. Yes I suppose that should be a test instead.
 
-    const textEncoder = new TextEncoder('utf-8');
+    const textEncoder = new TextEncoder('US-ASCII'); // The name can contain 0x00 characters that we need to interpret correctly
 
     // Create the first header
 
@@ -144,34 +193,34 @@ export default class GameSharkSaveData {
 
     let currentByte = 0;
 
-    firstHeaderDataView.setUint32(0, SHARK_PORT_SAVE.length);
+    firstHeaderDataView.setUint32(currentByte, SHARK_PORT_SAVE.length, LITTLE_ENDIAN);
     currentByte += 4;
 
     firstHeaderUint8Array.set(textEncoder.encode(SHARK_PORT_SAVE), currentByte);
     currentByte += SHARK_PORT_SAVE.length;
 
-    firstHeaderDataView.setUint32(currentByte, CODE_GBA);
+    firstHeaderDataView.setUint32(currentByte, CODE_GBA, LITTLE_ENDIAN);
     currentByte += 4;
 
-    firstHeaderDataView.setUint32(currentByte, title.length);
+    firstHeaderDataView.setUint32(currentByte, title.length, LITTLE_ENDIAN);
     currentByte += 4;
 
     firstHeaderUint8Array.set(textEncoder.encode(title), currentByte);
     currentByte += title.length;
 
-    firstHeaderDataView.setUint32(currentByte, date.length);
+    firstHeaderDataView.setUint32(currentByte, date.length, LITTLE_ENDIAN);
     currentByte += 4;
 
     firstHeaderUint8Array.set(textEncoder.encode(date), currentByte);
     currentByte += date.length;
 
-    firstHeaderDataView.setUint32(currentByte, notes.length);
+    firstHeaderDataView.setUint32(currentByte, notes.length, LITTLE_ENDIAN);
     currentByte += 4;
 
     firstHeaderUint8Array.set(textEncoder.encode(notes), currentByte);
     currentByte += notes.length;
 
-    firstHeaderDataView.setUint32(emulatorArrayBuffer.byteLength + SECOND_HEADER_LENGTH);
+    firstHeaderDataView.setUint32(currentByte, emulatorArrayBuffer.byteLength + SECOND_HEADER_LENGTH, LITTLE_ENDIAN);
     currentByte += 4;
 
     // Create the second header, and concat it with the raw save then calculate the CRC of that
@@ -179,7 +228,7 @@ export default class GameSharkSaveData {
     const secondHeaderAndRawSave = new ArrayBuffer(emulatorArrayBuffer.byteLength + SECOND_HEADER_LENGTH);
     const secondHeaderAndRawSaveUint8Array = new Uint8Array(secondHeaderAndRawSave);
 
-    const secondHeaderArrayBuffer = createSecondHeader(romArrayBuffer, textEncoder);
+    const secondHeaderArrayBuffer = createSecondHeaderArrayBuffer(secondHeader, textEncoder);
 
     const secondHeaderUint8Array = new Uint8Array(secondHeaderArrayBuffer);
     const emulatorUint8Array = new Uint8Array(emulatorArrayBuffer);
@@ -197,7 +246,7 @@ export default class GameSharkSaveData {
 
     gameSharkUint8Array.set(firstHeaderUint8Array, 0);
     gameSharkUint8Array.set(secondHeaderUint8Array, firstHeaderLength);
-    gameSharkUint8Array.set(emulatorUint8Array, firstHeaderLength + SECOND_HEADER_INTERNAL_NAME_LENGTH);
+    gameSharkUint8Array.set(emulatorUint8Array, firstHeaderLength + SECOND_HEADER_LENGTH);
     gameSharkDataView.setUint32(firstHeaderLength + SECOND_HEADER_LENGTH + emulatorArrayBuffer.byteLength, calculatedCrc, LITTLE_ENDIAN);
 
     return new GameSharkSaveData(gameSharkArrayBuffer);
@@ -207,7 +256,7 @@ export default class GameSharkSaveData {
   constructor(arrayBuffer) {
     this.arrayBuffer = arrayBuffer;
     const dataView = new DataView(arrayBuffer);
-    const textDecoder = new TextDecoder('utf-8');
+    const textDecoder = new TextDecoder('US-ASCII'); // The name can contain 0x00 characters that we need to interpret correctly
 
     //
     // First make sure that the stuff in the header all makes sense

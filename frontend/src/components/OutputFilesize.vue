@@ -2,7 +2,8 @@
   <b-row no-gutters align-h="center" align-v="center">
     <b-col cols=12>
       <b-form-select
-        v-model="selected"
+        v-bind:value="value"
+        v-on:input="$emit('input', $event)"
         :options="options"
       />
     </b-col>
@@ -17,7 +18,6 @@ export default {
   ],
   data() {
     return {
-      selected: null,
       options: [
         { value: null, text: 'Output file size', disabled: true },
         { value: 512, text: '0.5kB (512 bytes)' },
