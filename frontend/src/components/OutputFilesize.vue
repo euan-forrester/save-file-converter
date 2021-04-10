@@ -8,7 +8,7 @@
       />
     </b-col>
     <help-button
-      popover-text="Some save files found on the Internet are not the correct size for their corresponding game and may not work on a real cartridge or with a particular emulator.
+      popover-text="Some save files found on the Internet are not the correct size for their corresponding game and so may not work on a real cartridge or with a particular emulator.
       Try creating a test save with your cartridge or emulator to find what size it expects, then adjust the value here if necessary."
       :id="this.id"
     />
