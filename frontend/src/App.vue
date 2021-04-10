@@ -7,6 +7,7 @@
       <router-link to="/about">About</router-link>
     </div>
     <router-view/>
+    <div class="footer"/> <!-- Add some blank space at the bottom to look better on mobile -->
   </div>
 </template>
 
@@ -30,5 +31,9 @@
 
 #nav a.router-link-exact-active {
   color: #42b983;
+}
+
+.footer {
+  min-height: 7em;
 }
 </style>
