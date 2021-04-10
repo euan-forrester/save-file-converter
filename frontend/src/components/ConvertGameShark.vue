@@ -12,6 +12,7 @@
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'" class="inputs-row">
             <input-file
+              id="choose-gameshark-file"
               @load="readGameSharkSaveData($event)"
               :errorMessage="this.errorMessage"
               placeholderText="Choose a file to convert"
@@ -19,7 +20,7 @@
           </div>
           <div v-else class="inputs-row">
             <output-filename v-model="outputFilename"/>
-            <output-filesize v-model="outputFilesize"/>
+            <output-filesize v-model="outputFilesize" id="gameshark-filesize"/>
           </div>
         </b-col>
         <b-col sm=12 md=2 lg=2 xl=2 align-self="start">
@@ -40,18 +41,23 @@
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'" class="inputs-row">
             <output-filename v-model="outputFilename"/>
-            <output-filesize v-model="outputFilesize"/>
+            <output-filesize v-model="outputFilesize" id="raw-filesize"/>
           </div>
           <div v-else class="inputs-row">
             <input-file
+              id="choose-raw-file"
               @load="readEmulatorSaveData($event)"
               :errorMessage="this.errorMessage"
               placeholderText="Choose a file to convert"
             />
             <input-file
+              id="choose-raw-file-rom"
               @load="readRomData($event)"
               :errorMessage="null"
               placeholderText="Choose the ROM for this file"
+              widthCols=11
+              helpText="GameShark save files contain some information from the corresponding ROM, and some emulators check this information before allowing the save to be loaded.
+              All processing by this website is done on your local machine, and your ROMs are not sent anywhere."
             />
           </div>
         </b-col>
