@@ -5,7 +5,7 @@
         <b-col sm=12 md=5 align-self="center">
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
-              <b-jumbotron :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 4 })">
+              <b-jumbotron fluid header-tag="h1" :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })">
                 <template v-slot:header>GameShark</template>
               </b-jumbotron>
             </b-col>
@@ -34,7 +34,7 @@
         <b-col sm=12 md=5 align-self="start">
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
-              <b-jumbotron :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 4 })">
+              <b-jumbotron fluid header-tag="h1" :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })">
                 <template v-slot:header>Emulator/Raw</template>
               </b-jumbotron>
             </b-col>
