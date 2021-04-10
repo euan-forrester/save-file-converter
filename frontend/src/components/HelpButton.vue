@@ -5,7 +5,7 @@
     <b-button variant="link" :id="`${this.id}-popover-target`" href="#" tabindex="0">
       <font-awesome-icon :icon="['fas', 'question-circle']"/>
     </b-button>
-    <b-popover :target="`${this.id}-popover-target`" triggers="focus hover" placement="bottomright">
+    <b-popover :target="`${this.id}-popover-target`" triggers="focus hover" placement="bottom">
       {{this.popoverText}}
     </b-popover>
   </b-col>
