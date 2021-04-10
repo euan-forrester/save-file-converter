@@ -55,7 +55,7 @@
               @load="readRomData($event)"
               :errorMessage="null"
               placeholderText="Choose the ROM for this file"
-              widthCols=11
+              :widthCols="11"
               helpText="GameShark save files contain some information from the corresponding ROM, and some emulators check this information before allowing the save to be loaded.
               All processing by this website is done on your local machine, and your ROMs are not sent anywhere."
             />

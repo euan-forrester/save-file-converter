@@ -3,7 +3,7 @@
     <b-col cols=12>
       <b-form-input
         v-bind:value="value"
-        v-on:input="$emit('input', $event.target.value)"
+        v-on:input="$emit('input', $event)"
         placeholder="Output filename"
       />
     </b-col>
