@@ -1,11 +1,12 @@
 <template>
-  <b-form-file @input="loadFile" v-model="file" class="text-left" :placeholder="this.placeholderText"/>
+  <b-form-file @input="loadFile" v-model="file" class="text-left" :placeholder="this.placeholderText" :accept="this.acceptExtension"/>
 </template>
 
 <script>
 export default {
   props: [
     'placeholderText',
+    'acceptExtension',
   ],
   data() {
     return {

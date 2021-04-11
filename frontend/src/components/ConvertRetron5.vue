@@ -15,6 +15,7 @@
               @load="readRetron5SaveData($event)"
               :errorMessage="this.errorMessage"
               placeholderText="Choose a file to convert"
+              acceptExtension=".sav"
             />
           </div>
           <div v-else>

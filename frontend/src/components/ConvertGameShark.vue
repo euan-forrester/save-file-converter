@@ -16,6 +16,7 @@
               @load="readGameSharkSaveData($event)"
               :errorMessage="this.errorMessage"
               placeholderText="Choose a file to convert"
+              acceptExtension=".sps"
             />
           </div>
           <div v-else class="inputs-row">
@@ -58,6 +59,7 @@
               :widthCols="11"
               helpText="GameShark save files contain some information from the corresponding ROM, and some emulators check this information before allowing the save to be loaded.
               All processing by this website is done on your local machine, and your ROMs are not sent anywhere."
+              acceptExtension=".gba"
             />
           </div>
         </b-col>

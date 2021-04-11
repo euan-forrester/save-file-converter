@@ -2,7 +2,7 @@
   <div>
     <b-row no-gutters>
       <b-col :cols="this.widthCols">
-        <file-reader @load="$emit('load', $event)" :placeholderText="this.placeholderText"></file-reader>
+        <file-reader @load="$emit('load', $event)" :placeholderText="this.placeholderText" :acceptExtension="this.acceptExtension"></file-reader>
       </b-col>
       <help-button v-if="this.helpText !== null" :popover-text="this.helpText" :id="this.id"/>
     </b-row>
@@ -38,6 +38,10 @@ export default {
       default: null,
     },
     id: String,
+    acceptExtension: {
+      type: String,
+      default: null,
+    },
   },
   data() {
     return {
