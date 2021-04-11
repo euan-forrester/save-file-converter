@@ -15,7 +15,7 @@
               id="choose-gameshark-file"
               @load="readGameSharkSaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose a file to convert"
+              placeholderText="Choose a file to convert (*.sps)"
               acceptExtension=".sps"
             />
           </div>
@@ -55,7 +55,7 @@
               id="choose-raw-file-rom"
               @load="readRomData($event)"
               :errorMessage="null"
-              placeholderText="Choose the ROM for this file"
+              placeholderText="Choose the ROM for this file (*.gba)"
               :widthCols="11"
               helpText="GameShark save files contain some information from the corresponding ROM, and some emulators check this information before allowing the save to be loaded.
               All processing by this website is done on your local machine, and your ROMs are not sent anywhere."

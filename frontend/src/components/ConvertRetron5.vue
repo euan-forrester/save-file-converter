@@ -14,7 +14,7 @@
             <input-file
               @load="readRetron5SaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose a file to convert"
+              placeholderText="Choose a file to convert (*.sav)"
               acceptExtension=".sav"
             />
           </div>
