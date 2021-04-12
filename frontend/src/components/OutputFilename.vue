@@ -1,5 +1,5 @@
 <template>
-  <b-row no-gutters align-h="left" align-v="center">
+  <b-row no-gutters align-h="start" align-v="center">
     <b-col :cols="this.leaveRoomForHelpIcon ? 11 : 12" sm="12">
       <b-form-input
         v-bind:value="value"
