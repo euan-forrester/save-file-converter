@@ -17,10 +17,11 @@
               :errorMessage="this.errorMessage"
               placeholderText="Choose a file to convert (*.sps)"
               acceptExtension=".sps"
+              :leaveRoomForHelpIcon="false"
             />
           </div>
           <div v-else class="inputs-row">
-            <output-filename v-model="outputFilename"/>
+            <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="true"/>
             <output-filesize v-model="outputFilesize" id="gameshark-filesize"/>
           </div>
         </b-col>
@@ -41,7 +42,7 @@
             </b-col>
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'" class="inputs-row">
-            <output-filename v-model="outputFilename"/>
+            <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="true"/>
             <output-filesize v-model="outputFilesize" id="raw-filesize"/>
           </div>
           <div v-else class="inputs-row">
@@ -50,16 +51,17 @@
               @load="readEmulatorSaveData($event)"
               :errorMessage="this.errorMessage"
               placeholderText="Choose a file to convert"
+              :leaveRoomForHelpIcon="true"
             />
             <input-file
               id="choose-raw-file-rom"
               @load="readRomData($event)"
               :errorMessage="null"
               placeholderText="Choose the ROM for this file (*.gba)"
-              :widthCols="11"
               helpText="GameShark save files contain some information from the corresponding ROM, and some emulators check this information before allowing the save to be loaded.
               All processing by this website is done on your local machine, and your ROMs are not sent anywhere."
               acceptExtension=".gba"
+              :leaveRoomForHelpIcon="true"
             />
           </div>
         </b-col>

@@ -16,10 +16,11 @@
               :errorMessage="this.errorMessage"
               placeholderText="Choose a file to convert (*.sav)"
               acceptExtension=".sav"
+              :leaveRoomForHelpIcon="false"
             />
           </div>
           <div v-else>
-            <output-filename v-model="outputFilename"/>
+            <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
           </div>
         </b-col>
         <b-col sm=12 md=2 lg=2 xl=2 align-self="start">
@@ -39,13 +40,14 @@
             </b-col>
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'">
-            <output-filename v-model="outputFilename"/>
+            <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
           </div>
           <div v-else>
             <input-file
               @load="readEmulatorSaveData($event)"
               :errorMessage="this.errorMessage"
               placeholderText="Choose a file to convert"
+              :leaveRoomForHelpIcon="false"
             />
           </div>
         </b-col>

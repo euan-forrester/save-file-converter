@@ -1,10 +1,12 @@
 <template>
   <div>
     <b-row no-gutters>
-      <b-col :cols="this.widthCols">
-        <file-reader @load="$emit('load', $event)" :placeholderText="this.placeholderText" :acceptExtension="this.acceptExtension"></file-reader>
+      <b-col :cols="this.leaveRoomForHelpIcon ? 11 : 12" sm="12">
+        <div>
+          <file-reader @load="$emit('load', $event)" :placeholderText="this.placeholderText" :acceptExtension="this.acceptExtension"></file-reader>
+          <help-button v-if="this.helpText !== null" :popover-text="this.helpText" :id="this.id" class="help-button"/>
+        </div>
       </b-col>
-      <help-button v-if="this.helpText !== null" :popover-text="this.helpText" :id="this.id"/>
     </b-row>
     <b-row no-gutters align-h="center" align-v="center">
       <b-col cols=12>
@@ -15,6 +17,16 @@
     </b-row>
   </div>
 </template>
+
+<style scoped>
+
+.help-button {
+  position: absolute;
+  right: -1.2em;
+  top: 0em;
+}
+
+</style>
 
 <script>
 import FileReader from './FileReader.vue';
@@ -29,10 +41,6 @@ export default {
   props: {
     errorMessage: String,
     placeholderText: String,
-    widthCols: {
-      type: Number,
-      default: 12,
-    },
     helpText: {
       type: String,
       default: null,
@@ -42,6 +50,7 @@ export default {
       type: String,
       default: null,
     },
+    leaveRoomForHelpIcon: Boolean,
   },
   data() {
     return {
