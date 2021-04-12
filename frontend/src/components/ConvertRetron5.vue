@@ -5,7 +5,7 @@
         <b-col sm=12 md=5 align-self="center">
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
-              <b-jumbotron :header-level="$mq | mq({ xs: 5, sm: 4, md: 4, lg: 3 })">
+              <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })">
                 <template v-slot:header>Retron 5</template>
               </b-jumbotron>
             </b-col>
@@ -14,10 +14,13 @@
             <input-file
               @load="readRetron5SaveData($event)"
               :errorMessage="this.errorMessage"
+              placeholderText="Choose a file to convert (*.sav)"
+              acceptExtension=".sav"
+              :leaveRoomForHelpIcon="false"
             />
           </div>
           <div v-else>
-            <output-filename v-model="outputFilename"/>
+            <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
           </div>
         </b-col>
         <b-col sm=12 md=2 lg=2 xl=2 align-self="start">
@@ -31,18 +34,20 @@
         <b-col sm=12 md=5 align-self="start">
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
-              <b-jumbotron :header-level="$mq | mq({ xs: 5, sm: 4, md: 4, lg: 3 })">
-                <template v-slot:header>Emulator</template>
+              <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })">
+                <template v-slot:header>Emulator/Raw</template>
               </b-jumbotron>
             </b-col>
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'">
-            <output-filename v-model="outputFilename"/>
+            <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
           </div>
           <div v-else>
             <input-file
               @load="readEmulatorSaveData($event)"
               :errorMessage="this.errorMessage"
+              placeholderText="Choose a file to convert"
+              :leaveRoomForHelpIcon="false"
             />
           </div>
         </b-col>
@@ -74,11 +79,11 @@
 <style scoped>
 
 .convert-button {
-  margin-top: 15px;
+  margin-top: 1em;
 }
 
 .help {
-  margin-top: 30px;
+  margin-top: 1em;
 }
 </style>
 

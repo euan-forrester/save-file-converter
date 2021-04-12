@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import Home from '../views/Home.vue';
+import Retron5 from '../views/Retron5.vue';
+import GameShark from '../views/GameShark.vue';
 import OtherConverters from '../views/OtherConverters.vue';
 
 Vue.use(VueRouter);
@@ -8,8 +9,17 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home,
+    redirect: '/retron-5',
+  },
+  {
+    path: '/retron-5',
+    name: 'Retron5',
+    component: Retron5,
+  },
+  {
+    path: '/gameshark',
+    name: 'GameShark',
+    component: GameShark,
   },
   {
     path: '/other-converters',
