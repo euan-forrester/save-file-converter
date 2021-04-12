@@ -10,6 +10,14 @@
   </b-row>
 </template>
 
+<style scoped>
+
+::placeholder {
+  color: #495057; /* bootstrap's $gray-700. Otherwise it doesn't match the placeholder color for b-form-file (and b-form-select) */
+}
+
+</style>
+
 <script>
 export default {
   name: 'OutputFilename',
