@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Retron5 from '../views/Retron5.vue';
+import ActionReplay from '../views/ActionReplay.vue';
 import GameShark from '../views/GameShark.vue';
 import OtherConverters from '../views/OtherConverters.vue';
 
@@ -15,6 +16,11 @@ const routes = [
     path: '/retron-5',
     name: 'Retron5',
     component: Retron5,
+  },
+  {
+    path: '/action-replay',
+    name: 'ActionReplay',
+    component: ActionReplay,
   },
   {
     path: '/gameshark',
