@@ -2,16 +2,17 @@
 
 Web-based tool to convert save files from retro game consoles to different formats
 
-![Retron 5 conversion](https://github.com/euan-forrester/save-file-converter/raw/main/images/Retron5-window.png "Retron 5 conversion")
+![Save file conversion](https://github.com/euan-forrester/save-file-converter/raw/main/images/main-window.png "Save file conversion")
 
 Production instance found at https://savefileconverter.com
 
 Instructions:
-1. Find the file you want to convert to or from the Retron 5 format. See instructions here for how to get files off of or onto the Retron 5: https://projectpokemon.org/home/tutorials/save-editing/managing-gb-gbc-saves/using-the-retron-5-r53/
-2. Click the arrow for which way you want to do the conversion
-3. Choose the file to convert
-4. Change the output filename if necessary
-5. Click Convert!
+1. Find the file you want to convert 
+2. Choose which kind of file it is from the top of the window
+3. Click the arrow for which way you want to do the conversion
+4. Choose the file to convert
+5. Change the output filename if necessary
+6. Click Convert!
 
 ## Upcoming features
 
@@ -37,6 +38,9 @@ Instructions:
 ## GBA save file size difficulty
 - https://zork.net/~st/jottings/GBA_saves.html
 - https://dillonbeliveau.com/2020/06/05/GBA-FLASH.html
+
+## Devices that can read/write cart saves
+- https://kb.speeddemosarchive.com/Save_Managers
 
 ## Deployment instructions
 
