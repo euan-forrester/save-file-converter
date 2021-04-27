@@ -16,8 +16,10 @@ Instructions:
 
 ## Upcoming features
 
+- Reorganize the interface to be listed by game console rather than save file format
+- Be able to autodetect the format of a given save file (note that raw files need their size checked, unrecognized size means invalid file)
+- Be able to truncate/pad raw save files
 - Convert PS1 saves to/from PSP/PS3 virtual memory cards
-- Convert Retro Freak files
 - I need suggestions!
 
 ## Save file formats
@@ -34,6 +36,7 @@ Instructions:
 - GameShark SP format (GBA [reading], partial): https://github.com/visualboyadvance-m/visualboyadvance-m/blob/master/src/gba/GBA.cpp#L1078
 - GameShark format (PS2, partial): https://www.ps2savetools.com/documents/xps-format/
 - PS2 memory card formats: http://www.csclub.uwaterloo.ca:11068/mymc/
+- Wii save game format: https://wiibrew.org/wiki/Wii_Savegame_Parser, https://wiibrew.org/wiki/Savegame_Files, https://wiibrew.org/wiki/FE100 (note that the files are encrypted, and so a private key must be obtained)
 
 ## GBA save file size difficulty
 - https://zork.net/~st/jottings/GBA_saves.html
