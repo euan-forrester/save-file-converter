@@ -48,17 +48,21 @@ export default {
     horizontalLayout: Array,
     verticalLayout: Array,
     conversionDirection: String,
+    disableDirection: {
+      type: String,
+      default: null,
+    },
   },
   data() {
     return {
       conversionDirectionInternal: this.conversionDirection, // We shouldn't directly mutate a prop because when the parent gets reloaded it'll reset its value
       optionsHorizontal: [
-        { html: '<i class="fa fa-arrow-circle-right fa-3x"></i>', value: 'convertToEmulator' },
-        { html: '<i class="fa fa-arrow-circle-left fa-3x"></i>', value: 'convertToRetron5' },
+        { html: '<i class="fa fa-arrow-circle-right fa-3x"></i>', value: 'convertToEmulator', disabled: this.disableDirection === 'convertToEmulator' },
+        { html: '<i class="fa fa-arrow-circle-left fa-3x"></i>', value: 'convertToRetron5', disabled: this.disableDirection === 'convertToRetron5' },
       ],
       optionsVertical: [
-        { html: '<i class="fa fa-arrow-circle-down fa-3x"></i>', value: 'convertToEmulator' },
-        { html: '<i class="fa fa-arrow-circle-up fa-3x"></i>', value: 'convertToRetron5' },
+        { html: '<i class="fa fa-arrow-circle-down fa-3x"></i>', value: 'convertToEmulator', disabled: this.disableDirection === 'convertToEmulator' },
+        { html: '<i class="fa fa-arrow-circle-up fa-3x"></i>', value: 'convertToRetron5', disabled: this.disableDirection === 'convertToRetron5' },
       ],
     };
   },
