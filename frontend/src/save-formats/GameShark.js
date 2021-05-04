@@ -29,6 +29,7 @@ The second header is information from the ROM of the game the save is for:
 */
 
 import GbaRom from '../rom-formats/gba';
+import Util from '../util/util';
 
 const LITTLE_ENDIAN = true;
 const SHARK_PORT_SAVE = 'SharkPortSave';
@@ -148,19 +149,7 @@ export default class GameSharkSaveData {
     // - https://zork.net/~st/jottings/GBA_saves.html
     // - https://dillonbeliveau.com/2020/06/05/GBA-FLASH.html
 
-    let newRawSaveData = gameSharkSaveData.getRawSaveData();
-
-    if (newSize < gameSharkSaveData.getRawSaveData().byteLength) {
-      newRawSaveData = gameSharkSaveData.getRawSaveData().slice(0, newSize);
-    } else if (newSize > gameSharkSaveData.getRawSaveData().byteLength) {
-      newRawSaveData = new ArrayBuffer(newSize);
-
-      const newRawSaveDataArray = new Uint8Array(newRawSaveData);
-      const oldRawSaveDataArray = new Uint8Array(gameSharkSaveData.getRawSaveData());
-
-      newRawSaveDataArray.fill(0); // Redundant but let's be explicit
-      newRawSaveDataArray.set(oldRawSaveDataArray, 0);
-    }
+    const newRawSaveData = Util.resizeRawSave(gameSharkSaveData.getRawSaveData(), newSize);
 
     return GameSharkSaveData.createFromEmulatorDataAndSecondHeader(
       newRawSaveData,

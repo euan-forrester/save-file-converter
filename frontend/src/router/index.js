@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import Retron5 from '../views/Retron5.vue';
 import ActionReplay from '../views/ActionReplay.vue';
 import GameShark from '../views/GameShark.vue';
+import GameSharkSP from '../views/GameSharkSP.vue';
 import OtherConverters from '../views/OtherConverters.vue';
 
 Vue.use(VueRouter);
@@ -26,6 +27,11 @@ const routes = [
     path: '/gameshark',
     name: 'GameShark',
     component: GameShark,
+  },
+  {
+    path: '/gameshark-sp',
+    name: 'GameShark SP',
+    component: GameSharkSP,
   },
   {
     path: '/other-converters',

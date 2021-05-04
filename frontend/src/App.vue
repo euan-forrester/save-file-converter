@@ -3,6 +3,7 @@
     <div id="nav">
       <router-link to="/retron-5">Retron 5</router-link> |
       <router-link to="/gameshark">GameShark (GBA)</router-link> |
+      <router-link to="/gameshark-sp">GameShark SP (GBA)</router-link> |
       <router-link to="/action-replay">Action Replay (GBA)</router-link> |
       <router-link to="/other-converters">Other converters</router-link> |
       <router-link to="/about">About/Contact</router-link>
