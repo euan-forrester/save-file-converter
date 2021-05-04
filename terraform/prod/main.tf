@@ -33,7 +33,7 @@ module "alarms" {
   bucket_metrics_filter_id = module.frontend.bucket_metrics_filter_id
   s3_access_alarm_threshold = 1
 
-  enable_alarms     = true
+  enable_alarms     = false
 }
 
 module "dashboard" {
