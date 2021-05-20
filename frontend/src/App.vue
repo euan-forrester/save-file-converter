@@ -3,7 +3,7 @@
     <div id="nav">
       <b-row>
         <b-col class="nav-row">
-          <router-link to="/retron-5">Retron 5</router-link> |
+          <router-link to="/retron-5">Retron&nbsp;5&nbsp;/&nbsp;RetroFreak</router-link> |
           <router-link to="/gameshark">GameShark (GBA)</router-link> |
           <router-link to="/gameshark-sp">GameShark SP (GBA)</router-link> |
           <router-link to="/action-replay">Action Replay (GBA)</router-link>
@@ -12,7 +12,7 @@
       <b-row>
         <b-col>
           <router-link to="/other-converters">Other converters</router-link> |
-          <router-link to="/about">About/Contact</router-link>
+          <router-link to="/about">About&nbsp;/&nbsp;Contact</router-link>
         </b-col>
       </b-row>
     </div>
