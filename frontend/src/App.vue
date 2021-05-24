@@ -4,14 +4,15 @@
       <b-row>
         <b-col class="nav-row">
           <router-link to="/retron-5">Retron&nbsp;5&nbsp;/&nbsp;RetroFreak</router-link> |
-          <router-link to="/gameshark">GameShark (GBA)</router-link> |
-          <router-link to="/gameshark-sp">GameShark SP (GBA)</router-link> |
-          <router-link to="/action-replay">Action Replay (GBA)</router-link>
+          <router-link to="/gameshark">GameShark&nbsp;(GBA)</router-link> |
+          <router-link to="/gameshark-sp">GameShark&nbsp;SP&nbsp;(GBA)</router-link> |
+          <router-link to="/action-replay">Action&nbsp;Replay&nbsp;(GBA)</router-link>
         </b-col>
       </b-row>
       <b-row>
         <b-col>
-          <router-link to="/other-converters">Other converters</router-link> |
+          <router-link to="/troubleshooting">Troubleshooting</router-link> |
+          <router-link to="/other-converters">Other&nbsp;converters</router-link> |
           <router-link to="/about">About&nbsp;/&nbsp;Contact</router-link>
         </b-col>
       </b-row>

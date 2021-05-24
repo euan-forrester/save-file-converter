@@ -5,6 +5,7 @@ import ActionReplay from '../views/ActionReplay.vue';
 import GameShark from '../views/GameShark.vue';
 import GameSharkSP from '../views/GameSharkSP.vue';
 import OtherConverters from '../views/OtherConverters.vue';
+import Troubleshooting from '../views/Troubleshooting.vue';
 
 Vue.use(VueRouter);
 
@@ -32,6 +33,11 @@ const routes = [
     path: '/gameshark-sp',
     name: 'GameShark SP',
     component: GameSharkSP,
+  },
+  {
+    path: '/troubleshooting',
+    name: 'Troubleshooting',
+    component: Troubleshooting,
   },
   {
     path: '/other-converters',
