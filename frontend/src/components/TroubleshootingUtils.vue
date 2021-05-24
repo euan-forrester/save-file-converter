@@ -24,19 +24,6 @@
           </b-row>
         </b-col>
       </b-row>
-      <b-row class="justify-content-md-center" align-h="center">
-        <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
-          <b-button
-            class="retron5-convert-button"
-            variant="success"
-            block
-            :disabled="!this.retron5SaveData || !outputFilename"
-            @click="convertFile()"
-          >
-          Convert!
-          </b-button>
-        </b-col>
-      </b-row>
       <b-row>
         <b-col>
           <div class="help">
@@ -44,6 +31,9 @@
           </div>
           <div class="help">
             Tip 2: Use a hex editor to open the test save and the one you're troubleshooting. Look for any similarities or differences.
+          </div>
+          <div class="help">
+            Did this page help you? Please tell me if it did or if it didn't: savefileconverter{{'\xa0'}}(at){{'\xa0'}}gmail{{'\xa0'}}(dot){{'\xa0'}}com
           </div>
         </b-col>
       </b-row>
