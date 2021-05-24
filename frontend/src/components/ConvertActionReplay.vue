@@ -55,7 +55,7 @@
       <b-row class="justify-content-md-center" align-h="center">
         <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
           <b-button
-            class="convert-button"
+            class="action-replay-convert-button"
             variant="success"
             block
             :disabled="!this.actionReplaySaveData || !outputFilename"
@@ -84,7 +84,7 @@
 
 <style scoped>
 
-.convert-button {
+.action-replay-convert-button {
   margin-top: 1em;
 }
 

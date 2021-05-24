@@ -55,7 +55,7 @@
       <b-row class="justify-content-md-center" align-h="center">
         <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
           <b-button
-            class="convert-button"
+            class="retron5-convert-button"
             variant="success"
             block
             :disabled="!this.retron5SaveData || !outputFilename"
@@ -78,7 +78,8 @@
 
 <style scoped>
 
-.convert-button {
+/* Separate class for each different button to enable tracking in google tag manager */
+.retron5-convert-button {
   margin-top: 1em;
 }
 
