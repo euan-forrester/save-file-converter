@@ -11,7 +11,7 @@
             </b-col>
           </b-row>
           <input-file
-            @load="readRetron5SaveData($event)"
+            @load="readTestSaveData($event)"
             placeholderText="Choose a file that you know works (*.srm)"
             acceptExtension=".srm"
             :leaveRoomForHelpIcon="true"
@@ -36,7 +36,7 @@
             </b-col>
           </b-row>
           <input-file
-            @load="readEmulatorSaveData($event)"
+            @load="readBrokenSaveData($event)"
             placeholderText="Choose the file that's not working (*.srm)"
             acceptExtension=".srm"
             :leaveRoomForHelpIcon="true"
@@ -97,14 +97,17 @@
 </style>
 
 <script>
+import path from 'path';
 import { saveAs } from 'file-saver';
 import InputFile from './InputFile.vue';
+import Troubleshooting from '../util/Troubleshooting';
 
 export default {
   name: 'TroubleshootingUtils',
   data() {
     return {
       testSaveData: null,
+      testSaveDataFilename: null,
       brokenSaveData: null,
       outputFilename: null,
     };
@@ -115,16 +118,17 @@ export default {
   methods: {
     readTestSaveData(event) {
       this.testSaveData = event.arrayBuffer;
+      this.testSaveDataFilename = path.basename(event.filename);
     },
     readBrokenSaveData(event) {
       this.brokenSaveData = event.arrayBuffer;
     },
     fixFile() {
-      const outputArrayBuffer = null;
+      const outputArrayBuffer = Troubleshooting.attemptFix(this.testSaveData, this.brokenSaveData);
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 
-      saveAs(outputBlob, this.outputFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
+      saveAs(outputBlob, this.testSaveDataFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
     },
   },
 };
