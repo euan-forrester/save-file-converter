@@ -12,7 +12,6 @@
           </b-row>
           <input-file
             @load="readRetron5SaveData($event)"
-            :errorMessage="this.errorMessage"
             placeholderText="Choose a file that you know works (*.srm)"
             acceptExtension=".srm"
             :leaveRoomForHelpIcon="true"
@@ -38,7 +37,6 @@
           </b-row>
           <input-file
             @load="readEmulatorSaveData($event)"
-            :errorMessage="this.errorMessage"
             placeholderText="Choose the file that's not working (*.srm)"
             acceptExtension=".srm"
             :leaveRoomForHelpIcon="true"
@@ -53,8 +51,8 @@
             class="troubleshooting-button"
             variant="success"
             block
-            :disabled="!this.retron5SaveData || !outputFilename"
-            @click="convertFile()"
+            :disabled="!this.testSaveData || !this.brokenSaveData"
+            @click="fixFile()"
           >
           Attempt fix!
           </b-button>
@@ -86,7 +84,7 @@
 }
 
 .horizontal-arrow {
-  margin-top: 2em;
+  margin-top: 2.2em;
   margin-left: 0.5em;
   margin-right: 0.5em;
 }
@@ -99,17 +97,15 @@
 </style>
 
 <script>
-import path from 'path';
 import { saveAs } from 'file-saver';
 import InputFile from './InputFile.vue';
-import Retron5SaveData from '../save-formats/Retron5';
 
 export default {
   name: 'TroubleshootingUtils',
   data() {
     return {
-      rawSaveData: null,
-      errorMessage: null,
+      testSaveData: null,
+      brokenSaveData: null,
       outputFilename: null,
     };
   },
@@ -117,21 +113,14 @@ export default {
     InputFile,
   },
   methods: {
-    changeFilenameExtension(filename, newExtension) {
-      return `${path.basename(filename, path.extname(filename))}.${newExtension}`;
+    readTestSaveData(event) {
+      this.testSaveData = event.arrayBuffer;
     },
-    readRawSaveData(event) {
-      this.errorMessage = null;
-      try {
-        this.retron5SaveData = Retron5SaveData.createFromRetron5Data(event.arrayBuffer);
-        this.outputFilename = this.changeFilenameExtension(event.filename, 'srm');
-      } catch (e) {
-        this.errorMessage = e.message;
-        this.retron5SaveData = null;
-      }
+    readBrokenSaveData(event) {
+      this.brokenSaveData = event.arrayBuffer;
     },
-    convertFile() {
-      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.retron5SaveData.getRawSaveData() : this.retron5SaveData.getArrayBuffer();
+    fixFile() {
+      const outputArrayBuffer = null;
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 
