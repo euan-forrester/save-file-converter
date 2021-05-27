@@ -108,6 +108,10 @@ export default class Troubleshooting {
       count += 1;
     }
 
+    // If everything looks like padding, then nothing is. This can happen, for example,
+    // when a user quickly creates a test save file without actually saving in-game. Not
+    // much we can do in that case other than to assume the whole thing is the correct size.
+    // Should flag the user that they need to provide a better file.
     if (count === arrayBuffer.byteLength) {
       count = 0;
     }
