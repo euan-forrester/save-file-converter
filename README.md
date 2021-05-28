@@ -25,10 +25,9 @@ Instructions:
 ## Save file formats
 
 - Retron5: https://www.retro5.net/viewtopic.php?f=5&t=67&start=10
-- PS1 save formats: https://github.com/bucanero/psv-save-converter
 - PSP PS1 virtual memory card: https://psdevwiki.com/ps3/PS1_Savedata#Virtual_Memory_Card_PSP_.28.VMP.29
 - PS3 PS1 virtual memory card: https://psdevwiki.com/ps3/PS1_Savedata#Virtual_Memory_Card_PS1_.28.VM1.29
-- PS3 PS1/PS2 virtual memord card: https://github.com/bucanero/psv-save-converter
+- PS3 PS1/PS2 virtual memory card: https://github.com/bucanero/psv-save-converter
 - PS2 Save Tools: https://www.ps2savetools.com/
 - MemcardRex format: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs
 - DexDrive format (?): https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/Hardware/DexDrive.cs
