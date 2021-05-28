@@ -28,6 +28,8 @@ Instructions:
 - PS1 save formats: https://github.com/bucanero/psv-save-converter
 - PSP PS1 virtual memory card: https://psdevwiki.com/ps3/PS1_Savedata#Virtual_Memory_Card_PSP_.28.VMP.29
 - PS3 PS1 virtual memory card: https://psdevwiki.com/ps3/PS1_Savedata#Virtual_Memory_Card_PS1_.28.VM1.29
+- PS3 PS1/PS2 virtual memord card: https://github.com/bucanero/psv-save-converter
+- PS2 Save Tools: https://www.ps2savetools.com/
 - MemcardRex format: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs
 - DexDrive format (?): https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/Hardware/DexDrive.cs
 - GameShark format (GBA, partial): https://gbatemp.net/threads/converting-gsv-or-sps-files-to-sav.51838/#post-664786
