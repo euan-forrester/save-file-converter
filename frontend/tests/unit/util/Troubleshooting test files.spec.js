@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import Troubleshooting from '@/util/Troubleshooting';
 
-import ArrayBufferUtil from '../../util/ArrayBuffer';
+import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 describe('Troubleshooting example files', () => {
   it('should fix a file with padding at the start', async () => {
