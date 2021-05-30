@@ -39,7 +39,10 @@ export default {
     HelpButton,
   },
   props: {
-    errorMessage: String,
+    errorMessage: {
+      type: String,
+      default: null,
+    },
     placeholderText: String,
     helpText: {
       type: String,

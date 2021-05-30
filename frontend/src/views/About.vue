@@ -14,7 +14,7 @@
     </div>
     <br/>
     <div>
-      Questions/comments/suggestions? savefileconverter (at) gmail (dot) com
+      Questions/comments/suggestions? savefileconverter{{'\xa0'}}(at){{'\xa0'}}gmail{{'\xa0'}}(dot){{'\xa0'}}com
     </div>
   </div>
 </template>

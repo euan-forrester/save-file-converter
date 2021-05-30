@@ -1,3 +1,7 @@
+const path = require('path');
+
+const testsDir = './tests';
+
 module.exports = {
   pluginOptions: {
     s3Deploy: {
@@ -24,4 +28,11 @@ module.exports = {
       },
     },
   },
+  configureWebpack: {
+    resolve: {
+      alias: {
+        "#": path.join(__dirname, testsDir)
+      }
+    }
+  }
 };
