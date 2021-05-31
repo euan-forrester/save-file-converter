@@ -17,7 +17,17 @@
             :leaveRoomForHelpIcon="true"
             helpText="Make a test save using the emulator or cartridge that you want to use, to compare against the file that's not working."
             id="known-working-input-file"
+            aria-controls="collapse-test-save-data"
+            :aria-expanded="hasTestSaveData ? 'true' : 'false'"
           />
+          <b-collapse appear id="collapse-test-save-data" v-model="hasTestSaveData">
+            <b-list-group>
+              <b-list-group-item class="d-flex justify-content-between align-items-center"><div>File name:</div><div>Tomato Adventures (Japan).srm</div></b-list-group-item>
+              <b-list-group-item class="d-flex justify-content-between align-items-center"><div>File size:</div><div>139264 bytes</div></b-list-group-item>
+              <b-list-group-item class="d-flex justify-content-between align-items-center"><div>Initial padding:</div><div>131072 bytes</div></b-list-group-item>
+              <b-list-group-item class="d-flex justify-content-between align-items-center"><div>Remaining save size:</div><div>8192 bytes</div></b-list-group-item>
+            </b-list-group>
+          </b-collapse>
         </b-col>
         <b-col sm=12 md=2 lg=2 xl=2 align-self="start">
           <mq-layout :mq="['md', 'lg', 'xl']">
@@ -111,6 +121,12 @@ export default {
       brokenSaveData: null,
       outputFilename: null,
     };
+  },
+  computed: {
+    hasTestSaveData: {
+      get() { return this.testSaveData !== null; },
+      set() { }, // Can only be set by updating this.testSaveData, and the b-collapse element isn't allowed to change it
+    },
   },
   components: {
     InputFile,
