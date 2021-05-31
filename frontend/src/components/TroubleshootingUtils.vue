@@ -20,14 +20,7 @@
             aria-controls="collapse-test-save-data"
             :aria-expanded="hasTestSaveData ? 'true' : 'false'"
           />
-          <b-collapse appear id="collapse-test-save-data" v-model="hasTestSaveData">
-            <b-list-group>
-              <b-list-group-item class="d-flex justify-content-between align-items-center"><div>File name:</div><div>Tomato Adventures (Japan).srm</div></b-list-group-item>
-              <b-list-group-item class="d-flex justify-content-between align-items-center"><div>File size:</div><div>139264 bytes</div></b-list-group-item>
-              <b-list-group-item class="d-flex justify-content-between align-items-center"><div>Initial padding:</div><div>131072 bytes</div></b-list-group-item>
-              <b-list-group-item class="d-flex justify-content-between align-items-center"><div>Remaining save size:</div><div>8192 bytes</div></b-list-group-item>
-            </b-list-group>
-          </b-collapse>
+          <file-info :fileName="this.testSaveDataFilename" :fileData="this.testSaveData" :display="this.hasTestSaveData" id="collapse-test-save-data"/>
         </b-col>
         <b-col sm=12 md=2 lg=2 xl=2 align-self="start">
           <mq-layout :mq="['md', 'lg', 'xl']">
@@ -52,7 +45,10 @@
             :leaveRoomForHelpIcon="true"
             helpText="The system will compare the file that's not working against the test save you made to try and figure out how to change it."
             id="needs-fixed-input-file"
+            aria-controls="collapse-broken-save-data"
+            :aria-expanded="hasBrokenSaveData ? 'true' : 'false'"
           />
+          <file-info :fileName="this.brokenSaveDataFilename" :fileData="this.brokenSaveData" :display="this.hasBrokenSaveData" id="collapse-broken-save-data"/>
         </b-col>
       </b-row>
       <b-row class="justify-content-md-center" align-h="center">
@@ -110,6 +106,7 @@
 import path from 'path';
 import { saveAs } from 'file-saver';
 import InputFile from './InputFile.vue';
+import FileInfo from './FileInfo.vue';
 import Troubleshooting from '../util/Troubleshooting';
 
 export default {
@@ -119,6 +116,7 @@ export default {
       testSaveData: null,
       testSaveDataFilename: null,
       brokenSaveData: null,
+      brokenSaveDataFilename: null,
       outputFilename: null,
     };
   },
@@ -127,9 +125,14 @@ export default {
       get() { return this.testSaveData !== null; },
       set() { }, // Can only be set by updating this.testSaveData, and the b-collapse element isn't allowed to change it
     },
+    hasBrokenSaveData: {
+      get() { return this.brokenSaveData !== null; },
+      set() { }, // Can only be set by updating this.brokenSaveData, and the b-collapse element isn't allowed to change it
+    },
   },
   components: {
     InputFile,
+    FileInfo,
   },
   methods: {
     readTestSaveData(event) {
@@ -138,6 +141,7 @@ export default {
     },
     readBrokenSaveData(event) {
       this.brokenSaveData = event.arrayBuffer;
+      this.brokenSaveDataFilename = path.basename(event.filename);
     },
     fixFile() {
       const outputArrayBuffer = Troubleshooting.attemptFix(this.testSaveData, this.brokenSaveData);
