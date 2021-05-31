@@ -67,7 +67,7 @@
       <b-row>
         <b-col>
           <div class="help">
-            Tip: if this tool doesn't work for you, try opening both files in a hex editor and looking for similarities or differences that may help you fix the file.
+            Tip: if this tool doesn't work for you, try opening both files in a hex editor and look for similarities or differences that may help you fix the file.
           </div>
           <div class="help">
             Did this page help you? Please tell me if it did or if it didn't: savefileconverter{{'\xa0'}}(at){{'\xa0'}}gmail{{'\xa0'}}(dot){{'\xa0'}}com
