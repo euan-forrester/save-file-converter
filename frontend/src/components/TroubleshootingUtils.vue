@@ -2,7 +2,7 @@
   <div>
     <b-container>
       <b-row no-gutters align-h="center" align-v="start">
-        <b-col sm=12 md=5 align-self="center">
+        <b-col sm=12 md=5>
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
               <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })">
@@ -20,7 +20,16 @@
             aria-controls="collapse-test-save-data"
             :aria-expanded="hasTestSaveData ? 'true' : 'false'"
           />
-          <file-info :fileName="this.testSaveDataFilename" :fileData="this.testSaveData" :display="this.hasTestSaveData" id="collapse-test-save-data"/>
+          <file-info
+            :fileName="this.testSaveDataFilename"
+            :fileData="this.testSaveData"
+            :otherFileName="this.brokenSaveDataFilename"
+            :otherFileData="this.brokenSaveData"
+            :display="this.hasTestSaveData"
+            id="collapse-test-save-data"
+            fileAttributeEqualVariant="success"
+            fileAttributeNotEqualVariant="success"
+          />
         </b-col>
         <b-col sm=12 md=2 lg=2 xl=2 align-self="start">
           <mq-layout :mq="['md', 'lg', 'xl']">
@@ -48,7 +57,16 @@
             aria-controls="collapse-broken-save-data"
             :aria-expanded="hasBrokenSaveData ? 'true' : 'false'"
           />
-          <file-info :fileName="this.brokenSaveDataFilename" :fileData="this.brokenSaveData" :display="this.hasBrokenSaveData" id="collapse-broken-save-data"/>
+          <file-info
+            :fileName="this.brokenSaveDataFilename"
+            :fileData="this.brokenSaveData"
+            :otherFileName="this.testSaveDataFilename"
+            :otherFileData="this.testSaveData"
+            :display="this.hasBrokenSaveData"
+            id="collapse-broken-save-data"
+            fileAttributeEqualVariant="success"
+            fileAttributeNotEqualVariant="danger"
+          />
         </b-col>
       </b-row>
       <b-row class="justify-content-md-center" align-h="center">
