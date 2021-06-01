@@ -48,7 +48,7 @@ export default {
         return null;
       }
 
-      if (this.fileName.localeCompare(this.otherFileName) === 0) {
+      if (this.fileName === this.otherFileName) {
         return this.fileAttributeEqualVariant;
       }
 

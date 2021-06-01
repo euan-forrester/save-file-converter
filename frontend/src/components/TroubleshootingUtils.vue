@@ -75,10 +75,15 @@
             class="troubleshooting-button"
             variant="success"
             block
-            :disabled="!this.testSaveData || !this.brokenSaveData"
+            :disabled="!this.testSaveData || !this.brokenSaveData || this.filesAreSame"
             @click="fixFile()"
           >
-          Attempt fix!
+          <div v-if="!this.filesAreSame">
+            Attempt fix!
+          </div>
+          <div v-else>
+            No differences found
+          </div>
           </b-button>
         </b-col>
       </b-row>
@@ -146,6 +151,12 @@ export default {
     hasBrokenSaveData: {
       get() { return this.brokenSaveData !== null; },
       set() { }, // Can only be set by updating this.brokenSaveData, and the b-collapse element isn't allowed to change it
+    },
+    filesAreSame() {
+      return this.testSaveData
+      && this.brokenSaveData
+      && (this.testSaveDataFilename === this.brokenSaveDataFilename)
+      && Troubleshooting.fileSizeAndPaddingIsSame(this.testSaveData, this.brokenSaveData);
     },
   },
   components: {

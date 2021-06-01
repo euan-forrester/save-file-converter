@@ -32,6 +32,21 @@ export default class Troubleshooting {
     return brokenSaveFixed;
   }
 
+  static fileSizeAndPaddingIsSame(arrayBuffer1, arrayBuffer2) {
+    if (arrayBuffer1.byteLength !== arrayBuffer2.byteLength) {
+      return false;
+    }
+
+    const padding1 = Troubleshooting.getPadValueAndCount(arrayBuffer1);
+    const padding2 = Troubleshooting.getPadValueAndCount(arrayBuffer2);
+
+    if ((padding1.count !== padding2.count) || (padding1.value !== padding2.value)) {
+      return false;
+    }
+
+    return true;
+  }
+
   static getPadValueAndCount(arrayBuffer) {
     const pad00Count = Troubleshooting.countPadding(arrayBuffer, 0x00);
     const padFFCount = Troubleshooting.countPadding(arrayBuffer, 0xFF);
