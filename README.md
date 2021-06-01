@@ -24,21 +24,30 @@ Instructions:
 
 ## Save file formats
 
-- Retron5: https://www.retro5.net/viewtopic.php?f=5&t=67&start=10
+- Retron5
+  - https://www.retro5.net/viewtopic.php?f=5&t=67&start=10
+- GameShark (GBA)
+  - (partial): https://gbatemp.net/threads/converting-gsv-or-sps-files-to-sav.51838/#post-664786
+  - (reading): https://github.com/visualboyadvance-m/visualboyadvance-m/blob/master/src/gba/GBA.cpp#L1025
+  - (writing): https://github.com/visualboyadvance-m/visualboyadvance-m/blob/master/src/gba/GBA.cpp#L1146
+  - (partial): https://github.com/mgba-emu/mgba/blob/master/src/gba/sharkport.c
+- GameShark SP (GBA)
+  - (reading): https://github.com/visualboyadvance-m/visualboyadvance-m/blob/master/src/gba/GBA.cpp#L1078
+- GameShark (PS2)
+  - (partial): https://www.ps2savetools.com/documents/xps-format/
 - PSP PS1 virtual memory card: https://psdevwiki.com/ps3/PS1_Savedata#Virtual_Memory_Card_PSP_.28.VMP.29
 - PS3 PS1 virtual memory card: https://psdevwiki.com/ps3/PS1_Savedata#Virtual_Memory_Card_PS1_.28.VM1.29
 - PS3 PS1/PS2 virtual memory card: https://github.com/bucanero/psv-save-converter
-- PS2 Save Tools: https://www.ps2savetools.com/
+- PS2
+  - Save Tools: https://www.ps2savetools.com/
+  - Memory card formats: http://www.csclub.uwaterloo.ca:11068/mymc/
 - MemcardRex format: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs
 - DexDrive format (?): https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/Hardware/DexDrive.cs
-- GameShark format (GBA, partial): https://gbatemp.net/threads/converting-gsv-or-sps-files-to-sav.51838/#post-664786
-- GameShark format (GBA [reading], partial): https://github.com/visualboyadvance-m/visualboyadvance-m/blob/master/src/gba/GBA.cpp#L1025
-- GameShark format (GBA [writing], partial): https://github.com/visualboyadvance-m/visualboyadvance-m/blob/master/src/gba/GBA.cpp#L1146
-- GameShark format (partial): https://github.com/mgba-emu/mgba/blob/master/src/gba/sharkport.c
-- GameShark SP format (GBA [reading], partial): https://github.com/visualboyadvance-m/visualboyadvance-m/blob/master/src/gba/GBA.cpp#L1078
-- GameShark format (PS2, partial): https://www.ps2savetools.com/documents/xps-format/
-- PS2 memory card formats: http://www.csclub.uwaterloo.ca:11068/mymc/
-- Wii save game format: https://wiibrew.org/wiki/Wii_Savegame_Parser, https://wiibrew.org/wiki/Savegame_Files, https://wiibrew.org/wiki/FE100 (note that the files are encrypted, and so a private key must be obtained)
+- Wii Virtual Console save game format (note that the files are encrypted, and so a private key must be obtained)
+  - https://wiibrew.org/wiki/Wii_Savegame_Parser
+  - https://wiibrew.org/wiki/Savegame_Files
+  - https://wiibrew.org/wiki/FE100
+  - https://hackmii.com/2008/04/keys-keys-keys/
 
 ## GBA save file size difficulty
 - https://zork.net/~st/jottings/GBA_saves.html
