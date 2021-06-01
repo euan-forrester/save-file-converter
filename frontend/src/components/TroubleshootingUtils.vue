@@ -2,7 +2,7 @@
   <div>
     <b-container>
       <b-row no-gutters align-h="center" align-v="start">
-        <b-col sm=12 md=5 align-self="center">
+        <b-col sm=12 md=5>
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
               <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })">
@@ -17,6 +17,18 @@
             :leaveRoomForHelpIcon="true"
             helpText="Make a test save using the emulator or cartridge that you want to use, to compare against the file that's not working."
             id="known-working-input-file"
+            aria-controls="collapse-test-save-data"
+            :aria-expanded="hasTestSaveData ? 'true' : 'false'"
+          />
+          <file-info
+            :fileName="this.testSaveDataFilename"
+            :fileData="this.testSaveData"
+            :otherFileName="this.brokenSaveDataFilename"
+            :otherFileData="this.brokenSaveData"
+            :display="this.hasTestSaveData"
+            id="collapse-test-save-data"
+            fileAttributeEqualVariant="success"
+            fileAttributeNotEqualVariant="success"
           />
         </b-col>
         <b-col sm=12 md=2 lg=2 xl=2 align-self="start">
@@ -42,6 +54,18 @@
             :leaveRoomForHelpIcon="true"
             helpText="The system will compare the file that's not working against the test save you made to try and figure out how to change it."
             id="needs-fixed-input-file"
+            aria-controls="collapse-broken-save-data"
+            :aria-expanded="hasBrokenSaveData ? 'true' : 'false'"
+          />
+          <file-info
+            :fileName="this.brokenSaveDataFilename"
+            :fileData="this.brokenSaveData"
+            :otherFileName="this.testSaveDataFilename"
+            :otherFileData="this.testSaveData"
+            :display="this.hasBrokenSaveData"
+            id="collapse-broken-save-data"
+            fileAttributeEqualVariant="success"
+            fileAttributeNotEqualVariant="danger"
           />
         </b-col>
       </b-row>
@@ -51,17 +75,22 @@
             class="troubleshooting-button"
             variant="success"
             block
-            :disabled="!this.testSaveData || !this.brokenSaveData"
+            :disabled="!this.testSaveData || !this.brokenSaveData || this.filesAreSame"
             @click="fixFile()"
           >
-          Attempt fix!
+          <div v-if="!this.filesAreSame">
+            Attempt fix!
+          </div>
+          <div v-else>
+            No differences found
+          </div>
           </b-button>
         </b-col>
       </b-row>
       <b-row>
         <b-col>
           <div class="help">
-            Tip: if this tool doesn't work for you, try opening both files in a hex editor and looking for similarities or differences that may help you fix the file.
+            Tip: if this tool doesn't work for you, try opening both files in a hex editor and look for similarities or differences that may help you fix the file.
           </div>
           <div class="help">
             Did this page help you? Please tell me if it did or if it didn't: savefileconverter{{'\xa0'}}(at){{'\xa0'}}gmail{{'\xa0'}}(dot){{'\xa0'}}com
@@ -100,6 +129,7 @@
 import path from 'path';
 import { saveAs } from 'file-saver';
 import InputFile from './InputFile.vue';
+import FileInfo from './FileInfo.vue';
 import Troubleshooting from '../util/Troubleshooting';
 
 export default {
@@ -109,11 +139,29 @@ export default {
       testSaveData: null,
       testSaveDataFilename: null,
       brokenSaveData: null,
+      brokenSaveDataFilename: null,
       outputFilename: null,
     };
   },
+  computed: {
+    hasTestSaveData: {
+      get() { return this.testSaveData !== null; },
+      set() { }, // Can only be set by updating this.testSaveData, and the b-collapse element isn't allowed to change it
+    },
+    hasBrokenSaveData: {
+      get() { return this.brokenSaveData !== null; },
+      set() { }, // Can only be set by updating this.brokenSaveData, and the b-collapse element isn't allowed to change it
+    },
+    filesAreSame() {
+      return this.testSaveData
+      && this.brokenSaveData
+      && (this.testSaveDataFilename === this.brokenSaveDataFilename)
+      && Troubleshooting.fileSizeAndPaddingIsSame(this.testSaveData, this.brokenSaveData);
+    },
+  },
   components: {
     InputFile,
+    FileInfo,
   },
   methods: {
     readTestSaveData(event) {
@@ -122,6 +170,7 @@ export default {
     },
     readBrokenSaveData(event) {
       this.brokenSaveData = event.arrayBuffer;
+      this.brokenSaveDataFilename = path.basename(event.filename);
     },
     fixFile() {
       const outputArrayBuffer = Troubleshooting.attemptFix(this.testSaveData, this.brokenSaveData);

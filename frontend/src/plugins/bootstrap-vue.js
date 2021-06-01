@@ -27,6 +27,8 @@ import {
   LinkPlugin,
   FormSelectPlugin,
   PopoverPlugin,
+  ListGroupPlugin,
+  CollapsePlugin,
 } from 'bootstrap-vue';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -43,3 +45,5 @@ Vue.use(FormInputPlugin);
 Vue.use(LinkPlugin);
 Vue.use(FormSelectPlugin);
 Vue.use(PopoverPlugin);
+Vue.use(ListGroupPlugin);
+Vue.use(CollapsePlugin);
