@@ -48,6 +48,7 @@ Instructions:
   - https://wiibrew.org/wiki/Savegame_Files
   - https://wiibrew.org/wiki/FE100
   - https://hackmii.com/2008/04/keys-keys-keys/
+  - https://github.com/Plombo/segher-wii-tools
 
 ## GBA save file size difficulty
 - https://zork.net/~st/jottings/GBA_saves.html
