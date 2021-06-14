@@ -83,6 +83,6 @@ describe('Troubleshooting example files', () => {
     const arrayBuffer1 = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) fixed extra padding at end.srm');
     const arrayBuffer2 = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) fixed extra padding at start.srm');
 
-    expect(Troubleshooting.fileSizeAndPaddingIsSame(arrayBuffer1, arrayBuffer2)).to.equal(falserfghb b  );
+    expect(Troubleshooting.fileSizeAndPaddingIsSame(arrayBuffer1, arrayBuffer2)).to.equal(false);
   });
 });
