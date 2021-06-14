@@ -12,7 +12,7 @@
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'">
             <input-file
-              @load="readRetron5SaveData($event)"
+              @load="readWiiSaveData($event)"
               :errorMessage="this.errorMessage"
               placeholderText="Choose a file to convert (*.bin)"
               acceptExtension=".bin"
@@ -55,10 +55,10 @@
       <b-row class="justify-content-md-center" align-h="center">
         <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
           <b-button
-            class="retron5-convert-button"
+            class="wii-convert-button"
             variant="success"
             block
-            :disabled="!this.retron5SaveData || !outputFilename"
+            :disabled="!this.wiiSaveData || !outputFilename"
             @click="convertFile()"
           >
           Convert!
@@ -79,7 +79,7 @@
 <style scoped>
 
 /* Separate class for each different button to enable tracking in google tag manager */
-.retron5-convert-button {
+.wii-convert-button {
   margin-top: 1em;
 }
 
@@ -94,13 +94,13 @@ import { saveAs } from 'file-saver';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
-import Retron5SaveData from '../save-formats/Retron5';
+import WiiSaveData from '../save-formats/Wii';
 
 export default {
   name: 'ConvertWii',
   data() {
     return {
-      retron5SaveData: null,
+      wiiSaveData: null,
       errorMessage: null,
       outputFilename: null,
       conversionDirection: 'convertToEmulator',
@@ -114,35 +114,35 @@ export default {
   methods: {
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
-      this.retron5SaveData = null;
+      this.wiiSaveData = null;
       this.errorMessage = null;
       this.outputFilename = null;
     },
     changeFilenameExtension(filename, newExtension) {
       return `${path.basename(filename, path.extname(filename))}.${newExtension}`;
     },
-    readRetron5SaveData(event) {
+    readWiiSaveData(event) {
       this.errorMessage = null;
       try {
-        this.retron5SaveData = Retron5SaveData.createFromRetron5Data(event.arrayBuffer);
+        this.wiiSaveData = WiiSaveData.createFromWiiData(event.arrayBuffer);
         this.outputFilename = this.changeFilenameExtension(event.filename, 'srm');
       } catch (e) {
         this.errorMessage = e.message;
-        this.retron5SaveData = null;
+        this.wiiSaveData = null;
       }
     },
     readEmulatorSaveData(event) {
       this.errorMessage = null;
       try {
-        this.retron5SaveData = Retron5SaveData.createFromEmulatorData(event.arrayBuffer);
-        this.outputFilename = this.changeFilenameExtension(event.filename, 'sav');
+        this.wiiSaveData = WiiSaveData.createFromEmulatorData(event.arrayBuffer);
+        this.outputFilename = this.changeFilenameExtension(event.filename, 'bin');
       } catch (e) {
         this.errorMessage = e.message;
-        this.retron5SaveData = null;
+        this.wiiSaveData = null;
       }
     },
     convertFile() {
-      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.retron5SaveData.getRawSaveData() : this.retron5SaveData.getArrayBuffer();
+      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.wiiSaveData.getRawSaveData() : this.wiiSaveData.getArrayBuffer();
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 
