@@ -11,6 +11,10 @@ describe('Wii save format', () => {
 
     expect(wiiSaveData.getGameTitle()).to.equal('Zelda Ⅱ');
     expect(wiiSaveData.getGameSubtitle()).to.equal('The Adv. of Link');
+    expect(wiiSaveData.getGameId()).to.equal('FA9E');
+    expect(wiiSaveData.getNumberOfFiles()).to.equal(1);
+    expect(wiiSaveData.getSizeOfFiles()).to.equal(8384);
+    expect(wiiSaveData.getTotalSize()).to.equal(9344);
 
     expect(wiiSaveData.getRawSaveData()).to.not.equal(null);
   });
