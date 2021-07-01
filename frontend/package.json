@@ -22,6 +22,7 @@
     "file-saver": "^2.0.5",
     "pako": "^2.0.3",
     "path": "^0.12.7",
+    "pkcs7": "^1.0.4",
     "vue": "^2.6.12",
     "vue-cli-plugin-s3-deploy": "^3.0.0",
     "vue-mq": "^1.0.1",

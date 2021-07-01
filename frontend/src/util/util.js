@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { pad, unpad } from 'pkcs7';
 
 export default class Util {
   static resizeRawSave(arrayBuffer, newSize) {
@@ -41,5 +42,13 @@ export default class Util {
     const encryptedBuffer = Buffer.concat([cipher.update(decryptedBuffer), cipher.final()]);
 
     return Util.bufferToArrayBuffer(encryptedBuffer);
+  }
+
+  static addPkcsPadding(arrayBuffer) {
+    return Util.bufferToArrayBuffer(pad(new Uint8Array(arrayBuffer)));
+  }
+
+  static removePkcsPadding(arrayBuffer) {
+    return Util.bufferToArrayBuffer(unpad(new Uint8Array(arrayBuffer)));
   }
 }
