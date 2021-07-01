@@ -9,7 +9,7 @@ Encryption keys are from: https://hackmii.com/2008/04/keys-keys-keys/
 import Util from '../util/util';
 
 // const LITTLE_ENDIAN = false;
-const ENCRYPTION_ALGORITHM = 'aes-256-cbc';
+const ENCRYPTION_ALGORITHM = 'aes-128-cbc';
 const SD_KEY = 'ab01b9d8e1622b08afbad84dbfc2a55d';
 const SD_INITIALIZATION_VECTOR = '216712e6aa1f689f95c5a22324dc6a98';
 const MAIN_HEADER_SIZE = 0x20;
@@ -42,7 +42,7 @@ export default class WiiSaveData {
 
     // Everything looks good
 
-    this.rawSaveData = null;
+    this.rawSaveData = mainHeader; // null;
   }
 
   getRawSaveData() {

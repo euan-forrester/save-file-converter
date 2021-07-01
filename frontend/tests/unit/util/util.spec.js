@@ -4,7 +4,7 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 const PLAINTEXT_STRING = 'Gargoyle\'s Quest > Demon\'s Crest, Megaman X3 > Megaman X2, Adventure of Link > Link to the Past';
 const PLAINTEXT_ENCODING = 'utf8';
-const ENCRYPTION_ALGORITHM = 'aes-256-cbc';
+const ENCRYPTION_ALGORITHM = 'aes-128-cbc';
 const ENCRYPTION_KEY = 'ab01b9d8e1622b08afbad84dbfc2a55d';
 const ENCRYPTION_INITIALIZATION_VECTOR = '216712e6aa1f689f95c5a22324dc6a98';
 
