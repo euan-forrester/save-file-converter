@@ -18,13 +18,31 @@ const SD_INITIALIZATION_VECTOR = '216712e6aa1f689f95c5a22324dc6a98';
 const MAIN_HEADER_SIZE = 0x20;
 const BANNER_MAGIC = 0x5749424E; // 'WIBN' ('Wii banner'?)
 const BACKUP_HEADER_SIZE = 0x70;
+const BACKUP_HEADER_PADDING_SIZE = 0x10;
 const BACKUP_HEADER_MAGIC = 0x426B; // 'Bk'
+const FILE_HEADER_SIZE = 0x80;
+const FILE_HEADER_MAGIC = 0x03ADF17E;
 
 const INCORRECT_FORMAT_ERROR_MESSAGE = 'This does not appear to be a Wii save file';
 
 function getString(arrayBuffer, byteOffset, byteLength, textDecoder) {
   const bytes = new Uint8Array(arrayBuffer.slice(byteOffset, byteOffset + byteLength));
   return textDecoder.decode(bytes).replace(/\0/g, ''); // Remove trailing nulls
+}
+
+function getNullTerminatedString(arrayBuffer, byteOffset, textDecoder) {
+  const array = new Uint8Array(arrayBuffer.slice(byteOffset));
+  const nullIndex = array.indexOf(0);
+
+  if (nullIndex === -1) {
+    return '';
+  }
+
+  return getString(arrayBuffer, byteOffset, nullIndex, textDecoder);
+}
+
+function roundUpToNearest64Bytes(num) {
+  return num; // FIXME
 }
 
 export default class WiiSaveData {
@@ -88,15 +106,42 @@ export default class WiiSaveData {
       throw new Error(INCORRECT_FORMAT_ERROR_MESSAGE);
     }
 
-    const gameIdDecoder = new TextDecoder(GAME_ID_ENCODING);
+    const asciiDecoder = new TextDecoder(GAME_ID_ENCODING);
     this.numberOfFiles = backupHeaderDataView.getUint32(0xC, LITTLE_ENDIAN);
     this.sizeOfFiles = backupHeaderDataView.getUint32(0x10, LITTLE_ENDIAN);
     this.totalSize = backupHeaderDataView.getUint32(0x1C, LITTLE_ENDIAN);
-    this.gameId = getString(backupHeader, 0x64, 4, gameIdDecoder);
+    this.gameId = getString(backupHeader, 0x64, 4, asciiDecoder);
 
-    // Everything looks good
+    // Parse the files
 
-    this.rawSaveData = mainHeader; // null;
+    let currentByte = MAIN_HEADER_SIZE + bannerSize + BACKUP_HEADER_SIZE + BACKUP_HEADER_PADDING_SIZE;
+    this.files = [];
+
+    for (let i = 0; i < this.numberOfFiles; i += 1) {
+      const file = WiiSaveData.parseFile(encryptedArrayBuffer, currentByte, asciiDecoder);
+      this.files.push(file);
+
+      currentByte += (FILE_HEADER_SIZE + roundUpToNearest64Bytes(file.size));
+    }
+  }
+
+  static parseFile(arrayBuffer, currentByte, asciiDecoder) {
+    // Parse the file header
+
+    const fileHeader = arrayBuffer.slice(currentByte, currentByte + FILE_HEADER_SIZE);
+    const fileHeaderDataView = new DataView(fileHeader);
+
+    if (fileHeaderDataView.getUint32(0, LITTLE_ENDIAN) !== FILE_HEADER_MAGIC) {
+      throw new Error(INCORRECT_FORMAT_ERROR_MESSAGE);
+    }
+
+    const size = fileHeaderDataView.getUint32(0x4, LITTLE_ENDIAN);
+    const name = getNullTerminatedString(fileHeader, 0xB, asciiDecoder);
+
+    return {
+      size,
+      name,
+    };
   }
 
   getGameTitle() {
@@ -115,16 +160,16 @@ export default class WiiSaveData {
     return this.sizeOfFiles;
   }
 
+  getFiles() {
+    return this.files;
+  }
+
   getTotalSize() {
     return this.totalSize;
   }
 
   getGameId() {
     return this.gameId;
-  }
-
-  getRawSaveData() {
-    return this.rawSaveData;
   }
 
   getArrayBuffer() {

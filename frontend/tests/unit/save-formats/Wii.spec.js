@@ -16,6 +16,13 @@ describe('Wii save format', () => {
     expect(wiiSaveData.getSizeOfFiles()).to.equal(8384);
     expect(wiiSaveData.getTotalSize()).to.equal(9344);
 
-    expect(wiiSaveData.getRawSaveData()).to.not.equal(null);
+    const fileList = wiiSaveData.getFiles();
+
+    expect(fileList.length).to.equal(1);
+
+    const file = fileList[0];
+
+    expect(file.size).to.equal(8256);
+    expect(file.name).to.equal('savedata.bin');
   });
 });
