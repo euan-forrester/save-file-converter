@@ -1,4 +1,4 @@
-/* eslint no-bitwise: ["error", { "allow": ["&", ">>>"] }] */
+/* eslint no-bitwise: ["error", { "allow": ["|", ">>>", "<<"] }] */
 
 /*
 The Wii save data format is documented here: https://wiibrew.org/wiki/Savegame_Files
@@ -41,8 +41,23 @@ function getNullTerminatedString(arrayBuffer, byteOffset, textDecoder) {
   return getString(arrayBuffer, byteOffset, nullIndex, textDecoder);
 }
 
-function roundUpToNearest64Bytes(num) {
-  return num; // FIXME
+function parseFile(arrayBuffer, currentByte, asciiDecoder) {
+  // Parse the file header
+
+  const fileHeader = arrayBuffer.slice(currentByte, currentByte + FILE_HEADER_SIZE);
+  const fileHeaderDataView = new DataView(fileHeader);
+
+  if (fileHeaderDataView.getUint32(0, LITTLE_ENDIAN) !== FILE_HEADER_MAGIC) {
+    throw new Error(INCORRECT_FORMAT_ERROR_MESSAGE);
+  }
+
+  const size = fileHeaderDataView.getUint32(0x4, LITTLE_ENDIAN);
+  const name = getNullTerminatedString(fileHeader, 0xB, asciiDecoder);
+
+  return {
+    size,
+    name,
+  };
 }
 
 export default class WiiSaveData {
@@ -118,30 +133,20 @@ export default class WiiSaveData {
     this.files = [];
 
     for (let i = 0; i < this.numberOfFiles; i += 1) {
-      const file = WiiSaveData.parseFile(encryptedArrayBuffer, currentByte, asciiDecoder);
+      const file = parseFile(encryptedArrayBuffer, currentByte, asciiDecoder);
       this.files.push(file);
 
-      currentByte += (FILE_HEADER_SIZE + roundUpToNearest64Bytes(file.size));
+      currentByte += (FILE_HEADER_SIZE + WiiSaveData.roundUpToNearest64Bytes(file.size));
     }
   }
 
-  static parseFile(arrayBuffer, currentByte, asciiDecoder) {
-    // Parse the file header
-
-    const fileHeader = arrayBuffer.slice(currentByte, currentByte + FILE_HEADER_SIZE);
-    const fileHeaderDataView = new DataView(fileHeader);
-
-    if (fileHeaderDataView.getUint32(0, LITTLE_ENDIAN) !== FILE_HEADER_MAGIC) {
-      throw new Error(INCORRECT_FORMAT_ERROR_MESSAGE);
+  // Made a public member of the class so we can write tests for it specifically
+  static roundUpToNearest64Bytes(num) {
+    if (num < 0) {
+      return 0;
     }
 
-    const size = fileHeaderDataView.getUint32(0x4, LITTLE_ENDIAN);
-    const name = getNullTerminatedString(fileHeader, 0xB, asciiDecoder);
-
-    return {
-      size,
-      name,
-    };
+    return (((num + 0x3F) >>> 6) << 6);
   }
 
   getGameTitle() {
