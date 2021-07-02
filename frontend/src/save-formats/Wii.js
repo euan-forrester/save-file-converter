@@ -12,8 +12,8 @@ const LITTLE_ENDIAN = false;
 const GAME_TITLE_ENCODING = 'utf-16be';
 const GAME_ID_ENCODING = 'US-ASCII';
 const ENCRYPTION_ALGORITHM = 'aes-128-cbc';
-const SD_KEY = 'ab01b9d8e1622b08afbad84dbfc2a55d';
-const SD_INITIALIZATION_VECTOR = '216712e6aa1f689f95c5a22324dc6a98';
+const SD_KEY = Buffer.from('ab01b9d8e1622b08afbad84dbfc2a55d', 'hex');
+const SD_INITIALIZATION_VECTOR = Buffer.from('216712e6aa1f689f95c5a22324dc6a98', 'hex');
 
 const MAIN_HEADER_SIZE = 0x20;
 const BANNER_MAGIC = 0x5749424E; // 'WIBN' ('Wii banner'?)
@@ -53,10 +53,21 @@ function parseFile(arrayBuffer, currentByte, asciiDecoder) {
 
   const size = fileHeaderDataView.getUint32(0x4, LITTLE_ENDIAN);
   const name = getNullTerminatedString(fileHeader, 0xB, asciiDecoder);
+  const initializationVector = Buffer.from(arrayBuffer.slice(0x50, 0x60));
+
+  const encryptedData = arrayBuffer.slice(FILE_HEADER_SIZE, FILE_HEADER_SIZE + size);
+  let decryptedData = null;
+
+  try {
+    decryptedData = Util.decrypt(encryptedData, ENCRYPTION_ALGORITHM, SD_KEY, initializationVector);
+  } catch (e) {
+    throw new Error(INCORRECT_FORMAT_ERROR_MESSAGE, e); // Error trying to decrypt indicates that something is malformed
+  }
 
   return {
     size,
     name,
+    data: decryptedData,
   };
 }
 
@@ -86,7 +97,7 @@ export default class WiiSaveData {
     try {
       decryptedArrayBuffer = Util.decrypt(arrayBuffer, ENCRYPTION_ALGORITHM, SD_KEY, SD_INITIALIZATION_VECTOR);
     } catch (e) {
-      throw new Error(INCORRECT_FORMAT_ERROR_MESSAGE, e);
+      throw new Error(INCORRECT_FORMAT_ERROR_MESSAGE, e); // Error trying to decrypt indicates that something is malformed
     }
 
     // Parse the main header

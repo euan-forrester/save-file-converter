@@ -24,6 +24,7 @@ describe('Wii save format', () => {
 
     expect(file.size).to.equal(8256);
     expect(file.name).to.equal('savedata.bin');
+    expect(file.data.byteLength).to.equal(file.size);
   });
 
   it('should correctly round up to the nearest 64 bytes', () => {
