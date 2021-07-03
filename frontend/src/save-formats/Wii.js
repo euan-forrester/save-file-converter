@@ -55,6 +55,8 @@ function parseFile(arrayBuffer, currentByte, asciiDecoder) {
   const name = getNullTerminatedString(fileHeader, 0xB, asciiDecoder);
   const initializationVector = Buffer.from(arrayBuffer.slice(0x50, 0x60));
 
+  // Use the info from the file header to decrypt the raw save
+
   const encryptedData = arrayBuffer.slice(FILE_HEADER_SIZE, FILE_HEADER_SIZE + size);
   let decryptedData = null;
 

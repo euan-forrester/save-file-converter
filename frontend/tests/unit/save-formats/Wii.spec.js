@@ -2,12 +2,13 @@ import { expect } from 'chai';
 import WiiSaveData from '@/save-formats/Wii';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const FILENAME = './tests/unit/save-formats/data/zelda-ii-the-adventure-of-link.15037.bin';
+const WII_FILENAME = './tests/unit/save-formats/data/zelda-ii-the-adventure-of-link.15037.bin';
+const RAW_FILENAME = './tests/unit/save-formats/data/zelda-ii-the-adventure-of-link.15037-extracted.bin';
 
 describe('Wii save format', () => {
   it('should decrypt and parse a sample save file', async () => {
-    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(FILENAME);
-    const wiiSaveData = new WiiSaveData(arrayBuffer);
+    const wiiArrayBuffer = await ArrayBufferUtil.readArrayBuffer(WII_FILENAME);
+    const wiiSaveData = new WiiSaveData(wiiArrayBuffer);
 
     expect(wiiSaveData.getGameTitle()).to.equal('Zelda Ⅱ');
     expect(wiiSaveData.getGameSubtitle()).to.equal('The Adv. of Link');
@@ -25,6 +26,10 @@ describe('Wii save format', () => {
     expect(file.size).to.equal(8256);
     expect(file.name).to.equal('savedata.bin');
     expect(file.data.byteLength).to.equal(file.size);
+
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_FILENAME);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(file.data, rawArrayBuffer)).to.equal(true);
   });
 
   it('should correctly round up to the nearest 64 bytes', () => {
