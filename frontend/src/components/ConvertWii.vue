@@ -142,11 +142,17 @@ export default {
       }
     },
     convertFile() {
-      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.wiiSaveData.getRawSaveData() : this.wiiSaveData.getArrayBuffer();
+      if (this.conversionDirection === 'convertToEmulator') {
+        this.wiiSaveData.getFiles().forEach((file) => {
+          const outputBlob = new Blob([file.data], { type: 'application/octet-stream' });
 
-      const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
+          saveAs(outputBlob, this.outputFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
+        });
+      } else {
+        const outputBlob = new Blob([this.wiiSaveData.getArrayBuffer()], { type: 'application/octet-stream' });
 
-      saveAs(outputBlob, this.outputFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
+        saveAs(outputBlob, this.outputFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
+      }
     },
   },
 };

@@ -4,6 +4,16 @@
 The Wii save data format is documented here: https://wiibrew.org/wiki/Savegame_Files
 Encryption keys are from: https://hackmii.com/2008/04/keys-keys-keys/
 
+The overall file structure looks like:
+- Main header (contains the banner header size)
+- Banner header (contains the icon that shows up in the Wii UI)
+- Backup header (contains the number of files and their sizes)
+- Then a number of files, each of which contains:
+  - File header (contains the file size and decryption info)
+  - File data
+    - This also contains a header
+
+Some parts are encrypted and some aren't
 */
 
 import Util from '../util/util';
@@ -53,11 +63,11 @@ function parseFile(arrayBuffer, currentByte, asciiDecoder) {
 
   const size = fileHeaderDataView.getUint32(0x4, LITTLE_ENDIAN);
   const name = getNullTerminatedString(fileHeader, 0xB, asciiDecoder);
-  const initializationVector = Buffer.from(arrayBuffer.slice(0x50, 0x60));
+  const initializationVector = Buffer.from(fileHeader.slice(0x50, 0x60));
 
   // Use the info from the file header to decrypt the raw save
 
-  const encryptedData = arrayBuffer.slice(FILE_HEADER_SIZE, FILE_HEADER_SIZE + size);
+  const encryptedData = arrayBuffer.slice(currentByte + FILE_HEADER_SIZE, currentByte + FILE_HEADER_SIZE + size);
   let decryptedData = null;
 
   try {
