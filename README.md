@@ -49,6 +49,7 @@ Instructions:
   - https://wiibrew.org/wiki/FE100
   - https://hackmii.com/2008/04/keys-keys-keys/
   - https://github.com/Plombo/segher-wii-tools
+  - (writing) https://github.com/Plombo/segher-wii-tools/blob/master/twintig.c
   - https://github.com/Plombo/vcromclaim
   - https://github.com/JanErikGunnar/vcromclaim
 
