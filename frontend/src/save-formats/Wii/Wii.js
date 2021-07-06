@@ -11,12 +11,12 @@ The overall file structure looks like:
 - Then a number of files, each of which contains:
   - File header (contains the file size and decryption info)
   - File data
-    - This also contains a header
+    - This may also contains a header, depending on which console the save is for
 
 Some parts are encrypted and some aren't
 */
 
-import Util from '../util/util';
+import Util from '../../util/util';
 
 const LITTLE_ENDIAN = false;
 const GAME_TITLE_ENCODING = 'utf-16be';

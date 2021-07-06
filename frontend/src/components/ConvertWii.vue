@@ -94,7 +94,7 @@ import { saveAs } from 'file-saver';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
-import WiiSaveData from '../save-formats/Wii';
+import WiiSaveData from '../save-formats/Wii/Wii';
 
 export default {
   name: 'ConvertWii',

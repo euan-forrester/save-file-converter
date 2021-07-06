@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import WiiSaveData from '@/save-formats/Wii';
+import WiiSaveData from '@/save-formats/Wii/Wii';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 const WII_FILENAME = './tests/unit/save-formats/data/zelda-ii-the-adventure-of-link.15037.bin';
