@@ -68,7 +68,7 @@
       <b-row>
         <b-col>
           <div class="help">
-            Help: how do I copy files&nbsp;<b-link href="https://en-americas-support.nintendo.com/app/answers/detail/a_id/2709/~/how-to-move-data-from-the-wii-to-an-sd-card">from my Nintendo Wii</b-link>, and&nbsp;<b-link href="https://en-americas-support.nintendo.com/app/answers/detail/a_id/2723/~/how-to-copy-save-data-to-the-wii-from-an-sd-card">to my Nintendo Wii</b-link>?
+            Help: how do I copy files&nbsp;<b-link href="https://en-americas-support.nintendo.com/app/answers/detail/a_id/2709/~/how-to-move-data-from-the-wii-to-an-sd-card">from my Nintendo Wii</b-link>, or&nbsp;<b-link href="https://en-americas-support.nintendo.com/app/answers/detail/a_id/2723/~/how-to-copy-save-data-to-the-wii-from-an-sd-card">to my Nintendo Wii</b-link>?
           </div>
         </b-col>
       </b-row>

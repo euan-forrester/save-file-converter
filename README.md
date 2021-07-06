@@ -43,12 +43,14 @@ Instructions:
   - Memory card formats: http://www.csclub.uwaterloo.ca:11068/mymc/
 - MemcardRex format: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs
 - DexDrive format (?): https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/Hardware/DexDrive.cs
-- Wii Virtual Console save game format (note that the files are encrypted, and so a private key must be obtained)
+- Wii Virtual Console save game format (note that the files are encrypted)
   - https://wiibrew.org/wiki/Wii_Savegame_Parser
   - https://wiibrew.org/wiki/Savegame_Files
   - https://wiibrew.org/wiki/FE100
   - https://hackmii.com/2008/04/keys-keys-keys/
   - https://github.com/Plombo/segher-wii-tools
+  - https://github.com/Plombo/vcromclaim
+  - https://github.com/JanErikGunnar/vcromclaim
 
 ## GBA save file size difficulty
 - https://zork.net/~st/jottings/GBA_saves.html
