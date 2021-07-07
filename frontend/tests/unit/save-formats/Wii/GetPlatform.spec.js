@@ -9,7 +9,8 @@ const TEST_TIMEOUT = 5000; // ms
 
 const getPlatform = new GetPlatform();
 
-describe('Get Wii platform', () => {
+describe('Get Wii platform', function () { // eslint-disable-line func-names
+  // No arrow function above so that 'this' binds correctly
   this.timeout(TEST_TIMEOUT);
 
   it('should get the correct VC platform for an NES game', async () => {

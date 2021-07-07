@@ -54,7 +54,7 @@ export default class GetPlatform {
         return UNKOWN;
       }
 
-      console.log(`Got response: ${response.data}`);
+      // console.log(`Got response: ${response.data}`);
 
       return PLATFORMS[0];
     } catch (error) {
