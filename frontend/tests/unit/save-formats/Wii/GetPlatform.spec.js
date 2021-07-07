@@ -5,9 +5,13 @@
 import { expect } from 'chai';
 import GetPlatform from '@/save-formats/Wii/GetPlatform';
 
+const TEST_TIMEOUT = 5000; // ms
+
 const getPlatform = new GetPlatform();
 
 describe('Get Wii platform', () => {
+  this.timeout(TEST_TIMEOUT);
+
   it('should get the correct VC platform for an NES game', async () => {
     const platform = await getPlatform.get('FBNE'); // Ninja Gaiden
     expect(platform).equals('VC-NES');

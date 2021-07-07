@@ -16,6 +16,8 @@ Reasons for not doing these:
 Plus this site gets very little traffic. May need to reevaluate if we start getting lots of traffic but I don't expect that given our tiny niche.
 */
 
+// FIXME: Add retries
+
 import axios from 'axios';
 import httpAdapter from 'axios/lib/adapters/http';
 
@@ -35,6 +37,8 @@ const PLATFORMS = [
   'Wii', // Wii native title
 ];
 
+const UNKOWN = 'Unknown';
+
 export default class GetPlatform {
   constructor() {
     this.axios = axios.create({
@@ -43,10 +47,18 @@ export default class GetPlatform {
   }
 
   async get(gameId) {
-    const response = await this.axios.get(gameId, { adapter: httpAdapter });
+    try {
+      const response = await this.axios.get(gameId, { adapter: httpAdapter });
 
-    console.log(`Got response: ${response}`);
+      if (response.status === 404) {
+        return UNKOWN;
+      }
 
-    return PLATFORMS[0];
+      console.log(`Got response: ${response.data}`);
+
+      return PLATFORMS[0];
+    } catch (error) {
+      return UNKOWN;
+    }
   }
 }
