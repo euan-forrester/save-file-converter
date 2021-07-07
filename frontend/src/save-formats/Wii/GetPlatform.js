@@ -16,7 +16,10 @@ Reasons for not doing these:
 Plus this site gets very little traffic. May need to reevaluate if we start getting lots of traffic but I don't expect that given our tiny niche.
 */
 
-// const BASE_URL = 'https://www.gametdb.com/Wii/';
+import axios from 'axios';
+import httpAdapter from 'axios/lib/adapters/http';
+
+const BASE_URL = 'https://www.gametdb.com/Wii/';
 
 const PLATFORMS = [
   'VC-NES', // Nintendo Entertainment System
@@ -32,6 +35,18 @@ const PLATFORMS = [
   'Wii', // Wii native title
 ];
 
-export default function GetPlatform() {
-  return PLATFORMS[0];
+export default class GetPlatform {
+  constructor() {
+    this.axios = axios.create({
+      baseURL: BASE_URL,
+    });
+  }
+
+  async get(gameId) {
+    const response = await this.axios.get(gameId, { adapter: httpAdapter });
+
+    console.log(`Got response: ${response}`);
+
+    return PLATFORMS[0];
+  }
 }
