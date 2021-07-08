@@ -24,7 +24,7 @@ describe('Get Wii platform', function () { // eslint-disable-line func-names
   });
 
   it('should get the correct VC platform for an N64 game', async () => {
-    const platform = await getPlatform.get('NAJE'); // Star Fox 64
+    const platform = await getPlatform.get('NADJ'); // Star Fox 64
     expect(platform).equals('VC-N64');
   });
 

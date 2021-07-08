@@ -20,6 +20,7 @@ Plus this site gets very little traffic. May need to reevaluate if we start gett
 
 import axios from 'axios';
 import httpAdapter from 'axios/lib/adapters/http';
+import { parse } from 'node-html-parser';
 
 const BASE_URL = 'https://www.gametdb.com/Wii/';
 
@@ -37,7 +38,7 @@ const PLATFORMS = [
   'Wii', // Wii native title
 ];
 
-const UNKOWN = 'Unknown';
+const UNKNOWN = 'Unknown';
 
 export default class GetPlatform {
   constructor() {
@@ -50,15 +51,41 @@ export default class GetPlatform {
     try {
       const response = await this.axios.get(gameId, { adapter: httpAdapter });
 
-      if (response.status === 404) {
-        return UNKOWN;
+      const root = parse(response.data);
+
+      // The gametdb page looks like:
+      // ...
+      // <table class="GameData">
+      //   <tr>
+      //     <td>TD</td><td>[Game ID]</td>
+      //   </tr>
+      //   <tr>
+      //     <td>region</td><td>[Region]</td>
+      //   </tr>
+      //   <tr>
+      //     <td>type</td><td>[Platform type]</td>
+      //   </tr>
+      //   ...
+      // </table>
+      // ...
+
+      const gameDataTable = root.querySelector('.GameData');
+      const platformRow = gameDataTable.querySelector('tr:nth-child(3)');
+      const platformType = platformRow.querySelector('td:last-child').firstChild.textContent.trim();
+
+      const platformTypeIndex = PLATFORMS.indexOf(platformType);
+
+      if (platformTypeIndex === -1) {
+        return UNKNOWN;
       }
 
-      // console.log(`Got response: ${response.data}`);
-
-      return PLATFORMS[0];
+      return PLATFORMS[platformTypeIndex];
     } catch (error) {
-      return UNKOWN;
+      if (error.response.status === 404) {
+        return UNKNOWN;
+      }
+
+      return UNKNOWN; // Unsure if we should do something different here
     }
   }
 }
