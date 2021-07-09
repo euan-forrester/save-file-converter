@@ -81,7 +81,7 @@ export default class GetPlatform {
 
       let platformType = null;
 
-      for (let i = 3; i >= 2; i -= 1) {
+      for (let i = 3; i >= 2; i -= 1) { // Count backwards because almost every game has it on row 3
         const platformRow = gameDataTable.querySelector(`tr:nth-child(${i})`);
         let rowName = platformRow.querySelector('td:first-child').firstChild.textContent;
 
