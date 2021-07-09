@@ -95,12 +95,16 @@ import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import WiiSaveData from '../save-formats/Wii/Wii';
+import GetPlatform from '../save-formats/Wii/GetPlatform';
+
+const getPlatform = new GetPlatform();
 
 export default {
   name: 'ConvertWii',
   data() {
     return {
       wiiSaveData: null,
+      platformType: null,
       errorMessage: null,
       outputFilename: null,
       conversionDirection: 'convertToEmulator',
@@ -115,20 +119,26 @@ export default {
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
       this.wiiSaveData = null;
+      this.platformType = null;
       this.errorMessage = null;
       this.outputFilename = null;
     },
     changeFilenameExtension(filename, newExtension) {
       return `${path.basename(filename, path.extname(filename))}.${newExtension}`;
     },
-    readWiiSaveData(event) {
+    async readWiiSaveData(event) {
       this.errorMessage = null;
       try {
         this.wiiSaveData = WiiSaveData.createFromWiiData(event.arrayBuffer);
         this.outputFilename = this.changeFilenameExtension(event.filename, 'srm');
+
+        this.platformType = await getPlatform.get(this.wiiSaveData.getGameId());
+
+        console.log(`Found platformType: ${this.platformType}`);
       } catch (e) {
         this.errorMessage = e.message;
         this.wiiSaveData = null;
+        this.platformType = null;
       }
     },
     readEmulatorSaveData(event) {
@@ -139,6 +149,7 @@ export default {
       } catch (e) {
         this.errorMessage = e.message;
         this.wiiSaveData = null;
+        this.platformType = null;
       }
     },
     convertFile() {
