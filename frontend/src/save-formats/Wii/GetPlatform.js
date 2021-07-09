@@ -69,6 +69,7 @@ export default class GetPlatform {
       // </table>
       // ...
 
+      // All done with query selectors to try and accompdate any small changes in the html
       const gameDataTable = root.querySelector('.GameData');
       const platformRow = gameDataTable.querySelector('tr:nth-child(3)');
       const platformType = platformRow.querySelector('td:last-child').firstChild.textContent.trim();
