@@ -5,7 +5,7 @@
 import { expect } from 'chai';
 import GetPlatform from '@/save-formats/Wii/GetPlatform';
 
-const TEST_TIMEOUT = 5000; // ms
+const TEST_TIMEOUT = 10000; // ms
 
 const getPlatform = new GetPlatform();
 
@@ -66,6 +66,18 @@ describe('Get Wii platform', function () { // eslint-disable-line func-names
   it('should recognize a Wii game', async () => {
     const platform = await getPlatform.get('R3OP01'); // Metroid: Other M
     expect(platform).equals('Wii');
+  });
+
+  it('should recognize a Homebrew game', async () => {
+    const platform = await getPlatform.get('D40A'); // Luigi and the Island of Mystery
+    expect(platform).equals('Homebrew');
+  });
+
+  it('should recognize a game without a platform listed', async () => {
+    // Some titles in the downloadable XML document don't have any platform listed. Those seem to get
+    // listed as 'Wii' when viewed on the main site
+    const platform = await getPlatform.get('Wii'); // The Legend of Zelda: Skyward Sword (Demo)
+    expect(platform).equals('Unknown');
   });
 
   it('should not recognize an unknown game', async () => {

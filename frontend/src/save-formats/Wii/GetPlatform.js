@@ -24,6 +24,7 @@ import { parse } from 'node-html-parser';
 
 const BASE_URL = 'https://www.gametdb.com/Wii/';
 
+// Note that these types are listed in the downloadable XML version of the website's data, which can be found at: https://www.gametdb.com/Wii/Downloads
 const PLATFORMS = [
   'VC-NES', // Nintendo Entertainment System
   'VC-SNES', // Super Nintendo Entertainment System
@@ -36,7 +37,10 @@ const PLATFORMS = [
   'VC-Arcade', // Arcade
   'WiiWare', // WiiWare
   'Wii', // Wii native title
+  'Homebrew', // Homebrew title
 ];
+
+const PLATFORMS_LOWERCASE = PLATFORMS.map((x) => x.toLowerCase());
 
 const UNKNOWN = 'Unknown';
 
@@ -69,12 +73,33 @@ export default class GetPlatform {
       // </table>
       // ...
 
-      // All done with query selectors to try and accompdate any small changes in the html
+      // All done with query selectors to try and accompdate any potential future small changes in the html
       const gameDataTable = root.querySelector('.GameData');
-      const platformRow = gameDataTable.querySelector('tr:nth-child(3)');
-      const platformType = platformRow.querySelector('td:last-child').firstChild.textContent.trim();
 
-      const platformTypeIndex = PLATFORMS.indexOf(platformType);
+      // The platform type can be listed on rows 2 or 3. The former happens if the region is omitted,
+      // such as in the case of homebrew titles
+
+      let platformType = null;
+
+      for (let i = 3; i >= 2; i -= 1) {
+        const platformRow = gameDataTable.querySelector(`tr:nth-child(${i})`);
+        let rowName = platformRow.querySelector('td:first-child').firstChild.textContent;
+
+        if (rowName !== null) {
+          rowName = rowName.trim().toLowerCase();
+        }
+
+        if (rowName === 'type') {
+          platformType = platformRow.querySelector('td:last-child').firstChild.textContent;
+          break;
+        }
+      }
+
+      if (platformType !== null) {
+        platformType = platformType.trim().toLowerCase();
+      }
+
+      const platformTypeIndex = PLATFORMS_LOWERCASE.indexOf(platformType);
 
       if (platformTypeIndex === -1) {
         return UNKNOWN;
@@ -82,7 +107,7 @@ export default class GetPlatform {
 
       return PLATFORMS[platformTypeIndex];
     } catch (error) {
-      if (error.response.status === 404) {
+      if ((error.response !== undefined) && (error.response.status === 404)) {
         return UNKNOWN;
       }
 
