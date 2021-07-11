@@ -81,8 +81,8 @@ describe('Get Wii platform', function () { // eslint-disable-line func-names
   it('should recognize a game without a platform listed', async () => {
     // Some titles in the downloadable XML document don't have any platform listed. Those seem to get
     // listed as 'Wii' when viewed on the main site
-    const platform = await this.getPlatform.get('Wii'); // The Legend of Zelda: Skyward Sword (Demo)
-    expect(platform).equals('Unknown');
+    const platform = await this.getPlatform.get('DAXE01'); // The Legend of Zelda: Skyward Sword (Demo)
+    expect(platform).equals('Wii');
   });
 
   it('should not recognize an unknown game', async () => {
