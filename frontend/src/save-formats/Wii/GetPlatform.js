@@ -16,8 +16,6 @@ Reasons for not doing these:
 Plus this site gets very little traffic. May need to reevaluate if we start getting lots of traffic but I don't expect that given our tiny niche.
 */
 
-import axios from 'axios';
-import axiosRetry from 'axios-retry';
 import { parse } from 'node-html-parser';
 
 // Here, we proxy our requests through the public service for thingproxy (https://github.com/Freeboard/thingproxy).
@@ -29,8 +27,6 @@ import { parse } from 'node-html-parser';
 //
 // We may need to reevaluate usage of this proxy (and directly hitting the gametdb service) if our traffic increases.
 const BASE_URL = 'https://thingproxy.freeboard.io/fetch/https://www.gametdb.com/Wii/';
-const NUM_RETRIES = 3; // Definitely need some retries given that we're dealing with a free proxy and a free website (that's not intended to be an API)
-const RETRY_DELAY = 500; // ms
 
 // Note that these types are listed in the downloadable XML version of the website's data, which can be found at: https://www.gametdb.com/Wii/Downloads
 const PLATFORMS = [
@@ -53,20 +49,17 @@ const PLATFORMS_LOWERCASE = PLATFORMS.map((x) => x.toLowerCase());
 const UNKNOWN_PLATFORM = 'Unknown';
 
 export default class GetPlatform {
-  constructor() {
-    this.axios = axios.create({
-      baseURL: BASE_URL,
-    });
+  constructor(httpClient) {
+    this.httpClient = httpClient;
+  }
 
-    axiosRetry(this.axios, {
-      retries: NUM_RETRIES,
-      retryDelay: () => RETRY_DELAY,
-    });
+  static getBaseUrl() {
+    return BASE_URL;
   }
 
   async get(gameId) {
     try {
-      const response = await this.axios.get(gameId);
+      const response = await this.httpClient.get(gameId);
 
       const root = parse(response.data);
 
