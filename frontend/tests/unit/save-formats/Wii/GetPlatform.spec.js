@@ -5,6 +5,9 @@
 import { expect } from 'chai';
 import GetPlatform from '@/save-formats/Wii/GetPlatform';
 import getHttpClient from '@/save-formats/Wii/HttpClient';
+import getMockHttpClient from '#/unit/save-formats/Wii/MockHttpClient';
+
+const accessInternet = false; // Used to check if the website we're hitting changes their format in the future. Set to false to use the local copies of the HTML stored in this repo, set to true to hit the actual website and download the HTML
 
 const TEST_TIMEOUT = 10000; // ms
 
@@ -13,7 +16,7 @@ describe('Get Wii platform', function () { // eslint-disable-line func-names
   this.timeout(TEST_TIMEOUT);
 
   before(() => {
-    const httpClient = getHttpClient(GetPlatform.getBaseUrl());
+    const httpClient = accessInternet ? getHttpClient(GetPlatform.getBaseUrl()) : getMockHttpClient();
 
     this.getPlatform = new GetPlatform(httpClient);
   });
