@@ -1,9 +1,13 @@
-import { readFile } from 'fs/promises';
+import { readFile, writeFile } from 'fs/promises';
 
 export default class ArrayBufferUtil {
   static async readArrayBuffer(filename) {
     const b = await readFile(filename); // returns a Node Buffer object
     return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength); // https://stackoverflow.com/questions/8609289/convert-a-binary-nodejs-buffer-to-javascript-arraybuffer/31394257#31394257
+  }
+
+  static async writeArrayBuffer(filename, arrayBuffer) {
+    await writeFile(filename, Buffer.from(arrayBuffer));
   }
 
   static arrayBuffersEqual(ab1, ab2) {

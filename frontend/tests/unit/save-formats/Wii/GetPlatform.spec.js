@@ -1,7 +1,3 @@
-// Note that we're hitting an external service with these calls, so this isn't really a "unit" test
-// But I want a test of all of this stuff, so I guess it goes here. It's not really an "integration" test either
-// The root cause here is that we shouldn't be hitting an external service for this functionality, but see my notes there for an explanation
-
 import { expect } from 'chai';
 import GetPlatform from '@/save-formats/Wii/GetPlatform';
 import getHttpClient from '@/save-formats/Wii/HttpClient';

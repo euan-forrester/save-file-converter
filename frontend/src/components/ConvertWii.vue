@@ -58,7 +58,7 @@
             class="wii-convert-button"
             variant="success"
             block
-            :disabled="!this.wiiSaveData || !outputFilename"
+            :disabled="!this.outputSaveData || !this.outputFilename"
             @click="convertFile()"
           >
           Convert!
@@ -96,15 +96,16 @@ import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import WiiSaveData from '../save-formats/Wii/Wii';
 import GetPlatform from '../save-formats/Wii/GetPlatform';
+import ConvertFromPlatform from '../save-formats/Wii/ConvertFromPlatform';
+import getHttpClient from '../save-formats/Wii/HttpClient';
 
-const getPlatform = new GetPlatform();
+const getPlatform = new GetPlatform(getHttpClient(GetPlatform.getBaseUrl()));
 
 export default {
   name: 'ConvertWii',
   data() {
     return {
-      wiiSaveData: null,
-      platformType: null,
+      outputSaveData: null,
       errorMessage: null,
       outputFilename: null,
       conversionDirection: 'convertToEmulator',
@@ -118,8 +119,7 @@ export default {
   methods: {
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
-      this.wiiSaveData = null;
-      this.platformType = null;
+      this.outputSaveData = null;
       this.errorMessage = null;
       this.outputFilename = null;
     },
@@ -128,17 +128,24 @@ export default {
     },
     async readWiiSaveData(event) {
       this.errorMessage = null;
+      this.outputFilename = null;
+      this.outputSaveData = null;
       try {
-        this.wiiSaveData = WiiSaveData.createFromWiiData(event.arrayBuffer);
-        this.outputFilename = this.changeFilenameExtension(event.filename, 'srm');
+        const wiiSaveData = WiiSaveData.createFromWiiData(event.arrayBuffer);
 
-        this.platformType = await getPlatform.get(this.wiiSaveData.getGameId());
+        if (wiiSaveData.getNumberOfFiles() === 0) {
+          throw new Error('No save data found within file');
+        }
 
-        console.log(`Found platformType: ${this.platformType}`);
+        const platformType = await getPlatform.get(wiiSaveData.getGameId());
+        const convertedSaveData = ConvertFromPlatform(wiiSaveData.getFiles()[0].data, platformType); // Potentially there are more files within the file the user game us. But, what do we name them if we're going to upload them? Maybe just punt on this and only upload the first one and see if there's ever an example where this is a problem
+
+        this.outputSaveData = convertedSaveData.saveData;
+        this.outputFilename = this.changeFilenameExtension(event.filename, convertedSaveData.fileExtension);
       } catch (e) {
         this.errorMessage = e.message;
-        this.wiiSaveData = null;
-        this.platformType = null;
+        this.outputSaveData = null;
+        this.outputFilename = null;
       }
     },
     readEmulatorSaveData(event) {
@@ -148,17 +155,14 @@ export default {
         this.outputFilename = this.changeFilenameExtension(event.filename, 'bin');
       } catch (e) {
         this.errorMessage = e.message;
-        this.wiiSaveData = null;
-        this.platformType = null;
+        this.outputSaveData = null;
       }
     },
     convertFile() {
       if (this.conversionDirection === 'convertToEmulator') {
-        this.wiiSaveData.getFiles().forEach((file) => {
-          const outputBlob = new Blob([file.data], { type: 'application/octet-stream' });
+        const outputBlob = new Blob([this.outputSaveData], { type: 'application/octet-stream' });
 
-          saveAs(outputBlob, this.outputFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
-        });
+        saveAs(outputBlob, this.outputFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
       } else {
         const outputBlob = new Blob([this.wiiSaveData.getArrayBuffer()], { type: 'application/octet-stream' });
 
