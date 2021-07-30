@@ -2,8 +2,10 @@ import { expect } from 'chai';
 import WiiSaveData from '@/save-formats/Wii/Wii';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const WII_FILENAME = './tests/unit/save-formats/data/zelda-ii-the-adventure-of-link.15037.bin';
-const RAW_FILENAME = './tests/unit/save-formats/data/zelda-ii-the-adventure-of-link.15037-extracted.bin';
+const DIR = './tests/unit/save-formats/data/wii';
+
+const WII_FILENAME = `${DIR}/zelda-ii-the-adventure-of-link.15037.bin`;
+const RAW_FILENAME = `${DIR}/zelda-ii-the-adventure-of-link.15037-extracted.bin`;
 
 describe('Wii save format', () => {
   it('should decrypt and parse a sample save file', async () => {

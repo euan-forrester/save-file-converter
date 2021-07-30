@@ -3,13 +3,13 @@ import ConvertFromSega from '@/save-formats/Wii/ConvertFromSega';
 
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/';
+const DIR = './tests/unit/save-formats/data/wii/sega';
 
-const MASTER_SYSTEM_EXTRACTED_FILENAME = DIR.concat('phantasy-star.21604-extracted.bin'); // This one contains "compound data"
-const MASTER_SYSTEM_RAW_FILENAME = DIR.concat('phantasy-star.21604-raw.bin');
+const MASTER_SYSTEM_EXTRACTED_FILENAME = `${DIR}/phantasy-star.21604-extracted.bin`; // This one contains "compound data"
+const MASTER_SYSTEM_RAW_FILENAME = `${DIR}/phantasy-star.21604-raw.bin`;
 
-const GENESIS_EXTRACTED_FILENAME = DIR.concat('phantasy-star-ii.18168-extracted.bin'); // This one does not contain "compound data"
-const GENESIS_RAW_FILENAME = DIR.concat('phantasy-star-ii.18168-raw.bin');
+const GENESIS_EXTRACTED_FILENAME = `${DIR}/phantasy-star-ii.18168-extracted.bin`; // This one does not contain "compound data"
+const GENESIS_RAW_FILENAME = `${DIR}/phantasy-star-ii.18168-raw.bin`;
 
 describe('Convert from the Wii Sega formats', () => {
   it('should convert a Master System game correctly', async () => {
