@@ -86,6 +86,6 @@ describe('Get Wii platform', function () { // eslint-disable-line func-names
 
   it('should not recognize an unknown game', async () => {
     const platform = await this.getPlatform.get('ABCD');
-    expect(platform).equals('Unknown');
+    expect(platform).equals(GetPlatform.unknownPlatform());
   });
 });

@@ -29,6 +29,7 @@ import {
   PopoverPlugin,
   ListGroupPlugin,
   CollapsePlugin,
+  SpinnerPlugin,
 } from 'bootstrap-vue';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -47,3 +48,4 @@ Vue.use(FormSelectPlugin);
 Vue.use(PopoverPlugin);
 Vue.use(ListGroupPlugin);
 Vue.use(CollapsePlugin);
+Vue.use(SpinnerPlugin);

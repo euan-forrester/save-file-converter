@@ -57,6 +57,10 @@ export default class GetPlatform {
     return BASE_URL;
   }
 
+  static unknownPlatform() {
+    return UNKNOWN_PLATFORM;
+  }
+
   async get(gameId) {
     try {
       const response = await this.httpClient.get(gameId);

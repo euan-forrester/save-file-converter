@@ -18,6 +18,13 @@
               acceptExtension=".bin"
               :leaveRoomForHelpIcon="false"
             />
+            <wii-vc-platform
+              v-model="outputPlatform"
+              id="platform"
+              v-on:input="outputPlatformChanged()"
+              :errorMessage="this.platformErrorMessage"
+              :disabled="this.currentlyLoadingPlatform"
+            />
           </div>
           <div v-else>
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
@@ -28,8 +35,14 @@
             :horizontalLayout="['md', 'lg', 'xl']"
             :verticalLayout="['xs', 'sm']"
             :conversionDirection="this.conversionDirection"
+            disableDirection="convertToRetron5"
             @change="changeConversionDirection($event)"
+            id="conversion-direction"
           />
+          <b-popover target="conversion-direction" triggers="focus hover" placement="bottom">
+            We can currently only extract the raw save from Wii Virtual Console files.
+            If converting raw saves to Wii Virtual Console files is important to you, please let us know! Contact info on the About / Contact page.
+          </b-popover>
         </b-col>
         <b-col sm=12 md=5 align-self="start">
           <b-row no-gutters align-h="center" align-v="start">
@@ -58,10 +71,15 @@
             class="wii-convert-button"
             variant="success"
             block
-            :disabled="!this.outputSaveData || !this.outputFilename"
+            :disabled="!this.outputSaveData || !this.outputFilename || !this.outputPlatform"
             @click="convertFile()"
           >
-          Convert!
+          <div v-if="this.currentlyLoadingPlatform">
+            <b-spinner small />
+          </div>
+          <div v-else>
+            Convert!
+          </div>
           </b-button>
         </b-col>
       </b-row>
@@ -94,6 +112,7 @@ import { saveAs } from 'file-saver';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
+import WiiVcPlatform from './WiiVcPlatform.vue';
 import WiiSaveData from '../save-formats/Wii/Wii';
 import GetPlatform from '../save-formats/Wii/GetPlatform';
 import ConvertFromPlatform from '../save-formats/Wii/ConvertFromPlatform';
@@ -107,7 +126,10 @@ export default {
     return {
       outputSaveData: null,
       errorMessage: null,
+      platformErrorMessage: null,
       outputFilename: null,
+      outputPlatform: null,
+      currentlyLoadingPlatform: null,
       conversionDirection: 'convertToEmulator',
     };
   },
@@ -115,13 +137,19 @@ export default {
     ConversionDirection,
     InputFile,
     OutputFilename,
+    WiiVcPlatform,
   },
   methods: {
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
       this.outputSaveData = null;
       this.errorMessage = null;
+      this.platformErrorMessage = null;
       this.outputFilename = null;
+      this.outputPlatform = null;
+      this.currentlyLoadingPlatform = false;
+      this.wiiSaveData = null;
+      this.inputFilename = null;
     },
     changeFilenameExtension(filename, newExtension) {
       return `${path.basename(filename, path.extname(filename))}.${newExtension}`;
@@ -130,22 +158,51 @@ export default {
       this.errorMessage = null;
       this.outputFilename = null;
       this.outputSaveData = null;
+      this.outputPlatform = null;
+      this.currentlyLoadingPlatform = false;
+      this.wiiSaveData = null;
+      this.inputFilename = null;
       try {
-        const wiiSaveData = WiiSaveData.createFromWiiData(event.arrayBuffer);
+        this.wiiSaveData = WiiSaveData.createFromWiiData(event.arrayBuffer);
 
-        if (wiiSaveData.getNumberOfFiles() === 0) {
+        if (this.wiiSaveData.getNumberOfFiles() === 0) {
           throw new Error('No save data found within file');
         }
 
-        const platformType = await getPlatform.get(wiiSaveData.getGameId());
-        const convertedSaveData = ConvertFromPlatform(wiiSaveData.getFiles()[0].data, platformType); // Potentially there are more files within the file the user game us. But, what do we name them if we're going to upload them? Maybe just punt on this and only upload the first one and see if there's ever an example where this is a problem
+        this.inputFilename = event.filename;
 
-        this.outputSaveData = convertedSaveData.saveData;
-        this.outputFilename = this.changeFilenameExtension(event.filename, convertedSaveData.fileExtension);
+        this.currentlyLoadingPlatform = true;
+        const platform = await getPlatform.get(this.wiiSaveData.getGameId());
+        this.currentlyLoadingPlatform = false;
+
+        if (platform !== GetPlatform.unknownPlatform()) {
+          this.outputPlatform = platform; // Triggers outputPlatformChanged()
+        } else {
+          this.platformErrorMessage = 'Unable to automatically determine the platform for this save. Please select it manually.';
+        }
       } catch (e) {
         this.errorMessage = e.message;
         this.outputSaveData = null;
         this.outputFilename = null;
+        this.outputPlatform = null;
+        this.currentlyLoadingPlatform = false;
+        this.wiiSaveData = null;
+        this.inputFilename = null;
+      }
+    },
+    outputPlatformChanged() {
+      this.platformErrorMessage = null;
+      if ((this.wiiSaveData !== null) && (this.outputPlatform !== null)) {
+        try {
+          const convertedSaveData = ConvertFromPlatform(this.wiiSaveData.getFiles()[0].data, this.outputPlatform); // Potentially there are more files within the file the user gave us. But, what do we name them if we're going to upload them? Maybe just punt on this and only upload the first one and see if there's ever an example where this is a problem
+
+          this.outputSaveData = convertedSaveData.saveData;
+          this.outputFilename = this.changeFilenameExtension(this.inputFilename, convertedSaveData.fileExtension);
+        } catch (e) {
+          this.platformErrorMessage = 'This file does not appear to match the selected platform';
+          this.outputSaveData = null;
+          this.outputFilename = null;
+        }
       }
     },
     readEmulatorSaveData(event) {
@@ -156,6 +213,7 @@ export default {
       } catch (e) {
         this.errorMessage = e.message;
         this.outputSaveData = null;
+        this.outputPlatform = null;
       }
     },
     convertFile() {
