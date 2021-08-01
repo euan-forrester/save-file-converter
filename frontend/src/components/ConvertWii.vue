@@ -68,7 +68,7 @@
       <b-row class="justify-content-md-center" align-h="center">
         <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
           <b-button
-            class="wii-convert-button"
+            class="convert-button wii-convert-button"
             variant="success"
             block
             :disabled="!this.outputSaveData || !this.outputFilename || !this.outputPlatform"
@@ -77,7 +77,7 @@
           <div v-if="this.currentlyLoadingPlatform">
             <b-spinner small />
           </div>
-          <div v-else>
+          <div v-else class="wii-convert-button">
             Convert!
           </div>
           </b-button>
@@ -97,8 +97,14 @@
 <style scoped>
 
 /* Separate class for each different button to enable tracking in google tag manager */
-.wii-convert-button {
+.convert-button {
   margin-top: 1em;
+}
+
+/* Needs to be used in 2 places: on the button itself and on the div containing the Convert! text, so that Google Tag Manager can pick it up properly
+   So, it contains nothing and we have a separate class above to do the spacing */
+.wii-convert-button {
+
 }
 
 .help {
