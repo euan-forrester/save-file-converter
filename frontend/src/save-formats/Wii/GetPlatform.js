@@ -18,15 +18,11 @@ Plus this site gets very little traffic. May need to reevaluate if we start gett
 
 import { parse } from 'node-html-parser';
 
-// Here, we proxy our requests through the public service for thingproxy (https://github.com/Freeboard/thingproxy).
-// This adds CORS headers to the responses from gametdb.com, and adds about 3 seconds of extra latency (on top of gametdb's approx 2 seconds).
-//
-// Current rate limits for thingproxy are 100kB responses and 10 requests/second per IP address. Our usage is currently pretty low so we can
-// currently expect 0-1 requests per day from all users, maybe spiking to like 10 requests/day (although most of those from a single user).
-// Responses from gametdb are approx 18kB in size.
+// Here, we proxy our requests through the public service for allOrigins (https://allorigins.win/).
+// This adds CORS headers to the responses from gametdb.com, without seeming to add too much latency on top of gametdb's approx 2 seconds.
 //
 // We may need to reevaluate usage of this proxy (and directly hitting the gametdb service) if our traffic increases.
-const BASE_URL = 'https://thingproxy.freeboard.io/fetch/https://www.gametdb.com/Wii/';
+const BASE_URL = 'https://api.allorigins.win/raw?url=https://www.gametdb.com/Wii/';
 
 // Note that these types are listed in the downloadable XML version of the website's data, which can be found at: https://www.gametdb.com/Wii/Downloads
 const PLATFORMS = [
