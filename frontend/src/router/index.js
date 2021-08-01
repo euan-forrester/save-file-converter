@@ -4,6 +4,7 @@ import Retron5 from '../views/Retron5.vue';
 import ActionReplay from '../views/ActionReplay.vue';
 import GameShark from '../views/GameShark.vue';
 import GameSharkSP from '../views/GameSharkSP.vue';
+import Wii from '../views/Wii.vue';
 import OtherConverters from '../views/OtherConverters.vue';
 import Troubleshooting from '../views/Troubleshooting.vue';
 
@@ -33,6 +34,11 @@ const routes = [
     path: '/gameshark-sp',
     name: 'GameShark SP',
     component: GameSharkSP,
+  },
+  {
+    path: '/wii',
+    name: 'Wii',
+    component: Wii,
   },
   {
     path: '/troubleshooting',

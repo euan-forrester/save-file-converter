@@ -55,9 +55,7 @@ export default class Retron5SaveData {
     tmp.set(new Uint8Array(retron5HeaderArrayBuffer), 0);
     tmp.set(new Uint8Array(packedArrayBuffer), DATA_HEADER_SIZE);
 
-    // A bit inefficient to promptly go and decompress and re-CRC32 the save data, but this
-    // has the nice benefit of verifying that we put everything in the correct endianness
-    // and got everything in the right spot. Yes I suppose that should be a test instead.
+    // A bit inefficient to promptly go and decompress and re-CRC32 the save data
     return new Retron5SaveData(retron5ArrayBuffer);
   }
 
