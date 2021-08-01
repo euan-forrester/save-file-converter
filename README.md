@@ -18,7 +18,6 @@ Instructions:
 
 - Reorganize the interface to be listed by game console rather than save file format
 - Be able to autodetect the format of a given save file (note that raw files need their size checked, unrecognized size means invalid file)
-- Be able to truncate/pad raw save files
 - Convert PS1 saves to/from PSP/PS3 virtual memory cards
 - I need suggestions!
 
