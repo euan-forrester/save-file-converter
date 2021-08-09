@@ -1,4 +1,4 @@
-/* eslint no-bitwise: ["error", { "allow": ["^"] }] */
+/* eslint no-bitwise: ["error", { "allow": ["^", "~"] }] */
 
 // Converts from the PC Engine format on the Wii NAND to something that's usable by PC Engine emulators
 //
@@ -6,34 +6,71 @@
 //
 // Format reverse engineered by https://github.com/JanErikGunnar
 //
-// His description:
-//
-// input = the wii file, output = "normal" file
-//
-// accumulator = the 8 bytes from the middle of the header
-// do while not end of input file {
-//     inputblock = read 8 bytes
-//     outputblock = inputblock XOR accumulator
-//     save outputblock
-//     accumulator = accumulator XOR outputblock
-// }
-//
 // More information about PC Engine saving: https://blackfalcongames.net/?p=190
+// More information about the PC Engine Backup RAM format: http://blockos.github.io/HuDK/doc/files/include/bram-s.html
 
-const BLOCK_SIZE = 8;
+const BLOCK_SIZE = 4;
+const NUM_BLOCKS_PER_SET = 4;
 const BRAM_SIZE = 2048; // On a real PCE many games would share this memory. Most emulators, though, create a new virtual BRAM for each game
 const HEADER_LENGTH = 16;
-const ACCUMULATOR_START = 4;
+const SEED1_START = 4;
 const FOOTER_LENGTH = 16;
 const MAGIC = 'HUBM'; // Marker at the beginning that signifies correctly-formatted BRAM
 const MAGIC_ENCODING = 'US-ASCII';
 
-function xorArrayParts(array1, array1Offset, array2, array2Offset, length) {
-  const output = new Uint8Array(length);
+function getOffsetForBlock(currentByte, blockNum) {
+  // Block 1 = first 4 bytes of this set, block 2 is the second 4 bytes of this set, etc.
+  return currentByte + (BLOCK_SIZE * (blockNum - 1));
+}
 
-  for (let i = 0; i < length; i += 1) {
-    output[i] = array1[array1Offset + i] ^ array2[array2Offset + i];
+function getBlock(array, currentByte, blockNum) {
+  const offset = getOffsetForBlock(currentByte, blockNum);
+  return array.slice(offset, offset + BLOCK_SIZE);
+}
+
+function xor2Blocks(block1, block2) {
+  const output = new Uint8Array(BLOCK_SIZE);
+
+  for (let i = 0; i < BLOCK_SIZE; i += 1) {
+    output[i] = block1[i] ^ block2[i];
   }
+
+  return output;
+}
+
+function xor4Blocks(block1, block2, block3, block4) {
+  const output = new Uint8Array(BLOCK_SIZE);
+
+  for (let i = 0; i < BLOCK_SIZE; i += 1) {
+    output[i] = block1[i] ^ block2[i] ^ block3[i] ^ block4[i];
+  }
+
+  return output;
+}
+
+function xor6Blocks(block1, block2, block3, block4, block5, block6) {
+  const output = new Uint8Array(BLOCK_SIZE);
+
+  for (let i = 0; i < BLOCK_SIZE; i += 1) {
+    output[i] = block1[i] ^ block2[i] ^ block3[i] ^ block4[i] ^ block5[i] ^ block6[i];
+  }
+
+  return output;
+}
+
+function notBlock(block) {
+  const output = new Uint8Array(BLOCK_SIZE);
+
+  for (let i = 0; i < BLOCK_SIZE; i += 1) {
+    output[i] = ~block[i];
+  }
+
+  return output;
+}
+
+function zeroBlock() {
+  const output = new Uint8Array(BLOCK_SIZE);
+  output.fill(0);
 
   return output;
 }
@@ -43,28 +80,50 @@ export default (arrayBuffer) => {
   const inputArrayBuffer = arrayBuffer.slice(HEADER_LENGTH, -FOOTER_LENGTH);
   const inputArray = new Uint8Array(inputArrayBuffer);
 
-  if (inputArray.byteLength % BLOCK_SIZE !== 0) {
-    throw new Error(`PC Engine input data length ${inputArray.byteLength} is not a multiple of the block size ${BLOCK_SIZE}`);
+  if (inputArray.byteLength % (BLOCK_SIZE * NUM_BLOCKS_PER_SET) !== 0) {
+    throw new Error(`PC Engine input data length ${inputArray.byteLength} is not a multiple of the block size ${BLOCK_SIZE} and blocks per set ${NUM_BLOCKS_PER_SET}`);
   }
 
-  const accumulatorArrayBuffer = header.slice(ACCUMULATOR_START, ACCUMULATOR_START + BLOCK_SIZE);
-  const accumulatorArray = new Uint8Array(accumulatorArrayBuffer);
+  const seed1ArrayBuffer = header.slice(SEED1_START, SEED1_START + BLOCK_SIZE);
+  const seed1Array = new Uint8Array(seed1ArrayBuffer);
   const outputArrayBuffer = new ArrayBuffer(inputArrayBuffer.byteLength);
   const outputArray = new Uint8Array(outputArrayBuffer);
 
-  // Decode the data by doing the xor algorithm described above
+  // Decode the data in sets of 4 blocks
 
   let currentByte = 0;
 
+  let previousOutputBlock1 = zeroBlock();
+  let previousOutputBlock2 = zeroBlock();
+  let previousOutputBlock3 = zeroBlock();
+  let previousOutputBlock4 = zeroBlock();
+
   while (currentByte < inputArray.byteLength) {
-    const outputBlock = xorArrayParts(inputArray, currentByte, accumulatorArray, 0, BLOCK_SIZE);
-    outputArray.set(outputBlock, currentByte);
+    const inputBlock1 = getBlock(inputArray, currentByte, 1);
+    const inputBlock2 = getBlock(inputArray, currentByte, 2);
+    const inputBlock3 = getBlock(inputArray, currentByte, 3);
+    const inputBlock4 = getBlock(inputArray, currentByte, 4);
 
-    const newAccumulator = xorArrayParts(accumulatorArray, 0, outputArray, currentByte, BLOCK_SIZE);
-    accumulatorArray.set(newAccumulator);
+    const outputBlock1 = xor4Blocks(inputBlock1, seed1Array, previousOutputBlock1, previousOutputBlock2);
+    const outputBlock3 = xor2Blocks(inputBlock2, notBlock(inputBlock3));
+    const outputBlock2 = xor6Blocks(inputBlock3, seed1Array, previousOutputBlock1, previousOutputBlock2, outputBlock1, outputBlock3);
+    const outputBlock4 = xor2Blocks(inputBlock4, notBlock(inputBlock3));
 
-    currentByte += BLOCK_SIZE;
+    outputArray.set(outputBlock1, getOffsetForBlock(currentByte, 1));
+    outputArray.set(outputBlock2, getOffsetForBlock(currentByte, 2));
+    outputArray.set(outputBlock3, getOffsetForBlock(currentByte, 3));
+    outputArray.set(outputBlock4, getOffsetForBlock(currentByte, 4));
+
+    previousOutputBlock1 = outputBlock1;
+    previousOutputBlock2 = outputBlock2;
+    previousOutputBlock3 = outputBlock3;
+    previousOutputBlock4 = outputBlock4;
+
+    currentByte += (BLOCK_SIZE * NUM_BLOCKS_PER_SET);
   }
+
+  // FIXME: Just here to make the linter happy for now re unused variables. Remove later
+  xor2Blocks(previousOutputBlock3, previousOutputBlock4);
 
   // Now check that we got actual PC Engine data
 
