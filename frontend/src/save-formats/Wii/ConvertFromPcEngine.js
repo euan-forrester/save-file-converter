@@ -1,4 +1,5 @@
-/* eslint no-bitwise: ["error", { "allow": ["^", "~"] }] */
+/* eslint no-bitwise: ["error", { "allow": ["^", "^=", "~"] }] */
+/* eslint-disable no-unused-vars */ // FIXME: Remove this later
 
 // Converts from the PC Engine format on the Wii NAND to something that's usable by PC Engine emulators
 //
@@ -28,31 +29,44 @@ function getBlock(array, currentByte, blockNum) {
   return array.slice(offset, offset + BLOCK_SIZE);
 }
 
-function xor2Blocks(block1, block2) {
+function xorBlocks(block1, block2, block3 = null, block4 = null, block5 = null, block6 = null, block7 = null, block8 = null, block9 = null, block10 = null) {
   const output = new Uint8Array(BLOCK_SIZE);
 
+  // Inefficient, but good for testing various permutations
   for (let i = 0; i < BLOCK_SIZE; i += 1) {
     output[i] = block1[i] ^ block2[i];
-  }
 
-  return output;
-}
+    if (block3 !== null) {
+      output[i] ^= block3[i];
+    }
 
-function xor4Blocks(block1, block2, block3, block4) {
-  const output = new Uint8Array(BLOCK_SIZE);
+    if (block4 !== null) {
+      output[i] ^= block4[i];
+    }
 
-  for (let i = 0; i < BLOCK_SIZE; i += 1) {
-    output[i] = block1[i] ^ block2[i] ^ block3[i] ^ block4[i];
-  }
+    if (block5 !== null) {
+      output[i] ^= block5[i];
+    }
 
-  return output;
-}
+    if (block6 !== null) {
+      output[i] ^= block6[i];
+    }
 
-function xor6Blocks(block1, block2, block3, block4, block5, block6) {
-  const output = new Uint8Array(BLOCK_SIZE);
+    if (block7 !== null) {
+      output[i] ^= block7[i];
+    }
 
-  for (let i = 0; i < BLOCK_SIZE; i += 1) {
-    output[i] = block1[i] ^ block2[i] ^ block3[i] ^ block4[i] ^ block5[i] ^ block6[i];
+    if (block8 !== null) {
+      output[i] ^= block8[i];
+    }
+
+    if (block9 !== null) {
+      output[i] ^= block9[i];
+    }
+
+    if (block10 !== null) {
+      output[i] ^= block10[i];
+    }
   }
 
   return output;
@@ -104,10 +118,10 @@ export default (arrayBuffer) => {
     const inputBlock3 = getBlock(inputArray, currentByte, 3);
     const inputBlock4 = getBlock(inputArray, currentByte, 4);
 
-    const outputBlock1 = xor4Blocks(inputBlock1, seed1Array, previousOutputBlock1, previousOutputBlock2);
-    const outputBlock3 = xor2Blocks(inputBlock2, notBlock(inputBlock3));
-    const outputBlock2 = xor6Blocks(inputBlock3, seed1Array, previousOutputBlock1, previousOutputBlock2, outputBlock1, outputBlock3);
-    const outputBlock4 = xor2Blocks(inputBlock4, notBlock(inputBlock3));
+    const outputBlock1 = xorBlocks(inputBlock1, seed1Array, previousOutputBlock1, previousOutputBlock2, previousOutputBlock3, previousOutputBlock4);
+    const outputBlock3 = xorBlocks(inputBlock2, notBlock(inputBlock3));
+    const outputBlock2 = xorBlocks(inputBlock3, seed1Array, previousOutputBlock1, previousOutputBlock2, previousOutputBlock3, previousOutputBlock4, outputBlock1, outputBlock3);
+    const outputBlock4 = xorBlocks(inputBlock4, notBlock(inputBlock3));
 
     outputArray.set(outputBlock1, getOffsetForBlock(currentByte, 1));
     outputArray.set(outputBlock2, getOffsetForBlock(currentByte, 2));
@@ -121,9 +135,6 @@ export default (arrayBuffer) => {
 
     currentByte += (BLOCK_SIZE * NUM_BLOCKS_PER_SET);
   }
-
-  // FIXME: Just here to make the linter happy for now re unused variables. Remove later
-  xor2Blocks(previousOutputBlock3, previousOutputBlock4);
 
   // Now check that we got actual PC Engine data
 
