@@ -107,6 +107,11 @@ export default (arrayBuffer) => {
 
   let currentByte = 0;
 
+  let previousInputBlock1 = notBlock(seed1Array);
+  let previousInputBlock2 = notBlock(seed1Array); // Because we NOT our previous input block in the code below, but we want to use our seed as-is. So we need to pre-NOT it
+  let previousInputBlock3 = notBlock(seed1Array);
+  let previousInputBlock4 = notBlock(seed1Array);
+
   let previousOutputBlock1 = zeroBlock();
   let previousOutputBlock2 = zeroBlock();
   let previousOutputBlock3 = zeroBlock();
@@ -118,15 +123,20 @@ export default (arrayBuffer) => {
     const inputBlock3 = getBlock(inputArray, currentByte, 3);
     const inputBlock4 = getBlock(inputArray, currentByte, 4);
 
-    const outputBlock1 = xorBlocks(inputBlock1, seed1Array, previousOutputBlock1, previousOutputBlock2, previousOutputBlock3, previousOutputBlock4);
+    const outputBlock1 = xorBlocks(inputBlock1, notBlock(previousInputBlock2));
+    const outputBlock2 = xorBlocks(inputBlock2, notBlock(inputBlock1));
     const outputBlock3 = xorBlocks(inputBlock2, notBlock(inputBlock3));
-    const outputBlock2 = xorBlocks(inputBlock3, seed1Array, previousOutputBlock1, previousOutputBlock2, previousOutputBlock3, previousOutputBlock4, outputBlock1, outputBlock3);
     const outputBlock4 = xorBlocks(inputBlock4, notBlock(inputBlock3));
 
     outputArray.set(outputBlock1, getOffsetForBlock(currentByte, 1));
     outputArray.set(outputBlock2, getOffsetForBlock(currentByte, 2));
     outputArray.set(outputBlock3, getOffsetForBlock(currentByte, 3));
     outputArray.set(outputBlock4, getOffsetForBlock(currentByte, 4));
+
+    previousInputBlock1 = inputBlock1;
+    previousInputBlock2 = inputBlock2;
+    previousInputBlock3 = inputBlock3;
+    previousInputBlock4 = inputBlock4;
 
     previousOutputBlock1 = outputBlock1;
     previousOutputBlock2 = outputBlock2;
