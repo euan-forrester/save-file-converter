@@ -135,7 +135,7 @@ export default (arrayBuffer) => {
     const inputBlock3 = getBlock(inputArray, currentByte, 3);
     const inputBlock4 = getBlock(inputArray, currentByte, 4);
 
-    const outputBlock1 = xorBlocks(inputBlock1, notBlock(previousInputBlock2));
+    const outputBlock1 = xorBlocks(inputBlock1, notBlock(previousInputBlock4));
     const outputBlock2 = xorBlocks(inputBlock2, notBlock(inputBlock1));
     const outputBlock3 = xorBlocks(inputBlock2, notBlock(inputBlock3));
     const outputBlock4 = xorBlocks(inputBlock4, notBlock(inputBlock3));
