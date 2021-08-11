@@ -14,9 +14,10 @@
 // 3) Info about how BRAM is mapped into the console's memory space: https://github.com/asterick/TurboSharp/blob/master/Text/pcetech.txt#L1379
 // 4) Info about how memory is mapped to the CPU memory space: https://www.lorenzomoretti.com/wp-content/files/chapter_0.txt
 //
-// According to 2), BRAM is mapped to the CPU memory space using MPR4, which according to 4) puts it at 0x8000 - 0x8800.
-// We see the value 0x8800 in bytes 5-6 in output from emulators. However, the Wii files are 8kB in size and correspondingly
-// they write 0xA000 (0x8000 + 8 kB) to those bytes in their output. So when we truncate the file to 2kB we need to update those values as well.
+// According to 2), BRAM is mapped to the CPU memory space using MPR4, which according to 4) puts it at 0x8000 - 0x8800 (0x8000 + 2kB).
+// We see the value 0x8800 in bytes 5-6 in output from emulators, as expected from the description for those bytes in 2).
+// However, the Wii files are 8kB in size and correspondingly they write 0xA000 (0x8000 + 8 kB) to those bytes in their output.
+// So when we truncate the file to 2kB we need to update those values as well.
 
 const BLOCK_SIZE = 4;
 const NUM_BLOCKS_PER_SET = 4;
