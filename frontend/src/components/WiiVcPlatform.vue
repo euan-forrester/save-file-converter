@@ -11,8 +11,7 @@
           />
           <help-button
             popover-text="Select the platform (NES, Super NES, Sega Genesis, WiiWare, etc.) that the save is for.
-            Will attempt to autodetect based on the save file, but you can choose manually as well.
-            Note that Turbografx-16/PC Engine files may not be readable by some emulators."
+            Will attempt to autodetect based on the save file, but you can choose manually as well."
             :id="this.id"
             class="help-button"
           />

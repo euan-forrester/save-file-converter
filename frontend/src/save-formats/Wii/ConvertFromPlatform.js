@@ -12,6 +12,7 @@ https://github.com/JanErikGunnar/vcromclaim/blob/master/wiimetadata.py#L473
 
 import ConvertFromN64 from './ConvertFromN64';
 import ConvertFromSega from './ConvertFromSega';
+import ConvertFromPcEngine from './ConvertFromPcEngine';
 
 export default (arrayBuffer, platformType) => {
   let output = null;
@@ -25,15 +26,7 @@ export default (arrayBuffer, platformType) => {
       break;
 
     case 'VC-PCE':
-      // Turbografx-16 games have a strange format that looks encrypted or compressed, and not like what I see
-      // when I look at a save made by a PCEngine emulator. Not sure how to parse them further.
-      //
-      // There may be a 32 byte header: the file is 32 bytes longer than 8kB, and it begins with the text "PCE", similar
-      // to how the NES header above contains some similar text.
-      output = {
-        saveData: arrayBuffer,
-        fileExtension: 'bup',
-      };
+      output = ConvertFromPcEngine(arrayBuffer);
       break;
 
     case 'VC-MD':
