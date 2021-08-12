@@ -13,9 +13,10 @@
 // 2) More information about the PC Engine Backup RAM format: http://blockos.github.io/HuDK/doc/files/include/bram-s.html
 // 3) Info about how BRAM is mapped into the console's memory space: https://github.com/asterick/TurboSharp/blob/master/Text/pcetech.txt#L1379
 // 4) Info about how memory is mapped to the CPU memory space: https://www.lorenzomoretti.com/wp-content/files/chapter_0.txt
+// 5) Homebrew tool for exploring BRAM: https://pdroms.de/files/nec-turbografx16-tg16-pcengine-pce/bram-tool-v1-0
 //
 // According to 2), BRAM is mapped to the CPU memory space using MPR4, which according to 4) puts it at 0x8000 - 0x8800 (0x8000 + 2kB).
-// We see the value 0x8800 in bytes 5-6 in output from emulators, as expected from the description for those bytes in 2).
+// We see the value 0x8800 at offset 4-5 in output from emulators, as expected from the description for those bytes in 2).
 // However, the Wii files are 8kB in size and correspondingly they write 0xA000 (0x8000 + 8 kB) to those bytes in their output.
 // So when we truncate the file to 2kB we need to update those values as well.
 
@@ -178,6 +179,6 @@ export default (arrayBuffer) => {
 
   return {
     saveData: outputArrayBuffer.slice(0, BRAM_SIZE),
-    fileExtension: 'srm',
+    fileExtension: 'sav',
   };
 };
