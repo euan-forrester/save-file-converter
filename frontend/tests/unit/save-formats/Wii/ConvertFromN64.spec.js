@@ -32,10 +32,9 @@ const SRAM_32KB_CONTROLLER_PAK_RAW_FILENAME = `${DIR}/mario-kart-64.14534-raw.ee
 const FLASHRAM_128KB_CART_EXTRACTED_FILENAME = `${DIR}/paper-mario.17225-extracted.bin`;
 const FLASHRAM_128KB_CART_RAW_FILENAME = `${DIR}/paper-mario.17225-raw.fla`;
 
-// 128kB Flash RAM (but extracted file is only 32kB in size). Not sure if it's just has its save type listed incorrectly on that site, or if something else is going on
-// FIXME: The resultant file doesn't work with mupen64plus
-const FLASHRAM_128KB_CART_BUT_SMALL_FILE_EXTRACTED_FILENAME = `${DIR}/the-legend-of-zelda-majoras-mask.19167-extracted.bin`;
-const FLASHRAM_128KB_CART_BUT_SMALL_FILE_RAW_FILENAME = `${DIR}/the-legend-of-zelda-majoras-mask.19167-raw.sra`;
+// 128kB Flash RAM (but extracted file is 256kB in size). Not sure if it's just has its save type listed incorrectly on that site, or if something else is going on
+const FLASHRAM_128KB_CART_BUT_BIG_FILE_EXTRACTED_FILENAME = `${DIR}/the-legend-of-zelda-majoras-mask.19354-extracted.bin`;
+const FLASHRAM_128KB_CART_BUT_BIG_FILE_RAW_FILENAME = `${DIR}/the-legend-of-zelda-majoras-mask.19354-raw.fla`;
 
 describe('Convert from the Wii N64 formats', () => {
   it('should convert a 0.5kB EEPROM game correctly', async () => {
@@ -88,13 +87,13 @@ describe('Convert from the Wii N64 formats', () => {
     expect(convertedData.fileExtension).to.equal('fla');
   });
 
-  it('should convert a 128kB Flash RAM game that has a small extracted file correctly', async () => {
-    const extractedData = await ArrayBufferUtil.readArrayBuffer(FLASHRAM_128KB_CART_BUT_SMALL_FILE_EXTRACTED_FILENAME);
-    const expectedRawData = await ArrayBufferUtil.readArrayBuffer(FLASHRAM_128KB_CART_BUT_SMALL_FILE_RAW_FILENAME);
+  it('should convert a 128kB Flash RAM game that has a big extracted file correctly', async () => {
+    const extractedData = await ArrayBufferUtil.readArrayBuffer(FLASHRAM_128KB_CART_BUT_BIG_FILE_EXTRACTED_FILENAME);
+    const expectedRawData = await ArrayBufferUtil.readArrayBuffer(FLASHRAM_128KB_CART_BUT_BIG_FILE_RAW_FILENAME);
 
     const convertedData = ConvertFromN64(extractedData);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(convertedData.saveData, expectedRawData)).to.equal(true);
-    expect(convertedData.fileExtension).to.equal('sra');
+    expect(convertedData.fileExtension).to.equal('fla');
   });
 });
