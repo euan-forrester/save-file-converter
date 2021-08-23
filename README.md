@@ -55,6 +55,7 @@ Instructions:
   - https://www.psdevwiki.com/ps3/PSP_Savedata
   - https://github.com/BrianBTB/SED-PC (PC application that decrypts/encrypts saves)
   - https://wololo.net/talk/viewtopic.php?t=37556 (PSP plugin that dumps a game's key)
+  - I can't seem to find an online list of game keys, and requiring users to install a plugin then type a gamekey into the interface seems like too much to ask.
 
 ## GBA save file size difficulty
 - https://zork.net/~st/jottings/GBA_saves.html
