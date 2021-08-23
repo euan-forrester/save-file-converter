@@ -41,7 +41,7 @@ Instructions:
   - Save Tools: https://www.ps2savetools.com/
   - Memory card formats: http://www.csclub.uwaterloo.ca:11068/mymc/
 - MemcardRex format: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs
-- DexDrive format (?): https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/Hardware/DexDrive.cs
+- DexDrive format: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs
 - Wii Virtual Console save game format (note that the files are encrypted)
   - https://wiibrew.org/wiki/Wii_Savegame_Parser
   - https://wiibrew.org/wiki/Savegame_Files
@@ -56,6 +56,11 @@ Instructions:
   - https://github.com/BrianBTB/SED-PC (PC application that decrypts/encrypts saves)
   - https://wololo.net/talk/viewtopic.php?t=37556 (PSP plugin that dumps a game's key)
   - I can't seem to find an online list of game keys, and requiring users to install a plugin then type a gamekey into the interface seems like too much to ask.
+- NES/SNES Classic save game format
+  - https://github.com/TeamShinkansen/Hakchi2-CE (tool used to write games onto the devices)
+  - https://github.com/JanErikGunnar/ClassicEditionTools (scripts to convert raw saves to/from NES Classic format)
+  - http://darkakuma.z-net.us/p/sfromtool.html (convert SNES ROMs and/or saves to the SNES Classic ROM and/or save format)
+  - I'm not sure there's enough demand for a tool like this, since the devices aren't available for sale anymore and especially since you already have to run a Windows program to transfer the games, and at least the SNES one has the ability to convert saves already.
 
 ## GBA save file size difficulty
 - https://zork.net/~st/jottings/GBA_saves.html
