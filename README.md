@@ -51,6 +51,10 @@ Instructions:
   - (writing) https://github.com/Plombo/segher-wii-tools/blob/master/twintig.c
   - https://github.com/Plombo/vcromclaim
   - https://github.com/JanErikGunnar/vcromclaim
+- PSP save file decryption/encryption (note that some files require a per-game key):
+  - https://www.psdevwiki.com/ps3/PSP_Savedata
+  - https://github.com/BrianBTB/SED-PC (PC application that decrypts/encrypts saves)
+  - https://wololo.net/talk/viewtopic.php?t=37556 (PSP plugin that dumps a game's key)
 
 ## GBA save file size difficulty
 - https://zork.net/~st/jottings/GBA_saves.html
