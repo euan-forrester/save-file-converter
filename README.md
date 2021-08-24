@@ -55,12 +55,12 @@ Instructions:
   - https://www.psdevwiki.com/ps3/PSP_Savedata
   - https://github.com/BrianBTB/SED-PC (PC application that decrypts/encrypts saves)
   - https://wololo.net/talk/viewtopic.php?t=37556 (PSP plugin that dumps a game's key)
-  - I can't seem to find an online list of game keys, and requiring users to install a plugin then type a gamekey into the interface seems like too much to ask.
+  - I can't seem to find an online list of game keys, and requiring users to install a plugin on their PSP then type a gamekey into the interface seems like too much to ask.
 - NES/SNES Classic save game format
   - https://github.com/TeamShinkansen/Hakchi2-CE (tool used to write games onto the devices)
   - https://github.com/JanErikGunnar/ClassicEditionTools (scripts to convert raw saves to/from NES Classic format)
   - http://darkakuma.z-net.us/p/sfromtool.html (convert SNES ROMs and/or saves to the SNES Classic ROM and/or save format)
-  - I'm not sure there's enough demand for a tool like this, since the devices aren't available for sale anymore and especially since you already have to run a Windows program to transfer the games, and at least the SNES one has the ability to convert saves already.
+  - I'm not sure there's enough demand for a web-based tool that does this. The devices aren't available for sale anymore and you already have to run a Windows program to transfer the games. Also the Windows tool for the SNES Classic has the ability to convert saves already.
 
 ## GBA save file size difficulty
 - https://zork.net/~st/jottings/GBA_saves.html
