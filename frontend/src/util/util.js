@@ -51,4 +51,13 @@ export default class Util {
   static removePkcsPadding(arrayBuffer) {
     return Util.bufferToArrayBuffer(unpad(new Uint8Array(arrayBuffer)));
   }
+
+  static checkMagic(arrayBuffer, offset, magic, magicEncoding) {
+    const magicTextDecoder = new TextDecoder(magicEncoding);
+    const magicFound = magicTextDecoder.decode(arrayBuffer.slice(offset, offset + magic.length));
+
+    if (magicFound !== magic) {
+      throw new Error(`Save appears corrupted: found '${magicFound}' instead of '${magic}'`);
+    }
+  }
 }
