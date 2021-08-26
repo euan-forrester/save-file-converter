@@ -35,7 +35,10 @@ const DIRECTORY_FRAME_UNUSABLE_BLOCK = 0xFF;
 
 // Save blocks
 
-// const SAVE_BLOCK_MAGIC = 'SC';
+const SAVE_BLOCK_MAGIC = 'SC';
+const SAVE_BLOCK_DESCRIPTION_OFFSET = 0x04;
+const SAVE_BLOCK_DESCRIPTION_LENGTH = 64;
+const SAVE_BLOCK_DESCRIPTION_ENCODING = 'shift-jis';
 
 function checkMagic(arrayBuffer, offset, magic) {
   const magicTextDecoder = new TextDecoder(MAGIC_ENCODING);
@@ -90,6 +93,8 @@ export default class DexDriveSaveData {
     checkMagic(systemHeaderArrayBuffer, 0, SYSTEM_HEADER_MAGIC);
 
     const filenameTextDecoder = new TextDecoder(DIRECTORY_FRAME_FILENAME_ENCODING);
+    const fileDescriptionTextDecoder = new TextDecoder(SAVE_BLOCK_DESCRIPTION_ENCODING);
+
     this.saveFiles = [];
 
     for (let i = 0; i < NUM_BLOCKS; i += 1) {
@@ -107,10 +112,15 @@ export default class DexDriveSaveData {
       const rawSaveDataOffset = BLOCK_SIZE * i;
       const rawSaveData = dataBlocksArrayBuffer.slice(rawSaveDataOffset, rawSaveDataOffset + BLOCK_SIZE);
 
+      checkMagic(rawSaveData, 0, SAVE_BLOCK_MAGIC);
+
+      const description = fileDescriptionTextDecoder.decode(rawSaveData.slice(SAVE_BLOCK_DESCRIPTION_OFFSET, SAVE_BLOCK_DESCRIPTION_OFFSET + SAVE_BLOCK_DESCRIPTION_LENGTH));
+
       this.saveFiles.push({
         block: i,
         filename,
         comment: comments[i],
+        description,
         rawData: rawSaveData,
       });
     }
