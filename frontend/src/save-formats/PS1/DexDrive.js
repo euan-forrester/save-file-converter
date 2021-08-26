@@ -54,6 +54,10 @@ export default class DexDriveSaveData {
 
     Util.checkMagic(dexDriveHeaderArrayBuffer, 0, DEXDRIVE_HEADER_MAGIC, MAGIC_ENCODING);
 
+    // Note that the DexDrive header also contains the Available flag for each block (beginning at offset 22), copied from the system header,
+    // and the link order for each block (beginning at offset 38), also copied from the system header.
+    // https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs#L171
+
     const comments = getComments(dexDriveHeaderArrayBuffer);
 
     // Parse the rest of the file
