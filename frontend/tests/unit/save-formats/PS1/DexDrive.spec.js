@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import DexDriveSaveData from '@/save-formats/DexDrive';
+import DexDriveSaveData from '@/save-formats/PS1/DexDrive';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 const DIR = './tests/unit/save-formats/data/dexdrive-ps1';
