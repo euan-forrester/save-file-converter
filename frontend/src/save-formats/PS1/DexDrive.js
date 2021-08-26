@@ -29,7 +29,7 @@ function getComments(headerArrayBuffer) {
     const commentStartOffset = FIRST_COMMENT_OFFSET + (i * COMMENT_LENGTH);
     const commentArrayBuffer = headerArrayBuffer.slice(commentStartOffset, commentStartOffset + COMMENT_LENGTH);
 
-    comments.push(textDecoder.decode(commentArrayBuffer));
+    comments.push(Util.trimNull(textDecoder.decode(commentArrayBuffer)));
   }
 
   return comments;
@@ -60,9 +60,9 @@ export default class DexDriveSaveData {
     const memcardArrayBuffer = arrayBuffer.slice(DEXDRIVE_HEADER_LENGTH); // The remainder of the file is the actual contents of the memory card
 
     const memcard = Ps1MemcardSaveData.createFromPs1MemcardData(memcardArrayBuffer);
-    const memcardSaveFiles = memcard.getSaveFiles();
 
-    this.saveFiles = memcardSaveFiles.map((x) => ({ ...x, comment: comments[x.block] }));
+    // Add in the comments we found in the header
+    this.saveFiles = memcard.getSaveFiles().map((x) => ({ ...x, comment: comments[x.block] }));
   }
 
   getSaveFiles() {
