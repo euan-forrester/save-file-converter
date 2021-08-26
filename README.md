@@ -40,8 +40,6 @@ Instructions:
 - PS2
   - Save Tools: https://www.ps2savetools.com/
   - Memory card formats: http://www.csclub.uwaterloo.ca:11068/mymc/
-- MemcardRex format: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs
-- DexDrive format: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs
 - Wii Virtual Console save game format (note that the files are encrypted)
   - https://wiibrew.org/wiki/Wii_Savegame_Parser
   - https://wiibrew.org/wiki/Savegame_Files
@@ -61,6 +59,12 @@ Instructions:
   - https://github.com/JanErikGunnar/ClassicEditionTools (scripts to convert raw saves to/from NES Classic format)
   - http://darkakuma.z-net.us/p/sfromtool.html (convert SNES ROMs and/or saves to the SNES Classic ROM and/or save format)
   - I'm not sure there's enough demand for a web-based tool that does this. The devices aren't available for sale anymore and you already have to run a Windows program to transfer the games. Also the Windows tool for the SNES Classic has the ability to convert saves already.
+- N64 DexDrive:
+  - https://github-wiki-see.page/m/bryc/mempak/wiki/DexDrive-.N64-format
+- PS1:
+  - https://www.psdevwiki.com/ps3/PS1_Savedata
+  - MemcardRex format: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs
+  - DexDrive format: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs
 
 ## GBA save file size difficulty
 - https://zork.net/~st/jottings/GBA_saves.html
