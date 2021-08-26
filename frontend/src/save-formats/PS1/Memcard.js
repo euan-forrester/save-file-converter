@@ -71,13 +71,13 @@ export default class Ps1MemcardSaveData {
         continue; // eslint-disable-line no-continue
       }
 
-      const filename = filenameTextDecoder.decode(directoryFrame.slice(DIRECTORY_FRAME_FILENAME_OFFSET, DIRECTORY_FRAME_FILENAME_OFFSET + DIRECTORY_FRAME_FILENAME_LENGTH));
+      const filename = Util.trimNull(filenameTextDecoder.decode(directoryFrame.slice(DIRECTORY_FRAME_FILENAME_OFFSET, DIRECTORY_FRAME_FILENAME_OFFSET + DIRECTORY_FRAME_FILENAME_LENGTH)));
       const rawSaveDataOffset = BLOCK_SIZE * i;
       const rawSaveData = dataBlocksArrayBuffer.slice(rawSaveDataOffset, rawSaveDataOffset + BLOCK_SIZE);
 
       Util.checkMagic(rawSaveData, 0, SAVE_BLOCK_MAGIC, MAGIC_ENCODING);
 
-      const description = fileDescriptionTextDecoder.decode(rawSaveData.slice(SAVE_BLOCK_DESCRIPTION_OFFSET, SAVE_BLOCK_DESCRIPTION_OFFSET + SAVE_BLOCK_DESCRIPTION_LENGTH));
+      const description = Util.trimNull(fileDescriptionTextDecoder.decode(rawSaveData.slice(SAVE_BLOCK_DESCRIPTION_OFFSET, SAVE_BLOCK_DESCRIPTION_OFFSET + SAVE_BLOCK_DESCRIPTION_LENGTH)));
 
       this.saveFiles.push({
         block: i,

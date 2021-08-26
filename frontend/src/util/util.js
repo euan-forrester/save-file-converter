@@ -60,4 +60,8 @@ export default class Util {
       throw new Error(`Save appears corrupted: found '${magicFound}' instead of '${magic}'`);
     }
   }
+
+  static trimNull(s) {
+    return s.replace(/\0[\s\S]*$/g, ''); // https://stackoverflow.com/questions/22809401/removing-a-null-character-from-a-string-in-javascript
+  }
 }
