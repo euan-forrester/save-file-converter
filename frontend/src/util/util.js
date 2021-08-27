@@ -24,6 +24,16 @@ export default class Util {
     return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength); // https://stackoverflow.com/questions/8609289/convert-a-binary-nodejs-buffer-to-javascript-arraybuffer/31394257#31394257
   }
 
+  static concatArrayBuffers(b1, b2) {
+    const b = new ArrayBuffer(b1.byteLength + b2.byteLength);
+    const tmp = new Uint8Array(b);
+    
+    tmp.set(new Uint8Array(b1), 0);
+    tmp.set(new Uint8Array(b2), b1.byteLength);
+
+    return b;
+  }
+
   static decrypt(encryptedArrayBuffer, algorithm, key, initializationVector) {
     const decipher = crypto.createDecipheriv(algorithm, key, initializationVector);
     decipher.setAutoPadding(false); // Different platforms have different default padding: https://github.com/nodejs/node/issues/2794#issuecomment-139436581

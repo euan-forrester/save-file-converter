@@ -66,7 +66,7 @@ export default class DexDriveSaveData {
     const memcard = Ps1MemcardSaveData.createFromPs1MemcardData(memcardArrayBuffer);
 
     // Add in the comments we found in the header
-    this.saveFiles = memcard.getSaveFiles().map((x) => ({ ...x, comment: comments[x.block] }));
+    this.saveFiles = memcard.getSaveFiles().map((x) => ({ ...x, comment: comments[x.startingBlock] }));
   }
 
   getSaveFiles() {
