@@ -12,6 +12,9 @@ const RAW_ONE_FILE_FILENAME = `${DIR}/castlevania-symphony-of-the-night.1368-BAS
 const DEXDRIVE_TWO_FILES_FILENAME = `${DIR}/castlevania-symphony-of-the-night.1782.gme`;
 const RAW_TWO_FILES_FILENAMES = [`${DIR}/castlevania-symphony-of-the-night.1782-BASLUS-00067DRAX00.srm`, `${DIR}/castlevania-symphony-of-the-night.1782-BASLUS-00067DRAX01.srm`];
 
+const DEXDRIVE_FIVE_BLOCK_FILENAME = `${DIR}/gran-turismo.26535.gme`;
+const RAW_FIVE_BLOCK_FILENAME = `${DIR}/gran-turismo.26535-BASCUS-94194GT.srm`;
+
 describe('DexDrive PS1 save format', () => {
   it('should correctly handle a file that contains no save data', async () => {
     const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_NO_FILES_FILENAME);
@@ -55,5 +58,20 @@ describe('DexDrive PS1 save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[1].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[1].description).to.equal('ＣＡＳＴＬＥＶＡＮＩＡ－２　ＲＩＣＨＴＥＲ　１９５％');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[1].rawData, rawArrayBuffers[1])).to.equal(true);
+  });
+
+  it('should convert a file containing a save that is five blocks long', async () => {
+    const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_FIVE_BLOCK_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_FIVE_BLOCK_FILENAME);
+
+    const dexDriveSaveData = DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+
+    expect(dexDriveSaveData.getSaveFiles().length).to.equal(1);
+
+    expect(dexDriveSaveData.getSaveFiles()[0].startingBlock).to.equal(0);
+    expect(dexDriveSaveData.getSaveFiles()[0].filename).to.equal('BASCUS-94194GT');
+    expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
+    expect(dexDriveSaveData.getSaveFiles()[0].description).to.equal('ＧＴ　ｇａｍｅ　ｄａｔａ');
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawArrayBuffer)).to.equal(true);
   });
 });
