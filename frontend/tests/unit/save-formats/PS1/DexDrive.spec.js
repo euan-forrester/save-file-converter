@@ -29,7 +29,7 @@ describe('DexDrive PS1 save format', () => {
 
     expect(dexDriveSaveData.getSaveFiles().length).to.equal(1);
 
-    expect(dexDriveSaveData.getSaveFiles()[0].block).to.equal(0);
+    expect(dexDriveSaveData.getSaveFiles()[0].startingBlock).to.equal(0);
     expect(dexDriveSaveData.getSaveFiles()[0].filename).to.equal('BASLUS-00067DRAX01');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].description).to.equal('ＣＡＳＴＬＥＶＡＮＩＡ－２　ＰＨＯＥＮＩＸ　２０８％');
@@ -44,13 +44,13 @@ describe('DexDrive PS1 save format', () => {
 
     expect(dexDriveSaveData.getSaveFiles().length).to.equal(2);
 
-    expect(dexDriveSaveData.getSaveFiles()[0].block).to.equal(0);
+    expect(dexDriveSaveData.getSaveFiles()[0].startingBlock).to.equal(0);
     expect(dexDriveSaveData.getSaveFiles()[0].filename).to.equal('BASLUS-00067DRAX00');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].description).to.equal('ＣＡＳＴＬＥＶＡＮＩＡ－１　ＡＬＵＣＡＲＤ　２００％');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawArrayBuffers[0])).to.equal(true);
 
-    expect(dexDriveSaveData.getSaveFiles()[1].block).to.equal(1);
+    expect(dexDriveSaveData.getSaveFiles()[1].startingBlock).to.equal(1);
     expect(dexDriveSaveData.getSaveFiles()[1].filename).to.equal('BASLUS-00067DRAX01');
     expect(dexDriveSaveData.getSaveFiles()[1].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[1].description).to.equal('ＣＡＳＴＬＥＶＡＮＩＡ－２　ＲＩＣＨＴＥＲ　１９５％');

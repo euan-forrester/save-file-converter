@@ -1,5 +1,8 @@
+/* eslint no-bitwise: ["error", { "allow": ["&"] }] */
+
 /*
-The DexDrive data format is:
+The PS1 memcard format is described here:
+https://www.psdevwiki.com/ps3/PS1_Savedata#Virtual_Memory_Card_PS1_.28.VM1.29
 
 */
 
@@ -10,6 +13,7 @@ const MAGIC_ENCODING = 'US-ASCII';
 const NUM_BLOCKS = 15; // The card has one block that contains the header, then 15 blocks for save data
 const BLOCK_SIZE = 8192; // Each block is this many bytes
 const FRAME_SIZE = 128; // Each block contains a set of "frames" which are each this many bytes
+const LITTLE_ENDIAN = true;
 
 // System header
 
@@ -18,10 +22,17 @@ const HEADER_MAGIC = 'MC';
 // The header contains several mini-blocks called "directory frames", each of which has info about a block of data
 
 const DIRECTORY_FRAME_AVAILABLE_OFFSET = 0x00;
+const DIRECTORY_FRAME_NEXT_BLOCK_OFFSET = 0x08;
+const DIRECTORY_FRAME_NO_NEXT_BLOCK = 0xFFFF;
 const DIRECTORY_FRAME_FILENAME_OFFSET = 0x0A;
 const DIRECTORY_FRAME_FILENAME_LENGTH = 20;
 const DIRECTORY_FRAME_FILENAME_ENCODING = 'US-ASCII';
+
+// These flags are described in the 'available blocks table' here: https://www.psdevwiki.com/ps3/PS1_Savedata#PS1_Single_Save_.3F_.28.PSV.29
 const DIRECTORY_FRAME_UNUSED_BLOCK = 0xA0;
+const DIRECTORY_FRAME_FIRST_LINK_BLOCK = 0x51;
+// const DIRECTORY_FRAME_MIDDLE_LINK_BLOCK = 0x52;
+// const DIRECTORY_FRAME_LAST_LINK_BLOCK = 0x53;
 const DIRECTORY_FRAME_UNUSABLE_BLOCK = 0xFF;
 
 // Save blocks
@@ -30,6 +41,16 @@ const SAVE_BLOCK_MAGIC = 'SC';
 const SAVE_BLOCK_DESCRIPTION_OFFSET = 0x04;
 const SAVE_BLOCK_DESCRIPTION_LENGTH = 64;
 const SAVE_BLOCK_DESCRIPTION_ENCODING = 'shift-jis';
+
+function getDirectoryFrame(headerArrayBuffer, blockNum) {
+  const offset = FRAME_SIZE + (blockNum * FRAME_SIZE); // The first frame contains HEADER_MAGIC, so block 0 is at frame 1
+  return headerArrayBuffer.slice(offset, offset + FRAME_SIZE);
+}
+
+function getBlock(dataBlocksArrayBuffer, blockNum) {
+  const offset = BLOCK_SIZE * blockNum;
+  return dataBlocksArrayBuffer.slice(offset, offset + BLOCK_SIZE);
+}
 
 export default class Ps1MemcardSaveData {
   static NUM_BLOCKS = NUM_BLOCKS;
@@ -61,30 +82,50 @@ export default class Ps1MemcardSaveData {
     // Go through all the directory frames, and for each block that contains data then get the raw save data and decode its description
 
     for (let i = 0; i < NUM_BLOCKS; i += 1) {
-      const directoryFrameOffset = FRAME_SIZE + (i * FRAME_SIZE); // The first frame contains SYSTEM_HEADER_MAGIC, so block 0 is at frame 1
-      const directoryFrame = headerArrayBuffer.slice(directoryFrameOffset, directoryFrameOffset + FRAME_SIZE);
-      const directoryFrameDataView = new DataView(directoryFrame);
+      let directoryFrame = getDirectoryFrame(headerArrayBuffer, i);
+      let directoryFrameDataView = new DataView(directoryFrame);
 
       const available = directoryFrameDataView.getUint8(DIRECTORY_FRAME_AVAILABLE_OFFSET);
 
-      if ((available === DIRECTORY_FRAME_UNUSED_BLOCK) || (available === DIRECTORY_FRAME_UNUSABLE_BLOCK)) {
+      if (((available & 0xF0) === DIRECTORY_FRAME_UNUSED_BLOCK) || (available === DIRECTORY_FRAME_UNUSABLE_BLOCK)) {
+        // Note that some files have blocks with their 'available' byte set like 0xA1, oxA2, etc., which
+        // indicates both that the block is available and it's a link block that's part of a save > 1 block in size.
+        // So I'm assumeing that the high bits take precidence here and the block is actually available
         continue; // eslint-disable-line no-continue
       }
 
-      const filename = Util.trimNull(filenameTextDecoder.decode(directoryFrame.slice(DIRECTORY_FRAME_FILENAME_OFFSET, DIRECTORY_FRAME_FILENAME_OFFSET + DIRECTORY_FRAME_FILENAME_LENGTH)));
-      const rawSaveDataOffset = BLOCK_SIZE * i;
-      const rawSaveData = dataBlocksArrayBuffer.slice(rawSaveDataOffset, rawSaveDataOffset + BLOCK_SIZE);
+      if (available === DIRECTORY_FRAME_FIRST_LINK_BLOCK) {
+        // This block begins a save, which may by comprised of several blocks
 
-      Util.checkMagic(rawSaveData, 0, SAVE_BLOCK_MAGIC, MAGIC_ENCODING);
+        const filename = Util.trimNull(filenameTextDecoder.decode(directoryFrame.slice(DIRECTORY_FRAME_FILENAME_OFFSET, DIRECTORY_FRAME_FILENAME_OFFSET + DIRECTORY_FRAME_FILENAME_LENGTH)));
+        let rawSaveData = getBlock(dataBlocksArrayBuffer, i);
 
-      const description = Util.trimNull(fileDescriptionTextDecoder.decode(rawSaveData.slice(SAVE_BLOCK_DESCRIPTION_OFFSET, SAVE_BLOCK_DESCRIPTION_OFFSET + SAVE_BLOCK_DESCRIPTION_LENGTH)));
+        Util.checkMagic(rawSaveData, 0, SAVE_BLOCK_MAGIC, MAGIC_ENCODING);
 
-      this.saveFiles.push({
-        block: i,
-        filename,
-        description,
-        rawData: rawSaveData,
-      });
+        const description = Util.trimNull(fileDescriptionTextDecoder.decode(rawSaveData.slice(SAVE_BLOCK_DESCRIPTION_OFFSET, SAVE_BLOCK_DESCRIPTION_OFFSET + SAVE_BLOCK_DESCRIPTION_LENGTH)));
+
+        // See if there are other blocks that comprise this save
+
+        let nextBlockNumber = directoryFrameDataView.getUint16(DIRECTORY_FRAME_NEXT_BLOCK_OFFSET, LITTLE_ENDIAN);
+
+        while (nextBlockNumber !== DIRECTORY_FRAME_NO_NEXT_BLOCK) {
+          const nextBlock = getBlock(dataBlocksArrayBuffer, nextBlockNumber);
+
+          rawSaveData = Util.concatArrayBuffers(rawSaveData, nextBlock);
+
+          directoryFrame = getDirectoryFrame(headerArrayBuffer, nextBlockNumber);
+          directoryFrameDataView = new DataView(directoryFrame);
+
+          nextBlockNumber = directoryFrameDataView.getUint16(DIRECTORY_FRAME_NEXT_BLOCK_OFFSET, LITTLE_ENDIAN);
+        }
+
+        this.saveFiles.push({
+          startingBlock: i,
+          filename,
+          description,
+          rawData: rawSaveData,
+        });
+      }
     }
   }
 

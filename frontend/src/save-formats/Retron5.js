@@ -18,6 +18,7 @@ typedef struct
 
 import pako from 'pako';
 import crc32 from 'crc-32';
+import Util from '../util/util';
 
 const LITTLE_ENDIAN = true;
 const MAGIC = 0x354E5452; // "RTN5", except backwards
@@ -49,11 +50,7 @@ export default class Retron5SaveData {
     headerUint32View[4] = DATA_HEADER_SIZE;
     headerUint32View[5] = originalChecksum;
 
-    // Concat the header and the packed data
-    const retron5ArrayBuffer = new ArrayBuffer(retron5HeaderArrayBuffer.byteLength + packedArrayBuffer.byteLength);
-    const tmp = new Uint8Array(retron5ArrayBuffer);
-    tmp.set(new Uint8Array(retron5HeaderArrayBuffer), 0);
-    tmp.set(new Uint8Array(packedArrayBuffer), DATA_HEADER_SIZE);
+    const retron5ArrayBuffer = Util.concatArrayBuffers(retron5HeaderArrayBuffer, packedArrayBuffer);
 
     // A bit inefficient to promptly go and decompress and re-CRC32 the save data
     return new Retron5SaveData(retron5ArrayBuffer);
