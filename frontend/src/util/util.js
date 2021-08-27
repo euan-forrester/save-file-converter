@@ -52,12 +52,25 @@ export default class Util {
     return Util.bufferToArrayBuffer(unpad(new Uint8Array(arrayBuffer)));
   }
 
+  // Check magic that's provided by a nice, human-readable string
   static checkMagic(arrayBuffer, offset, magic, magicEncoding) {
     const magicTextDecoder = new TextDecoder(magicEncoding);
     const magicFound = magicTextDecoder.decode(arrayBuffer.slice(offset, offset + magic.length));
 
     if (magicFound !== magic) {
       throw new Error(`Save appears corrupted: found '${magicFound}' instead of '${magic}'`);
+    }
+  }
+
+  // Check magic that contains problematic bytes that aren't human-readable
+  static checkMagicBytes(arrayBuffer, offset, magic) {
+    const dataView = new DataView(arrayBuffer);
+
+    for (let i = 0; i < magic.length; i += 1) {
+      const magicFound = dataView.getUint8(offset + i);
+      if (magicFound !== magic[i]) {
+        throw new Error(`Save appears corrupted: found '${magicFound}' instead of '${magic[i]}'`);
+      }
     }
   }
 
