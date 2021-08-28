@@ -53,6 +53,8 @@ Instructions:
   - https://www.psdevwiki.com/ps3/PSP_Savedata
   - https://github.com/BrianBTB/SED-PC (PC application that decrypts/encrypts saves)
   - https://wololo.net/talk/viewtopic.php?t=37556 (PSP plugin that dumps a game's key)
+  - https://github.com/TheHellcat/psp-hb/blob/master/SavegameDeemer_620TN/deemer_hooker/main.c#L204 Code for a plugin that does this. It intercepts the call to save the game, and writes out a copy of the save in plaintext, plus the key
+  - https://wololo.net/talk/viewtopic.php?p=137153&sid=37bd385d91e7c2d89cf1ff8d70e8c640#p137153 Discussion saying that you need to either use a plugin, or parse the executable for look for code around a certain system call to figure out what value is being passed to it
   - I can't seem to find an online list of game keys, and requiring users to install a plugin on their PSP then type a gamekey into the interface seems like too much to ask.
 - NES/SNES Classic save game format
   - https://github.com/TeamShinkansen/Hakchi2-CE (tool used to write games onto the devices)
@@ -65,6 +67,7 @@ Instructions:
   - https://www.psdevwiki.com/ps3/PS1_Savedata
   - MemcardRex format: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs
   - DexDrive format: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs
+  - Signing a PSP .VMP file: https://github.com/dots-tb/vita-mcr2vmp
 
 ## GBA save file size difficulty
 - https://zork.net/~st/jottings/GBA_saves.html
