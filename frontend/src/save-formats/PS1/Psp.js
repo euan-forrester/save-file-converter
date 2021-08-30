@@ -2,10 +2,14 @@
 
 /*
 The PSP data format for PS1 Classics is:
-- 128 byte header that contains an encryption key and a SHA1 digest
+- 128 byte header that contains a seed and a signature
 - Normal PS1 memory card data
 
 The format is described here: https://www.psdevwiki.com/ps3/PS1_Savedata#Virtual_Memory_Card_PSP_.28.VMP.29
+
+Note that the description of the signature in that link is incorrect. The signature is generated using a convoluted series
+of encryption and hashes with some other random operations thrown in for good measure. The implementation below is
+based on https://github.com/dots-tb/vita-mcr2vmp
 */
 
 import crypto from 'crypto';
@@ -23,25 +27,14 @@ const ENCRYPTION_KEY = Buffer.from('AB5ABC9FC1F49DE6A051DBAEFA518859', 'hex'); /
 const ENCRYPTION_IV = Buffer.alloc(0); // ECB doesn't use an IV, despite the code we're copying this from specifying one: https://github.com/nodejs/node/issues/10263
 const ENCRYPTION_IV_PRETEND = Buffer.from('B30FFEEDB7DC5EB7133DA60D1B6B2CDC', 'hex'); // However, this value is used in our 'signature' algorithm below
 const ENCRYPTION_KEY_LENGTH = ENCRYPTION_KEY.length;
+const HASH_ALGORITHM = 'sha1';
 
 const SALT_SEED_OFFSET = 0x0C;
 const SALT_SEED_LENGTH = 0x14;
 const SALT_LENGTH = 0x40;
 
-const HASH_ALGORITHM = 'sha1';
-const HASH_OFFSET = 0x20;
-const HASH_LENGTH = 0x14;
-
-function printBytes(name, arrayBuffer) {
-  let outputString = `${name}: `;
-  const array = new Uint8Array(arrayBuffer);
-
-  for (let i = 0; i < array.length; i += 1) {
-    outputString = outputString.concat(`${array[i].toString(16)} `);
-  }
-
-  console.log(outputString);
-}
+const SIGNATURE_OFFSET = 0x20;
+const SIGNATURE_LENGTH = 0x14;
 
 // Based on https://github.com/dots-tb/vita-mcr2vmp/blob/master/src/aes.c#L491
 function xorWithIv(arrayBuffer, startingOffset, ivBuffer) {
@@ -107,6 +100,56 @@ function fillArrayBuffer(arrayBuffer, fillValue) {
   return outputArrayBuffer;
 }
 
+function calculateSignature(arrayBuffer, saltSeed) {
+  // Note that our arrayBuffer is for the entire PSP file, including the header which must in turn include the salt seed
+  // The signature in the header is zero'ed out, but everything else must be there
+
+  // First, we calculate our salt
+  // Implmentation copied from: https://github.com/dots-tb/vita-mcr2vmp/blob/master/src/main.c#L105
+
+  let salt = new ArrayBuffer(SALT_LENGTH);
+
+  let workBuffer = new ArrayBuffer(ENCRYPTION_KEY_LENGTH); // In the code we're copying from, only this many bytes are actually used from this buffer, until the very end when it's repurposed to receive the final sha1 digest
+
+  workBuffer = setArrayBufferPortion(workBuffer, saltSeed, 0, 0, ENCRYPTION_KEY_LENGTH);
+  workBuffer = Util.decrypt(workBuffer, ENCRYPTION_ALGORITHM, ENCRYPTION_KEY, ENCRYPTION_IV);
+  salt = setArrayBufferPortion(salt, workBuffer, 0, 0, ENCRYPTION_KEY_LENGTH);
+
+  workBuffer = setArrayBufferPortion(workBuffer, saltSeed, 0, 0, ENCRYPTION_KEY_LENGTH);
+  workBuffer = Util.encrypt(workBuffer, ENCRYPTION_ALGORITHM, ENCRYPTION_KEY, ENCRYPTION_IV);
+  salt = setArrayBufferPortion(salt, workBuffer, ENCRYPTION_KEY_LENGTH, 0, ENCRYPTION_KEY_LENGTH);
+
+  salt = xorWithIv(salt, 0, ENCRYPTION_IV_PRETEND); // The only place our IV is actually used: as a random series of bytes
+
+  workBuffer = fillArrayBuffer(workBuffer, 0xFF);
+  workBuffer = setArrayBufferPortion(workBuffer, saltSeed, 0, ENCRYPTION_KEY_LENGTH, SALT_SEED_LENGTH - ENCRYPTION_KEY_LENGTH);
+  salt = xorWithIv(salt, ENCRYPTION_KEY_LENGTH, workBuffer);
+
+  salt = fillArrayBufferPortion(salt, SALT_SEED_LENGTH, SALT_LENGTH - SALT_SEED_LENGTH, 0);
+  salt = xorWithByte(salt, 0x36, SALT_LENGTH);
+
+  // Then we calculate our hash
+  // Implementation copied from: https://github.com/dots-tb/vita-mcr2vmp/blob/master/src/main.c#L124
+
+  const inputArrayBufferWithoutHash = fillArrayBufferPortion(arrayBuffer, SIGNATURE_OFFSET, SIGNATURE_LENGTH, 0);
+
+  const hash1 = crypto.createHash(HASH_ALGORITHM);
+
+  hash1.update(Buffer.from(salt));
+  hash1.update(Buffer.from(inputArrayBufferWithoutHash));
+
+  const hash1Output = hash1.digest();
+
+  const hash2 = crypto.createHash(HASH_ALGORITHM);
+
+  salt = xorWithByte(salt, 0x6A, SALT_LENGTH);
+
+  hash2.update(Buffer.from(salt));
+  hash2.update(hash1Output);
+
+  return hash2.digest();
+}
+
 export default class PspSaveData {
   static createFromPspData(pspArrayBuffer) {
     return new PspSaveData(pspArrayBuffer);
@@ -126,64 +169,15 @@ export default class PspSaveData {
 
     Util.checkMagicBytes(pspHeaderArrayBuffer, 0, HEADER_MAGIC);
 
-    // Calculate the "signature" for the data
-    // Signature implementation copied from: https://github.com/dots-tb/vita-mcr2vmp/blob/master/src/main.c#L90
-
-    // First, we calculate our salt
-
-    let salt = new ArrayBuffer(SALT_LENGTH);
     const saltSeed = pspHeaderArrayBuffer.slice(SALT_SEED_OFFSET, SALT_SEED_OFFSET + SALT_SEED_LENGTH);
-
-    let workBuffer = new ArrayBuffer(ENCRYPTION_KEY_LENGTH); // In the code we're copying from, only this many bytes are actually used from this buffer, until the very end when it's repurposed to receive the final sha1 digest
-
-    workBuffer = setArrayBufferPortion(workBuffer, saltSeed, 0, 0, ENCRYPTION_KEY_LENGTH); printBytes('workBuffer', workBuffer);
-    workBuffer = Util.decrypt(workBuffer, ENCRYPTION_ALGORITHM, ENCRYPTION_KEY, ENCRYPTION_IV);
-    salt = setArrayBufferPortion(salt, workBuffer, 0, 0, ENCRYPTION_KEY_LENGTH); printBytes('salt', salt);
-
-    workBuffer = setArrayBufferPortion(workBuffer, saltSeed, 0, 0, ENCRYPTION_KEY_LENGTH); printBytes('workBuffer', workBuffer);
-    workBuffer = Util.encrypt(workBuffer, ENCRYPTION_ALGORITHM, ENCRYPTION_KEY, ENCRYPTION_IV);
-    salt = setArrayBufferPortion(salt, workBuffer, ENCRYPTION_KEY_LENGTH, 0, ENCRYPTION_KEY_LENGTH); printBytes('salt', salt);
-
-    salt = xorWithIv(salt, 0, ENCRYPTION_IV_PRETEND); printBytes('salt', salt); // The only place our IV is actually used: as a random series of bytes
-
-    workBuffer = fillArrayBuffer(workBuffer, 0xFF); printBytes('workBuffer', workBuffer);
-    workBuffer = setArrayBufferPortion(workBuffer, saltSeed, 0, ENCRYPTION_KEY_LENGTH, SALT_SEED_LENGTH - ENCRYPTION_KEY_LENGTH); printBytes('workBuffer', workBuffer);
-    salt = xorWithIv(salt, ENCRYPTION_KEY_LENGTH, workBuffer); printBytes('salt', salt);
-
-    salt = fillArrayBufferPortion(salt, SALT_SEED_LENGTH, SALT_LENGTH - SALT_SEED_LENGTH, 0); printBytes('salt', salt);
-    salt = xorWithByte(salt, 0x36, SALT_LENGTH); printBytes('salt', salt);
-
-    // Then we calculate our hash
-    // Implementation copied from: https://github.com/dots-tb/vita-mcr2vmp/blob/master/src/main.c#L124
-
-    const inputArrayBufferWithoutHash = fillArrayBufferPortion(arrayBuffer, HASH_OFFSET, HASH_LENGTH, 0);
-
-    const hash1 = crypto.createHash(HASH_ALGORITHM);
-
-    hash1.update(Buffer.from(salt));
-    hash1.update(Buffer.from(inputArrayBufferWithoutHash));
-
-    const hash1Output = hash1.digest();
-
-    const hash2 = crypto.createHash(HASH_ALGORITHM);
-
-    salt = xorWithByte(salt, 0x6A, SALT_LENGTH);
-
-    hash2.update(Buffer.from(salt));
-    hash2.update(hash1Output);
-
-    const hashCalculated = hash2.digest();
+    const signatureCalculated = calculateSignature(arrayBuffer, saltSeed);
 
     // Check the hash we generated against the one we found
 
-    const hashFound = Buffer.from(pspHeaderArrayBuffer.slice(HASH_OFFSET, HASH_OFFSET + HASH_LENGTH));
+    const signatureFound = Buffer.from(pspHeaderArrayBuffer.slice(SIGNATURE_OFFSET, SIGNATURE_OFFSET + SIGNATURE_LENGTH));
 
-    console.log('\n\n\n');
-    console.log(`Salt seed: '${Buffer.from(saltSeed).toString('hex')}' Salt: '${Buffer.from(salt).toString('hex')}'`);
-    console.log(`Expected hash: '${hashFound.toString('hex')}' Calculated hash '${hashCalculated.toString('hex')}'`);
-
-    if (hashFound.compare(hashCalculated) !== 0) {
-      throw new Error(`Save appears to be corrupted: expected hash ${hashFound.toString('hex')} but calculated hash ${hashCalculated.toString('hex')}`);
+    if (signatureFound.compare(signatureCalculated) !== 0) {
+      throw new Error(`Save appears to be corrupted: expected signature ${signatureFound.toString('hex')} but calculated signature ${signatureCalculated.toString('hex')}`);
     }
 
     // Parse the rest of the file
