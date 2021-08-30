@@ -4,6 +4,11 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 const DIR = './tests/unit/save-formats/data/ps1/psp';
 
+const PSP_SIGNATURE_FILENAME = `${DIR}/Suikoden 2-psp-signature.VMP`;
+const PROGRAM_SIGNATURE_FILENAME = `${DIR}/Suikoden 2-vita-mcr2vmp-signature.VMP`;
+const WEB_SIGNATURE_FILENAME = `${DIR}/Suikoden 1-save-editor-signature.VMP`;
+const NO_SIGNATURE_FILENAME = `${DIR}/Suikoden 2-no-signature.VMP`;
+
 const PSP_SEVEN_FILES_FILENAME = `${DIR}/Suikoden 2.VMP`;
 const RAW_SEVEN_FILES_FILENAMES = [
   `${DIR}/Suikoden 2-BASLUS-00958GS2-1.srm`,
@@ -16,6 +21,33 @@ const RAW_SEVEN_FILES_FILENAMES = [
 ];
 
 describe('PSP PS1 save format', () => {
+  it('should correctly verify the signature of a file written by a PSP', async () => {
+    const pspArrayBuffer = await ArrayBufferUtil.readArrayBuffer(PSP_SIGNATURE_FILENAME);
+
+    PspSaveData.createFromPspData(pspArrayBuffer);
+  });
+
+  it('should correctly verify the signature of a file written by vita-mcr2vmp', async () => {
+    const pspArrayBuffer = await ArrayBufferUtil.readArrayBuffer(PROGRAM_SIGNATURE_FILENAME);
+
+    PspSaveData.createFromPspData(pspArrayBuffer);
+  });
+
+  it('should correctly verify the signature of a file written by save-editor.com', async () => {
+    const pspArrayBuffer = await ArrayBufferUtil.readArrayBuffer(WEB_SIGNATURE_FILENAME);
+
+    PspSaveData.createFromPspData(pspArrayBuffer);
+  });
+
+  it('should correctly reject a file with an incorrect signature', async () => {
+    const pspArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NO_SIGNATURE_FILENAME);
+
+    expect(() => PspSaveData.createFromPspData(pspArrayBuffer)).to.throw(
+      // Passing in a specific instance of an Error triggers a comparison of the references: https://github.com/chaijs/chai/issues/430
+      Error, 'Save appears to be corrupted: expected signature 0000000000000000000000000000000000000000 but calculated signature 93a06a162ae1808643027aeb2c95d80bbee92a39',
+    );
+  });
+
   it('should convert a file containing seven saves that are each two blocks', async () => {
     const pspArrayBuffer = await ArrayBufferUtil.readArrayBuffer(PSP_SEVEN_FILES_FILENAME);
     const rawArrayBuffers = await Promise.all(RAW_SEVEN_FILES_FILENAMES.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
