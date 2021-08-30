@@ -32,6 +32,18 @@ const HASH_ALGORITHM = 'sha1';
 const HASH_OFFSET = 0x20;
 const HASH_LENGTH = 0x14;
 
+function printBytes(name, arrayBuffer) {
+  let outputString = `${name}: `;
+  const array = new Uint8Array(arrayBuffer);
+
+  for (let i = 0; i < array.length; i += 1) {
+    outputString = outputString.concat(`${array[i].toString(16)} `);
+  }
+
+  console.log(outputString);
+}
+
+// Based on https://github.com/dots-tb/vita-mcr2vmp/blob/master/src/aes.c#L491
 function xorWithIv(arrayBuffer, startingOffset, ivBuffer) {
   const outputArrayBuffer = new ArrayBuffer(arrayBuffer.byteLength);
   const outputArray = new Uint8Array(outputArrayBuffer);
@@ -48,6 +60,7 @@ function xorWithIv(arrayBuffer, startingOffset, ivBuffer) {
   return outputArrayBuffer;
 }
 
+// Based on https://github.com/dots-tb/vita-mcr2vmp/blob/master/src/main.c#L25
 function xorWithByte(arrayBuffer, xorValue, length) {
   const outputArrayBuffer = new ArrayBuffer(arrayBuffer.byteLength);
   const outputArray = new Uint8Array(outputArrayBuffer);
@@ -65,7 +78,7 @@ function setArrayBufferPortion(destination, source, destinationOffset, sourceOff
   const destinationArray = new Uint8Array(destination);
   const sourceArray = new Uint8Array(source.slice(sourceOffset, sourceOffset + length));
 
-  const output = new ArrayBuffer(destination.byteLength); // Make a copy so we don't overwrite the original ArrayBuffer
+  const output = new ArrayBuffer(destination.byteLength);
   const outputArray = new Uint8Array(output);
 
   outputArray.set(destinationArray);
@@ -123,22 +136,22 @@ export default class PspSaveData {
 
     let workBuffer = new ArrayBuffer(ENCRYPTION_KEY_LENGTH); // In the code we're copying from, only this many bytes are actually used from this buffer, until the very end when it's repurposed to receive the final sha1 digest
 
-    workBuffer = setArrayBufferPortion(workBuffer, saltSeed, 0, ENCRYPTION_KEY_LENGTH);
+    workBuffer = setArrayBufferPortion(workBuffer, saltSeed, 0, 0, ENCRYPTION_KEY_LENGTH); printBytes('workBuffer', workBuffer);
     workBuffer = Util.decrypt(workBuffer, ENCRYPTION_ALGORITHM, ENCRYPTION_KEY, ENCRYPTION_IV);
-    salt = setArrayBufferPortion(salt, workBuffer, 0, 0, ENCRYPTION_KEY_LENGTH);
+    salt = setArrayBufferPortion(salt, workBuffer, 0, 0, ENCRYPTION_KEY_LENGTH); printBytes('salt', salt);
 
-    workBuffer = setArrayBufferPortion(workBuffer, saltSeed, 0, ENCRYPTION_KEY_LENGTH);
+    workBuffer = setArrayBufferPortion(workBuffer, saltSeed, 0, 0, ENCRYPTION_KEY_LENGTH); printBytes('workBuffer', workBuffer);
     workBuffer = Util.encrypt(workBuffer, ENCRYPTION_ALGORITHM, ENCRYPTION_KEY, ENCRYPTION_IV);
-    salt = setArrayBufferPortion(salt, workBuffer, ENCRYPTION_KEY_LENGTH, 0, ENCRYPTION_KEY_LENGTH);
+    salt = setArrayBufferPortion(salt, workBuffer, ENCRYPTION_KEY_LENGTH, 0, ENCRYPTION_KEY_LENGTH); printBytes('salt', salt);
 
-    salt = xorWithIv(salt, 0, ENCRYPTION_IV_PRETEND);
+    salt = xorWithIv(salt, 0, ENCRYPTION_IV_PRETEND); printBytes('salt', salt); // The only place our IV is actually used: as a random series of bytes
 
-    workBuffer = fillArrayBuffer(workBuffer, 0xFF);
-    workBuffer = setArrayBufferPortion(workBuffer, saltSeed, 0, ENCRYPTION_KEY_LENGTH, SALT_SEED_LENGTH - ENCRYPTION_KEY_LENGTH);
-    salt = xorWithIv(salt, ENCRYPTION_KEY_LENGTH, workBuffer);
+    workBuffer = fillArrayBuffer(workBuffer, 0xFF); printBytes('workBuffer', workBuffer);
+    workBuffer = setArrayBufferPortion(workBuffer, saltSeed, 0, ENCRYPTION_KEY_LENGTH, SALT_SEED_LENGTH - ENCRYPTION_KEY_LENGTH); printBytes('workBuffer', workBuffer);
+    salt = xorWithIv(salt, ENCRYPTION_KEY_LENGTH, workBuffer); printBytes('salt', salt);
 
-    salt = fillArrayBufferPortion(salt, SALT_SEED_LENGTH, 0, SALT_LENGTH - SALT_SEED_LENGTH);
-    salt = xorWithByte(salt, 0x36, SALT_LENGTH);
+    salt = fillArrayBufferPortion(salt, SALT_SEED_LENGTH, SALT_LENGTH - SALT_SEED_LENGTH, 0); printBytes('salt', salt);
+    salt = xorWithByte(salt, 0x36, SALT_LENGTH); printBytes('salt', salt);
 
     // Then we calculate our hash
     // Implementation copied from: https://github.com/dots-tb/vita-mcr2vmp/blob/master/src/main.c#L124
@@ -165,10 +178,12 @@ export default class PspSaveData {
 
     const hashFound = Buffer.from(pspHeaderArrayBuffer.slice(HASH_OFFSET, HASH_OFFSET + HASH_LENGTH));
 
-    console.log(`Expected hash: '${hashFound}' Calculated hash '${hashCalculated}'`);
+    console.log('\n\n\n');
+    console.log(`Salt seed: '${Buffer.from(saltSeed).toString('hex')}' Salt: '${Buffer.from(salt).toString('hex')}'`);
+    console.log(`Expected hash: '${hashFound.toString('hex')}' Calculated hash '${hashCalculated.toString('hex')}'`);
 
     if (hashFound.compare(hashCalculated) !== 0) {
-      throw new Error(`Save appears to be corrupted: expected hash ${hashFound} but calculated hash ${hashCalculated}`);
+      throw new Error(`Save appears to be corrupted: expected hash ${hashFound.toString('hex')} but calculated hash ${hashCalculated.toString('hex')}`);
     }
 
     // Parse the rest of the file
