@@ -27,7 +27,7 @@ export default class Util {
   static concatArrayBuffers(b1, b2) {
     const b = new ArrayBuffer(b1.byteLength + b2.byteLength);
     const tmp = new Uint8Array(b);
-    
+
     tmp.set(new Uint8Array(b1), 0);
     tmp.set(new Uint8Array(b2), b1.byteLength);
 
