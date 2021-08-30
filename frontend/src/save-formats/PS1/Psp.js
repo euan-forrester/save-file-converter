@@ -25,13 +25,13 @@ const ENCRYPTION_ALGORITHM = 'aes-128-ecb';
 const ENCRYPTION_ALGORITHM_BLOCK_LENGTH = 0x10; // A block in AES is always 128 bits regardless of the key size
 const ENCRYPTION_KEY = Buffer.from('AB5ABC9FC1F49DE6A051DBAEFA518859', 'hex'); // https://github.com/dots-tb/vita-mcr2vmp/blob/master/src/main.c#L15
 const ENCRYPTION_IV = Buffer.alloc(0); // ECB doesn't use an IV, despite the code we're copying this from specifying one: https://github.com/nodejs/node/issues/10263
-const ENCRYPTION_IV_PRETEND = Buffer.from('B30FFEEDB7DC5EB7133DA60D1B6B2CDC', 'hex'); // However, this value is used in our 'signature' algorithm below
+const ENCRYPTION_IV_PRETEND = Buffer.from('B30FFEEDB7DC5EB7133DA60D1B6B2CDC', 'hex'); // However, this series of bytes is used for a different purpose in our 'signature' algorithm below
 const ENCRYPTION_KEY_LENGTH = ENCRYPTION_KEY.length;
 const HASH_ALGORITHM = 'sha1';
+const SALT_LENGTH = 0x40;
 
 const SALT_SEED_OFFSET = 0x0C;
 const SALT_SEED_LENGTH = 0x14;
-const SALT_LENGTH = 0x40;
 
 const SIGNATURE_OFFSET = 0x20;
 const SIGNATURE_LENGTH = 0x14;
@@ -100,10 +100,9 @@ function fillArrayBuffer(arrayBuffer, fillValue) {
   return outputArrayBuffer;
 }
 
+// Note that our arrayBuffer is for the entire PSP file, including the header which must in turn include the salt seed
+// The signature in the header is zero'ed out before the signature is calculated, but everything else must be there
 function calculateSignature(arrayBuffer, saltSeed) {
-  // Note that our arrayBuffer is for the entire PSP file, including the header which must in turn include the salt seed
-  // The signature in the header is zero'ed out, but everything else must be there
-
   // First, we calculate our salt
   // Implmentation copied from: https://github.com/dots-tb/vita-mcr2vmp/blob/master/src/main.c#L105
 
@@ -172,7 +171,7 @@ export default class PspSaveData {
     const saltSeed = pspHeaderArrayBuffer.slice(SALT_SEED_OFFSET, SALT_SEED_OFFSET + SALT_SEED_LENGTH);
     const signatureCalculated = calculateSignature(arrayBuffer, saltSeed);
 
-    // Check the hash we generated against the one we found
+    // Check the signature we generated against the one we found
 
     const signatureFound = Buffer.from(pspHeaderArrayBuffer.slice(SIGNATURE_OFFSET, SIGNATURE_OFFSET + SIGNATURE_LENGTH));
 
