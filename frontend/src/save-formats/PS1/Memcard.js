@@ -1,4 +1,4 @@
-/* eslint no-bitwise: ["error", { "allow": ["&"] }] */
+/* eslint no-bitwise: ["error", { "allow": ["&", "^"] }] */
 
 /*
 The PS1 memcard format is described here:
@@ -15,7 +15,7 @@ const BLOCK_SIZE = 8192; // Each block is this many bytes
 const FRAME_SIZE = 128; // Each block contains a set of "frames" which are each this many bytes
 const LITTLE_ENDIAN = true;
 
-// System header
+// Header block
 
 const HEADER_MAGIC = 'MC';
 
@@ -27,6 +27,7 @@ const DIRECTORY_FRAME_NO_NEXT_BLOCK = 0xFFFF;
 const DIRECTORY_FRAME_FILENAME_OFFSET = 0x0A;
 const DIRECTORY_FRAME_FILENAME_LENGTH = 20;
 const DIRECTORY_FRAME_FILENAME_ENCODING = 'US-ASCII';
+const DIRECTORY_FRAME_FILE_SIZE_OFFSET = 0x04;
 
 // These flags are described in the 'available blocks table' here: https://www.psdevwiki.com/ps3/PS1_Savedata#PS1_Single_Save_.3F_.28.PSV.29
 const DIRECTORY_FRAME_UNUSED_BLOCK = 0xA0;
@@ -52,6 +53,95 @@ function getBlock(dataBlocksArrayBuffer, blockNum) {
   return dataBlocksArrayBuffer.slice(offset, offset + BLOCK_SIZE);
 }
 
+function checkFile(file) {
+  Util.checkMagic(file.rawData, 0, SAVE_BLOCK_MAGIC, MAGIC_ENCODING);
+
+  if (file.rawData.byteLength <= 0) {
+    throw new Error(`File ${file.filename} does not contain any data`);
+  }
+
+  if ((file.rawData.byteLength % BLOCK_SIZE) !== 0) {
+    throw new Error(`File ${file.filename} size must be a multiple of ${BLOCK_SIZE} bytes`);
+  }
+}
+
+function xorAllBytes(arrayBuffer) {
+  const array = new Uint8Array(arrayBuffer);
+
+  return array.reduce((acc, n) => acc ^ n);
+}
+
+function createDirectoryFrameMagic() {
+  const arrayBuffer = new ArrayBuffer(FRAME_SIZE);
+  const array = new Uint8Array(arrayBuffer);
+
+  array.fill(0);
+
+  array[0] = HEADER_MAGIC.charCodeAt(0);
+  array[1] = HEADER_MAGIC.charCodeAt(1);
+
+  array[FRAME_SIZE - 1] = xorAllBytes(arrayBuffer);
+
+  return arrayBuffer;
+}
+
+function createDirectoryFrameEmpty() {
+  const arrayBuffer = new ArrayBuffer(FRAME_SIZE);
+  const array = new Uint8Array(arrayBuffer);
+  const dataView = new DataView(arrayBuffer);
+
+  array.fill(0);
+
+  dataView.setUint8(DIRECTORY_FRAME_AVAILABLE_OFFSET, DIRECTORY_FRAME_UNUSED_BLOCK);
+  dataView.setUint16(DIRECTORY_FRAME_NEXT_BLOCK_OFFSET, DIRECTORY_FRAME_NO_NEXT_BLOCK, LITTLE_ENDIAN);
+
+  dataView.setUint8(FRAME_SIZE - 1, xorAllBytes(arrayBuffer));
+
+  return arrayBuffer;
+}
+
+function createSaveBlockEmpty() {
+  return new ArrayBuffer(BLOCK_SIZE);
+}
+
+function createDirectoryFrameUnused() {
+  const arrayBuffer = new ArrayBuffer(FRAME_SIZE);
+  const array = new Uint8Array(arrayBuffer);
+  const dataView = new DataView(arrayBuffer);
+
+  array.fill(0);
+
+  dataView.setUint8(DIRECTORY_FRAME_AVAILABLE_OFFSET + 0, DIRECTORY_FRAME_UNUSABLE_BLOCK);
+  dataView.setUint8(DIRECTORY_FRAME_AVAILABLE_OFFSET + 1, DIRECTORY_FRAME_UNUSABLE_BLOCK);
+  dataView.setUint8(DIRECTORY_FRAME_AVAILABLE_OFFSET + 2, DIRECTORY_FRAME_UNUSABLE_BLOCK);
+  dataView.setUint8(DIRECTORY_FRAME_AVAILABLE_OFFSET + 3, DIRECTORY_FRAME_UNUSABLE_BLOCK);
+
+  dataView.setUint16(DIRECTORY_FRAME_NEXT_BLOCK_OFFSET, DIRECTORY_FRAME_NO_NEXT_BLOCK, LITTLE_ENDIAN);
+
+  return arrayBuffer;
+}
+
+function createDirectoryFrameSingleBlockSave(saveFile, filenameTextEncoder) {
+  const arrayBuffer = new ArrayBuffer(FRAME_SIZE);
+  const array = new Uint8Array(arrayBuffer);
+  const dataView = new DataView(arrayBuffer);
+
+  const encodedFilename = filenameTextEncoder.encode(saveFile.filename).slice(0, DIRECTORY_FRAME_FILENAME_LENGTH);
+
+  array.fill(0);
+
+  array[DIRECTORY_FRAME_AVAILABLE_OFFSET] = DIRECTORY_FRAME_FIRST_LINK_BLOCK;
+
+  dataView.setUint32(DIRECTORY_FRAME_FILE_SIZE_OFFSET, saveFile.rawData.byteLength, LITTLE_ENDIAN);
+  dataView.setUint16(DIRECTORY_FRAME_NEXT_BLOCK_OFFSET, DIRECTORY_FRAME_NO_NEXT_BLOCK, LITTLE_ENDIAN);
+
+  array.set(encodedFilename, DIRECTORY_FRAME_FILENAME_OFFSET);
+
+  dataView.setUint8(FRAME_SIZE - 1, xorAllBytes(arrayBuffer));
+
+  return arrayBuffer;
+}
+
 export default class Ps1MemcardSaveData {
   static NUM_BLOCKS = NUM_BLOCKS;
 
@@ -59,8 +149,58 @@ export default class Ps1MemcardSaveData {
     return new Ps1MemcardSaveData(memcardArrayBuffer);
   }
 
-  static createFromRawData(rawArrayBuffer) {
-    this.rawSaveData = rawArrayBuffer;
+  static createFromSaveFiles(saveFiles) {
+    // Make sure that each file has the correct magic, is a correct size, and the total size isn't bigger than a single memcard
+
+    saveFiles.forEach((f) => checkFile(f));
+
+    const totalSize = saveFiles.reduce((total, f) => total + f.filesize);
+    if (totalSize > (NUM_BLOCKS * BLOCK_SIZE)) {
+      throw new Error(`Total size of files is ${totalSize} bytes (${totalSize / BLOCK_SIZE} blocks) but max size is ${NUM_BLOCKS * BLOCK_SIZE} bytes (${NUM_BLOCKS} blocks)`);
+    }
+
+    // Create our directory frames + save blocks
+
+    const directoryFrames = [];
+    const saveBlocks = [];
+
+    const filenameTextEncoder = new TextEncoder(DIRECTORY_FRAME_FILENAME_ENCODING);
+
+    directoryFrames.push(createDirectoryFrameMagic());
+
+    saveFiles.forEach((saveFile) => {
+      if (saveFile.rawData.byteLength === BLOCK_SIZE) {
+        directoryFrames.push(createDirectoryFrameSingleBlockSave(saveFile, filenameTextEncoder));
+        saveBlocks.push(saveFile.rawData);
+      }
+    });
+
+    // Fill in any remaining space as empty directory frames + save blocks
+
+    while (directoryFrames.length < (NUM_BLOCKS + 1)) { // +1 because we have the magic frame on there first
+      directoryFrames.push(createDirectoryFrameEmpty());
+      saveBlocks.push(createSaveBlockEmpty());
+    }
+
+    // Then the rest of the header block is unused directory frames
+
+    while (directoryFrames.length < (BLOCK_SIZE / FRAME_SIZE)) {
+      directoryFrames.push(createDirectoryFrameUnused());
+    }
+
+    // Concat our directory frames together into our header block
+
+    const headerBlock = Util.concatArrayBuffers(directoryFrames);
+
+    // Concat all of our blocks together to form our memcard image
+
+    saveBlocks.unshift(headerBlock); // Header block goes first
+
+    const arrayBuffer = Util.concatArrayBuffers(saveBlocks);
+
+    // Now go back and re-parse the data we've created to get the description etc for each file
+
+    return new Ps1MemcardSaveData(arrayBuffer);
   }
 
   // This constructor creates a new object from a binary representation of a PS1 memcard
@@ -95,23 +235,22 @@ export default class Ps1MemcardSaveData {
       }
 
       if (available === DIRECTORY_FRAME_FIRST_LINK_BLOCK) {
-        // This block begins a save, which may by comprised of several blocks
+        // This block begins a save, which may be comprised of several blocks
 
         const filename = Util.trimNull(filenameTextDecoder.decode(directoryFrame.slice(DIRECTORY_FRAME_FILENAME_OFFSET, DIRECTORY_FRAME_FILENAME_OFFSET + DIRECTORY_FRAME_FILENAME_LENGTH)));
-        let rawSaveData = getBlock(dataBlocksArrayBuffer, i);
+        const expectedSize = directoryFrameDataView.getUint32(DIRECTORY_FRAME_FILE_SIZE_OFFSET, LITTLE_ENDIAN);
+        const dataBlocks = [getBlock(dataBlocksArrayBuffer, i)];
 
-        Util.checkMagic(rawSaveData, 0, SAVE_BLOCK_MAGIC, MAGIC_ENCODING);
+        Util.checkMagic(dataBlocks[0], 0, SAVE_BLOCK_MAGIC, MAGIC_ENCODING);
 
-        const description = Util.trimNull(fileDescriptionTextDecoder.decode(rawSaveData.slice(SAVE_BLOCK_DESCRIPTION_OFFSET, SAVE_BLOCK_DESCRIPTION_OFFSET + SAVE_BLOCK_DESCRIPTION_LENGTH)));
+        const description = Util.trimNull(fileDescriptionTextDecoder.decode(dataBlocks[0].slice(SAVE_BLOCK_DESCRIPTION_OFFSET, SAVE_BLOCK_DESCRIPTION_OFFSET + SAVE_BLOCK_DESCRIPTION_LENGTH)));
 
         // See if there are other blocks that comprise this save
 
         let nextBlockNumber = directoryFrameDataView.getUint16(DIRECTORY_FRAME_NEXT_BLOCK_OFFSET, LITTLE_ENDIAN);
 
         while (nextBlockNumber !== DIRECTORY_FRAME_NO_NEXT_BLOCK) {
-          const nextBlock = getBlock(dataBlocksArrayBuffer, nextBlockNumber);
-
-          rawSaveData = Util.concatArrayBuffers(rawSaveData, nextBlock);
+          dataBlocks.push(getBlock(dataBlocksArrayBuffer, nextBlockNumber));
 
           directoryFrame = getDirectoryFrame(headerArrayBuffer, nextBlockNumber);
           directoryFrameDataView = new DataView(directoryFrame);
@@ -119,11 +258,19 @@ export default class Ps1MemcardSaveData {
           nextBlockNumber = directoryFrameDataView.getUint16(DIRECTORY_FRAME_NEXT_BLOCK_OFFSET, LITTLE_ENDIAN);
         }
 
+        // Check that we actually got as many bytes as the file was supposed to have
+
+        const rawData = Util.concatArrayBuffers(dataBlocks);
+
+        if (rawData.byteLength !== expectedSize) {
+          throw new Error(`Save file appears to be corrupted: expected file ${description} to be ${expectedSize} bytes, but was actually ${rawData.byteLength} bytes`);
+        }
+
         this.saveFiles.push({
           startingBlock: i,
           filename,
           description,
-          rawData: rawSaveData,
+          rawData,
         });
       }
     }

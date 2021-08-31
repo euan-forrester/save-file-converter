@@ -24,14 +24,10 @@ export default class Util {
     return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength); // https://stackoverflow.com/questions/8609289/convert-a-binary-nodejs-buffer-to-javascript-arraybuffer/31394257#31394257
   }
 
-  static concatArrayBuffers(b1, b2) {
-    const b = new ArrayBuffer(b1.byteLength + b2.byteLength);
-    const tmp = new Uint8Array(b);
+  static concatArrayBuffers(arrayBufferList) {
+    const bufferList = arrayBufferList.map((ab) => Buffer.from(ab));
 
-    tmp.set(new Uint8Array(b1), 0);
-    tmp.set(new Uint8Array(b2), b1.byteLength);
-
-    return b;
+    return Util.bufferToArrayBuffer(Buffer.concat(bufferList));
   }
 
   static decrypt(encryptedArrayBuffer, algorithm, key, initializationVector) {

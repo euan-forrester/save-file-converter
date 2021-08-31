@@ -50,7 +50,7 @@ export default class Retron5SaveData {
     headerUint32View[4] = DATA_HEADER_SIZE;
     headerUint32View[5] = originalChecksum;
 
-    const retron5ArrayBuffer = Util.concatArrayBuffers(retron5HeaderArrayBuffer, packedArrayBuffer);
+    const retron5ArrayBuffer = Util.concatArrayBuffers([retron5HeaderArrayBuffer, packedArrayBuffer]);
 
     // A bit inefficient to promptly go and decompress and re-CRC32 the save data
     return new Retron5SaveData(retron5ArrayBuffer);
