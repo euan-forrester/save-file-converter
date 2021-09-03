@@ -14,7 +14,7 @@ const MAGIC_ENCODING = 'US-ASCII';
 const DEXDRIVE_HEADER_MAGIC = '123-456-STD';
 const DEXDRIVE_HEADER_LENGTH = 3904;
 // MemcardRex uses the system default encoding for the comments (https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs#L175), which is usually utf8.
-// Seems like maybe an old device like an actual DexDrive may instead use US-ASCII though.
+// I would guess that an old device like an actual DexDrive may instead use US-ASCII though.
 // But the actual devices don't really exist anymore and most/all of these files that exist today would be written out by MemcardRex?
 const COMMENT_ENCODING = 'utf8';
 const FIRST_COMMENT_OFFSET = 64;
