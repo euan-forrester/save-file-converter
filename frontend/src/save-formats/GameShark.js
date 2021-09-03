@@ -229,14 +229,12 @@ export default class GameSharkSaveData {
 
     // And now we concat everything together: first header + second header + raw save + crc
 
-    const gameSharkArrayBuffer = new ArrayBuffer(firstHeaderLength + SECOND_HEADER_LENGTH + emulatorArrayBuffer.byteLength + 4);
-    const gameSharkUint8Array = new Uint8Array(gameSharkArrayBuffer);
-    const gameSharkDataView = new DataView(gameSharkArrayBuffer);
+    const crcArrayBuffer = new ArrayBuffer(4);
+    const crcDataView = new DataView(crcArrayBuffer);
 
-    gameSharkUint8Array.set(firstHeaderUint8Array, 0);
-    gameSharkUint8Array.set(secondHeaderUint8Array, firstHeaderLength);
-    gameSharkUint8Array.set(emulatorUint8Array, firstHeaderLength + SECOND_HEADER_LENGTH);
-    gameSharkDataView.setUint32(firstHeaderLength + SECOND_HEADER_LENGTH + emulatorArrayBuffer.byteLength, calculatedCrc, LITTLE_ENDIAN);
+    crcDataView.setUint32(0, calculatedCrc, LITTLE_ENDIAN);
+
+    const gameSharkArrayBuffer = Util.concatArrayBuffers([firstHeaderArrayBuffer, secondHeaderArrayBuffer, emulatorArrayBuffer, crcArrayBuffer]);
 
     return new GameSharkSaveData(gameSharkArrayBuffer);
   }

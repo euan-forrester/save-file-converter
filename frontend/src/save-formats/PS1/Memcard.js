@@ -32,8 +32,8 @@ const DIRECTORY_FRAME_FILE_SIZE_OFFSET = 0x04;
 // These flags are described in the 'available blocks table' here: https://www.psdevwiki.com/ps3/PS1_Savedata#PS1_Single_Save_.3F_.28.PSV.29
 const DIRECTORY_FRAME_UNUSED_BLOCK = 0xA0;
 const DIRECTORY_FRAME_FIRST_LINK_BLOCK = 0x51;
-// const DIRECTORY_FRAME_MIDDLE_LINK_BLOCK = 0x52;
-// const DIRECTORY_FRAME_LAST_LINK_BLOCK = 0x53;
+const DIRECTORY_FRAME_MIDDLE_LINK_BLOCK = 0x52;
+const DIRECTORY_FRAME_LAST_LINK_BLOCK = 0x53;
 const DIRECTORY_FRAME_UNUSABLE_BLOCK = 0xFF;
 
 // Save blocks
@@ -121,25 +121,92 @@ function createDirectoryFrameUnused() {
   return arrayBuffer;
 }
 
-function createDirectoryFrameSingleBlockSave(saveFile, filenameTextEncoder) {
+function createDirectoryFrame() {
   const arrayBuffer = new ArrayBuffer(FRAME_SIZE);
   const array = new Uint8Array(arrayBuffer);
-  const dataView = new DataView(arrayBuffer);
-
-  const encodedFilename = filenameTextEncoder.encode(saveFile.filename).slice(0, DIRECTORY_FRAME_FILENAME_LENGTH);
 
   array.fill(0);
 
-  array[DIRECTORY_FRAME_AVAILABLE_OFFSET] = DIRECTORY_FRAME_FIRST_LINK_BLOCK;
-
-  dataView.setUint32(DIRECTORY_FRAME_FILE_SIZE_OFFSET, saveFile.rawData.byteLength, LITTLE_ENDIAN);
-  dataView.setUint16(DIRECTORY_FRAME_NEXT_BLOCK_OFFSET, DIRECTORY_FRAME_NO_NEXT_BLOCK, LITTLE_ENDIAN);
-
-  array.set(encodedFilename, DIRECTORY_FRAME_FILENAME_OFFSET);
-
-  dataView.setUint8(FRAME_SIZE - 1, xorAllBytes(arrayBuffer));
-
   return arrayBuffer;
+}
+
+function createDirectoryFramesForSave(saveFile, blockNumber, filenameTextEncoder) {
+  const numBlocks = saveFile.rawData.byteLength / BLOCK_SIZE;
+
+  let needEndingBlock = false;
+  let numMiddleBlocks = 0;
+
+  if (numBlocks >= 2) {
+    needEndingBlock = true;
+    numMiddleBlocks = numBlocks - 2;
+  }
+
+  const directoryFrames = [];
+
+  // First, do the directory frame for the starting block
+
+  let currentBlockNumber = blockNumber;
+
+  {
+    const arrayBuffer = createDirectoryFrame();
+    const array = new Uint8Array(arrayBuffer);
+    const dataView = new DataView(arrayBuffer);
+
+    const encodedFilename = filenameTextEncoder.encode(saveFile.filename).slice(0, DIRECTORY_FRAME_FILENAME_LENGTH);
+
+    dataView.setUint8(DIRECTORY_FRAME_AVAILABLE_OFFSET, DIRECTORY_FRAME_FIRST_LINK_BLOCK);
+    dataView.setUint32(DIRECTORY_FRAME_FILE_SIZE_OFFSET, saveFile.rawData.byteLength, LITTLE_ENDIAN);
+    dataView.setUint16(DIRECTORY_FRAME_NEXT_BLOCK_OFFSET, (numBlocks > 1) ? (currentBlockNumber + 1) : DIRECTORY_FRAME_NO_NEXT_BLOCK, LITTLE_ENDIAN);
+
+    array.set(encodedFilename, DIRECTORY_FRAME_FILENAME_OFFSET);
+
+    dataView.setUint8(FRAME_SIZE - 1, xorAllBytes(arrayBuffer));
+
+    directoryFrames.push(arrayBuffer);
+  }
+
+  // Then do the directory frames for any middle blocks
+
+  for (let i = 0; i < numMiddleBlocks; i += 1) {
+    currentBlockNumber += 1;
+
+    const arrayBuffer = createDirectoryFrame();
+    const dataView = new DataView(arrayBuffer);
+
+    dataView.setUint8(DIRECTORY_FRAME_AVAILABLE_OFFSET, DIRECTORY_FRAME_MIDDLE_LINK_BLOCK);
+    dataView.setUint16(DIRECTORY_FRAME_NEXT_BLOCK_OFFSET, currentBlockNumber + 1, LITTLE_ENDIAN);
+    dataView.setUint8(FRAME_SIZE - 1, xorAllBytes(arrayBuffer));
+
+    directoryFrames.push(arrayBuffer);
+  }
+
+  // Then the directory frame for the ending block if needed
+
+  if (needEndingBlock) {
+    const arrayBuffer = createDirectoryFrame();
+    const dataView = new DataView(arrayBuffer);
+
+    dataView.setUint8(DIRECTORY_FRAME_AVAILABLE_OFFSET, DIRECTORY_FRAME_LAST_LINK_BLOCK);
+    dataView.setUint16(DIRECTORY_FRAME_NEXT_BLOCK_OFFSET, DIRECTORY_FRAME_NO_NEXT_BLOCK, LITTLE_ENDIAN);
+    dataView.setUint8(FRAME_SIZE - 1, xorAllBytes(arrayBuffer));
+
+    directoryFrames.push(arrayBuffer);
+  }
+
+  // And divide up the save file itself into blocks
+
+  const saveBlocks = [];
+
+  for (let i = 0; i < numBlocks; i += 1) {
+    saveBlocks.push(saveFile.rawData.slice(i * BLOCK_SIZE, (i + 1) * BLOCK_SIZE));
+  }
+
+  // All done!
+
+  return {
+    directoryFrames,
+    saveBlocks,
+  };
 }
 
 export default class Ps1MemcardSaveData {
@@ -169,10 +236,10 @@ export default class Ps1MemcardSaveData {
     directoryFrames.push(createDirectoryFrameMagic());
 
     saveFiles.forEach((saveFile) => {
-      if (saveFile.rawData.byteLength === BLOCK_SIZE) {
-        directoryFrames.push(createDirectoryFrameSingleBlockSave(saveFile, filenameTextEncoder));
-        saveBlocks.push(saveFile.rawData);
-      }
+      const entries = createDirectoryFramesForSave(saveFile, directoryFrames.length - 1, filenameTextEncoder);
+
+      directoryFrames.push(...entries.directoryFrames);
+      saveBlocks.push(...entries.saveBlocks);
     });
 
     // Fill in any remaining space as empty directory frames + save blocks
