@@ -18,6 +18,8 @@ const RAW_FIVE_BLOCK_FILENAME = `${DIR}/gran-turismo.26535-BASCUS-94194GT.srm`;
 const DEXDRIVE_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME = `${DIR}/gran-turismo.26537.gme`;
 const RAW_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME = [`${DIR}/gran-turismo.26537-BASCUS-94194GT.srm`, `${DIR}/gran-turismo.26537-BASCUS-94194RT.srm`];
 
+const COMMENT = 'I used to have a DexDrive but then I foolishly gave it away when I was purging old stuff. Now I have regret.';
+
 describe('DexDrive PS1 save format', () => {
   it('should correctly handle a file that contains no save data', async () => {
     const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_NO_FILES_FILENAME);
@@ -97,6 +99,28 @@ describe('DexDrive PS1 save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[1].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[1].description).to.equal('ＧＴ　ｒｅｐｌａｙ　ｄａｔａ');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[1].rawData, rawArrayBuffers[1])).to.equal(true);
+  });
+
+  it('should correctly create a file that has two saves of 3 and 5 blocks respectively', async () => {
+    const saveFilesArrayBuffers = await Promise.all(RAW_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
+    const saveFilenames = RAW_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME.map((n) => n.substr(-18, 14));
+    const saveFiles = RAW_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME.map((n, i) => ({ filename: saveFilenames[i], rawData: saveFilesArrayBuffers[i] }));
+
+    const dexDriveSaveData = DexDriveSaveData.createFromSaveFiles(saveFiles, COMMENT);
+
+    expect(dexDriveSaveData.getSaveFiles().length).to.equal(RAW_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME.length);
+
+    expect(dexDriveSaveData.getSaveFiles()[0].startingBlock).to.equal(0);
+    expect(dexDriveSaveData.getSaveFiles()[0].filename).to.equal('BASCUS-94194GT');
+    expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal(COMMENT);
+    expect(dexDriveSaveData.getSaveFiles()[0].description).to.equal('ＧＴ　ｇａｍｅ　ｄａｔａ');
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, saveFilesArrayBuffers[0])).to.equal(true);
+
+    expect(dexDriveSaveData.getSaveFiles()[1].startingBlock).to.equal(5);
+    expect(dexDriveSaveData.getSaveFiles()[1].filename).to.equal('BASCUS-94194RT');
+    expect(dexDriveSaveData.getSaveFiles()[1].comment).to.equal(COMMENT);
+    expect(dexDriveSaveData.getSaveFiles()[1].description).to.equal('ＧＴ　ｒｅｐｌａｙ　ｄａｔａ');
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[1].rawData, saveFilesArrayBuffers[1])).to.equal(true);
   });
 
   /*

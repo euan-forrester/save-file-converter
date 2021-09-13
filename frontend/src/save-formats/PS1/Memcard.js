@@ -212,6 +212,12 @@ function createDirectoryFramesForSave(saveFile, blockNumber, filenameTextEncoder
 export default class Ps1MemcardSaveData {
   static NUM_BLOCKS = NUM_BLOCKS;
 
+  static DIRECTORY_FRAME_AVAILABLE_OFFSET = DIRECTORY_FRAME_AVAILABLE_OFFSET;
+
+  static DIRECTORY_FRAME_NEXT_BLOCK_OFFSET = DIRECTORY_FRAME_NEXT_BLOCK_OFFSET;
+
+  static DIRECTORY_FRAME_FIRST_LINK_BLOCK = DIRECTORY_FRAME_FIRST_LINK_BLOCK;
+
   static createFromPs1MemcardData(memcardArrayBuffer) {
     return new Ps1MemcardSaveData(memcardArrayBuffer);
   }
@@ -341,6 +347,11 @@ export default class Ps1MemcardSaveData {
         });
       }
     }
+  }
+
+  getDirectoryFrame(i) {
+    const headerArrayBuffer = this.arrayBuffer.slice(0, BLOCK_SIZE);
+    return getDirectoryFrame(headerArrayBuffer, i);
   }
 
   getSaveFiles() {
