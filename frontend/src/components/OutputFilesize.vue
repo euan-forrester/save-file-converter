@@ -44,6 +44,8 @@ export default {
         { value: null, text: 'Output file size', disabled: true },
         { value: 512, text: '0.5kB (512 bytes)' },
         { value: 8192, text: '8kB (8192 bytes)' },
+        { value: 16384, text: '16kB (16384 bytes)' },
+        { value: 32768, text: '32kB (32768 bytes)' },
         { value: 65536, text: '64kB (65536 bytes)' },
         { value: 131072, text: '128kB (131072 bytes)' },
       ],
