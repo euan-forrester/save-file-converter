@@ -48,7 +48,7 @@ export default class DexDriveSaveData {
     return new DexDriveSaveData(dexDriveArrayBuffer);
   }
 
-  static createFromSaveFiles(saveFiles, comment) {
+  static createFromSaveFiles(saveFiles) {
     // The DexDrive image is the DexDrive header then the regular memcard data
 
     const headerArrayBuffer = new ArrayBuffer(HEADER_LENGTH);
@@ -58,7 +58,13 @@ export default class DexDriveSaveData {
     const magicTextEncoder = new TextEncoder(MAGIC_ENCODING);
     const commentTextEncoder = new TextEncoder(COMMENT_ENCODING);
 
-    const encodedComment = commentTextEncoder.encode(comment).slice(0, COMMENT_LENGTH);
+    // Make an array of our comments, arranged by the starting block of each save
+
+    const comments = Array.from({ length: Ps1MemcardSaveData.NUM_BLOCKS }, () => null);
+
+    const memcardSaveDataFilesWithComments = memcardSaveData.getSaveFiles().map((file, i) => ({ ...file, comment: saveFiles[i].comment })); // Our list of save files from the memcard data is in the same order as the files were passed in
+
+    memcardSaveDataFilesWithComments.forEach((file) => { comments[file.startingBlock] = file.comment; });
 
     // Based on https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs#L145
 
@@ -85,7 +91,9 @@ export default class DexDriveSaveData {
       //
       // However, in our case, because we're making the memcard image from scratch, there's no possibility of this.
 
-      if (availableFlags === Ps1MemcardSaveData.DIRECTORY_FRAME_FIRST_LINK_BLOCK) {
+      if (comments[i] !== null) {
+        const encodedComment = commentTextEncoder.encode(comments[i]).slice(0, COMMENT_LENGTH);
+
         headerArray.set(encodedComment, FIRST_COMMENT_OFFSET + (i * COMMENT_LENGTH));
       }
     }
