@@ -17,6 +17,7 @@ const RAW_FIVE_BLOCK_FILENAME = `${DIR}/gran-turismo.26535-BASCUS-94194GT.srm`;
 
 const DEXDRIVE_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME = `${DIR}/gran-turismo.26537.gme`;
 const RAW_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME = [`${DIR}/gran-turismo.26537-BASCUS-94194GT.srm`, `${DIR}/gran-turismo.26537-BASCUS-94194RT.srm`];
+const OUTPUT_DEXDRIVE_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME = `${DIR}/gran-turismo.26537-output.gme`;
 
 const COMMENTS = [
   'I used to have a DexDrive but then I foolishly gave it away when I was purging old stuff. Now I have regret.',
@@ -105,6 +106,7 @@ describe('DexDrive PS1 save format', () => {
   });
 
   it('should correctly create a file that has two saves of 3 and 5 blocks respectively', async () => {
+    const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(OUTPUT_DEXDRIVE_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME);
     const saveFilesArrayBuffers = await Promise.all(RAW_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
     const saveFilenames = RAW_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME.map((n) => n.substr(-18, 14));
     const saveFiles = RAW_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME.map((n, i) => ({ filename: saveFilenames[i], rawData: saveFilesArrayBuffers[i], comment: COMMENTS[i] }));
@@ -125,25 +127,6 @@ describe('DexDrive PS1 save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[1].description).to.equal('ＧＴ　ｒｅｐｌａｙ　ｄａｔａ');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[1].rawData, saveFilesArrayBuffers[1])).to.equal(true);
 
-    ArrayBufferUtil.writeArrayBuffer(`${DIR}/my-file.gme`, dexDriveSaveData.getArrayBuffer());
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getArrayBuffer(), dexDriveArrayBuffer)).to.equal(true);
   });
-
-  /*
-  it('should print info about a save', async () => {
-    const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME);
-
-    const dexDriveSaveData = DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
-
-    console.log(`Found ${dexDriveSaveData.getSaveFiles().length} saves`);
-    dexDriveSaveData.getSaveFiles().forEach((f) => {
-      console.log('Found save:');
-      console.log(`  Starting block: '${f.startingBlock}'`);
-      console.log(`  Filename:       '${f.filename}'`);
-      console.log(`  Comment:        '${f.comment}'`);
-      console.log(`  Description:    '${f.description}'`);
-
-      ArrayBufferUtil.writeArrayBuffer(`${DIR}/${f.filename}`, f.rawData);
-    });
-  });
-  */
 });
