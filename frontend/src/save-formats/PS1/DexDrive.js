@@ -28,13 +28,17 @@ const COMMENT_ENCODING = 'utf8';
 const FIRST_COMMENT_OFFSET = 64;
 const COMMENT_LENGTH = 256;
 
+function getCommentStartOffset(i) {
+  return FIRST_COMMENT_OFFSET + (i * COMMENT_LENGTH);
+}
+
 // https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs#L689
 function getComments(headerArrayBuffer) {
   const comments = [];
   const textDecoder = new TextDecoder(COMMENT_ENCODING);
 
   for (let i = 0; i < Ps1MemcardSaveData.NUM_BLOCKS; i += 1) {
-    const commentStartOffset = FIRST_COMMENT_OFFSET + (i * COMMENT_LENGTH);
+    const commentStartOffset = getCommentStartOffset(i);
     const commentArrayBuffer = headerArrayBuffer.slice(commentStartOffset, commentStartOffset + COMMENT_LENGTH);
 
     comments.push(Util.trimNull(textDecoder.decode(commentArrayBuffer)));
@@ -94,7 +98,7 @@ export default class DexDriveSaveData {
       if (comments[i] !== null) {
         const encodedComment = commentTextEncoder.encode(comments[i]).slice(0, COMMENT_LENGTH);
 
-        headerArray.set(encodedComment, FIRST_COMMENT_OFFSET + (i * COMMENT_LENGTH));
+        headerArray.set(encodedComment, getCommentStartOffset(i));
       }
     }
 
