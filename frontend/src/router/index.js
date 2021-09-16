@@ -5,6 +5,8 @@ import ActionReplay from '../views/ActionReplay.vue';
 import GameShark from '../views/GameShark.vue';
 import GameSharkSP from '../views/GameSharkSP.vue';
 import Wii from '../views/Wii.vue';
+import Ps1DexDrive from '../views/Ps1DexDrive.vue';
+import Ps1Psp from '../views/Ps1Psp.vue';
 import OtherConverters from '../views/OtherConverters.vue';
 import Troubleshooting from '../views/Troubleshooting.vue';
 
@@ -39,6 +41,20 @@ const routes = [
     path: '/wii',
     name: 'Wii',
     component: Wii,
+  },
+  {
+    path: '/ps1/dexdrive',
+    name: 'PS1 - DexDrive',
+    component: Ps1DexDrive,
+  },
+  {
+    path: '/ps1/psp',
+    name: 'PS1 - PSP',
+    component: Ps1Psp,
+  },
+  {
+    path: '/ps1',
+    redirect: '/ps1/dexdrive',
   },
   {
     path: '/troubleshooting',
