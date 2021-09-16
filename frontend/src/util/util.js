@@ -1,7 +1,16 @@
+import path from 'path';
 import crypto from 'crypto';
 import { pad, unpad } from 'pkcs7';
 
 export default class Util {
+  static changeFilenameExtension(filename, newExtension) {
+    return `${path.basename(filename, path.extname(filename))}.${newExtension}`;
+  }
+
+  static removeFilenameExtension(filename) {
+    return `${path.basename(filename, path.extname(filename))}`;
+  }
+
   static resizeRawSave(arrayBuffer, newSize) {
     let newArrayBuffer = arrayBuffer;
 

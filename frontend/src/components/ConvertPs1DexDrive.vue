@@ -6,16 +6,16 @@
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
               <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })">
-                <template v-slot:header>Retron 5</template>
+                <template v-slot:header>DexDrive</template>
               </b-jumbotron>
             </b-col>
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'">
             <input-file
-              @load="readRetron5SaveData($event)"
+              @load="readDexDriveSaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose a file to convert (*.sav)"
-              acceptExtension=".sav"
+              placeholderText="Choose a file to convert (*.gme)"
+              acceptExtension=".gme"
               :leaveRoomForHelpIcon="false"
             />
           </div>
@@ -55,7 +55,7 @@
       <b-row class="justify-content-md-center" align-h="center">
         <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
           <b-button
-            class="retron5-convert-button"
+            class="ps1-dexdrive-convert-button"
             variant="success"
             block
             :disabled="!this.retron5SaveData || !outputFilename"
@@ -68,7 +68,13 @@
       <b-row>
         <b-col>
           <div class="help">
-            Help: how do I&nbsp;<b-link href="https://projectpokemon.org/home/tutorials/save-editing/managing-gb-gbc-saves/using-the-retron-5-r53/">copy files to and from my Retron 5</b-link>?
+            Help: how do I&nbsp;<b-link href="https://github.com/ShendoXT/memcardrex/releases">copy files to and from my DexDrive</b-link>?
+          </div>
+          <div class="help">
+            Help: how do I copy save files to and from a PS1 memory card?<br><b-link href="http://ps2ulaunchelf.pbworks.com/w/page/19520134/FrontPage">PS2 + USB stick</b-link> or <b-link href="https://github.com/ShendoXT/memcardrex/releases">PS3 USB memory card adaptor</b-link> or <b-link href="https://github.com/ShendoXT/memcardrex/releases">DexDrive</b-link> or <b-link href="https://8bitmods.com/memcard-pro-for-playstation-1-smoke-black/">MemCard Pro</b-link>
+          </div>
+          <div class="help">
+            Help: how do I <b-link href="https://www.google.com/search?q=ps2+mcboot+memory+card">run homebrew software on my PS2</b-link>?
           </div>
         </b-col>
       </b-row>
@@ -79,7 +85,7 @@
 <style scoped>
 
 /* Separate class for each different button to enable tracking in google tag manager */
-.retron5-convert-button {
+.ps1-dexdrive-convert-button {
   margin-top: 1em;
 }
 
@@ -89,18 +95,18 @@
 </style>
 
 <script>
-import path from 'path';
 import { saveAs } from 'file-saver';
+import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
-import Retron5SaveData from '../save-formats/Retron5';
+import Ps1DexDriveSaveData from '../save-formats/PS1/DexDrive';
 
 export default {
   name: 'ConvertRetron5',
   data() {
     return {
-      retron5SaveData: null,
+      dexDriveSaveData: null,
       errorMessage: null,
       outputFilename: null,
       conversionDirection: 'convertToEmulator',
@@ -114,35 +120,32 @@ export default {
   methods: {
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
-      this.retron5SaveData = null;
+      this.dexDriveSaveData = null;
       this.errorMessage = null;
       this.outputFilename = null;
     },
-    changeFilenameExtension(filename, newExtension) {
-      return `${path.basename(filename, path.extname(filename))}.${newExtension}`;
-    },
-    readRetron5SaveData(event) {
+    readDexDriveSaveData(event) {
       this.errorMessage = null;
       try {
-        this.retron5SaveData = Retron5SaveData.createFromRetron5Data(event.arrayBuffer);
-        this.outputFilename = this.changeFilenameExtension(event.filename, 'srm');
+        this.dexDriveSaveData = Ps1DexDriveSaveData.createFromDexDriveData(event.arrayBuffer);
+        this.outputFilename = Util.changeFilenameExtension(event.filename, '');
       } catch (e) {
         this.errorMessage = e.message;
-        this.retron5SaveData = null;
+        this.dexDriveSaveData = null;
       }
     },
     readEmulatorSaveData(event) {
       this.errorMessage = null;
       try {
-        this.retron5SaveData = Retron5SaveData.createFromEmulatorData(event.arrayBuffer);
-        this.outputFilename = this.changeFilenameExtension(event.filename, 'sav');
+        this.dexDriveSaveData = Ps1DexDriveSaveData.createFromSaveFiles(event.arrayBuffer);
+        this.outputFilename = Util.changeFilenameExtension(event.filename, 'gme');
       } catch (e) {
         this.errorMessage = e.message;
-        this.retron5SaveData = null;
+        this.dexDriveSaveData = null;
       }
     },
     convertFile() {
-      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.retron5SaveData.getRawSaveData() : this.retron5SaveData.getArrayBuffer();
+      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.dexDriveSaveData.getSaveFiles()[0] : this.dexDriveSaveData.getArrayBuffer();
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 

@@ -94,8 +94,8 @@
 </style>
 
 <script>
-import path from 'path';
 import { saveAs } from 'file-saver';
+import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
@@ -123,14 +123,11 @@ export default {
       this.errorMessage = null;
       this.outputFilename = null;
     },
-    changeFilenameExtension(filename, newExtension) {
-      return `${path.basename(filename, path.extname(filename))}.${newExtension}`;
-    },
     readActionReplaySaveData(event) {
       this.errorMessage = null;
       try {
         this.actionReplaySaveData = ActionReplaySaveData.createFromActionReplayData(event.arrayBuffer);
-        this.outputFilename = this.changeFilenameExtension(event.filename, 'srm');
+        this.outputFilename = Util.changeFilenameExtension(event.filename, 'srm');
       } catch (e) {
         this.errorMessage = e.message;
         this.actionReplaySaveData = null;
@@ -140,7 +137,7 @@ export default {
       this.errorMessage = null;
       try {
         this.actionReplaySaveData = ActionReplaySaveData.createFromEmulatorData(event.arrayBuffer);
-        this.outputFilename = this.changeFilenameExtension(event.filename, 'xps');
+        this.outputFilename = Util.changeFilenameExtension(event.filename, 'xps');
       } catch (e) {
         this.errorMessage = e.message;
         this.actionReplaySaveData = null;

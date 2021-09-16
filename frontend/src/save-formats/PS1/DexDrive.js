@@ -47,9 +47,9 @@ function getComments(headerArrayBuffer) {
   return comments;
 }
 
-export default class DexDriveSaveData {
+export default class Ps1DexDriveSaveData {
   static createFromDexDriveData(dexDriveArrayBuffer) {
-    return new DexDriveSaveData(dexDriveArrayBuffer);
+    return new Ps1DexDriveSaveData(dexDriveArrayBuffer);
   }
 
   static createFromSaveFiles(saveFiles) {
@@ -107,7 +107,7 @@ export default class DexDriveSaveData {
 
     const finalArrayBuffer = Util.concatArrayBuffers([headerArrayBuffer, memcardSaveData.getArrayBuffer()]);
 
-    return DexDriveSaveData.createFromDexDriveData(finalArrayBuffer);
+    return Ps1DexDriveSaveData.createFromDexDriveData(finalArrayBuffer);
   }
 
   // This constructor creates a new object from a binary representation of a DexDrive save data file

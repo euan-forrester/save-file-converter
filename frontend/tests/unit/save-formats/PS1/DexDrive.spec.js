@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import DexDriveSaveData from '@/save-formats/PS1/DexDrive';
+import Ps1DexDriveSaveData from '@/save-formats/PS1/DexDrive';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 const DIR = './tests/unit/save-formats/data/ps1/dexdrive';
@@ -28,7 +28,7 @@ describe('PS1 - DexDrive save format', () => {
   it('should correctly handle a file that contains no save data', async () => {
     const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_NO_FILES_FILENAME);
 
-    const dexDriveSaveData = DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+    const dexDriveSaveData = Ps1DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
 
     expect(dexDriveSaveData.getSaveFiles().length).to.equal(0);
   });
@@ -37,7 +37,7 @@ describe('PS1 - DexDrive save format', () => {
     const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_ONE_FILE_FILENAME);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_ONE_FILE_FILENAME);
 
-    const dexDriveSaveData = DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+    const dexDriveSaveData = Ps1DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
 
     expect(dexDriveSaveData.getSaveFiles().length).to.equal(1);
 
@@ -52,7 +52,7 @@ describe('PS1 - DexDrive save format', () => {
     const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_TWO_FILES_FILENAME);
     const rawArrayBuffers = await Promise.all(RAW_TWO_FILES_FILENAMES.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
 
-    const dexDriveSaveData = DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+    const dexDriveSaveData = Ps1DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
 
     expect(dexDriveSaveData.getSaveFiles().length).to.equal(2);
 
@@ -73,7 +73,7 @@ describe('PS1 - DexDrive save format', () => {
     const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_FIVE_BLOCK_FILENAME);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_FIVE_BLOCK_FILENAME);
 
-    const dexDriveSaveData = DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+    const dexDriveSaveData = Ps1DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
 
     expect(dexDriveSaveData.getSaveFiles().length).to.equal(1);
 
@@ -88,7 +88,7 @@ describe('PS1 - DexDrive save format', () => {
     const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME);
     const rawArrayBuffers = await Promise.all(RAW_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
 
-    const dexDriveSaveData = DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+    const dexDriveSaveData = Ps1DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
 
     expect(dexDriveSaveData.getSaveFiles().length).to.equal(2);
 
@@ -111,7 +111,7 @@ describe('PS1 - DexDrive save format', () => {
     const saveFilenames = RAW_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME.map((n) => n.substr(-18, 14));
     const saveFiles = RAW_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME.map((n, i) => ({ filename: saveFilenames[i], rawData: saveFilesArrayBuffers[i], comment: COMMENTS[i] }));
 
-    const dexDriveSaveData = DexDriveSaveData.createFromSaveFiles(saveFiles);
+    const dexDriveSaveData = Ps1DexDriveSaveData.createFromSaveFiles(saveFiles);
 
     expect(dexDriveSaveData.getSaveFiles().length).to.equal(RAW_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME.length);
 
