@@ -30,6 +30,14 @@ const ENCRYPTION_KEY_LENGTH = ENCRYPTION_KEY.length;
 const HASH_ALGORITHM = 'sha1';
 const SALT_LENGTH = 0x40;
 
+// It seems that the salt seed can be initialized to anything. vita-mcr2vmp initializes to to all zeros.
+// save-editor.com initializes it to a sequence of incrementing values (0, 1, 2, 3, etc)
+// After I used a save initially created by save-editor.com on my PSP for some time, I observed that the salt seed was replaced by a different
+// sequence of incrementing values, starting at some other number. Perhaps they all get incremented every time the save is updated
+// by the hardware?
+//
+// I'm not sure, but let's just play along and initialize ours to incrementing values as well.
+const SALT_SEED_INIT = Buffer.from('000102030405060708090A0B0C0D0E0F10111213', 'hex');
 const SALT_SEED_OFFSET = 0x0C;
 const SALT_SEED_LENGTH = 0x14;
 
@@ -154,8 +162,36 @@ export default class PspSaveData {
     return new PspSaveData(pspArrayBuffer);
   }
 
-  static createFromRawData(rawArrayBuffer) {
-    this.rawSaveData = rawArrayBuffer;
+  static createFromSaveFiles(saveFiles) {
+    // The PSP image is the PSP header then the regular memcard data
+
+    // First, construct the basic header from the magic and the initial salt seed
+
+    const headerArrayBuffer = new ArrayBuffer(HEADER_LENGTH);
+    const headerArray = new Uint8Array(headerArrayBuffer);
+    const memcardSaveData = Ps1MemcardSaveData.createFromSaveFiles(saveFiles);
+
+    headerArray.set(HEADER_MAGIC, 0);
+
+    const saltSeedArray = new Uint8Array(SALT_SEED_INIT);
+
+    headerArray.set(saltSeedArray, SALT_SEED_OFFSET);
+
+    // Then concat that with the rest of the memcard data
+
+    const combinedArrayBuffer = Util.concatArrayBuffers([headerArrayBuffer, memcardSaveData.getArrayBuffer()]);
+
+    // Now we can calculate our signature
+
+    const saltSeed = Util.bufferToArrayBuffer(SALT_SEED_INIT);
+    const signatureCalculated = calculateSignature(combinedArrayBuffer, saltSeed);
+
+    // Inject the signature and we're done! We'll parse it again
+    // to pull out the file descriptions
+
+    const finalArrayBuffer = setArrayBufferPortion(combinedArrayBuffer, signatureCalculated, SIGNATURE_OFFSET, 0, SIGNATURE_LENGTH);
+
+    return PspSaveData.createFromPspData(finalArrayBuffer);
   }
 
   // This constructor creates a new object from a binary representation of a PSP PS1 save data file

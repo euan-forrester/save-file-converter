@@ -24,7 +24,7 @@ const COMMENTS = [
   'I thought it was useless without a serial port, and that the included software was too old, but you can get a USB adaptor and memcardrex can talk to it.',
 ];
 
-describe('DexDrive PS1 save format', () => {
+describe('PS1 - DexDrive save format', () => {
   it('should correctly handle a file that contains no save data', async () => {
     const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_NO_FILES_FILENAME);
 

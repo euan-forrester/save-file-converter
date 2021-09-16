@@ -20,7 +20,10 @@ const RAW_SEVEN_FILES_FILENAMES = [
   `${DIR}/Suikoden 2-BASLUS-00958GS2-7.srm`,
 ];
 
-describe('PSP PS1 save format', () => {
+const RAW_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME = [`${DIR}/gran-turismo.26537-BASCUS-94194GT.srm`, `${DIR}/gran-turismo.26537-BASCUS-94194RT.srm`];
+const OUTPUT_PSP_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME = `${DIR}/gran-turismo.26537-output.vmp`;
+
+describe('PS1 - PSP save format', () => {
   it('should correctly verify the signature of a file written by a PSP', async () => {
     const pspArrayBuffer = await ArrayBufferUtil.readArrayBuffer(PSP_SIGNATURE_FILENAME);
 
@@ -90,5 +93,28 @@ describe('PSP PS1 save format', () => {
     expect(pspSaveData.getSaveFiles()[6].filename).to.equal('BASLUS-00958GS2-7');
     expect(pspSaveData.getSaveFiles()[6].description).to.equal('ＳＵＩＫＯＤＥＮ２－（７）　ＬＶ６０　　３２：５４：４２');
     expect(ArrayBufferUtil.arrayBuffersEqual(pspSaveData.getSaveFiles()[6].rawData, rawArrayBuffers[6])).to.equal(true);
+  });
+
+  it('should correctly create a file that has two saves of 3 and 5 blocks respectively', async () => {
+    const pspArrayBuffer = await ArrayBufferUtil.readArrayBuffer(OUTPUT_PSP_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME);
+    const saveFilesArrayBuffers = await Promise.all(RAW_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
+    const saveFilenames = RAW_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME.map((n) => n.substr(-18, 14));
+    const saveFiles = RAW_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME.map((n, i) => ({ filename: saveFilenames[i], rawData: saveFilesArrayBuffers[i] }));
+
+    const pspSaveData = PspSaveData.createFromSaveFiles(saveFiles);
+
+    expect(pspSaveData.getSaveFiles().length).to.equal(RAW_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME.length);
+
+    expect(pspSaveData.getSaveFiles()[0].startingBlock).to.equal(0);
+    expect(pspSaveData.getSaveFiles()[0].filename).to.equal('BASCUS-94194GT');
+    expect(pspSaveData.getSaveFiles()[0].description).to.equal('ＧＴ　ｇａｍｅ　ｄａｔａ');
+    expect(ArrayBufferUtil.arrayBuffersEqual(pspSaveData.getSaveFiles()[0].rawData, saveFilesArrayBuffers[0])).to.equal(true);
+
+    expect(pspSaveData.getSaveFiles()[1].startingBlock).to.equal(5);
+    expect(pspSaveData.getSaveFiles()[1].filename).to.equal('BASCUS-94194RT');
+    expect(pspSaveData.getSaveFiles()[1].description).to.equal('ＧＴ　ｒｅｐｌａｙ　ｄａｔａ');
+    expect(ArrayBufferUtil.arrayBuffersEqual(pspSaveData.getSaveFiles()[1].rawData, saveFilesArrayBuffers[1])).to.equal(true);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(pspSaveData.getArrayBuffer(), pspArrayBuffer)).to.equal(true);
   });
 });
