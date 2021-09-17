@@ -21,8 +21,8 @@
             <file-list
               :display="this.dexDriveSaveData !== null"
               :files="this.dexDriveSaveData ? this.dexDriveSaveData.getSaveFiles() : []"
-              :v-model="this.selectedSaveData"
-              @change="changeSelectedSaveData($event)"
+              v-model="selectedSaveData"
+              @myChange="changeSelectedSaveData($event)"
             />
           </div>
           <div v-else>

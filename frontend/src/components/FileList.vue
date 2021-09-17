@@ -6,8 +6,7 @@
     <div v-show="this.files.length > 0">
       <b-form-group v-slot="{ ariaDescribedby }">
         <b-form-radio-group
-          v-bind:value="value"
-          v-on:change="$emit('change', $event)"
+          v-model="myValueLocal"
           :options="options"
           :aria-describedby="ariaDescribedby"
           buttons
@@ -43,14 +42,22 @@ export default {
       type: Boolean,
       default: false,
     },
-    value: {
+    myValue: {
       type: Number,
       default: null,
     },
   },
+  model: {
+    prop: 'myValue',
+    event: 'myChange',
+  },
   computed: {
     options() {
       return this.files.map((f, i) => ({ value: i, text: f.description }));
+    },
+    myValueLocal: {
+      get() { return this.myValue; },
+      set(newValue) { this.$emit('myChange', newValue); },
     },
   },
 };
