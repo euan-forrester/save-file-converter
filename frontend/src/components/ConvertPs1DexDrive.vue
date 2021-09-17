@@ -135,8 +135,13 @@ export default {
       this.selectedSaveData = null;
     },
     changeSelectedSaveData(newSaveData) {
-      this.selectedSaveData = newSaveData;
-      this.outputFilename = this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData].filename;
+      if (this.dexDriveSaveData.getSaveFiles().length > 0) {
+        this.selectedSaveData = newSaveData;
+        this.outputFilename = this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData].filename;
+      } else {
+        this.selectedSaveData = null;
+        this.outputFilename = null;
+      }
     },
     readDexDriveSaveData(event) {
       this.errorMessage = null;

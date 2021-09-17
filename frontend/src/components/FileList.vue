@@ -1,17 +1,22 @@
 <template>
   <b-collapse appear v-model="display">
-    <b-form-group v-slot="{ ariaDescribedby }">
-      <b-form-radio-group
-        v-bind:value="value"
-        v-on:change="$emit('change', $event)"
-        :options="options"
-        :aria-describedby="ariaDescribedby"
-        buttons
-        stacked
-        button-variant="outline-info"
-        class="radio-buttons"
-      />
-    </b-form-group>
+    <b-alert variant="info" :show="this.files.length === 0">
+      No saves found in file
+    </b-alert>
+    <div v-show="this.files.length > 0">
+      <b-form-group v-slot="{ ariaDescribedby }">
+        <b-form-radio-group
+          v-bind:value="value"
+          v-on:change="$emit('change', $event)"
+          :options="options"
+          :aria-describedby="ariaDescribedby"
+          buttons
+          stacked
+          button-variant="outline-info"
+          class="radio-buttons"
+        />
+      </b-form-group>
+    </div>
   </b-collapse>
 </template>
 
