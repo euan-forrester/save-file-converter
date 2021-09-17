@@ -18,6 +18,13 @@
               acceptExtension=".gme"
               :leaveRoomForHelpIcon="false"
             />
+            <file-list
+              :display="this.dexDriveSaveData !== null"
+              :files="this.dexDriveSaveData ? this.dexDriveSaveData.getSaveFiles() : []"
+              :maxFilesVisible="this.MAX_FILES_VISIBLE"
+              :v-model="this.selectedSaveData"
+              @change="changeSelectedSaveData($event)"
+            />
           </div>
           <div v-else>
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
@@ -58,7 +65,7 @@
             class="ps1-dexdrive-convert-button"
             variant="success"
             block
-            :disabled="!this.retron5SaveData || !outputFilename"
+            :disabled="!this.dexDriveSaveData || this.dexDriveSaveData.getSaveFiles().length === 0 || this.selectedSaveData === null || !outputFilename"
             @click="convertFile()"
           >
           Convert!
@@ -100,22 +107,26 @@ import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
+import FileList from './FileList.vue';
 import Ps1DexDriveSaveData from '../save-formats/PS1/DexDrive';
 
 export default {
-  name: 'ConvertRetron5',
+  name: 'ConvertPs1DexDrive',
   data() {
     return {
+      MAX_FILES_VISIBLE: Ps1DexDriveSaveData.NUM_BLOCKS,
       dexDriveSaveData: null,
       errorMessage: null,
       outputFilename: null,
       conversionDirection: 'convertToEmulator',
+      selectedSaveData: null,
     };
   },
   components: {
     ConversionDirection,
     InputFile,
     OutputFilename,
+    FileList,
   },
   methods: {
     changeConversionDirection(newDirection) {
@@ -123,29 +134,39 @@ export default {
       this.dexDriveSaveData = null;
       this.errorMessage = null;
       this.outputFilename = null;
+      this.selectedSaveData = null;
+    },
+    changeSelectedSaveData(newSaveData) {
+      this.selectedSaveData = newSaveData;
+      this.outputFilename = this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData].filename;
     },
     readDexDriveSaveData(event) {
       this.errorMessage = null;
+      this.selectedSaveData = null;
       try {
         this.dexDriveSaveData = Ps1DexDriveSaveData.createFromDexDriveData(event.arrayBuffer);
-        this.outputFilename = Util.changeFilenameExtension(event.filename, '');
+        this.changeSelectedSaveData(0);
       } catch (e) {
         this.errorMessage = e.message;
         this.dexDriveSaveData = null;
+        this.selectedSaveData = null;
       }
     },
     readEmulatorSaveData(event) {
       this.errorMessage = null;
+      this.selectedSaveData = null;
       try {
         this.dexDriveSaveData = Ps1DexDriveSaveData.createFromSaveFiles(event.arrayBuffer);
         this.outputFilename = Util.changeFilenameExtension(event.filename, 'gme');
       } catch (e) {
         this.errorMessage = e.message;
         this.dexDriveSaveData = null;
+        this.selectedSaveData = null;
       }
     },
     convertFile() {
-      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.dexDriveSaveData.getSaveFiles()[0] : this.dexDriveSaveData.getArrayBuffer();
+      console.log(`Trying to upload save data at index ${this.selectedSaveData}`);
+      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData] : this.dexDriveSaveData.getArrayBuffer();
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 

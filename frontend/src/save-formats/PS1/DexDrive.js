@@ -48,6 +48,8 @@ function getComments(headerArrayBuffer) {
 }
 
 export default class Ps1DexDriveSaveData {
+  static NUM_BLOCKS = Ps1MemcardSaveData.NUM_BLOCKS;
+
   static createFromDexDriveData(dexDriveArrayBuffer) {
     return new Ps1DexDriveSaveData(dexDriveArrayBuffer);
   }
