@@ -22,7 +22,7 @@
               :display="this.dexDriveSaveData !== null"
               :files="this.dexDriveSaveData ? this.dexDriveSaveData.getSaveFiles() : []"
               v-model="selectedSaveData"
-              @myChange="changeSelectedSaveData($event)"
+              @change="changeSelectedSaveData($event)"
             />
           </div>
           <div v-else>
