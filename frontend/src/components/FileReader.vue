@@ -15,10 +15,12 @@ export default {
   },
   methods: {
     loadFile() {
-      const reader = new FileReader();
+      if (this.file !== null) { // model is null if user cancels the dialog box
+        const reader = new FileReader();
 
-      reader.onload = (e) => this.$emit('load', { filename: this.file.name, arrayBuffer: e.target.result });
-      reader.readAsArrayBuffer(this.file);
+        reader.onload = (e) => this.$emit('load', { filename: this.file.name, arrayBuffer: e.target.result });
+        reader.readAsArrayBuffer(this.file);
+      }
     },
   },
 };
