@@ -21,7 +21,6 @@
             <file-list
               :display="this.dexDriveSaveData !== null"
               :files="this.dexDriveSaveData ? this.dexDriveSaveData.getSaveFiles() : []"
-              :maxFilesVisible="this.MAX_FILES_VISIBLE"
               :v-model="this.selectedSaveData"
               @change="changeSelectedSaveData($event)"
             />
@@ -114,7 +113,6 @@ export default {
   name: 'ConvertPs1DexDrive',
   data() {
     return {
-      MAX_FILES_VISIBLE: Ps1DexDriveSaveData.NUM_BLOCKS,
       dexDriveSaveData: null,
       errorMessage: null,
       outputFilename: null,

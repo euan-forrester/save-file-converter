@@ -1,15 +1,25 @@
 <template>
   <b-collapse appear v-model="display">
-    <b-form-select
-      v-bind:value="value"
-      v-on:change="$emit('change', $event)"
-      :options="options"
-      :select-size="numFilesVisible"
-    />
+    <b-form-group v-slot="{ ariaDescribedby }">
+      <b-form-radio-group
+        v-bind:value="value"
+        v-on:change="$emit('change', $event)"
+        :options="options"
+        :aria-describedby="ariaDescribedby"
+        buttons
+        stacked
+        button-variant="outline-info"
+        class="radio-buttons"
+      />
+    </b-form-group>
   </b-collapse>
 </template>
 
 <style scoped>
+
+.radio-buttons {
+  width: 100%;
+}
 
 </style>
 
@@ -24,14 +34,6 @@ export default {
         return [];
       },
     },
-    maxFilesVisible: {
-      type: Number,
-      default: 4,
-    },
-    minFilesVisible: {
-      type: Number,
-      default: 2,
-    },
     display: {
       type: Boolean,
       default: false,
@@ -44,9 +46,6 @@ export default {
   computed: {
     options() {
       return this.files.map((f, i) => ({ value: i, text: f.description }));
-    },
-    numFilesVisible() {
-      return Math.max(Math.min(this.files.length, this.maxFilesVisible), this.minFilesVisible);
     },
   },
 };
