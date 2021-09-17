@@ -165,7 +165,6 @@ export default {
       }
     },
     convertFile() {
-      console.log(`Trying to upload save data at index ${this.selectedSaveData}`);
       const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData].rawData : this.dexDriveSaveData.getArrayBuffer();
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
