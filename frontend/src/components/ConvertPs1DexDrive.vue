@@ -52,8 +52,9 @@
             <input-file
               @load="readEmulatorSaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose a file to convert"
+              placeholderText="Choose files to add"
               :leaveRoomForHelpIcon="false"
+              :allowMultipleFiles="true"
             />
           </div>
         </b-col>
