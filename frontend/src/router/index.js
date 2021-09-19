@@ -8,6 +8,7 @@ import Wii from '../views/Wii.vue';
 import Ps1DexDrive from '../views/Ps1DexDrive.vue';
 import Ps1Psp from '../views/Ps1Psp.vue';
 import OtherConverters from '../views/OtherConverters.vue';
+import DownloadSaves from '../views/DownloadSaves.vue';
 import Troubleshooting from '../views/Troubleshooting.vue';
 
 Vue.use(VueRouter);
@@ -65,6 +66,11 @@ const routes = [
     path: '/other-converters',
     name: 'OtherConverters',
     component: OtherConverters,
+  },
+  {
+    path: '/download-saves',
+    name: 'DownloadSaves',
+    component: DownloadSaves,
   },
   {
     path: '/about',

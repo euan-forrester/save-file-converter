@@ -26,7 +26,7 @@
         PS1/PS2/PSP/DS + various specific games
       </b-col>
     </b-row>
-    <div class="blank-line d-md-none"/>
+    <div class="blank-line"/>
     <b-row align-h="center">
       <b-col cols=12 md=5 lg=5 xl=4>
         <b-link href="https://shunyweb.info/convert.php">https://shunyweb.info/convert.php</b-link>
@@ -35,7 +35,7 @@
         Nintendo DS save formats
       </b-col>
     </b-row>
-    <div class="blank-line d-md-none"/>
+    <div class="blank-line"/>
     <b-row align-h="center">
       <b-col cols=12 md=5 lg=5 xl=4>
         <b-link href="https://github.com/ShendoXT/memcardrex">MemcardRex</b-link>
