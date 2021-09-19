@@ -2,21 +2,27 @@
   <div>
     <b-container>
       <b-row no-gutters align-h="center" align-v="start">
-        <b-col sm=12 md=5 align-self="center">
+        <b-col sm=12 md=5 align-self="start">
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
               <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })">
-                <template v-slot:header>Action Replay</template>
+                <template v-slot:header>DexDrive</template>
               </b-jumbotron>
             </b-col>
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'">
             <input-file
-              @load="readActionReplaySaveData($event)"
+              @load="readDexDriveSaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose a file to convert (*.xps)"
-              acceptExtension=".xps"
+              placeholderText="Choose a file to convert (*.gme)"
+              acceptExtension=".gme"
               :leaveRoomForHelpIcon="false"
+            />
+            <file-list
+              :display="this.dexDriveSaveData !== null"
+              :files="this.dexDriveSaveData ? this.dexDriveSaveData.getSaveFiles() : []"
+              v-model="selectedSaveData"
+              @change="changeSelectedSaveData($event)"
             />
           </div>
           <div v-else>
@@ -46,8 +52,9 @@
             <input-file
               @load="readEmulatorSaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose a file to convert"
+              placeholderText="Choose files to add"
               :leaveRoomForHelpIcon="false"
+              :allowMultipleFiles="true"
             />
           </div>
         </b-col>
@@ -55,10 +62,10 @@
       <b-row class="justify-content-md-center" align-h="center">
         <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
           <b-button
-            class="action-replay-convert-button"
+            class="ps1-dexdrive-convert-button"
             variant="success"
             block
-            :disabled="!this.actionReplaySaveData || !outputFilename"
+            :disabled="this.convertButtonDisabled"
             @click="convertFile()"
           >
           Convert!
@@ -68,13 +75,13 @@
       <b-row>
         <b-col>
           <div class="help">
-            Help: how do I copy files to and from my <b-link href="https://www.youtube.com/watch?v=o7WQYnYYT6Y">Action Replay DSi</b-link> or <b-link href="http://uk.codejunkies.com/downloads/manuals/armax_gba_ds_english.pdf">Action Replay MAX DUO</b-link>?
+            Help: how do I&nbsp;<b-link href="https://github.com/ShendoXT/memcardrex/releases">copy files to and from my DexDrive</b-link>?
           </div>
           <div class="help">
-            Help: how do I copy save files to and from a GBA cartridge?<br><b-link href="https://github.com/FIX94/gba-link-cable-dumper">GBA + GameCube/Wii + link cable</b-link> or <b-link href="https://www.gc-forever.com/wiki/index.php?title=Game_Boy_Interface#GBA_dumper">GameCube + GameBoy Player</b-link> or <b-link href="https://projectpokemon.org/home/tutorials/save-editing/managing-gba-saves/using-gba-backup-tool-r55/">Nintendo DS</b-link> or <router-link to="/retron-5">Retron 5</router-link>
+            Help: how do I copy save files to and from a PS1 memory card?<br><b-link href="http://ps2ulaunchelf.pbworks.com/w/page/19520134/FrontPage">PS2 + USB stick</b-link> or <b-link href="https://github.com/ShendoXT/memcardrex/releases">PS3 USB memory card adaptor</b-link> or <b-link href="https://github.com/ShendoXT/memcardrex/releases">DexDrive</b-link> or <b-link href="https://8bitmods.com/memcard-pro-for-playstation-1-smoke-black/">MemCard Pro</b-link>
           </div>
           <div class="help">
-            Help: how do I run homebrew software on my <b-link href="https://www.gc-forever.com/wiki/index.php?title=Booting_Homebrew">GameCube</b-link>, <b-link href="https://wii.guide">Wii</b-link>, or <b-link href="https://www.google.com/search?q=best+r4+card+no+timebomb">Nintendo DS</b-link>?
+            Help: how do I <b-link href="https://www.google.com/search?q=ps2+mcboot+memory+card">run homebrew software on my PS2</b-link>?
           </div>
         </b-col>
       </b-row>
@@ -84,7 +91,8 @@
 
 <style scoped>
 
-.action-replay-convert-button {
+/* Separate class for each different button to enable tracking in google tag manager */
+.ps1-dexdrive-convert-button {
   margin-top: 1em;
 }
 
@@ -95,56 +103,80 @@
 
 <script>
 import { saveAs } from 'file-saver';
-import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
-import ActionReplaySaveData from '../save-formats/ActionReplay';
+import FileList from './FileList.vue';
+import Ps1DexDriveSaveData from '../save-formats/PS1/DexDrive';
 
 export default {
-  name: 'ConvertActionReplay',
+  name: 'ConvertPs1DexDrive',
   data() {
     return {
-      actionReplaySaveData: null,
+      dexDriveSaveData: null,
       errorMessage: null,
       outputFilename: null,
       conversionDirection: 'convertToEmulator',
+      selectedSaveData: null,
     };
   },
   components: {
     ConversionDirection,
     InputFile,
     OutputFilename,
+    FileList,
+  },
+  computed: {
+    convertButtonDisabled() {
+      const haveDataSelected = (this.conversionDirection === 'convertToEmulator') ? true : this.selectedSaveData === null;
+
+      return !this.dexDriveSaveData || this.dexDriveSaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
+    },
   },
   methods: {
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
-      this.actionReplaySaveData = null;
+      this.dexDriveSaveData = null;
       this.errorMessage = null;
       this.outputFilename = null;
+      this.selectedSaveData = null;
     },
-    readActionReplaySaveData(event) {
+    changeSelectedSaveData(newSaveData) {
+      if (this.dexDriveSaveData.getSaveFiles().length > 0) {
+        this.selectedSaveData = newSaveData;
+        this.outputFilename = this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData].filename;
+      } else {
+        this.selectedSaveData = null;
+        this.outputFilename = null;
+      }
+    },
+    readDexDriveSaveData(event) {
       this.errorMessage = null;
+      this.selectedSaveData = null;
       try {
-        this.actionReplaySaveData = ActionReplaySaveData.createFromActionReplayData(event.arrayBuffer);
-        this.outputFilename = Util.changeFilenameExtension(event.filename, 'srm');
+        this.dexDriveSaveData = Ps1DexDriveSaveData.createFromDexDriveData(event.arrayBuffer);
+        this.changeSelectedSaveData(0);
       } catch (e) {
-        this.errorMessage = e.message;
-        this.actionReplaySaveData = null;
+        this.errorMessage = 'File appears to not be in the correct format';
+        this.dexDriveSaveData = null;
+        this.selectedSaveData = null;
       }
     },
     readEmulatorSaveData(event) {
       this.errorMessage = null;
+      this.selectedSaveData = null;
       try {
-        this.actionReplaySaveData = ActionReplaySaveData.createFromEmulatorData(event.arrayBuffer);
-        this.outputFilename = Util.changeFilenameExtension(event.filename, 'xps');
+        const saveFiles = event.map((f) => ({ filename: f.filename, rawData: f.arrayBuffer, comment: 'Created with savefileconverter.com' }));
+
+        this.dexDriveSaveData = Ps1DexDriveSaveData.createFromSaveFiles(saveFiles);
       } catch (e) {
-        this.errorMessage = e.message;
-        this.actionReplaySaveData = null;
+        this.errorMessage = 'One or more files appear to not be in the correct format';
+        this.dexDriveSaveData = null;
+        this.selectedSaveData = null;
       }
     },
     convertFile() {
-      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.actionReplaySaveData.getRawSaveData() : this.actionReplaySaveData.getArrayBuffer();
+      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData].rawData : this.dexDriveSaveData.getArrayBuffer();
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 

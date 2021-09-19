@@ -119,14 +119,13 @@
 </style>
 
 <script>
-import path from 'path';
 import { saveAs } from 'file-saver';
+import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import OutputFilesize from './OutputFilesize.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import GameSharkSpSaveData from '../save-formats/GameSharkSP';
-import Util from '../util/util';
 
 export default {
   name: 'ConvertGameSharkSP',
@@ -156,14 +155,11 @@ export default {
       this.outputFilename = null;
       this.outputFilesize = null;
     },
-    changeFilenameExtension(filename, newExtension) {
-      return `${path.basename(filename, path.extname(filename))}.${newExtension}`;
-    },
     readGameSharkSaveData(event) {
       this.errorMessage = null;
       try {
         this.gameSharkSaveData = GameSharkSpSaveData.createFromGameSharkSpData(event.arrayBuffer);
-        this.outputFilename = this.changeFilenameExtension(event.filename, 'srm');
+        this.outputFilename = Util.changeFilenameExtension(event.filename, 'srm');
         this.outputFilesize = this.gameSharkSaveData.getRawSaveData().byteLength;
       } catch (e) {
         this.errorMessage = e.message;

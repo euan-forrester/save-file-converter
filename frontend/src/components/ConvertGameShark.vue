@@ -114,9 +114,9 @@
 </style>
 
 <script>
-import path from 'path';
 import dayjs from 'dayjs';
 import { saveAs } from 'file-saver';
+import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import OutputFilesize from './OutputFilesize.vue';
@@ -154,12 +154,6 @@ export default {
       this.outputFilename = null;
       this.outputFilesize = null;
     },
-    changeFilenameExtension(filename, newExtension) {
-      return `${path.basename(filename, path.extname(filename))}.${newExtension}`;
-    },
-    removeFilenameExtension(filename) {
-      return `${path.basename(filename, path.extname(filename))}`;
-    },
     readRomData(event) {
       this.romData = event.arrayBuffer;
       this.tryToCreateGameSharkSaveDataFromEmulatorSaveData();
@@ -173,7 +167,7 @@ export default {
       this.errorMessage = null;
       try {
         this.gameSharkSaveData = GameSharkSaveData.createFromGameSharkData(event.arrayBuffer);
-        this.outputFilename = this.changeFilenameExtension(event.filename, 'srm');
+        this.outputFilename = Util.changeFilenameExtension(event.filename, 'srm');
         this.outputFilesize = this.gameSharkSaveData.getRawSaveData().byteLength;
       } catch (e) {
         this.errorMessage = e.message;
@@ -187,7 +181,7 @@ export default {
         this.errorMessage = null;
 
         try {
-          const title = this.removeFilenameExtension(this.emulatorSaveDataFilename);
+          const title = Util.removeFilenameExtension(this.emulatorSaveDataFilename);
           const date = dayjs().format('DD/MM/YYYY hh:mm:ss a');
           const notes = 'Created with savefileconverter.com';
           this.gameSharkSaveData = GameSharkSaveData.createFromEmulatorData(this.emulatorSaveData, title, date, notes, this.romData);

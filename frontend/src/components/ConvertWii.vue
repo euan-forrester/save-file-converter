@@ -113,8 +113,8 @@
 </style>
 
 <script>
-import path from 'path';
 import { saveAs } from 'file-saver';
+import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
@@ -156,9 +156,6 @@ export default {
       this.currentlyLoadingPlatform = false;
       this.wiiSaveData = null;
       this.inputFilename = null;
-    },
-    changeFilenameExtension(filename, newExtension) {
-      return `${path.basename(filename, path.extname(filename))}.${newExtension}`;
     },
     async readWiiSaveData(event) {
       this.errorMessage = null;
@@ -203,7 +200,7 @@ export default {
           const convertedSaveData = ConvertFromPlatform(this.wiiSaveData.getFiles()[0].data, this.outputPlatform); // Potentially there are more files within the file the user gave us. But, what do we name them if we're going to upload them? Maybe just punt on this and only upload the first one and see if there's ever an example where this is a problem
 
           this.outputSaveData = convertedSaveData.saveData;
-          this.outputFilename = this.changeFilenameExtension(this.inputFilename, convertedSaveData.fileExtension);
+          this.outputFilename = Util.changeFilenameExtension(this.inputFilename, convertedSaveData.fileExtension);
         } catch (e) {
           this.platformErrorMessage = 'This file does not appear to match the selected platform';
           this.outputSaveData = null;
@@ -215,7 +212,7 @@ export default {
       this.errorMessage = null;
       try {
         this.wiiSaveData = WiiSaveData.createFromEmulatorData(event.arrayBuffer);
-        this.outputFilename = this.changeFilenameExtension(event.filename, 'bin');
+        this.outputFilename = Util.changeFilenameExtension(event.filename, 'bin');
       } catch (e) {
         this.errorMessage = e.message;
         this.outputSaveData = null;

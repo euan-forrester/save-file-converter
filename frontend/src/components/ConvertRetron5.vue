@@ -89,8 +89,8 @@
 </style>
 
 <script>
-import path from 'path';
 import { saveAs } from 'file-saver';
+import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
@@ -118,14 +118,11 @@ export default {
       this.errorMessage = null;
       this.outputFilename = null;
     },
-    changeFilenameExtension(filename, newExtension) {
-      return `${path.basename(filename, path.extname(filename))}.${newExtension}`;
-    },
     readRetron5SaveData(event) {
       this.errorMessage = null;
       try {
         this.retron5SaveData = Retron5SaveData.createFromRetron5Data(event.arrayBuffer);
-        this.outputFilename = this.changeFilenameExtension(event.filename, 'srm');
+        this.outputFilename = Util.changeFilenameExtension(event.filename, 'srm');
       } catch (e) {
         this.errorMessage = e.message;
         this.retron5SaveData = null;
@@ -135,7 +132,7 @@ export default {
       this.errorMessage = null;
       try {
         this.retron5SaveData = Retron5SaveData.createFromEmulatorData(event.arrayBuffer);
-        this.outputFilename = this.changeFilenameExtension(event.filename, 'sav');
+        this.outputFilename = Util.changeFilenameExtension(event.filename, 'sav');
       } catch (e) {
         this.errorMessage = e.message;
         this.retron5SaveData = null;

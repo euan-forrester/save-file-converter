@@ -3,8 +3,18 @@
     <b-row no-gutters>
       <b-col :cols="this.leaveRoomForHelpIcon ? 11 : 12" sm="12">
         <div>
-          <file-reader @load="$emit('load', $event)" :placeholderText="this.placeholderText" :acceptExtension="this.acceptExtension"></file-reader>
-          <help-button v-if="this.helpText !== null" :popover-text="this.helpText" :id="this.id" class="help-button"/>
+          <file-reader
+            @load="$emit('load', $event)"
+            :placeholderText="this.placeholderText"
+            :acceptExtension="this.acceptExtension"
+            :allowMultipleFiles="this.allowMultipleFiles"
+          />
+          <help-button
+            v-if="this.helpText !== null"
+            :popover-text="this.helpText"
+            :id="this.id"
+            class="help-button"
+          />
         </div>
       </b-col>
     </b-row>
@@ -54,6 +64,10 @@ export default {
       default: null,
     },
     leaveRoomForHelpIcon: Boolean,
+    allowMultipleFiles: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {

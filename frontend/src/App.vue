@@ -6,7 +6,13 @@
           <router-link to="/retron-5">Retron{{'\xa0'}}5{{'\xa0'}}/{{'\xa0'}}RetroFreak</router-link> |
           <router-link to="/gameshark">GameShark{{'\xa0'}}(GBA)</router-link> |
           <router-link to="/gameshark-sp">GameShark{{'\xa0'}}SP{{'\xa0'}}(GBA)</router-link> |
-          <router-link to="/action-replay">Action{{'\xa0'}}Replay{{'\xa0'}}(GBA)</router-link> |
+          <router-link to="/action-replay">Action{{'\xa0'}}Replay{{'\xa0'}}(GBA)</router-link>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="nav-row">
+          <router-link to="/ps1/dexdrive">PS1{{'\xa0'}}-{{'\xa0'}}DexDrive</router-link> |
+          <router-link to="/ps1/psp">PS1{{'\xa0'}}-{{'\xa0'}}PSP</router-link> |
           <router-link to="/wii">Wii{{'\xa0'}}Virtual{{'\xa0'}}Console</router-link>
         </b-col>
       </b-row>
