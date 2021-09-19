@@ -2,7 +2,7 @@
   <div>
     <b-container>
       <b-row no-gutters align-h="center" align-v="start">
-        <b-col sm=12 md=5 align-self="center">
+        <b-col sm=12 md=5 align-self="start">
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
               <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })">
@@ -157,7 +157,7 @@ export default {
         this.dexDriveSaveData = Ps1DexDriveSaveData.createFromDexDriveData(event.arrayBuffer);
         this.changeSelectedSaveData(0);
       } catch (e) {
-        this.errorMessage = e.message;
+        this.errorMessage = 'File appears to not be in the correct format';
         this.dexDriveSaveData = null;
         this.selectedSaveData = null;
       }
@@ -170,7 +170,7 @@ export default {
 
         this.dexDriveSaveData = Ps1DexDriveSaveData.createFromSaveFiles(saveFiles);
       } catch (e) {
-        this.errorMessage = e.message;
+        this.errorMessage = 'One or more files appear to not be in the correct format';
         this.dexDriveSaveData = null;
         this.selectedSaveData = null;
       }
