@@ -57,9 +57,10 @@ export default class Ps1DexDriveSaveData {
   static createFromSaveFiles(saveFiles) {
     // The DexDrive image is the DexDrive header then the regular memcard data
 
+    const memcardSaveData = Ps1MemcardSaveData.createFromSaveFiles(saveFiles);
+
     const headerArrayBuffer = new ArrayBuffer(HEADER_LENGTH);
     const headerArray = new Uint8Array(headerArrayBuffer);
-    const memcardSaveData = Ps1MemcardSaveData.createFromSaveFiles(saveFiles);
 
     const magicTextEncoder = new TextEncoder(MAGIC_ENCODING);
     const commentTextEncoder = new TextEncoder(COMMENT_ENCODING);

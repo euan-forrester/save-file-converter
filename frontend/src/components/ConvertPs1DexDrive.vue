@@ -65,7 +65,7 @@
             class="ps1-dexdrive-convert-button"
             variant="success"
             block
-            :disabled="!this.dexDriveSaveData || this.dexDriveSaveData.getSaveFiles().length === 0 || this.selectedSaveData === null || !outputFilename"
+            :disabled="this.convertButtonDisabled"
             @click="convertFile()"
           >
           Convert!
@@ -103,7 +103,6 @@
 
 <script>
 import { saveAs } from 'file-saver';
-import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
@@ -126,6 +125,13 @@ export default {
     InputFile,
     OutputFilename,
     FileList,
+  },
+  computed: {
+    convertButtonDisabled() {
+      const haveDataSelected = (this.conversionDirection === 'convertToEmulator') ? true : this.selectedSaveData === null;
+
+      return !this.dexDriveSaveData || this.dexDriveSaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
+    },
   },
   methods: {
     changeConversionDirection(newDirection) {
@@ -160,8 +166,9 @@ export default {
       this.errorMessage = null;
       this.selectedSaveData = null;
       try {
-        this.dexDriveSaveData = Ps1DexDriveSaveData.createFromSaveFiles(event.arrayBuffer);
-        this.outputFilename = Util.changeFilenameExtension(event.filename, 'gme');
+        const saveFiles = event.map((f) => ({ filename: f.filename, rawData: f.arrayBuffer, comment: 'Created with savefileconverter.com' }));
+
+        this.dexDriveSaveData = Ps1DexDriveSaveData.createFromSaveFiles(saveFiles);
       } catch (e) {
         this.errorMessage = e.message;
         this.dexDriveSaveData = null;
