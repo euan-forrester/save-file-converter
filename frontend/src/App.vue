@@ -20,6 +20,7 @@
         <b-col>
           <router-link to="/troubleshooting">Troubleshooting{{'\xa0'}}(Beta)</router-link> |
           <router-link to="/other-converters">Other{{'\xa0'}}converters</router-link> |
+          <router-link to="/download-saves">Download{{'\xa0'}}saves</router-link> |
           <router-link to="/about">About{{'\xa0'}}/{{'\xa0'}}Contact</router-link>
         </b-col>
       </b-row>
