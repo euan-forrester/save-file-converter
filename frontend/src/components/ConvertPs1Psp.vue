@@ -27,6 +27,7 @@
           </div>
           <div v-else>
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
+            <memory-card-selector v-model="memoryCardIndex" @change="changeMemoryCardIndex()" />
           </div>
         </b-col>
         <b-col sm=12 md=2 lg=2 xl=2 align-self="start">
@@ -107,6 +108,7 @@ import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import FileList from './FileList.vue';
+import MemoryCardSelector from './MemoryCardSelector.vue';
 import PspSaveData from '../save-formats/PS1/Psp';
 
 export default {
@@ -118,6 +120,7 @@ export default {
       outputFilename: null,
       conversionDirection: 'convertToEmulator',
       selectedSaveData: null,
+      memoryCardIndex: 0,
     };
   },
   components: {
@@ -125,6 +128,7 @@ export default {
     InputFile,
     OutputFilename,
     FileList,
+    MemoryCardSelector,
   },
   computed: {
     convertButtonDisabled() {
@@ -140,6 +144,14 @@ export default {
       this.errorMessage = null;
       this.outputFilename = null;
       this.selectedSaveData = null;
+      this.memoryCardIndex = 0;
+
+      if (newDirection === 'convertToRetron5') {
+        this.changeMemoryCardIndex();
+      }
+    },
+    changeMemoryCardIndex() {
+      this.outputFilename = `SCEVMC${this.memoryCardIndex}.VMP`;
     },
     changeSelectedSaveData(newSaveData) {
       if (this.pspSaveData.getSaveFiles().length > 0) {
