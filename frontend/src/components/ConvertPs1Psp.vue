@@ -2,21 +2,27 @@
   <div>
     <b-container>
       <b-row no-gutters align-h="center" align-v="start">
-        <b-col sm=12 md=5 align-self="center">
+        <b-col sm=12 md=5 align-self="start">
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
               <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })">
-                <template v-slot:header>Retron 5</template>
+                <template v-slot:header>PSP</template>
               </b-jumbotron>
             </b-col>
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'">
             <input-file
-              @load="readRetron5SaveData($event)"
+              @load="readpspSaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose a file to convert (*.sav)"
-              acceptExtension=".sav"
+              placeholderText="Choose a file to convert (*.vmp)"
+              acceptExtension=".vmp"
               :leaveRoomForHelpIcon="false"
+            />
+            <file-list
+              :display="this.pspSaveData !== null"
+              :files="this.pspSaveData ? this.pspSaveData.getSaveFiles() : []"
+              v-model="selectedSaveData"
+              @change="changeSelectedSaveData($event)"
             />
           </div>
           <div v-else>
@@ -46,8 +52,9 @@
             <input-file
               @load="readEmulatorSaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose a file to convert"
+              placeholderText="Choose files to add"
               :leaveRoomForHelpIcon="false"
+              :allowMultipleFiles="true"
             />
           </div>
         </b-col>
@@ -55,10 +62,10 @@
       <b-row class="justify-content-md-center" align-h="center">
         <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
           <b-button
-            class="retron5-convert-button"
+            class="ps1-psp-convert-button"
             variant="success"
             block
-            :disabled="!this.retron5SaveData || !outputFilename"
+            :disabled="this.convertButtonDisabled"
             @click="convertFile()"
           >
           Convert!
@@ -68,7 +75,13 @@
       <b-row>
         <b-col>
           <div class="help">
-            Help: how do I&nbsp;<b-link href="https://projectpokemon.org/home/tutorials/save-editing/managing-gb-gbc-saves/using-the-retron-5-r53/">copy files to and from my Retron 5</b-link>?
+            Help: how do I&nbsp;<b-link href="https://www.wikihow.com/Put-Game-Saves-on-Your-PSP">copy PS1 saves to and from my PSP</b-link>?
+          </div>
+          <div class="help">
+            Help: how do I copy save files to and from a PS1 memory card?<br><b-link href="http://ps2ulaunchelf.pbworks.com/w/page/19520134/FrontPage">PS2 + USB stick</b-link> or <b-link href="https://github.com/ShendoXT/memcardrex/releases">PS3 USB memory card adaptor</b-link> or <b-link href="https://github.com/ShendoXT/memcardrex/releases">DexDrive</b-link> or <b-link href="https://8bitmods.com/memcard-pro-for-playstation-1-smoke-black/">MemCard Pro</b-link>
+          </div>
+          <div class="help">
+            Help: how do I <b-link href="https://www.google.com/search?q=ps2+mcboot+memory+card">run homebrew software on my PS2</b-link>?
           </div>
         </b-col>
       </b-row>
@@ -79,7 +92,7 @@
 <style scoped>
 
 /* Separate class for each different button to enable tracking in google tag manager */
-.retron5-convert-button {
+.ps1-psp-convert-button {
   margin-top: 1em;
 }
 
@@ -90,56 +103,80 @@
 
 <script>
 import { saveAs } from 'file-saver';
-import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
-import Retron5SaveData from '../save-formats/Retron5';
+import FileList from './FileList.vue';
+import PspSaveData from '../save-formats/PS1/Psp';
 
 export default {
-  name: 'ConvertRetron5',
+  name: 'ConvertPs1Psp',
   data() {
     return {
-      retron5SaveData: null,
+      pspSaveData: null,
       errorMessage: null,
       outputFilename: null,
       conversionDirection: 'convertToEmulator',
+      selectedSaveData: null,
     };
   },
   components: {
     ConversionDirection,
     InputFile,
     OutputFilename,
+    FileList,
+  },
+  computed: {
+    convertButtonDisabled() {
+      const haveDataSelected = (this.conversionDirection === 'convertToEmulator') ? true : this.selectedSaveData === null;
+
+      return !this.pspSaveData || this.pspSaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
+    },
   },
   methods: {
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
-      this.retron5SaveData = null;
+      this.pspSaveData = null;
       this.errorMessage = null;
       this.outputFilename = null;
+      this.selectedSaveData = null;
     },
-    readRetron5SaveData(event) {
+    changeSelectedSaveData(newSaveData) {
+      if (this.pspSaveData.getSaveFiles().length > 0) {
+        this.selectedSaveData = newSaveData;
+        this.outputFilename = this.pspSaveData.getSaveFiles()[this.selectedSaveData].filename;
+      } else {
+        this.selectedSaveData = null;
+        this.outputFilename = null;
+      }
+    },
+    readpspSaveData(event) {
       this.errorMessage = null;
+      this.selectedSaveData = null;
       try {
-        this.retron5SaveData = Retron5SaveData.createFromRetron5Data(event.arrayBuffer);
-        this.outputFilename = Util.changeFilenameExtension(event.filename, 'srm');
+        this.pspSaveData = PspSaveData.createFromPspData(event.arrayBuffer);
+        this.changeSelectedSaveData(0);
       } catch (e) {
-        this.errorMessage = e.message;
-        this.retron5SaveData = null;
+        this.errorMessage = 'File appears to not be in the correct format';
+        this.pspSaveData = null;
+        this.selectedSaveData = null;
       }
     },
     readEmulatorSaveData(event) {
       this.errorMessage = null;
+      this.selectedSaveData = null;
       try {
-        this.retron5SaveData = Retron5SaveData.createFromEmulatorData(event.arrayBuffer);
-        this.outputFilename = Util.changeFilenameExtension(event.filename, 'sav');
+        const saveFiles = event.map((f) => ({ filename: f.filename, rawData: f.arrayBuffer, comment: 'Created with savefileconverter.com' }));
+
+        this.pspSaveData = PspSaveData.createFromSaveFiles(saveFiles);
       } catch (e) {
-        this.errorMessage = e.message;
-        this.retron5SaveData = null;
+        this.errorMessage = 'One or more files appear to not be in the correct format';
+        this.pspSaveData = null;
+        this.selectedSaveData = null;
       }
     },
     convertFile() {
-      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.retron5SaveData.getRawSaveData() : this.retron5SaveData.getArrayBuffer();
+      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.pspSaveData.getSaveFiles()[this.selectedSaveData].rawData : this.pspSaveData.getArrayBuffer();
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 
