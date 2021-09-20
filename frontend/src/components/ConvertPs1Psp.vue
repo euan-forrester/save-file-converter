@@ -57,6 +57,11 @@
               :leaveRoomForHelpIcon="false"
               :allowMultipleFiles="true"
             />
+            <file-list
+              :display="this.pspSaveData !== null"
+              :files="this.pspSaveData ? this.pspSaveData.getSaveFiles() : []"
+              :enabled="false"
+            />
           </div>
         </b-col>
       </b-row>

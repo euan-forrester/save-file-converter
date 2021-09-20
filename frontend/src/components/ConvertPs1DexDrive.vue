@@ -56,6 +56,11 @@
               :leaveRoomForHelpIcon="false"
               :allowMultipleFiles="true"
             />
+            <file-list
+              :display="this.dexDriveSaveData !== null"
+              :files="this.dexDriveSaveData ? this.dexDriveSaveData.getSaveFiles() : []"
+              :enabled="false"
+            />
           </div>
         </b-col>
       </b-row>
