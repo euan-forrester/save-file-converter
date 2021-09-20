@@ -51,7 +51,7 @@
         <b-link href="https://www.zophar.net/savestates.html">Zophar's{{'\xa0'}}Domain</b-link>
       </b-col>
       <b-col cols=12 md=5 lg=5 xl=4>
-        Mostly save states, but same save files as well.
+        Mostly save states, but some save files as well.
       </b-col>
     </b-row>
     <div class="blank-line"/>

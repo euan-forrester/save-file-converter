@@ -40,8 +40,8 @@
         <b-col sm=12 md=5 align-self="start">
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
-              <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })">
-                <template v-slot:header>Emulator/Raw</template>
+              <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })" :class="$mq === 'md' ? 'fix-jumbotron' : ''">
+                <template v-slot:header>Individual saves</template>
               </b-jumbotron>
             </b-col>
           </b-row>
@@ -55,6 +55,11 @@
               placeholderText="Choose files to add"
               :leaveRoomForHelpIcon="false"
               :allowMultipleFiles="true"
+            />
+            <file-list
+              :display="this.dexDriveSaveData !== null"
+              :files="this.dexDriveSaveData ? this.dexDriveSaveData.getSaveFiles() : []"
+              :enabled="false"
             />
           </div>
         </b-col>
@@ -78,7 +83,7 @@
             Help: how do I&nbsp;<b-link href="https://github.com/ShendoXT/memcardrex/releases">copy files to and from my DexDrive</b-link>?
           </div>
           <div class="help">
-            Help: how do I copy save files to and from a PS1 memory card?<br><b-link href="http://ps2ulaunchelf.pbworks.com/w/page/19520134/FrontPage">PS2 + USB stick</b-link> or <b-link href="https://github.com/ShendoXT/memcardrex/releases">PS3 USB memory card adaptor</b-link> or <b-link href="https://github.com/ShendoXT/memcardrex/releases">DexDrive</b-link> or <b-link href="https://8bitmods.com/memcard-pro-for-playstation-1-smoke-black/">MemCard Pro</b-link>
+            Help: how do I copy individual save files to and from a PS1 memory card?<br><b-link href="http://ps2ulaunchelf.pbworks.com/w/page/19520134/FrontPage">PS2 + USB stick</b-link> or <b-link href="https://github.com/ShendoXT/memcardrex/releases">PS3 USB memory card adaptor</b-link> or <b-link href="https://github.com/ShendoXT/memcardrex/releases">DexDrive</b-link> or <b-link href="https://8bitmods.com/memcard-pro-for-playstation-1-smoke-black/">MemCard Pro</b-link>
           </div>
           <div class="help">
             Help: how do I <b-link href="https://www.google.com/search?q=ps2+mcboot+memory+card">run homebrew software on my PS2</b-link>?
@@ -98,6 +103,15 @@
 
 .help {
   margin-top: 1em;
+}
+
+/* We have so much text in our jumbotron that at the md size it wants to be vertically larger than the other one. So let's constrain it and move the text upwards insie it */
+.fix-jumbotron {
+  max-height: 11.5em;
+}
+
+.fix-jumbotron > div {
+  margin-top: -1em;
 }
 </style>
 

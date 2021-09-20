@@ -46,6 +46,10 @@ export default {
       type: Number,
       default: null,
     },
+    enabled: {
+      type: Boolean,
+      default: true,
+    },
   },
   model: {
     prop: 'value',
@@ -53,7 +57,8 @@ export default {
   },
   computed: {
     options() {
-      return this.files.map((f, i) => ({ value: i, text: f.description }));
+      const optionsEnabled = this.enabled;
+      return this.files.map((f, i) => ({ value: i, text: f.description, disabled: !optionsEnabled }));
     },
     valueLocal: {
       get() { return this.value; },
