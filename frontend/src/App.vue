@@ -24,6 +24,7 @@
           <router-link to="/about">About{{'\xa0'}}/{{'\xa0'}}Contact</router-link>
         </b-col>
       </b-row>
+      <hr/>
     </div>
     <router-view/>
     <mq-layout :mq="['xs', 'sm']">
