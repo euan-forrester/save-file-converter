@@ -7,6 +7,7 @@ import GameSharkSP from '../views/GameSharkSP.vue';
 import Wii from '../views/Wii.vue';
 import Ps1DexDrive from '../views/Ps1DexDrive.vue';
 import Ps1Psp from '../views/Ps1Psp.vue';
+import Ps1Emulator from '../views/Ps1Emulator.vue';
 import OtherConverters from '../views/OtherConverters.vue';
 import DownloadSaves from '../views/DownloadSaves.vue';
 import Troubleshooting from '../views/Troubleshooting.vue';
@@ -42,6 +43,11 @@ const routes = [
     path: '/wii',
     name: 'Wii',
     component: Wii,
+  },
+  {
+    path: '/ps1/emulator',
+    name: 'PS1 - Emulator',
+    component: Ps1Emulator,
   },
   {
     path: '/ps1/dexdrive',
