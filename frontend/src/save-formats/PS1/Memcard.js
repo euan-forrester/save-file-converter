@@ -43,6 +43,12 @@ const SAVE_BLOCK_DESCRIPTION_OFFSET = 0x04;
 const SAVE_BLOCK_DESCRIPTION_LENGTH = 64;
 const SAVE_BLOCK_DESCRIPTION_ENCODING = 'shift-jis';
 
+function convertTextToHalfWidth(s) {
+  // The description stored in the save data is in full-width characters but we'd rather display normal half-width ones
+  // https://stackoverflow.com/a/58515363
+  return s.replace(/[\uff01-\uff5e]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xfee0)).replace(/\u3000/g, '\u0020');
+}
+
 function getDirectoryFrame(headerArrayBuffer, blockNum) {
   const offset = FRAME_SIZE + (blockNum * FRAME_SIZE); // The first frame contains HEADER_MAGIC, so block 0 is at frame 1
   return headerArrayBuffer.slice(offset, offset + FRAME_SIZE);
@@ -316,7 +322,13 @@ export default class Ps1MemcardSaveData {
 
         Util.checkMagic(dataBlocks[0], 0, SAVE_BLOCK_MAGIC, MAGIC_ENCODING);
 
-        const description = Util.trimNull(fileDescriptionTextDecoder.decode(dataBlocks[0].slice(SAVE_BLOCK_DESCRIPTION_OFFSET, SAVE_BLOCK_DESCRIPTION_OFFSET + SAVE_BLOCK_DESCRIPTION_LENGTH)));
+        const description = convertTextToHalfWidth(
+          Util.trimNull(
+            fileDescriptionTextDecoder.decode(
+              dataBlocks[0].slice(SAVE_BLOCK_DESCRIPTION_OFFSET, SAVE_BLOCK_DESCRIPTION_OFFSET + SAVE_BLOCK_DESCRIPTION_LENGTH),
+            ),
+          ),
+        );
 
         // See if there are other blocks that comprise this save
 
