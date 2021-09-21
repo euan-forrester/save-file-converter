@@ -45,8 +45,8 @@ const SAVE_BLOCK_DESCRIPTION_ENCODING = 'shift-jis';
 
 function convertTextToHalfWidth(s) {
   // The description stored in the save data is in full-width characters but we'd rather display normal half-width ones
-  // https://stackoverflow.com/a/20488304
-  return s.replace(/[\uff01-\uff5e]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xfee0));
+  // https://stackoverflow.com/a/58515363
+  return s.replace(/[\uff01-\uff5e]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xfee0)).replace(/\u3000/g, '\u0020');
 }
 
 function getDirectoryFrame(headerArrayBuffer, blockNum) {
