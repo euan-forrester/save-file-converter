@@ -64,6 +64,8 @@ Instructions:
   - http://darkakuma.z-net.us/p/sfromtool.html (convert SNES ROMs and/or saves to the SNES Classic ROM and/or save format)
   - I'm not sure there's enough demand for a web-based tool that does this. The devices aren't available for sale anymore and you already have to run a Windows program to transfer the games. Also the Windows tool for the SNES Classic has the ability to convert saves already.
 - N64 DexDrive:
+  - https://github.com/bryc/mempak
+    - https://bryc.github.io/mempak/ (online preview)
   - https://github-wiki-see.page/m/bryc/mempak/wiki/DexDrive-.N64-format
 - PS1:
   - https://www.psdevwiki.com/ps3/PS1_Savedata
