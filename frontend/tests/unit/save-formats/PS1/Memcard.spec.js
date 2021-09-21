@@ -25,12 +25,12 @@ describe('PS1 memcard save format', () => {
 
     expect(ps1MemcardSaveData.getSaveFiles()[0].startingBlock).to.equal(0);
     expect(ps1MemcardSaveData.getSaveFiles()[0].filename).to.equal('BASLUS-00067DRAX00');
-    expect(ps1MemcardSaveData.getSaveFiles()[0].description).to.equal('ＣＡＳＴＬＥＶＡＮＩＡ－１　ＡＬＵＣＡＲＤ　２００％');
+    expect(ps1MemcardSaveData.getSaveFiles()[0].description).to.equal('CASTLEVANIA-1 ALUCARD 200%');
     expect(ArrayBufferUtil.arrayBuffersEqual(ps1MemcardSaveData.getSaveFiles()[0].rawData, saveFilesArrayBuffers[0])).to.equal(true);
 
     expect(ps1MemcardSaveData.getSaveFiles()[1].startingBlock).to.equal(1);
     expect(ps1MemcardSaveData.getSaveFiles()[1].filename).to.equal('BASLUS-00067DRAX01');
-    expect(ps1MemcardSaveData.getSaveFiles()[1].description).to.equal('ＣＡＳＴＬＥＶＡＮＩＡ－２　ＲＩＣＨＴＥＲ　１９５％');
+    expect(ps1MemcardSaveData.getSaveFiles()[1].description).to.equal('CASTLEVANIA-2 RICHTER 195%');
     expect(ArrayBufferUtil.arrayBuffersEqual(ps1MemcardSaveData.getSaveFiles()[1].rawData, saveFilesArrayBuffers[1])).to.equal(true);
   });
 
@@ -45,12 +45,12 @@ describe('PS1 memcard save format', () => {
 
     expect(ps1MemcardSaveData.getSaveFiles()[0].startingBlock).to.equal(0);
     expect(ps1MemcardSaveData.getSaveFiles()[0].filename).to.equal('BASCUS-94194GT');
-    expect(ps1MemcardSaveData.getSaveFiles()[0].description).to.equal('ＧＴ　ｇａｍｅ　ｄａｔａ');
+    expect(ps1MemcardSaveData.getSaveFiles()[0].description).to.equal('GT game data');
     expect(ArrayBufferUtil.arrayBuffersEqual(ps1MemcardSaveData.getSaveFiles()[0].rawData, saveFilesArrayBuffers[0])).to.equal(true);
 
     expect(ps1MemcardSaveData.getSaveFiles()[1].startingBlock).to.equal(5);
     expect(ps1MemcardSaveData.getSaveFiles()[1].filename).to.equal('BASCUS-94194RT');
-    expect(ps1MemcardSaveData.getSaveFiles()[1].description).to.equal('ＧＴ　ｒｅｐｌａｙ　ｄａｔａ');
+    expect(ps1MemcardSaveData.getSaveFiles()[1].description).to.equal('GT replay data');
     expect(ArrayBufferUtil.arrayBuffersEqual(ps1MemcardSaveData.getSaveFiles()[1].rawData, saveFilesArrayBuffers[1])).to.equal(true);
   });
 
@@ -72,7 +72,7 @@ describe('PS1 memcard save format', () => {
 
     expect(ps1MemcardSaveData.getSaveFiles()[0].startingBlock).to.equal(0);
     expect(ps1MemcardSaveData.getSaveFiles()[0].filename).to.equal('BASLUS-00067DRAX00');
-    expect(ps1MemcardSaveData.getSaveFiles()[0].description).to.equal('ＣＡＳＴＬＥＶＡＮＩＡ－１　ＥＵＡＮ　２％');
+    expect(ps1MemcardSaveData.getSaveFiles()[0].description).to.equal('CASTLEVANIA-1 EUAN 2%');
     expect(ArrayBufferUtil.arrayBuffersEqual(ps1MemcardSaveData.getSaveFiles()[0].rawData, rawArrayBuffer)).to.equal(true);
   });
 });
