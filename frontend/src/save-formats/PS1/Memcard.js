@@ -3,7 +3,6 @@
 /*
 The PS1 memcard format is described here:
 https://www.psdevwiki.com/ps3/PS1_Savedata#Virtual_Memory_Card_PS1_.28.VM1.29
-
 */
 
 import Util from '../../util/util';

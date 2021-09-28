@@ -66,7 +66,7 @@ Instructions:
 - N64 DexDrive:
   - https://github.com/bryc/mempak
     - https://bryc.github.io/mempak/ (online preview)
-  - https://github-wiki-see.page/m/bryc/mempak/wiki/DexDrive-.N64-format
+  - https://github.com/bryc/mempak/wiki/DexDrive-.N64-format
 - PS1:
   - https://www.psdevwiki.com/ps3/PS1_Savedata
   - MemcardRex format: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs
