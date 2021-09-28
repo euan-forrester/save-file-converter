@@ -31,15 +31,26 @@ const NOTE_TABLE_PAGES = [3, 4];
 const FIRST_SAVE_DATA_PAGE = NOTE_TABLE_PAGES[1] + 1;
 
 const ID_AREA_BLOCK_OFFSETS = [0x20, 0x60, 0x80, 0xC0];
+
 const NOTE_TABLE_BLOCK_SIZE = 32;
-const NOTE_TABLE_GAME_CODE_OFFSET = 0;
-const NOTE_TABLE_GAME_CODE_LENGTH = 4;
+const NOTE_TABLE_GAME_SERIAL_CODE_OFFSET = 0;
+const NOTE_TABLE_GAME_SERIAL_CODE_LENGTH = 4;
 const NOTE_TABLE_PUBLISHER_CODE_OFFSET = 4;
 const NOTE_TABLE_PUBLISHER_CODE_LENGTH = 2;
+const NOTE_TABLE_STARTING_PAGE_OFFSET = 6;
+const NOTE_TABLE_STATUS_OFFSET = 8;
+const NOTE_TABLE_OCCUPIED_BIT = 0x2;
+const NOTE_TABLE_UNUSED_OFFSET = 10;
 const NOTE_TABLE_NOTE_NAME_EXTENSION_OFFSET = 12;
 const NOTE_TABLE_NOTE_NAME_EXTENSION_LENGTH = 4;
 const NOTE_TABLE_NOTE_NAME_OFFSET = 16;
 const NOTE_TABLE_NOTE_NAME_LENGTH = 16;
+
+const INODE_TABLE_ENTRY_STOP = 1;
+// const INODE_TABLE_ENTRY_EMPTY = 3;
+
+const GAME_SERIAL_CODE_MEDIA_INDEX = 0;
+const GAME_SERIAL_CODE_REGION_INDEX = 3;
 
 function getPage(pageNumber, arrayBuffer) {
   const offset = pageNumber * PAGE_SIZE;
@@ -49,6 +60,10 @@ function getPage(pageNumber, arrayBuffer) {
 function concatPages(pageNumbers, arrayBuffer) {
   const pages = pageNumbers.map((i) => getPage(i, arrayBuffer));
   return Util.concatArrayBuffers(pages);
+}
+
+function getNextPageNumber(inodePageDataView, pageNumber) {
+  return inodePageDataView.getUint16(pageNumber * 2, LITTLE_ENDIAN);
 }
 
 function getStringCode(uint8Array) {
@@ -102,43 +117,49 @@ function checkIdArea(arrayBuffer) {
 }
 
 // Taken from https://github.com/bryc/mempak/blob/master/js/parser.js#L173
-function readNoteTable(inodeArrayBuffer, noteTableArrayBuffer) {
+function readNoteTable(inodePageArrayBuffer, noteTableArrayBuffer) {
   const noteKeys = [];
   const noteTable = [];
 
-  const inodeArray = new Uint8Array(inodeArrayBuffer);
   const noteTableArray = new Uint8Array(noteTableArrayBuffer);
+
+  const noteTableDataView = new DataView(noteTableArrayBuffer);
+  const inodePageDataView = new DataView(inodePageArrayBuffer);
 
   for (let currentByte = 0; currentByte < noteTableArrayBuffer.byteLength; currentByte += NOTE_TABLE_BLOCK_SIZE) {
     const id = currentByte / NOTE_TABLE_BLOCK_SIZE;
 
-    const p = noteTableArray[currentByte + 7];
-    const p2 = inodeArray[p * 2 + 1];
+    const startingPage = noteTableDataView.getUint16(currentByte + NOTE_TABLE_STARTING_PAGE_OFFSET, LITTLE_ENDIAN);
+    const nextPage = getNextPageNumber(inodePageDataView, startingPage);
 
-    const validIndex = (noteTableArray[currentByte + 6] === 0) && (p >= FIRST_SAVE_DATA_PAGE) && (p < NUM_PAGES);
-    const validSum = (noteTableArray[currentByte + 10] === 0) && (noteTableArray[currentByte + 11] === 0);
-    const entryCheck = (p2 === 1) || ((p2 >= FIRST_SAVE_DATA_PAGE) && (p2 < NUM_PAGES));
+    const firstPageValid = (startingPage >= FIRST_SAVE_DATA_PAGE) && (startingPage < NUM_PAGES);
+    const unusedBytesAreZero = (noteTableDataView.getUint16(currentByte + NOTE_TABLE_UNUSED_OFFSET) === 0);
+    const nextPageValid = (nextPage === INODE_TABLE_ENTRY_STOP) || ((nextPage >= FIRST_SAVE_DATA_PAGE) && (nextPage < NUM_PAGES));
 
-    if (validIndex && validSum && entryCheck) {
-      const gameCodeArray = noteTableArray.slice(currentByte + NOTE_TABLE_GAME_CODE_OFFSET, currentByte + NOTE_TABLE_GAME_CODE_OFFSET + NOTE_TABLE_GAME_CODE_LENGTH);
+    if (firstPageValid && unusedBytesAreZero && nextPageValid) {
+      // FIXME: Apparently sometimes this bit is unset, but it needs to be set. Currently, this
+      // only affects a copy of the data (a slice) and not the actual data written out
+      noteTableArray[currentByte + NOTE_TABLE_STATUS_OFFSET] |= NOTE_TABLE_OCCUPIED_BIT;
+
+      const gameSerialCodeArray = noteTableArray.slice(currentByte + NOTE_TABLE_GAME_SERIAL_CODE_OFFSET, currentByte + NOTE_TABLE_GAME_SERIAL_CODE_OFFSET + NOTE_TABLE_GAME_SERIAL_CODE_LENGTH);
       const publisherCodeArray = noteTableArray.slice(currentByte + NOTE_TABLE_PUBLISHER_CODE_OFFSET, currentByte + NOTE_TABLE_PUBLISHER_CODE_OFFSET + NOTE_TABLE_PUBLISHER_CODE_LENGTH);
 
-      const gameCodeSum = gameCodeArray.reduce((accumulator, n) => accumulator + n);
-      const publisherCodeSum = gameCodeArray.reduce((accumulator, n) => accumulator + n);
+      const gameSerialCodeSum = gameSerialCodeArray.reduce((accumulator, n) => accumulator + n);
+      const publisherCodeSum = publisherCodeArray.reduce((accumulator, n) => accumulator + n);
 
       // These indicate that something was corrupted in the file and needs manual fixing
       // This only seems to affect one entry: the publisher for Wave Race 64. We'll maintain this fixup for compatibility with https://github.com/bryc/mempak/blob/master/js/codedb.js
       // FIXME: This repair only affects a copy of the data (a slice) and not the actual data written out
-      if (gameCodeSum === 0) {
-        gameCodeArray[NOTE_TABLE_GAME_CODE_LENGTH - 1] |= 1;
+      if (gameSerialCodeSum === 0) {
+        gameSerialCodeArray[NOTE_TABLE_GAME_SERIAL_CODE_LENGTH - 1] |= 1;
       }
 
       if (publisherCodeSum === 0) {
         publisherCodeArray[NOTE_TABLE_PUBLISHER_CODE_LENGTH - 1] |= 1;
       }
 
-      const gameCode = getStringCode(gameCodeArray);
-      const publisherCode = getStringCode(publisherCodeArray);
+      const gameSerialCode = getStringCode(gameSerialCodeArray);
+      const publisherCode = getStringCode(publisherCodeArray); // Between the fixups in this function and just above, this turns the publisher 0x0000 for Wave Race 64 to 0x2D01, for use in the mempak lookup yable listed above
 
       let noteName = N64TextDecoder.decode(
         noteTableArray.slice(
@@ -157,7 +178,22 @@ function readNoteTable(inodeArrayBuffer, noteTableArrayBuffer) {
         );
       }
 
-      console.log(`For ID '${id}', found note name '${noteName}', with game code '${gameCode}' and publisher code '${publisherCode}'`);
+      noteTable[id] = {
+        pageNumbers: startingPage,
+        gameSerialCode,
+        publisherCode,
+        noteName,
+        region: gameSerialCode.charAt(GAME_SERIAL_CODE_REGION_INDEX),
+        media: gameSerialCode.charAt(GAME_SERIAL_CODE_MEDIA_INDEX),
+      };
+
+      console.log(`For ID '${id}':`);
+      console.log(`  Page numbers '${noteTable[id].pageNumbers}'`);
+      console.log(`  Note name '${noteTable[id].noteName}'`);
+      console.log(`  Game serial code '${noteTable[id].gameSerialCode}'`);
+      console.log(`  Publisher code '${noteTable[id].publisherCode}'`);
+      console.log(`  Region: '${noteTable[id].region}'`);
+      console.log(`  Media: '${noteTable[id].media}'`);
     }
   }
 

@@ -35,8 +35,6 @@ Instructions:
   - (reading): https://github.com/visualboyadvance-m/visualboyadvance-m/blob/master/src/gba/GBA.cpp#L1078
 - GameShark (PS2)
   - (partial): https://www.ps2savetools.com/documents/xps-format/
-- PSP PS1 virtual memory card: https://psdevwiki.com/ps3/PS1_Savedata#Virtual_Memory_Card_PSP_.28.VMP.29
-- PS3 PS1 virtual memory card: https://psdevwiki.com/ps3/PS1_Savedata#Virtual_Memory_Card_PS1_.28.VM1.29
 - PS3 PS1/PS2 virtual memory card: https://github.com/bucanero/psv-save-converter
 - PS2
   - Save Tools: https://www.ps2savetools.com/
@@ -63,15 +61,17 @@ Instructions:
   - https://github.com/JanErikGunnar/ClassicEditionTools (scripts to convert raw saves to/from NES Classic format)
   - http://darkakuma.z-net.us/p/sfromtool.html (convert SNES ROMs and/or saves to the SNES Classic ROM and/or save format)
   - I'm not sure there's enough demand for a web-based tool that does this. The devices aren't available for sale anymore and you already have to run a Windows program to transfer the games. Also the Windows tool for the SNES Classic has the ability to convert saves already.
-- N64 DexDrive:
-  - https://github.com/bryc/mempak
-    - https://bryc.github.io/mempak/ (online preview)
-  - https://github.com/bryc/mempak/wiki/DexDrive-.N64-format
 - PS1:
   - https://www.psdevwiki.com/ps3/PS1_Savedata
   - MemcardRex format: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs
   - DexDrive format: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs
   - Signing a PSP .VMP file: https://github.com/dots-tb/vita-mcr2vmp
+- N64:
+  - https://github.com/bryc/mempak
+    - https://bryc.github.io/mempak/ (online preview)
+  - https://github.com/bryc/mempak/wiki/DexDrive-.N64-format
+  - https://github.com/bryc/mempak/wiki/MemPak-structure
+  - https://niwanetwork.org/wiki/List_of_Nintendo_64_games_by_serial_code
 - Goomba emulator
   - https://www.reddit.com/r/everdrive/comments/qcgus7/using_a_gba_x5_goomba_sram_save_file_on_a_gbc_x7/
 
