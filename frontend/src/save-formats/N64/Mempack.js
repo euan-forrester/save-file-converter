@@ -28,9 +28,12 @@ const ID_AREA_PAGE = 0;
 const INODE_TABLE_PAGE = 1;
 const INODE_TABLE_BACKUP_PAGE = 2; // Page 2 is a repeat of page 1, checked in case we encounter corruption of page 1
 const NOTE_TABLE_PAGES = [3, 4];
-const FIRST_SAVE_DATA_PAGE = NOTE_TABLE_PAGES[1] + 1;
+const FIRST_SAVE_DATA_PAGE = 5;
 
-const ID_AREA_BLOCK_OFFSETS = [0x20, 0x60, 0x80, 0xC0];
+const ID_AREA_CHECKSUM_OFFSETS = [0x20, 0x60, 0x80, 0xC0]; // 4 different checksum in the ID Area, and if any of them match then the data is deemed valid
+const ID_AREA_CHECKSUM_LENGTH = 28;
+const ID_AREA_CHECKSUM_DESIRED_SUM_A_OFFSET = 28;
+const ID_AREA_CHECKSUM_DESIRED_SUM_B_OFFSET = 30;
 
 const NOTE_TABLE_BLOCK_SIZE = 32;
 const NOTE_TABLE_GAME_SERIAL_CODE_OFFSET = 0;
@@ -85,30 +88,30 @@ function checkIdArea(arrayBuffer) {
   const dataView = new DataView(arrayBuffer);
   const array = new Uint8Array(arrayBuffer);
 
-  ID_AREA_BLOCK_OFFSETS.forEach((offset) => {
+  ID_AREA_CHECKSUM_OFFSETS.forEach((offset) => {
     let sumA = 0x0;
     let sumB = 0xFFF2;
 
-    for (let i = 0; i < 28; i += 2) {
+    for (let i = 0; i < ID_AREA_CHECKSUM_LENGTH; i += 2) {
       sumA += dataView.getUint16(offset + i, LITTLE_ENDIAN);
       sumA &= 0xFFFF;
     }
 
     sumB -= sumA;
 
-    const sumX = dataView.getUint16(offset + 28, LITTLE_ENDIAN);
-    let sumY = dataView.getUint16(offset + 30, LITTLE_ENDIAN);
+    const desiredSumA = dataView.getUint16(offset + ID_AREA_CHECKSUM_DESIRED_SUM_A_OFFSET, LITTLE_ENDIAN);
+    let desiredSumB = dataView.getUint16(offset + ID_AREA_CHECKSUM_DESIRED_SUM_B_OFFSET, LITTLE_ENDIAN);
 
     // Fix incorrect checksums found in many DexDrive files
     // https://github.com/bryc/mempak/blob/master/js/parser.js#L127
     //
     // FIXME: Note that here we're operating on a copy of the data (a slice) and so this won't affect what's written out
-    if ((sumY !== sumB) && ((sumY ^ 0x0C) === sumB) && (sumX === sumA)) {
-      sumY ^= 0xC;
+    if ((desiredSumB !== sumB) && ((desiredSumB ^ 0x0C) === sumB) && (desiredSumA === sumA)) {
+      desiredSumB ^= 0xC;
       array[offset + 31] ^= 0xC;
     }
 
-    foundValidBlock = foundValidBlock || ((sumX === sumA) && (sumY === sumB));
+    foundValidBlock = foundValidBlock || ((desiredSumA === sumA) && (desiredSumB === sumB));
   });
 
   if (!foundValidBlock) {
@@ -133,12 +136,12 @@ function readNoteTable(inodePageArrayBuffer, noteTableArrayBuffer) {
     const nextPage = getNextPageNumber(inodePageDataView, startingPage);
 
     const firstPageValid = (startingPage >= FIRST_SAVE_DATA_PAGE) && (startingPage < NUM_PAGES);
-    const unusedBytesAreZero = (noteTableDataView.getUint16(currentByte + NOTE_TABLE_UNUSED_OFFSET) === 0);
+    const unusedBytesAreZero = (noteTableDataView.getUint16(currentByte + NOTE_TABLE_UNUSED_OFFSET, LITTLE_ENDIAN) === 0);
     const nextPageValid = (nextPage === INODE_TABLE_ENTRY_STOP) || ((nextPage >= FIRST_SAVE_DATA_PAGE) && (nextPage < NUM_PAGES));
 
     if (firstPageValid && unusedBytesAreZero && nextPageValid) {
-      // FIXME: Apparently sometimes this bit is unset, but it needs to be set. Currently, this
-      // only affects a copy of the data (a slice) and not the actual data written out
+      // Apparently sometimes this bit is unset, but it needs to be set.
+      // FIXME: Currently, this only affects a copy of the data (a slice) and not the actual data written out
       noteTableArray[currentByte + NOTE_TABLE_STATUS_OFFSET] |= NOTE_TABLE_OCCUPIED_BIT;
 
       const gameSerialCodeArray = noteTableArray.slice(currentByte + NOTE_TABLE_GAME_SERIAL_CODE_OFFSET, currentByte + NOTE_TABLE_GAME_SERIAL_CODE_OFFSET + NOTE_TABLE_GAME_SERIAL_CODE_LENGTH);

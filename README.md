@@ -71,7 +71,9 @@ Instructions:
     - https://bryc.github.io/mempak/ (online preview)
   - https://github.com/bryc/mempak/wiki/DexDrive-.N64-format
   - https://github.com/bryc/mempak/wiki/MemPak-structure
-  - https://niwanetwork.org/wiki/List_of_Nintendo_64_games_by_serial_code
+  - Game serial codes:
+    - https://niwanetwork.org/wiki/List_of_Nintendo_64_games_by_serial_code
+    - https://meanwhileblog.wordpress.com/n64-game-code-list/
 - Goomba emulator
   - https://www.reddit.com/r/everdrive/comments/qcgus7/using_a_gba_x5_goomba_sram_save_file_on_a_gbc_x7/
 
