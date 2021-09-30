@@ -49,8 +49,9 @@ const NOTE_TABLE_NOTE_NAME_EXTENSION_LENGTH = 4;
 const NOTE_TABLE_NOTE_NAME_OFFSET = 16;
 const NOTE_TABLE_NOTE_NAME_LENGTH = 16;
 
+const INODE_TABLE_CHECKSUM_OFFSET = 1; // Is the 0th byte also part of the checksum?
 const INODE_TABLE_ENTRY_STOP = 1;
-// const INODE_TABLE_ENTRY_EMPTY = 3;
+const INODE_TABLE_ENTRY_EMPTY = 3;
 
 const GAME_SERIAL_CODE_MEDIA_INDEX = 0;
 const GAME_SERIAL_CODE_REGION_INDEX = 3;
@@ -140,6 +141,8 @@ function readNoteTable(inodePageArrayBuffer, noteTableArrayBuffer) {
     const nextPageValid = (nextPage === INODE_TABLE_ENTRY_STOP) || ((nextPage >= FIRST_SAVE_DATA_PAGE) && (nextPage < NUM_PAGES));
 
     if (firstPageValid && unusedBytesAreZero && nextPageValid) {
+      noteKeys.push(startingPage);
+
       // Apparently sometimes this bit is unset, but it needs to be set.
       // FIXME: Currently, this only affects a copy of the data (a slice) and not the actual data written out
       noteTableArray[currentByte + NOTE_TABLE_STATUS_OFFSET] |= NOTE_TABLE_OCCUPIED_BIT;
@@ -207,8 +210,106 @@ function readNoteTable(inodePageArrayBuffer, noteTableArrayBuffer) {
 }
 
 // Taken from https://github.com/bryc/mempak/blob/master/js/parser.js#L269
-function checkIndexes(inodeArrayBuffer) {
-  return inodeArrayBuffer;
+//
+// The implementation there performs quite a number of consistency checks on this data, and if
+// an anomoly is found then it switches to using the backup inode page. Because these checks therefore
+// influence how the data is parsed, we'll replicate them here
+function checkIndexes(inodeArrayBuffer, noteTableKeys) {
+  const inodePageDataView = new DataView(inodeArrayBuffer);
+
+  const found = {
+    parsed: [],
+    empty: [],
+    stops: [],
+    keys: [],
+    values: [],
+    duplicates: {},
+  };
+
+  // First, go through each entry and make sure that all the values are within range,
+  // and there are no duplicates
+
+  for (let currentPage = FIRST_SAVE_DATA_PAGE; currentPage < NUM_PAGES; currentPage += 1) {
+    const nextPage = getNextPageNumber(inodePageDataView, currentPage);
+
+    if (nextPage === INODE_TABLE_ENTRY_STOP) {
+      found.stops.push(currentPage);
+    } else if (nextPage === INODE_TABLE_ENTRY_EMPTY) {
+      found.empty.push(currentPage);
+    } else if ((nextPage >= FIRST_SAVE_DATA_PAGE) && (nextPage < NUM_PAGES)) {
+      if (found.duplicates[nextPage]) {
+        throw new Error(`Found duplicate entries in inode table. Both ${found.duplicates[nextPage]} and ${currentPage} point to page ${nextPage}`);
+      }
+
+      found.values.push(nextPage);
+      found.keys.push(currentPage);
+      found.duplicates[nextPage] = currentPage;
+    } else {
+      throw new Error(`Inode table contains illegal value: ${nextPage} at page ${currentPage}`);
+    }
+  }
+
+  // Figure out which keys we found are ones that begin a sequence, and then compare this against
+  // what we found when parsing the note table. We should have found the same number of both
+  // start keys and stops in the inode table as we found start keys in the note table.
+
+  const startKeysFound = found.keys.filter((x) => !found.values.includes(x));
+
+  if ((noteTableKeys.length !== startKeysFound.length) || (noteTableKeys.length !== found.stops.length)) {
+    throw new Error(`Found ${noteTableKeys.length} starting keys in the note table, but found ${startKeysFound.length} starting keys and ${found.stops.length} stop leys in inode table`);
+  }
+
+  startKeysFound.forEach((x) => {
+    if (!noteTableKeys.includes(x)) {
+      throw new Error(`Found start key ${x} in inode table which doesn't exist in note table`);
+    }
+  });
+
+  // Get the index sequence for each note
+
+  const noteIndexes = {};
+  startKeysFound.forEach((startingPage) => {
+    const indexes = [startingPage];
+    let currentPage = startingPage;
+    let nextPage = getNextPageNumber(inodePageDataView, currentPage);
+
+    while (nextPage !== INODE_TABLE_ENTRY_STOP) { // We've already validated that all of these are >= FIRST_SAVE_DATA_PAGE and < NUM_PAGES
+      indexes.push(nextPage);
+      currentPage = nextPage;
+      nextPage = getNextPageNumber(inodePageDataView, currentPage);
+    }
+
+    noteIndexes[startingPage] = indexes;
+    found.parsed.push(...indexes.slice(1)); // We didn't 'find' the starting index, so remove it from here because we use this to check our integrity below
+  });
+
+  // Check that we parsed and found the same number of keys
+  if (found.parsed.length !== found.keys.length) {
+    throw new Error(`We encountered ${found.parsed.length} keys when following the various index sequences, but found ${found.keys.length} keys when looking through the entire inode table.`);
+  }
+
+  // We've passed all of our validations, so we can fixup our checksums.
+  // Apparently valid files can have invalid checksums, so we won't actually
+  // check the checksums: only calculate and update them.
+  // https://github.com/bryc/mempak/blob/master/js/parser.js#L325
+
+  let sum = 0;
+  for (let currentPage = FIRST_SAVE_DATA_PAGE; currentPage < NUM_PAGES; currentPage += 1) {
+    // The code we're copying this from adds up all the bytes rather than the uint16s like we're doing here.
+    // But, since we already validated that each of these uint16s is < NUM_PAGES (128) then we can assume that all
+    // of the high bytes are 0
+    sum += getNextPageNumber(inodePageDataView, currentPage);
+    sum &= 0xFF;
+  }
+
+  // Is the 0th byte also part of the checksum?
+  // The code we're copying this from doesn't update the 0th byte, so we'll leave it alone too
+  // https://github.com/bryc/mempak/blob/master/js/parser.js#L330
+  //
+  // FIXME: This only updates a copy of the data (a slice) and not the actual data written out
+  inodePageDataView.setUint8(INODE_TABLE_CHECKSUM_OFFSET, sum);
+
+  return noteIndexes;
 }
 
 export default class N64MempackSaveData {
@@ -231,17 +332,32 @@ export default class N64MempackSaveData {
     checkIdArea(getPage(ID_AREA_PAGE, mempackArrayBuffer));
 
     // Now, check the note table
-    const inodeArrayBuffer = getPage(INODE_TABLE_PAGE, mempackArrayBuffer);
+    let inodeArrayBuffer = getPage(INODE_TABLE_PAGE, mempackArrayBuffer);
+    let inodeBackupArrayBuffer = getPage(INODE_TABLE_BACKUP_PAGE, mempackArrayBuffer);
     const noteTableArrayBuffer = concatPages(NOTE_TABLE_PAGES, mempackArrayBuffer);
 
-    readNoteTable(inodeArrayBuffer, noteTableArrayBuffer);
+    const noteInfo = readNoteTable(inodeArrayBuffer, noteTableArrayBuffer);
 
     try {
-      checkIndexes(inodeArrayBuffer);
+      checkIndexes(inodeArrayBuffer, noteInfo.noteKeys);
+
+      // If we pass our index checks, then the parimary inode page is good and we can replace the backup with it
+      // FIXME: This only affects a copy of the data (a slice) and not the actual data written out
+      inodeBackupArrayBuffer = inodeArrayBuffer;
     } catch (e) {
       // If we encounter something that appears to be corrupted in the main inode table, then
       // try again with the backup table
-      checkIndexes(getPage(INODE_TABLE_BACKUP_PAGE, mempackArrayBuffer));
+      try {
+        checkIndexes(inodeBackupArrayBuffer, noteInfo.noteKeys);
+
+        // Our primary table is corrupted but our backup is okay, so write the backup over the primary
+        // FIXME: This only affects a copy of the data (a slice) and not the actual data written out
+        inodeArrayBuffer = inodeBackupArrayBuffer;
+      } catch (e2) {
+        console.log(e2);
+        throw e2;
+        // throw new Error('Both primary and backup inode tables appear to be corrupted. Error from backup table follows', { cause: e2 });
+      }
     }
 
     this.saveFiles = [];
