@@ -354,9 +354,7 @@ export default class N64MempackSaveData {
         // FIXME: This only affects a copy of the data (a slice) and not the actual data written out
         inodeArrayBuffer = inodeBackupArrayBuffer;
       } catch (e2) {
-        console.log(e2);
-        throw e2;
-        // throw new Error('Both primary and backup inode tables appear to be corrupted. Error from backup table follows', { cause: e2 });
+        throw new Error('Both primary and backup inode tables appear to be corrupted. Error from backup table follows', { cause: e2 });
       }
     }
 
