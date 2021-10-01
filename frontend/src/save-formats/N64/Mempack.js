@@ -352,10 +352,15 @@ export default class N64MempackSaveData {
       }
     }
 
-    this.saveFiles = noteInfo.notes.map((x) => ({ ...x, pageNumbers: noteIndexes[x.startingPage], rawData: concatPages(noteIndexes[x.startingPage], mempackArrayBuffer) }));
+    this.saveFiles = noteInfo.notes.map((x) => ({
+      ...x,
+      pageNumbers: noteIndexes[x.startingPage],
+      rawData: concatPages(noteIndexes[x.startingPage], mempackArrayBuffer),
+    }));
 
     this.saveFiles.forEach((x) => {
       console.log(`For save ID '${x.id}':`);
+      console.log(`  Starting page: '${x.startingPage}'`);
       console.log(`  Page numbers '${x.pageNumbers}'`);
       console.log(`  Note name '${x.noteName}'`);
       console.log(`  Game serial code '${x.gameSerialCode}'`);
