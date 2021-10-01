@@ -123,7 +123,7 @@ function checkIdArea(arrayBuffer) {
 // Taken from https://github.com/bryc/mempak/blob/master/js/parser.js#L173
 function readNoteTable(inodePageArrayBuffer, noteTableArrayBuffer) {
   const noteKeys = [];
-  const noteTable = [];
+  const notes = [];
 
   const noteTableArray = new Uint8Array(noteTableArrayBuffer);
 
@@ -184,28 +184,21 @@ function readNoteTable(inodePageArrayBuffer, noteTableArrayBuffer) {
         );
       }
 
-      noteTable[id] = {
-        pageNumbers: startingPage,
+      notes.push({
+        id,
+        startingPage,
         gameSerialCode,
         publisherCode,
         noteName,
         region: gameSerialCode.charAt(GAME_SERIAL_CODE_REGION_INDEX),
         media: gameSerialCode.charAt(GAME_SERIAL_CODE_MEDIA_INDEX),
-      };
-
-      console.log(`For ID '${id}':`);
-      console.log(`  Page numbers '${noteTable[id].pageNumbers}'`);
-      console.log(`  Note name '${noteTable[id].noteName}'`);
-      console.log(`  Game serial code '${noteTable[id].gameSerialCode}'`);
-      console.log(`  Publisher code '${noteTable[id].publisherCode}'`);
-      console.log(`  Region: '${noteTable[id].region}'`);
-      console.log(`  Media: '${noteTable[id].media}'`);
+      });
     }
   }
 
   return {
     noteKeys,
-    noteTable,
+    notes,
   };
 }
 
@@ -337,9 +330,10 @@ export default class N64MempackSaveData {
     const noteTableArrayBuffer = concatPages(NOTE_TABLE_PAGES, mempackArrayBuffer);
 
     const noteInfo = readNoteTable(inodeArrayBuffer, noteTableArrayBuffer);
+    let noteIndexes = {};
 
     try {
-      checkIndexes(inodeArrayBuffer, noteInfo.noteKeys);
+      noteIndexes = checkIndexes(inodeArrayBuffer, noteInfo.noteKeys);
 
       // If we pass our index checks, then the parimary inode page is good and we can replace the backup with it
       // FIXME: This only affects a copy of the data (a slice) and not the actual data written out
@@ -348,7 +342,7 @@ export default class N64MempackSaveData {
       // If we encounter something that appears to be corrupted in the main inode table, then
       // try again with the backup table
       try {
-        checkIndexes(inodeBackupArrayBuffer, noteInfo.noteKeys);
+        noteIndexes = checkIndexes(inodeBackupArrayBuffer, noteInfo.noteKeys);
 
         // Our primary table is corrupted but our backup is okay, so write the backup over the primary
         // FIXME: This only affects a copy of the data (a slice) and not the actual data written out
@@ -358,7 +352,18 @@ export default class N64MempackSaveData {
       }
     }
 
-    this.saveFiles = [];
+    this.saveFiles = noteInfo.notes.map((x) => ({ ...x, pageNumbers: noteIndexes[x.startingPage], rawData: concatPages(noteIndexes[x.startingPage], mempackArrayBuffer) }));
+
+    this.saveFiles.forEach((x) => {
+      console.log(`For save ID '${x.id}':`);
+      console.log(`  Page numbers '${x.pageNumbers}'`);
+      console.log(`  Note name '${x.noteName}'`);
+      console.log(`  Game serial code '${x.gameSerialCode}'`);
+      console.log(`  Publisher code '${x.publisherCode}'`);
+      console.log(`  Region: '${x.region}'`);
+      console.log(`  Media: '${x.media}'`);
+      console.log(`  Raw save length: '${x.rawData.byteLength}'`);
+    });
   }
 
   getSaveFiles() {
