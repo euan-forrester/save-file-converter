@@ -1,5 +1,5 @@
 /*
-The DexDrive data format is described here: 
+The DexDrive data format is described here:
 https://github.com/bryc/mempak/wiki/DexDrive-.N64-format
 
 It is:
@@ -58,6 +58,11 @@ export default class N64DexDriveSaveData {
     const magicTextEncoder = new TextEncoder(MAGIC_ENCODING);
     const commentTextEncoder = new TextEncoder(COMMENT_ENCODING);
 
+    // Fill in our magic
+
+    headerArray.fill(0);
+    headerArray.set(magicTextEncoder.encode(HEADER_MAGIC), 0);
+
     // Make an array of our comments, arranged by the starting block of each save
 
     const comments = Array.from({ length: N64MempackSaveData.NUM_NOTES }, () => null);
@@ -77,7 +82,7 @@ export default class N64DexDriveSaveData {
     // Now that we've created our DexDrive header, we can create our final memory image. We'll parse it again
     // to pull out the file descriptions
 
-    const finalArrayBuffer = Util.concatArrayBuffers([headerArrayBuffer, memcardSaveData.getArrayBuffer()]);
+    const finalArrayBuffer = Util.concatArrayBuffers([headerArrayBuffer, mempackSaveData.getArrayBuffer()]);
 
     return N64DexDriveSaveData.createFromDexDriveData(finalArrayBuffer);
   }
@@ -100,7 +105,7 @@ export default class N64DexDriveSaveData {
     const mempack = N64MempackSaveData.createFromN64MempackData(mempackArrayBuffer);
 
     // Add in the comments we found in the header
-    this.saveFiles = mempack.getSaveFiles().map((x) => ({ ...x, comment: comments[x.startingBlock] }));
+    this.saveFiles = mempack.getSaveFiles().map((x) => ({ ...x, comment: comments[x.startingPage] }));
     this.mempack = mempack;
   }
 
