@@ -75,39 +75,6 @@ function xorWithByte(arrayBuffer, xorValue, length) {
   return outputArrayBuffer;
 }
 
-function setArrayBufferPortion(destination, source, destinationOffset, sourceOffset, length) {
-  const destinationArray = new Uint8Array(destination);
-  const sourceArray = new Uint8Array(source.slice(sourceOffset, sourceOffset + length));
-
-  const output = new ArrayBuffer(destination.byteLength);
-  const outputArray = new Uint8Array(output);
-
-  outputArray.set(destinationArray);
-  outputArray.set(sourceArray, destinationOffset);
-
-  return output;
-}
-
-function fillArrayBufferPortion(arrayBuffer, startIndex, length, fillValue) {
-  const outputArrayBuffer = new ArrayBuffer(arrayBuffer.byteLength);
-  const outputArray = new Uint8Array(outputArrayBuffer);
-  const inputArray = new Uint8Array(arrayBuffer);
-
-  outputArray.set(inputArray);
-  outputArray.fill(fillValue, startIndex, startIndex + length);
-
-  return outputArrayBuffer;
-}
-
-function fillArrayBuffer(arrayBuffer, fillValue) {
-  const outputArrayBuffer = new ArrayBuffer(arrayBuffer.byteLength);
-  const outputArray = new Uint8Array(outputArrayBuffer);
-
-  outputArray.fill(fillValue);
-
-  return outputArrayBuffer;
-}
-
 // Note that our arrayBuffer is for the entire PSP file, including the header which must in turn include the salt seed
 // The signature in the header is zero'ed out before the signature is calculated, but everything else must be there
 function calculateSignature(arrayBuffer, saltSeed) {
@@ -118,27 +85,27 @@ function calculateSignature(arrayBuffer, saltSeed) {
 
   let workBuffer = new ArrayBuffer(ENCRYPTION_KEY_LENGTH); // In the code we're copying from, only this many bytes are actually used from this buffer, until the very end when it's repurposed to receive the final sha1 digest
 
-  workBuffer = setArrayBufferPortion(workBuffer, saltSeed, 0, 0, ENCRYPTION_KEY_LENGTH);
+  workBuffer = Util.setArrayBufferPortion(workBuffer, saltSeed, 0, 0, ENCRYPTION_KEY_LENGTH);
   workBuffer = Util.decrypt(workBuffer, ENCRYPTION_ALGORITHM, ENCRYPTION_KEY, ENCRYPTION_IV);
-  salt = setArrayBufferPortion(salt, workBuffer, 0, 0, ENCRYPTION_KEY_LENGTH);
+  salt = Util.setArrayBufferPortion(salt, workBuffer, 0, 0, ENCRYPTION_KEY_LENGTH);
 
-  workBuffer = setArrayBufferPortion(workBuffer, saltSeed, 0, 0, ENCRYPTION_KEY_LENGTH);
+  workBuffer = Util.setArrayBufferPortion(workBuffer, saltSeed, 0, 0, ENCRYPTION_KEY_LENGTH);
   workBuffer = Util.encrypt(workBuffer, ENCRYPTION_ALGORITHM, ENCRYPTION_KEY, ENCRYPTION_IV);
-  salt = setArrayBufferPortion(salt, workBuffer, ENCRYPTION_KEY_LENGTH, 0, ENCRYPTION_KEY_LENGTH);
+  salt = Util.setArrayBufferPortion(salt, workBuffer, ENCRYPTION_KEY_LENGTH, 0, ENCRYPTION_KEY_LENGTH);
 
   salt = xorWithIv(salt, 0, ENCRYPTION_IV_PRETEND); // The only place our IV is actually used: as a random series of bytes
 
-  workBuffer = fillArrayBuffer(workBuffer, 0xFF);
-  workBuffer = setArrayBufferPortion(workBuffer, saltSeed, 0, ENCRYPTION_KEY_LENGTH, SALT_SEED_LENGTH - ENCRYPTION_KEY_LENGTH);
+  workBuffer = Util.fillArrayBuffer(workBuffer, 0xFF);
+  workBuffer = Util.setArrayBufferPortion(workBuffer, saltSeed, 0, ENCRYPTION_KEY_LENGTH, SALT_SEED_LENGTH - ENCRYPTION_KEY_LENGTH);
   salt = xorWithIv(salt, ENCRYPTION_KEY_LENGTH, workBuffer);
 
-  salt = fillArrayBufferPortion(salt, SALT_SEED_LENGTH, SALT_LENGTH - SALT_SEED_LENGTH, 0);
+  salt = Util.fillArrayBufferPortion(salt, SALT_SEED_LENGTH, SALT_LENGTH - SALT_SEED_LENGTH, 0);
   salt = xorWithByte(salt, 0x36, SALT_LENGTH);
 
   // Then we calculate our hash
   // Implementation copied from: https://github.com/dots-tb/vita-mcr2vmp/blob/master/src/main.c#L124
 
-  const inputArrayBufferWithoutHash = fillArrayBufferPortion(arrayBuffer, SIGNATURE_OFFSET, SIGNATURE_LENGTH, 0);
+  const inputArrayBufferWithoutHash = Util.fillArrayBufferPortion(arrayBuffer, SIGNATURE_OFFSET, SIGNATURE_LENGTH, 0);
 
   const hash1 = crypto.createHash(HASH_ALGORITHM);
 
@@ -189,7 +156,7 @@ export default class PspSaveData {
     // Inject the signature and we're done! We'll parse it again
     // to pull out the file descriptions
 
-    const finalArrayBuffer = setArrayBufferPortion(combinedArrayBuffer, signatureCalculated, SIGNATURE_OFFSET, 0, SIGNATURE_LENGTH);
+    const finalArrayBuffer = Util.setArrayBufferPortion(combinedArrayBuffer, signatureCalculated, SIGNATURE_OFFSET, 0, SIGNATURE_LENGTH);
 
     return PspSaveData.createFromPspData(finalArrayBuffer);
   }
