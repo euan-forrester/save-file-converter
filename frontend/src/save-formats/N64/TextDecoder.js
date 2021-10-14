@@ -1,9 +1,11 @@
 /* eslint-disable object-property-newline */
 
+import { invert } from 'lodash-es';
+
 // The N64 uses a custom character encoding
 // Taken from https://github.com/bryc/mempak/blob/master/js/parser.js#L35
 // Also listed here: http://n64devkit.square7.ch/n64man/nos/nosLoadFont.htm
-const CHARACTER_LOOKUP = {
+const CHARACTER_CODE_LOOKUP = {
   0: '', 15: ' ', 16: '0',
   17: '1', 18: '2', 19: '3', 20: '4',
   21: '5', 22: '6', 23: '7', 24: '8',
@@ -40,13 +42,33 @@ const CHARACTER_LOOKUP = {
   145: 'ピ', 146: 'プ', 147: 'ペ', 148: 'ポ',
 };
 
+const CHARACTER_LOOKUP = invert(CHARACTER_CODE_LOOKUP);
+
 export default class N64TextDecoder {
   static decode(uint8array) {
     let output = '';
 
     for (let i = 0; i < uint8array.length; i += 1) {
-      const char = CHARACTER_LOOKUP[uint8array[i]];
+      const char = CHARACTER_CODE_LOOKUP[uint8array[i]];
       output += (char || '');
+    }
+
+    return output;
+  }
+
+  static encode(string) {
+    const output = new Uint8Array(string.length);
+
+    output.fill(0);
+
+    for (let i = 0; i < string.length; i += 1) {
+      const char = string.charAt(i);
+
+      if (char in CHARACTER_LOOKUP) {
+        output[i] = CHARACTER_LOOKUP[char];
+      } else {
+        output[i] = 0;
+      }
     }
 
     return output;
