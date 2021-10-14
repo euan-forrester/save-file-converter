@@ -75,6 +75,10 @@ function getNextPageNumber(inodePageDataView, pageNumber) {
   return inodePageDataView.getUint16(pageNumber * 2, LITTLE_ENDIAN);
 }
 
+function setNextPageNumber(inodePageDataView, pageNumber, nextPageNumber) {
+  inodePageDataView.setUint16(pageNumber * 2, nextPageNumber, LITTLE_ENDIAN);
+}
+
 function createEmptyPage() {
   const arrayBuffer = new ArrayBuffer(PAGE_SIZE);
   const array = new Uint8Array(arrayBuffer);
@@ -91,6 +95,7 @@ function getStringCode(uint8Array) {
   return String.fromCharCode(...uint8Array).replace(/\0/g, '-');
 }
 
+// From https://github.com/bryc/mempak/blob/master/js/parser.js#L130
 function calculateChecksumsOfBlock(arrayBuffer) {
   const dataView = new DataView(arrayBuffer);
 
@@ -124,7 +129,7 @@ function checkIdArea(arrayBuffer) {
 
   ID_AREA_CHECKSUM_OFFSETS.forEach((offset) => {
     const block = arrayBuffer.slice(offset, offset + ID_AREA_BLOCK_SIZE);
-    const checksums = calculateChecksumsOfBlock(block);
+    const { sumA, sumB } = calculateChecksumsOfBlock(block);
 
     const desiredSumA = dataView.getUint16(offset + ID_AREA_CHECKSUM_DESIRED_SUM_A_OFFSET, LITTLE_ENDIAN);
     let desiredSumB = dataView.getUint16(offset + ID_AREA_CHECKSUM_DESIRED_SUM_B_OFFSET, LITTLE_ENDIAN);
@@ -133,12 +138,12 @@ function checkIdArea(arrayBuffer) {
     // https://github.com/bryc/mempak/blob/master/js/parser.js#L127
     //
     // FIXME: Note that here we're operating on a copy of the data (a slice) and so this won't affect what's written out
-    if ((desiredSumB !== checksums.sumB) && ((desiredSumB ^ 0x0C) === checksums.sumB) && (desiredSumA === checksums.sumA)) {
+    if ((desiredSumB !== sumB) && ((desiredSumB ^ 0x0C) === sumB) && (desiredSumA === sumA)) {
       desiredSumB ^= 0xC;
       array[offset + 31] ^= 0xC;
     }
 
-    foundValidBlock = foundValidBlock || ((desiredSumA === checksums.sumA) && (desiredSumB === checksums.sumB));
+    foundValidBlock = foundValidBlock || ((desiredSumA === sumA) && (desiredSumB === sumB));
   });
 
   if (!foundValidBlock) {
@@ -168,10 +173,10 @@ function createIdAreaPage() {
   checksumBlockDataView.setUint8(ID_AREA_DEVICE_OFFSET, DEVICE_CONTROLLER_PAK);
   checksumBlockDataView.setUint8(ID_AREA_BANK_SIZE_OFFSET, BANK_SIZE);
 
-  const checksums = calculateChecksumsOfBlock(checksumBlock);
+  const { sumA, sumB } = calculateChecksumsOfBlock(checksumBlock);
 
-  checksumBlockDataView.setUint16(ID_AREA_CHECKSUM_DESIRED_SUM_A_OFFSET, checksums.sumA, LITTLE_ENDIAN);
-  checksumBlockDataView.setUint16(ID_AREA_CHECKSUM_DESIRED_SUM_B_OFFSET, checksums.sumB, LITTLE_ENDIAN);
+  checksumBlockDataView.setUint16(ID_AREA_CHECKSUM_DESIRED_SUM_A_OFFSET, sumA, LITTLE_ENDIAN);
+  checksumBlockDataView.setUint16(ID_AREA_CHECKSUM_DESIRED_SUM_B_OFFSET, sumB, LITTLE_ENDIAN);
 
   // Now we can make our empty page
 
@@ -377,8 +382,40 @@ function checkIndexes(inodeArrayBuffer, noteTableKeys) {
   return noteIndexes;
 }
 
-function createInodeTablePage() {
-  return new ArrayBuffer(PAGE_SIZE);
+function createInodeTablePage(saveFiles) {
+  // Here we can cheat a little and figure out what the linked list *would* look like if we actually
+  // split each file into chunks
+
+  let inodeTablePage = new ArrayBuffer(PAGE_SIZE);
+  const startingPages = [];
+
+  inodeTablePage = Util.fillArrayBuffer(inodeTablePage, 0);
+
+  const inodeTablePageDataView = new DataView(inodeTablePage);
+
+  let currentPage = FIRST_SAVE_DATA_PAGE;
+
+  saveFiles.forEach((saveFile) => {
+    startingPages.push(currentPage);
+
+    for (let currentByteInFile = 0; currentByteInFile < (saveFile.rawData.byteLength - PAGE_SIZE); currentByteInFile += PAGE_SIZE) {
+      setNextPageNumber(inodeTablePageDataView, currentPage, currentPage + 1);
+      currentPage += 1;
+    }
+
+    setNextPageNumber(inodeTablePageDataView, currentPage, INODE_TABLE_ENTRY_STOP);
+    currentPage += 1;
+  });
+
+  while (currentPage < NUM_PAGES) {
+    setNextPageNumber(inodeTablePageDataView, currentPage, INODE_TABLE_ENTRY_EMPTY);
+    currentPage += 1;
+  }
+
+  return {
+    inodeTablePage,
+    startingPages,
+  };
 }
 
 export default class N64MempackSaveData {
@@ -411,8 +448,11 @@ export default class N64MempackSaveData {
     // Now make our header pages
 
     const idAreaPage = createIdAreaPage();
-    const noteTablePage = createNoteTablePage(saveFiles);
-    const inodeTablePage = createInodeTablePage(noteTablePage, saveFiles);
+    const { inodeTablePage, startingPages } = createInodeTablePage(saveFiles);
+
+    const saveFilesWithStartingPage = saveFiles.map((x, i) => ({ ...x, startingPage: startingPages[i] }));
+
+    const noteTablePage = createNoteTablePage(saveFilesWithStartingPage);
 
     // Technically, we should split each save into separate pages, then concat all 128 pages together to get the final
     // arraybuffer. But, we can cheat and just concat the existing saves together instead of splitting them apart first
