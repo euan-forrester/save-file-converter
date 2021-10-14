@@ -56,12 +56,12 @@ export default class N64TextDecoder {
     return output;
   }
 
-  static encode(string) {
-    const output = new Uint8Array(string.length);
+  static encode(string, encodedLength) {
+    const output = new Uint8Array(encodedLength);
 
     output.fill(0);
 
-    for (let i = 0; i < string.length; i += 1) {
+    for (let i = 0; i < Math.min(string.length, encodedLength); i += 1) {
       const char = string.charAt(i);
 
       if (char in CHARACTER_LOOKUP) {
