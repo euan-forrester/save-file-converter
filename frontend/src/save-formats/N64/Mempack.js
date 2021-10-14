@@ -79,8 +79,8 @@ function setNextPageNumber(inodePageDataView, pageNumber, nextPageNumber) {
   inodePageDataView.setUint16(pageNumber * 2, nextPageNumber, LITTLE_ENDIAN);
 }
 
-function createEmptyPage() {
-  const arrayBuffer = new ArrayBuffer(PAGE_SIZE);
+function createEmptyBlock(size) {
+  const arrayBuffer = new ArrayBuffer(size);
   const array = new Uint8Array(arrayBuffer);
 
   array.fill(0);
@@ -88,11 +88,40 @@ function createEmptyPage() {
   return arrayBuffer;
 }
 
-function getStringCode(uint8Array) {
-  // Made to be compatible with the strings fed to https://github.com/bryc/mempak/blob/master/js/codedb.js in case we want to use those lookup tables.
+function decodeString(uint8Array) {
+  // These fixups are made to be compatible with the strings fed to https://github.com/bryc/mempak/blob/master/js/codedb.js
+  // in case we want to use those lookup tables.
   // Note that there's only 1 code there (the publisher for Wave Race 64) that actually uses the - at this time,
   // but may as well make the output here match exactly just in case.
-  return String.fromCharCode(...uint8Array).replace(/\0/g, '-');
+  const uint8ArrayFixup = uint8Array.slice();
+
+  const sum = uint8Array.reduce((accumulator, n) => accumulator + n);
+
+  // These indicate that something was corrupted in the file and needs manual fixing
+  // This only seems to affect one entry: the publisher for Wave Race 64. We'll maintain this fixup for compatibility with https://github.com/bryc/mempak/blob/master/js/codedb.js
+  // FIXME: This repair only affects a copy of the data (a slice) and not the actual data written out
+  if (sum === 0) {
+    uint8ArrayFixup[uint8ArrayFixup.length - 1] |= 1;
+  }
+
+  return {
+    stringCode: String.fromCharCode(...uint8Array),
+    stringCodeFixup: String.fromCharCode(...uint8ArrayFixup).replace(/\0/g, '-'),
+  };
+}
+
+function encodeString(string, encodedLength) {
+  const output = new Uint8Array(encodedLength);
+
+  output.fill(0);
+
+  for (let i = 0; i < string.length; i += 1) {
+    const charCode = String.charCodeAt(i);
+
+    output[i] = ((charCode <= 127) ? charCode : 0);
+  }
+
+  return output;
 }
 
 // From https://github.com/bryc/mempak/blob/master/js/parser.js#L130
@@ -223,22 +252,8 @@ function readNoteTable(inodePageArrayBuffer, noteTableArrayBuffer) {
       const gameSerialCodeArray = noteTableArray.slice(currentByte + NOTE_TABLE_GAME_SERIAL_CODE_OFFSET, currentByte + NOTE_TABLE_GAME_SERIAL_CODE_OFFSET + NOTE_TABLE_GAME_SERIAL_CODE_LENGTH);
       const publisherCodeArray = noteTableArray.slice(currentByte + NOTE_TABLE_PUBLISHER_CODE_OFFSET, currentByte + NOTE_TABLE_PUBLISHER_CODE_OFFSET + NOTE_TABLE_PUBLISHER_CODE_LENGTH);
 
-      const gameSerialCodeSum = gameSerialCodeArray.reduce((accumulator, n) => accumulator + n);
-      const publisherCodeSum = publisherCodeArray.reduce((accumulator, n) => accumulator + n);
-
-      // These indicate that something was corrupted in the file and needs manual fixing
-      // This only seems to affect one entry: the publisher for Wave Race 64. We'll maintain this fixup for compatibility with https://github.com/bryc/mempak/blob/master/js/codedb.js
-      // FIXME: This repair only affects a copy of the data (a slice) and not the actual data written out
-      if (gameSerialCodeSum === 0) {
-        gameSerialCodeArray[NOTE_TABLE_GAME_SERIAL_CODE_LENGTH - 1] |= 1;
-      }
-
-      if (publisherCodeSum === 0) {
-        publisherCodeArray[NOTE_TABLE_PUBLISHER_CODE_LENGTH - 1] |= 1;
-      }
-
-      const gameSerialCode = getStringCode(gameSerialCodeArray);
-      const publisherCode = getStringCode(publisherCodeArray); // Between the fixups in this function and just above, this turns the publisher 0x0000 for Wave Race 64 to 0x2D01, for use in the mempak lookup yable listed above
+      const { stringCode: gameSerialCode, stringCodeFixup: gameSerialCodeFixup } = decodeString(gameSerialCodeArray);
+      const { stringCode: publisherCode, stringCodeFixup: publisherCodeFixup } = decodeString(publisherCodeArray);
 
       let noteName = N64TextDecoder.decode(
         noteTableArray.slice(
@@ -261,7 +276,9 @@ function readNoteTable(inodePageArrayBuffer, noteTableArrayBuffer) {
         id,
         startingPage,
         gameSerialCode,
+        gameSerialCodeFixup,
         publisherCode,
+        publisherCodeFixup,
         noteName,
         region: gameSerialCode.charAt(GAME_SERIAL_CODE_REGION_INDEX),
         media: gameSerialCode.charAt(GAME_SERIAL_CODE_MEDIA_INDEX),
@@ -275,8 +292,41 @@ function readNoteTable(inodePageArrayBuffer, noteTableArrayBuffer) {
   };
 }
 
-function createNoteTablePage() {
-  return new ArrayBuffer(PAGE_SIZE);
+function createNoteTablePage(saveFilesWithStartingPage) {
+  const noteBlocks = saveFilesWithStartingPage.map((saveFile) => {
+    const noteBlock = createEmptyBlock(NOTE_TABLE_BLOCK_SIZE);
+    const noteBlockDataView = new DataView(noteBlock);
+    const noteBlockArray = new Uint8Array(noteBlock);
+
+    const noteNameParts = saveFile.noteName.split('.');
+
+    if (noteNameParts.length > 1) {
+      const noteNameExtensionEncoded = N64TextDecoder.encode(noteNameParts[1], NOTE_TABLE_NOTE_NAME_EXTENSION_LENGTH);
+
+      noteBlockArray.set(noteNameExtensionEncoded, NOTE_TABLE_NOTE_NAME_EXTENSION_OFFSET);
+    }
+
+    const noteNameEncoded = N64TextDecoder.encode(noteNameParts[0], NOTE_TABLE_NOTE_NAME_LENGTH);
+    const gameSerialEncoded = encodeString(saveFile.gameSerialCode, NOTE_TABLE_GAME_SERIAL_CODE_LENGTH);
+    const publisherCodeEncoded = encodeString(saveFile.publisherCode, NOTE_TABLE_PUBLISHER_CODE_LENGTH);
+
+    noteBlockArray.set(gameSerialEncoded, NOTE_TABLE_GAME_SERIAL_CODE_OFFSET);
+    noteBlockArray.set(publisherCodeEncoded, NOTE_TABLE_PUBLISHER_CODE_OFFSET);
+
+    noteBlockDataView.setUint16(NOTE_TABLE_STARTING_PAGE_OFFSET, saveFile.startingPage, LITTLE_ENDIAN);
+
+    noteBlockArray[NOTE_TABLE_STATUS_OFFSET] = NOTE_TABLE_OCCUPIED_BIT;
+
+    noteBlockArray.set(noteNameEncoded, NOTE_TABLE_NOTE_NAME_OFFSET);
+
+    return noteBlock;
+  });
+
+  while (noteBlocks.length < NUM_NOTES) {
+    noteBlocks.push(createEmptyBlock(NOTE_TABLE_BLOCK_SIZE));
+  }
+
+  return Util.concatArrayBuffers(noteBlocks);
 }
 
 // Taken from https://github.com/bryc/mempak/blob/master/js/parser.js#L269
@@ -460,7 +510,7 @@ export default class N64MempackSaveData {
     let dataPages = Util.concatArrayBuffers(saveFiles.map((x) => x.rawData));
 
     while (dataPages.byteLength < maxSize) {
-      dataPages = Util.concatArrayBuffers(dataPages, createEmptyPage());
+      dataPages = Util.concatArrayBuffers(dataPages, createEmptyBlock(PAGE_SIZE));
     }
 
     const arrayBuffer = Util.concatArrayBuffers([idAreaPage, inodeTablePage, inodeTablePage, noteTablePage, dataPages]);
