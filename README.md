@@ -38,7 +38,8 @@ Instructions:
 - PS3 PS1/PS2 virtual memory card: https://github.com/bucanero/psv-save-converter
 - PS2
   - Save Tools: https://www.ps2savetools.com/
-  - Memory card formats: http://www.csclub.uwaterloo.ca:11068/mymc/
+  - Save tool: http://www.csclub.uwaterloo.ca:11068/mymc/
+  - Memory card format: http://www.csclub.uwaterloo.ca:11068/mymc/ps2mcfs.html
 - Wii Virtual Console save game format (note that the files are encrypted)
   - https://wiibrew.org/wiki/Wii_Savegame_Parser
   - https://wiibrew.org/wiki/Savegame_Files
@@ -71,6 +72,7 @@ Instructions:
     - https://bryc.github.io/mempak/ (online preview)
   - https://github.com/bryc/mempak/wiki/DexDrive-.N64-format
   - https://github.com/bryc/mempak/wiki/MemPak-structure
+  - https://github.com/heuripedes/pj64tosrm (convert raw save to emulator format)
   - Game serial codes:
     - https://niwanetwork.org/wiki/List_of_Nintendo_64_games_by_serial_code
     - https://meanwhileblog.wordpress.com/n64-game-code-list/
