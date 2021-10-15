@@ -233,7 +233,7 @@ function readNoteTable(inodePageArrayBuffer, noteTableArrayBuffer) {
   const inodePageDataView = new DataView(inodePageArrayBuffer);
 
   for (let currentByte = 0; currentByte < noteTableArrayBuffer.byteLength; currentByte += NOTE_TABLE_BLOCK_SIZE) {
-    const id = currentByte / NOTE_TABLE_BLOCK_SIZE;
+    const noteIndex = currentByte / NOTE_TABLE_BLOCK_SIZE;
 
     const startingPage = noteTableDataView.getUint16(currentByte + NOTE_TABLE_STARTING_PAGE_OFFSET, LITTLE_ENDIAN);
     const nextPage = getNextPageNumber(inodePageDataView, startingPage);
@@ -273,7 +273,7 @@ function readNoteTable(inodePageArrayBuffer, noteTableArrayBuffer) {
       }
 
       notes.push({
-        id,
+        noteIndex,
         startingPage,
         gameSerialCode,
         gameSerialCodeFixup,

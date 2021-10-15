@@ -105,7 +105,7 @@ export default class N64DexDriveSaveData {
     const mempack = N64MempackSaveData.createFromN64MempackData(mempackArrayBuffer);
 
     // Add in the comments we found in the header
-    this.saveFiles = mempack.getSaveFiles().map((x) => ({ ...x, comment: comments[x.startingPage] }));
+    this.saveFiles = mempack.getSaveFiles().map((x) => ({ ...x, comment: comments[x.noteIndex] }));
     this.mempack = mempack;
   }
 
