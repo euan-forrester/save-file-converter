@@ -47,6 +47,7 @@
     "eslint": "^6.7.2",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-vue": "^6.2.2",
+    "seedrandom": "^3.0.5",
     "vue-cli-plugin-s3-deploy-cleanup": "~1.0.1",
     "vue-template-compiler": "^2.6.12"
   },

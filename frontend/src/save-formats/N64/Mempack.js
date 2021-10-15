@@ -116,7 +116,7 @@ function encodeString(string, encodedLength) {
   output.fill(0);
 
   for (let i = 0; i < string.length; i += 1) {
-    const charCode = String.charCodeAt(i);
+    const charCode = string.charCodeAt(i);
 
     output[i] = ((charCode <= 127) ? charCode : 0);
   }
@@ -510,7 +510,7 @@ export default class N64MempackSaveData {
     let dataPages = Util.concatArrayBuffers(saveFiles.map((x) => x.rawData));
 
     while (dataPages.byteLength < maxSize) {
-      dataPages = Util.concatArrayBuffers(dataPages, createEmptyBlock(PAGE_SIZE));
+      dataPages = Util.concatArrayBuffers([dataPages, createEmptyBlock(PAGE_SIZE)]);
     }
 
     const arrayBuffer = Util.concatArrayBuffers([idAreaPage, inodeTablePage, inodeTablePage, noteTablePage, dataPages]);
