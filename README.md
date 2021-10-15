@@ -73,6 +73,7 @@ Instructions:
   - https://github.com/bryc/mempak/wiki/DexDrive-.N64-format
   - https://github.com/bryc/mempak/wiki/MemPak-structure
   - https://github.com/heuripedes/pj64tosrm (convert raw save to emulator format)
+  - http://micro-64.com/database/gamesave.shtml (list of games which use each save type)
   - Game serial codes:
     - https://niwanetwork.org/wiki/List_of_Nintendo_64_games_by_serial_code
     - https://meanwhileblog.wordpress.com/n64-game-code-list/
