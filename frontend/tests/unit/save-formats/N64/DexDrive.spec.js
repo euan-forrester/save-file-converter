@@ -9,6 +9,10 @@ const DEXDRIVE_ONE_FILE_FILENAME = `${DIR}/mario-kart-64.1116.n64`;
 const RAW_ONE_FILE_FILENAME = `${DIR}/mario-kart-64.1116.mpk`;
 const RAW_ONE_FILE_NOTE_FILENAME = `${DIR}/mario-kart-64.1116-1`;
 
+const DEXDRIVE_COMMENT_FILENAME = `${DIR}/perfect-dark.1043.n64`;
+const RAW_COMMENT_FILENAME = `${DIR}/perfect-dark.1043.mpk`;
+const RAW_COMMENT_NOTE_FILENAME = `${DIR}/perfect-dark.1043.1116-1`;
+
 const DEXDRIVE_TWO_FILES_FILENAME = `${DIR}/tony-hawks-pro-skater-2.1077.n64`;
 const RAW_TWO_FILES_FILENAME = `${DIR}/tony-hawks-pro-skater-2.1077.mpk`;
 const RAW_TWO_FILES_NOTE_1_FILENAME = `${DIR}/tony-hawks-pro-skater-2.1077-1`;
@@ -41,6 +45,30 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal('J');
     expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNoteArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a file containing a single save that is 28 pages and has a comment', async () => {
+    const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_COMMENT_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_COMMENT_FILENAME);
+    const rawNoteArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_COMMENT_NOTE_FILENAME);
+
+    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getMempack().getArrayBuffer(), rawArrayBuffer)).to.equal(true);
+
+    expect(dexDriveSaveData.getSaveFiles().length).to.equal(1);
+
+    expect(dexDriveSaveData.getSaveFiles()[0].startingPage).to.equal(5);
+    expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(28);
+    expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('PERFECT DARK');
+    expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('All missions completed on all difficulties, all challenges, most cheats');
+    expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NPDE');
+    expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('4Y');
+    expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal('E');
+    expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal('N');
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNoteArrayBuffer)).to.equal(true);
+
+    ArrayBufferUtil.writeArrayBuffer(RAW_COMMENT_NOTE_FILENAME, dexDriveSaveData.getSaveFiles()[0].rawData);
   });
 
   it('should convert a file containing two saves that are 27 and 20 pages', async () => {
