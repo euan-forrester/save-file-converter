@@ -36,13 +36,23 @@ function getComments(headerArrayBuffer) {
     const commentStartOffset = getCommentStartOffset(i);
     const commentArrayBuffer = headerArrayBuffer.slice(commentStartOffset, commentStartOffset + COMMENT_LENGTH);
 
-    comments.push(Util.trimNull(textDecoder.decode(commentArrayBuffer)));
+    comments.push(Util.trimNull(textDecoder.decode(commentArrayBuffer)).trim());
   }
 
   return comments;
 }
 
 export default class N64DexDriveSaveData {
+  static GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE = N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE;
+
+  static GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE = N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE;
+
+  static GAMESHARK_ACTIONREPLAY_CART_SAVE_REGION_CODE = N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_REGION_CODE;
+
+  static GAMESHARK_ACTIONREPLAY_CART_SAVE_MEDIA_CODE = N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_MEDIA_CODE;
+
+  static BLACKBAG_CART_SAVE_GAME_SERIAL_CODE = N64MempackSaveData.BLACKBAG_CART_SAVE_GAME_SERIAL_CODE;
+
   static createFromDexDriveData(dexDriveArrayBuffer) {
     return new N64DexDriveSaveData(dexDriveArrayBuffer);
   }

@@ -20,6 +20,10 @@ const RAW_TWO_FILES_NOTE_2_FILENAME = `${DIR}/tony-hawks-pro-skater-2.1077-2`;
 
 const DEXDRIVE_TWO_FILES_OUTPUT_FILENAME = `${DIR}/tony-hawks-pro-skater-2.1077-output.n64`;
 
+const DEXDRIVE_05KB_EEP_FILENAME = `${DIR}/super-mario-64.1091.n64`;
+const RAW_05KB_EEP_FILENAME = `${DIR}/super-mario-64.1091.mpk`;
+const RAW_05KB_EEP_NOTE_FILENAME = `${DIR}/super-mario-64.1091-1`;
+
 describe('N64 - DexDrive save format', () => {
   before(() => {
     seedrandom('Happy day = when I realized collectathons were no longer a genre', { global: true }); // Overwrite Math.random() so that it's predictable
@@ -149,5 +153,27 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[1].region).to.equal('E');
     expect(dexDriveSaveData.getSaveFiles()[1].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[1].rawData, rawNote2ArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a file containing a 0.5kB EEPROM save', async () => {
+    const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_05KB_EEP_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_05KB_EEP_FILENAME);
+    const rawNoteArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_05KB_EEP_NOTE_FILENAME);
+
+    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getMempack().getArrayBuffer(), rawArrayBuffer)).to.equal(true);
+
+    expect(dexDriveSaveData.getSaveFiles().length).to.equal(1);
+
+    expect(dexDriveSaveData.getSaveFiles()[0].startingPage).to.equal(5);
+    expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(2);
+    expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('SMSM');
+    expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('100% Completed');
+    expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal(N64DexDriveSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal(N64DexDriveSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal(N64DexDriveSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_REGION_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal(N64DexDriveSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_MEDIA_CODE);
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNoteArrayBuffer)).to.equal(true);
   });
 });

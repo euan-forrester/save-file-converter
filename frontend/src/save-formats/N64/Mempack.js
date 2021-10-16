@@ -61,6 +61,10 @@ const INODE_TABLE_ENTRY_EMPTY = 3;
 const GAME_SERIAL_CODE_MEDIA_INDEX = 0;
 const GAME_SERIAL_CODE_REGION_INDEX = 3;
 
+const GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE = '\x3B\xAD\xD1\xE5';
+const GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE = 'úÞ';
+const BLACKBAG_CART_SAVE_GAME_SERIAL_CODE = '\xDE\xAD\xBE\xEF';
+
 function getPage(pageNumber, arrayBuffer) {
   const offset = pageNumber * PAGE_SIZE;
   return arrayBuffer.slice(offset, offset + PAGE_SIZE);
@@ -222,6 +226,14 @@ function createIdAreaPage() {
   return pageArrayBuffer;
 }
 
+function getRegionCode(gameSerialCode) {
+  return gameSerialCode.charAt(GAME_SERIAL_CODE_REGION_INDEX);
+}
+
+function getMediaCode(gameSerialCode) {
+  return gameSerialCode.charAt(GAME_SERIAL_CODE_MEDIA_INDEX);
+}
+
 // Taken from https://github.com/bryc/mempak/blob/master/js/parser.js#L173
 function readNoteTable(inodePageArrayBuffer, noteTableArrayBuffer) {
   const noteKeys = [];
@@ -280,8 +292,8 @@ function readNoteTable(inodePageArrayBuffer, noteTableArrayBuffer) {
         publisherCode,
         publisherCodeFixup,
         noteName,
-        region: gameSerialCode.charAt(GAME_SERIAL_CODE_REGION_INDEX),
-        media: gameSerialCode.charAt(GAME_SERIAL_CODE_MEDIA_INDEX),
+        region: getRegionCode(gameSerialCode),
+        media: getMediaCode(gameSerialCode),
       });
     }
   }
@@ -470,6 +482,16 @@ function createInodeTablePage(saveFiles) {
 
 export default class N64MempackSaveData {
   static NUM_NOTES = NUM_NOTES;
+
+  static GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE = GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE;
+
+  static GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE = GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE;
+
+  static GAMESHARK_ACTIONREPLAY_CART_SAVE_REGION_CODE = getRegionCode(GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
+
+  static GAMESHARK_ACTIONREPLAY_CART_SAVE_MEDIA_CODE = getMediaCode(GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
+
+  static BLACKBAG_CART_SAVE_GAME_SERIAL_CODE = BLACKBAG_CART_SAVE_GAME_SERIAL_CODE;
 
   static createFromN64MempackData(mempackArrayBuffer) {
     return new N64MempackSaveData(mempackArrayBuffer);
