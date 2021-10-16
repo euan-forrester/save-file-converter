@@ -69,7 +69,7 @@ export default class N64DexDriveSaveData {
 
     const mempackSaveDataFilesWithComments = mempackSaveData.getSaveFiles().map((file, i) => ({ ...file, comment: saveFiles[i].comment })); // Our list of save files from the memcard data is in the same order as the files were passed in
 
-    mempackSaveDataFilesWithComments.forEach((file) => { comments[file.startingPage] = file.comment; });
+    mempackSaveDataFilesWithComments.forEach((file) => { comments[file.noteIndex] = file.comment; });
 
     for (let i = 0; i < N64MempackSaveData.NUM_NOTES; i += 1) {
       if (comments[i] !== null) {
