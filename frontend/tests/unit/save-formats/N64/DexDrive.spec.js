@@ -123,17 +123,3 @@ describe('N64 - DexDrive save format', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[1].rawData, rawNote2ArrayBuffer)).to.equal(true);
   });
 });
-
-/*
-    this.saveFiles.forEach((x) => {
-      console.log(`For save ID '${x.id}':`);
-      console.log(`  Starting page: '${x.startingPage}'`);
-      console.log(`  Page numbers '${x.pageNumbers}'`);
-      console.log(`  Note name '${x.noteName}'`);
-      console.log(`  Game serial code '${x.gameSerialCode}'`);
-      console.log(`  Publisher code '${x.publisherCode}'`);
-      console.log(`  Region: '${x.region}'`);
-      console.log(`  Media: '${x.media}'`);
-      console.log(`  Raw save length: '${x.rawData.byteLength}'`);
-    });
-*/
