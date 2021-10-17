@@ -30,6 +30,8 @@ const INODE_TABLE_BACKUP_PAGE = 2; // Page 2 is a repeat of page 1, checked in c
 const NOTE_TABLE_PAGES = [3, 4];
 const FIRST_SAVE_DATA_PAGE = 5;
 
+const MAX_DATA_SIZE = (NUM_PAGES - FIRST_SAVE_DATA_PAGE) * PAGE_SIZE;
+
 const ID_AREA_BLOCK_SIZE = 32;
 const ID_AREA_CHECKSUM_OFFSETS = [0x20, 0x60, 0x80, 0xC0]; // 4 different checksum in the ID Area, and if any of them match then the data is deemed valid
 const ID_AREA_CHECKSUM_LENGTH = 28;
@@ -61,6 +63,20 @@ const INODE_TABLE_ENTRY_EMPTY = 3;
 const GAME_SERIAL_CODE_MEDIA_INDEX = 0;
 const GAME_SERIAL_CODE_REGION_INDEX = 3;
 
+// Using various cheating devices, it's possible to copy a save stored on a cartridge onto
+// a controller pak. There are many potential cart save sizes (see http://micro-64.com/database/gamesave.shtml),
+// but only the ones below will fit onto a controller pak: the next size up (32768 bytes) doesn't fit because of the 5
+// pages taken up by system infomation.
+//
+// For some/all of these devices they apparently will skip pages at the end that are filled with padding, meaning
+// that we should pad out any cart saves that we encounter to be one of these sizes. Some emulators will take an
+// unpadded file just fine, but apparently others won't like it.
+
+const CART_SAVE_SIZES = [
+  512,
+  2048,
+];
+
 const GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE = '\x3B\xAD\xD1\xE5';
 const GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE = 'úÞ';
 const BLACKBAG_CART_SAVE_GAME_SERIAL_CODE = '\xDE\xAD\xBE\xEF';
@@ -90,6 +106,29 @@ function createEmptyBlock(size) {
   array.fill(0);
 
   return arrayBuffer;
+}
+
+// See comments above: cart saves can be stored in a controller pak file, but the cheat
+// devices used to do so may truncate the file to eliminate portions that are all padding.
+// We'll add that padding back for better compatibility with emulators.
+function padCartSaves(saveFiles) {
+  for (let saveFileIndex = 0; saveFileIndex < saveFiles.length; saveFileIndex += 1) {
+    const saveFile = saveFiles[saveFileIndex];
+
+    if ((saveFile.gameSerialCode === GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE) || (saveFile.gameSerialCode === BLACKBAG_CART_SAVE_GAME_SERIAL_CODE)) {
+      for (let i = 0; i < CART_SAVE_SIZES.length; i += 1) {
+        if (CART_SAVE_SIZES[i] === saveFile.rawData.byteLength) {
+          break;
+        }
+
+        if (CART_SAVE_SIZES[i] > saveFile.rawData.byteLength) {
+          while (saveFile.rawData.byteLength < CART_SAVE_SIZES[i]) {
+            saveFile.rawData = Util.concatArrayBuffers([saveFile.rawData, createEmptyBlock(PAGE_SIZE)]);
+          }
+        }
+      }
+    }
+  }
 }
 
 function decodeString(uint8Array) {
@@ -505,10 +544,9 @@ export default class N64MempackSaveData {
     }
 
     const totalSize = saveFiles.reduce((accumulator, x) => accumulator + x.rawData.byteLength);
-    const maxSize = (NUM_PAGES - FIRST_SAVE_DATA_PAGE) * PAGE_SIZE;
 
-    if (totalSize > maxSize) {
-      throw new Error(`Total size of notes is ${totalSize} bytes, but max is ${maxSize}`);
+    if (totalSize > MAX_DATA_SIZE) {
+      throw new Error(`Total size of notes is ${totalSize} bytes, but max is ${MAX_DATA_SIZE}`);
     }
 
     saveFiles.forEach((x) => {
@@ -531,7 +569,7 @@ export default class N64MempackSaveData {
 
     let dataPages = Util.concatArrayBuffers(saveFiles.map((x) => x.rawData));
 
-    while (dataPages.byteLength < maxSize) {
+    while (dataPages.byteLength < MAX_DATA_SIZE) {
       dataPages = Util.concatArrayBuffers([dataPages, createEmptyBlock(PAGE_SIZE)]);
     }
 
@@ -576,11 +614,15 @@ export default class N64MempackSaveData {
       }
     }
 
-    this.saveFiles = noteInfo.notes.map((x) => ({
+    const saveFiles = noteInfo.notes.map((x) => ({
       ...x,
       pageNumbers: noteIndexes[x.startingPage],
       rawData: concatPages(noteIndexes[x.startingPage], mempackArrayBuffer),
     }));
+
+    padCartSaves(saveFiles);
+
+    this.saveFiles = saveFiles;
   }
 
   getSaveFiles() {

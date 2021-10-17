@@ -24,6 +24,10 @@ const DEXDRIVE_05KB_EEP_FILENAME = `${DIR}/super-mario-64.1091.n64`;
 const RAW_05KB_EEP_FILENAME = `${DIR}/super-mario-64.1091.mpk`;
 const RAW_05KB_EEP_NOTE_FILENAME = `${DIR}/super-mario-64.1091-1`;
 
+const DEXDRIVE_2KB_EEP_FILENAME = `${DIR}/donkey-kong-64.1156.n64`;
+const RAW_2KB_EEP_FILENAME = `${DIR}/donkey-kong-64.1156.mpk`;
+const RAW_2KB_EEP_NOTE_FILENAME = `${DIR}/donkey-kong-64.1156-1`;
+
 describe('N64 - DexDrive save format', () => {
   before(() => {
     seedrandom('Happy day = when I realized collectathons were no longer a genre', { global: true }); // Overwrite Math.random() so that it's predictable
@@ -170,6 +174,30 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(2);
     expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('SMSM');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('100% Completed');
+    expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal(N64DexDriveSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal(N64DexDriveSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal(N64DexDriveSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_REGION_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal(N64DexDriveSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_MEDIA_CODE);
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNoteArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a file containing a 2kB EEPROM save', async () => {
+    const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_2KB_EEP_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_2KB_EEP_FILENAME);
+    const rawNoteArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_2KB_EEP_NOTE_FILENAME);
+
+    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getMempack().getArrayBuffer(), rawArrayBuffer)).to.equal(true);
+
+    expect(dexDriveSaveData.getSaveFiles().length).to.equal(1);
+
+    expect(dexDriveSaveData.getSaveFiles()[0].startingPage).to.equal(5);
+    expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(7);
+    expect(dexDriveSaveData.getSaveFiles()[0].rawData.byteLength).to.equal(2048); // Only 7 pages, but 2048 bytes: that reflects the extra padding we're adding to the end of truncated cart saves
+    expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('DODO');
+    expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('101% Compleat, but I did not beat the game yet on this file.  '
+      + 'Some stages have all 500 bananas collected, but others are missing some.  Try to find those if you want, but I\'ll try to update this file once I get those');
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal(N64DexDriveSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal(N64DexDriveSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE);
     expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal(N64DexDriveSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_REGION_CODE);
