@@ -111,24 +111,31 @@ function createEmptyBlock(size) {
 // See comments above: cart saves can be stored in a controller pak file, but the cheat
 // devices used to do so may truncate the file to eliminate portions that are all padding.
 // We'll add that padding back for better compatibility with emulators.
-function padCartSaves(saveFiles) {
-  for (let saveFileIndex = 0; saveFileIndex < saveFiles.length; saveFileIndex += 1) {
-    const saveFile = saveFiles[saveFileIndex];
+function padCartSave(saveFile) {
+  if (!N64MempackSaveData.isCartSave(saveFile)) { /* eslint-disable-line no-use-before-define */
+    return saveFile;
+  }
 
-    if ((saveFile.gameSerialCode === GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE) || (saveFile.gameSerialCode === BLACKBAG_CART_SAVE_GAME_SERIAL_CODE)) {
-      for (let i = 0; i < CART_SAVE_SIZES.length; i += 1) {
-        if (CART_SAVE_SIZES[i] === saveFile.rawData.byteLength) {
-          break;
-        }
+  for (let i = 0; i < CART_SAVE_SIZES.length; i += 1) {
+    if (CART_SAVE_SIZES[i] === saveFile.rawData.byteLength) {
+      return saveFile;
+    }
 
-        if (CART_SAVE_SIZES[i] > saveFile.rawData.byteLength) {
-          while (saveFile.rawData.byteLength < CART_SAVE_SIZES[i]) {
-            saveFile.rawData = Util.concatArrayBuffers([saveFile.rawData, createEmptyBlock(PAGE_SIZE)]);
-          }
-        }
+    if (CART_SAVE_SIZES[i] > saveFile.rawData.byteLength) {
+      let paddedRawData = saveFile.rawData;
+
+      while (paddedRawData.byteLength < CART_SAVE_SIZES[i]) {
+        paddedRawData = Util.concatArrayBuffers([paddedRawData, createEmptyBlock(PAGE_SIZE)]);
       }
+
+      return {
+        ...saveFile,
+        rawData: paddedRawData,
+      };
     }
   }
+
+  return saveFile;
 }
 
 function decodeString(uint8Array) {
@@ -620,13 +627,15 @@ export default class N64MempackSaveData {
       rawData: concatPages(noteIndexes[x.startingPage], mempackArrayBuffer),
     }));
 
-    padCartSaves(saveFiles);
-
-    this.saveFiles = saveFiles;
+    this.saveFiles = saveFiles.map((x) => padCartSave(x));
   }
 
   getSaveFiles() {
     return this.saveFiles;
+  }
+
+  static isCartSave(saveFile) {
+    return ((saveFile.gameSerialCode === GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE) || (saveFile.gameSerialCode === BLACKBAG_CART_SAVE_GAME_SERIAL_CODE));
   }
 
   getArrayBuffer() {
