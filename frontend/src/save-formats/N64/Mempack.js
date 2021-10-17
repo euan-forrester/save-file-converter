@@ -21,7 +21,6 @@ const LITTLE_ENDIAN = false;
 const NUM_NOTES = 16; // A "note" is a save slot. It consists of >= 1 pages
 const NUM_PAGES = 128;
 const PAGE_SIZE = 256;
-// const TOTAL_SIZE = (NUM_PAGES * PAGE_SIZE);
 
 // The first 5 pages are special header info
 const ID_AREA_PAGE = 0;
