@@ -14,13 +14,13 @@
             <input-file
               @load="readDexDriveSaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose a file to convert (*.gme)"
-              acceptExtension=".gme"
+              placeholderText="Choose a file to convert (*.n64)"
+              acceptExtension=".n64"
               :leaveRoomForHelpIcon="false"
             />
             <file-list
               :display="this.dexDriveSaveData !== null"
-              :files="this.dexDriveSaveData ? this.dexDriveSaveData.getSaveFiles().map((x) => ({ displayText: x.description })) : []"
+              :files="this.dexDriveSaveData ? this.dexDriveSaveData.getSaveFiles() : []"
               v-model="selectedSaveData"
               @change="changeSelectedSaveData($event)"
             />
@@ -67,7 +67,7 @@
       <b-row class="justify-content-md-center" align-h="center">
         <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
           <b-button
-            class="ps1-dexdrive-convert-button"
+            class="n64-dexdrive-convert-button"
             variant="success"
             block
             :disabled="this.convertButtonDisabled"
@@ -97,7 +97,7 @@
 <style scoped>
 
 /* Separate class for each different button to enable tracking in google tag manager */
-.ps1-dexdrive-convert-button {
+.n64-dexdrive-convert-button {
   margin-top: 1em;
 }
 
@@ -121,10 +121,10 @@ import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import FileList from './FileList.vue';
-import Ps1DexDriveSaveData from '../save-formats/PS1/DexDrive';
+import N64DexDriveSaveData from '../save-formats/N64/DexDrive';
 
 export default {
-  name: 'ConvertPs1DexDrive',
+  name: 'ConvertN64Mempack',
   data() {
     return {
       dexDriveSaveData: null,
@@ -168,7 +168,7 @@ export default {
       this.errorMessage = null;
       this.selectedSaveData = null;
       try {
-        this.dexDriveSaveData = Ps1DexDriveSaveData.createFromDexDriveData(event.arrayBuffer);
+        this.dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(event.arrayBuffer);
         this.changeSelectedSaveData(0);
       } catch (e) {
         this.errorMessage = 'File appears to not be in the correct format';
@@ -182,7 +182,7 @@ export default {
       try {
         const saveFiles = event.map((f) => ({ filename: f.filename, rawData: f.arrayBuffer, comment: 'Created with savefileconverter.com' }));
 
-        this.dexDriveSaveData = Ps1DexDriveSaveData.createFromSaveFiles(saveFiles);
+        this.dexDriveSaveData = N64DexDriveSaveData.createFromSaveFiles(saveFiles);
       } catch (e) {
         this.errorMessage = 'One or more files appear to not be in the correct format';
         this.dexDriveSaveData = null;

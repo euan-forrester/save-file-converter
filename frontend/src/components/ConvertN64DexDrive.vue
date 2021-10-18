@@ -14,13 +14,13 @@
             <input-file
               @load="readDexDriveSaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose a file to convert (*.gme)"
-              acceptExtension=".gme"
+              placeholderText="Choose a file to convert (*.n64)"
+              acceptExtension=".n64"
               :leaveRoomForHelpIcon="false"
             />
             <file-list
               :display="this.dexDriveSaveData !== null"
-              :files="this.dexDriveSaveData ? this.dexDriveSaveData.getSaveFiles().map((x) => ({ displayText: x.description })) : []"
+              :files="this.dexDriveSaveData ? this.dexDriveSaveData.getSaveFiles().map((x) => ({ displayText: this.isCartSave(x) ? `Cartridge save: ${x.noteName}` : x.noteName })) : []"
               v-model="selectedSaveData"
               @change="changeSelectedSaveData($event)"
             />
@@ -67,7 +67,7 @@
       <b-row class="justify-content-md-center" align-h="center">
         <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
           <b-button
-            class="ps1-dexdrive-convert-button"
+            class="n64-dexdrive-convert-button"
             variant="success"
             block
             :disabled="this.convertButtonDisabled"
@@ -80,13 +80,10 @@
       <b-row>
         <b-col>
           <div class="help">
-            Help: how do I&nbsp;<b-link href="https://github.com/ShendoXT/memcardrex/releases">copy files to and from my DexDrive</b-link>?
+            Help: how do I <b-link href="https://www.raphnet-tech.com/products/n64_usb_adapter_gen3/index.php">copy .mpk files to/from an N64 Controller Pak</b-link>?
           </div>
           <div class="help">
-            Help: how do I copy individual save files to and from a PS1 memory card?<br><b-link href="http://ps2ulaunchelf.pbworks.com/w/page/19520134/FrontPage">PS2 + USB stick</b-link> or <b-link href="https://github.com/ShendoXT/memcardrex/releases">PS3 USB memory card adaptor</b-link> or <b-link href="https://github.com/ShendoXT/memcardrex/releases">DexDrive</b-link> or <b-link href="https://8bitmods.com/memcard-pro-for-playstation-1-smoke-black/">MemCard Pro</b-link>
-          </div>
-          <div class="help">
-            Help: how do I <b-link href="https://www.google.com/search?q=ps2+mcboot+memory+card">run homebrew software on my PS2</b-link>?
+            Help: how do I <b-link href="http://www.world-of-nintendo.com/manuals/nintendo_64/game_shark.shtml">copy saves to/from a cartridge using an N64 Controller Pak</b-link>?
           </div>
         </b-col>
       </b-row>
@@ -97,7 +94,7 @@
 <style scoped>
 
 /* Separate class for each different button to enable tracking in google tag manager */
-.ps1-dexdrive-convert-button {
+.n64-dexdrive-convert-button {
   margin-top: 1em;
 }
 
@@ -121,10 +118,11 @@ import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import FileList from './FileList.vue';
-import Ps1DexDriveSaveData from '../save-formats/PS1/DexDrive';
+import N64DexDriveSaveData from '../save-formats/N64/DexDrive';
+import N64MempackSaveData from '../save-formats/N64/Mempack';
 
 export default {
-  name: 'ConvertPs1DexDrive',
+  name: 'ConvertN64DexDrive',
   data() {
     return {
       dexDriveSaveData: null,
@@ -148,6 +146,9 @@ export default {
     },
   },
   methods: {
+    isCartSave(saveFile) {
+      return N64MempackSaveData.isCartSave(saveFile);
+    },
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
       this.dexDriveSaveData = null;
@@ -168,7 +169,7 @@ export default {
       this.errorMessage = null;
       this.selectedSaveData = null;
       try {
-        this.dexDriveSaveData = Ps1DexDriveSaveData.createFromDexDriveData(event.arrayBuffer);
+        this.dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(event.arrayBuffer);
         this.changeSelectedSaveData(0);
       } catch (e) {
         this.errorMessage = 'File appears to not be in the correct format';
@@ -182,7 +183,7 @@ export default {
       try {
         const saveFiles = event.map((f) => ({ filename: f.filename, rawData: f.arrayBuffer, comment: 'Created with savefileconverter.com' }));
 
-        this.dexDriveSaveData = Ps1DexDriveSaveData.createFromSaveFiles(saveFiles);
+        this.dexDriveSaveData = N64DexDriveSaveData.createFromSaveFiles(saveFiles);
       } catch (e) {
         this.errorMessage = 'One or more files appear to not be in the correct format';
         this.dexDriveSaveData = null;
