@@ -24,6 +24,11 @@ const DEXDRIVE_05KB_EEP_FILENAME = `${DIR}/super-mario-64.1091.n64`;
 const RAW_05KB_EEP_FILENAME = `${DIR}/super-mario-64.1091.mpk`;
 const RAW_05KB_EEP_NOTE_FILENAME = `${DIR}/super-mario-64.1091-1`;
 
+const DEXDRIVE_05KB_EEP_BLACKBAG_FILENAME = `${DIR}/banjokaz.n64`;
+const RAW_05KB_EEP_BLACKBAG_FILENAME = `${DIR}/banjokaz.mpk`;
+const RAW_05KB_EEP_BLACKBAG_NOTE_1_FILENAME = `${DIR}/banjokaz-1`;
+const RAW_05KB_EEP_BLACKBAG_NOTE_2_FILENAME = `${DIR}/banjokaz-2`;
+
 const DEXDRIVE_2KB_EEP_FILENAME = `${DIR}/donkey-kong-64.1156.n64`;
 const RAW_2KB_EEP_FILENAME = `${DIR}/donkey-kong-64.1156.mpk`;
 const RAW_2KB_EEP_NOTE_FILENAME = `${DIR}/donkey-kong-64.1156-1`;
@@ -179,6 +184,39 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal(N64DexDriveSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_REGION_CODE);
     expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal(N64DexDriveSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_MEDIA_CODE);
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNoteArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a file containing 2 0.5kB EEPROM saves created with the BlackBag memory manager', async () => {
+    const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_05KB_EEP_BLACKBAG_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_05KB_EEP_BLACKBAG_FILENAME);
+    const rawNote1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_05KB_EEP_BLACKBAG_NOTE_1_FILENAME);
+    const rawNote2ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_05KB_EEP_BLACKBAG_NOTE_2_FILENAME);
+
+    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getMempack().getArrayBuffer(), rawArrayBuffer)).to.equal(true);
+
+    expect(dexDriveSaveData.getSaveFiles().length).to.equal(2);
+
+    expect(dexDriveSaveData.getSaveFiles()[0].startingPage).to.equal(5);
+    expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(2);
+    expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('BK6.SRAM');
+    expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('Save spot 3 contains a save with 63 jigsaws and 563 notes (time: 13:43:23)');
+    expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal(N64DexDriveSaveData.BLACKBAG_CART_SAVE_GAME_SERIAL_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal(N64DexDriveSaveData.BLACKBAG_CART_SAVE_PUBLISHER_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal(N64DexDriveSaveData.BLACKBAG_CART_SAVE_REGION_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal(N64DexDriveSaveData.BLACKBAG_CART_SAVE_MEDIA_CODE);
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNote1ArrayBuffer)).to.equal(true);
+
+    expect(dexDriveSaveData.getSaveFiles()[1].startingPage).to.equal(7);
+    expect(dexDriveSaveData.getSaveFiles()[1].pageNumbers.length).to.equal(2);
+    expect(dexDriveSaveData.getSaveFiles()[1].noteName).to.equal('BK7.SRAM');
+    expect(dexDriveSaveData.getSaveFiles()[1].comment).to.equal('not working?');
+    expect(dexDriveSaveData.getSaveFiles()[1].gameSerialCode).to.equal(N64DexDriveSaveData.BLACKBAG_CART_SAVE_GAME_SERIAL_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[1].publisherCode).to.equal(N64DexDriveSaveData.BLACKBAG_CART_SAVE_PUBLISHER_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[1].region).to.equal(N64DexDriveSaveData.BLACKBAG_CART_SAVE_REGION_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[1].media).to.equal(N64DexDriveSaveData.BLACKBAG_CART_SAVE_MEDIA_CODE);
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[1].rawData, rawNote2ArrayBuffer)).to.equal(true);
   });
 
   it('should convert a file containing a 2kB EEPROM save', async () => {

@@ -53,6 +53,12 @@ export default class N64DexDriveSaveData {
 
   static BLACKBAG_CART_SAVE_GAME_SERIAL_CODE = N64MempackSaveData.BLACKBAG_CART_SAVE_GAME_SERIAL_CODE;
 
+  static BLACKBAG_CART_SAVE_PUBLISHER_CODE = N64MempackSaveData.BLACKBAG_CART_SAVE_PUBLISHER_CODE;
+
+  static BLACKBAG_CART_SAVE_REGION_CODE = N64MempackSaveData.BLACKBAG_CART_SAVE_REGION_CODE;
+
+  static BLACKBAG_CART_SAVE_MEDIA_CODE = N64MempackSaveData.BLACKBAG_CART_SAVE_MEDIA_CODE;
+
   static createFromDexDriveData(dexDriveArrayBuffer) {
     return new N64DexDriveSaveData(dexDriveArrayBuffer);
   }
