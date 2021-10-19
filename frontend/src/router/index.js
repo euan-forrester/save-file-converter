@@ -75,7 +75,7 @@ const routes = [
     component: N64DexDrive,
   },
   {
-    path: '/n64/controllerpak',
+    path: '/n64/controller-pak',
     name: 'N64 - Controller Pak',
     component: N64Mempack,
   },
