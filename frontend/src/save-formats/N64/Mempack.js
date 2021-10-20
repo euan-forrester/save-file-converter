@@ -62,6 +62,8 @@ const INODE_TABLE_ENTRY_EMPTY = 3;
 const GAME_SERIAL_CODE_MEDIA_INDEX = 0;
 const GAME_SERIAL_CODE_REGION_INDEX = 3;
 
+const FILENAME_ENCODING = 'utf8'; // Encoding to use when creating a filename for an individual note
+
 // Using various cheating devices, it's possible to copy a save stored on a cartridge onto
 // a controller pak. There are many potential cart save sizes (see http://micro-64.com/database/gamesave.shtml),
 // but only the ones below will fit onto a controller pak: the next size up (32768 bytes) doesn't fit because of the 5
@@ -642,6 +644,61 @@ export default class N64MempackSaveData {
 
   static isCartSave(saveFile) {
     return ((saveFile.gameSerialCode === GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE) || (saveFile.gameSerialCode === BLACKBAG_CART_SAVE_GAME_SERIAL_CODE));
+  }
+
+  static createFilename(saveFile) {
+    if (N64MempackSaveData.isCartSave(saveFile)) {
+      // Here we want to make a user-friendly name. Note that all files that can fit in a Controller Pak are EEPROM files
+
+      return `${saveFile.noteName}.eep`;
+    }
+
+    // We need to encode all the stuff that goes into the note table into our file name
+
+    const noteNameEncoded = Buffer.from(saveFile.noteName, FILENAME_ENCODING).toString('hex');
+    const gameSerialCodeEncoded = Buffer.from(saveFile.gameSerialCode, FILENAME_ENCODING).toString('hex');
+    const publisherCodeEncoded = Buffer.from(saveFile.publisherCode, FILENAME_ENCODING).toString('hex');
+
+    return `RAW-${noteNameEncoded}-${gameSerialCodeEncoded}-${publisherCodeEncoded}`;
+  }
+
+  static parseFilename(filename) {
+    if (filename.startsWith('RAW-')) {
+      const filenamePortions = filename.split('-');
+
+      try {
+        if (filenamePortions.length !== 4) {
+          throw new Error('Wrong number of parts in filename');
+        }
+
+        const noteName = Buffer.from(filenamePortions[1], 'hex').toString(FILENAME_ENCODING);
+        const gameSerialCode = Buffer.from(filenamePortions[2], 'hex').toString(FILENAME_ENCODING);
+        const publisherCode = Buffer.from(filenamePortions[3], 'hex').toString(FILENAME_ENCODING);
+
+        return {
+          noteName,
+          gameSerialCode,
+          publisherCode,
+        };
+      } catch (e) {
+        throw new Error('Filename not in correct format. Format should be \'RAW-XXXX-XXXX-XXXX\'');
+      }
+    } else {
+      // Otherwise, we have to assume it's a cart save. So, it could set its game/publisher code to
+      // be either Gameshark or Black Bag. The Black Bag file manager is I believe a defunct program
+      // that ran on individual computers, and would be hard for most people to get running on their
+      // modern machines. Whereas if we assign it to Gameshark, then someone could use the Gameshark
+      // hardware to load it onto a real cart, regardless of whether the file was originally from
+      // the Black Bag software.
+      //
+      // So, we'll just assign everything to Gameshark
+
+      return {
+        noteName: Util.removeFilenameExtension(filename),
+        gameSerialCode: GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE,
+        publisherCode: GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE,
+      };
+    }
   }
 
   getArrayBuffer() {

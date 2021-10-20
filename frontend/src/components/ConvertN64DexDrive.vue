@@ -80,10 +80,13 @@
       <b-row>
         <b-col>
           <div class="help">
-            Help: how do I <b-link href="https://www.raphnet-tech.com/products/n64_usb_adapter_gen3/index.php">copy .mpk files to/from an N64 Controller Pak</b-link>?
+            Help: how do I <b-link href="https://www.raphnet-tech.com/products/n64_usb_adapter_gen3/index.php">copy .mpk or .n64 files to/from an N64 Controller Pak</b-link>?
           </div>
           <div class="help">
             Help: how do I <b-link href="http://www.world-of-nintendo.com/manuals/nintendo_64/game_shark.shtml">copy saves to/from a cartridge using an N64 Controller Pak</b-link>?
+          </div>
+          <div class="help">
+            Help: where can I <b-link href="https://4layertech.com/products/forever-pak-64">buy a new N64 Controller Pak</b-link>?
           </div>
         </b-col>
       </b-row>
@@ -159,7 +162,7 @@ export default {
     changeSelectedSaveData(newSaveData) {
       if (this.dexDriveSaveData.getSaveFiles().length > 0) {
         this.selectedSaveData = newSaveData;
-        this.outputFilename = this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData].filename;
+        this.outputFilename = N64MempackSaveData.createFilename(this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData]);
       } else {
         this.selectedSaveData = null;
         this.outputFilename = null;
