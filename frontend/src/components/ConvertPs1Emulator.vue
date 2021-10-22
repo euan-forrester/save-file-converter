@@ -181,7 +181,7 @@ export default {
 
         this.memcardSaveData = Ps1MemcardSaveData.createFromSaveFiles(saveFiles);
       } catch (e) {
-        this.errorMessage = 'One or more files appear to not be in the correct format';
+        this.errorMessage = e.message;
         this.memcardSaveData = null;
         this.selectedSaveData = null;
       }

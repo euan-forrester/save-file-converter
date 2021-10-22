@@ -170,7 +170,7 @@ function encodeString(string, encodedLength) {
   for (let i = 0; i < string.length; i += 1) {
     const charCode = string.charCodeAt(i);
 
-    output[i] = ((charCode <= 127) ? charCode : 0);
+    output[i] = ((charCode <= 255) ? charCode : 0);
   }
 
   return output;
@@ -322,7 +322,7 @@ function readNoteTable(inodePageArrayBuffer, noteTableArrayBuffer) {
         ),
       );
 
-      if (noteTableArray[NOTE_TABLE_NOTE_NAME_EXTENSION_OFFSET] !== 0) {
+      if (noteTableArray[currentByte + NOTE_TABLE_NOTE_NAME_EXTENSION_OFFSET] !== 0) {
         noteName += '.';
         noteName += N64TextDecoder.decode(
           noteTableArray.slice(
@@ -565,6 +565,10 @@ export default class N64MempackSaveData {
     }
 
     saveFiles.forEach((x) => {
+      if (x.rawData.byteLength === 0) {
+        throw new Error(`Save file ${x.noteNate} does not contain any data`);
+      }
+
       if (x.rawData.byteLength % PAGE_SIZE !== 0) {
         throw new Error(`All saves must be multiples of ${PAGE_SIZE} bytes, but save '${x.noteName}' is ${x.rawData.byteLength} bytes`);
       }
@@ -653,7 +657,9 @@ export default class N64MempackSaveData {
       return `${saveFile.noteName}.eep`;
     }
 
-    // We need to encode all the stuff that goes into the note table into our file name
+    // We need to encode all the stuff that goes into the note table into our file name.
+    // Some of these portions can contain non-ASCII characters (For example, the publisher
+    // code can be 0x0000), so encoding it as hex makes for an easy (if long) filename.
 
     const noteNameEncoded = Buffer.from(saveFile.noteName, FILENAME_ENCODING).toString('hex');
     const gameSerialCodeEncoded = Buffer.from(saveFile.gameSerialCode, FILENAME_ENCODING).toString('hex');
@@ -694,7 +700,7 @@ export default class N64MempackSaveData {
       // So, we'll just assign everything to Gameshark
 
       return {
-        noteName: Util.removeFilenameExtension(filename),
+        noteName: Util.removeFilenameExtension(filename).trim().toUpperCase(), // There's no lower case arabic characters in the N64 text encoding
         gameSerialCode: GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE,
         publisherCode: GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE,
       };

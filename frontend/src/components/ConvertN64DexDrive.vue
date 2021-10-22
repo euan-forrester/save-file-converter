@@ -20,7 +20,7 @@
             />
             <file-list
               :display="this.dexDriveSaveData !== null"
-              :files="this.dexDriveSaveData ? this.dexDriveSaveData.getSaveFiles().map((x) => ({ displayText: this.isCartSave(x) ? `Cartridge save: ${x.noteName}` : x.noteName })) : []"
+              :files="this.getFileListNames()"
               v-model="selectedSaveData"
               @change="changeSelectedSaveData($event)"
             />
@@ -58,7 +58,7 @@
             />
             <file-list
               :display="this.dexDriveSaveData !== null"
-              :files="this.dexDriveSaveData ? this.dexDriveSaveData.getSaveFiles() : []"
+              :files="this.getFileListNames()"
               :enabled="false"
             />
           </div>
@@ -149,8 +149,12 @@ export default {
     },
   },
   methods: {
-    isCartSave(saveFile) {
-      return N64MempackSaveData.isCartSave(saveFile);
+    getFileListNames() {
+      if ((this.dexDriveSaveData !== null) && (this.dexDriveSaveData.getSaveFiles() !== null)) {
+        return this.dexDriveSaveData.getSaveFiles().map((x) => ({ displayText: N64MempackSaveData.isCartSave(x) ? `Cartridge save: ${x.noteName}` : x.noteName }));
+      }
+
+      return [];
     },
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
@@ -184,11 +188,19 @@ export default {
       this.errorMessage = null;
       this.selectedSaveData = null;
       try {
-        const saveFiles = event.map((f) => ({ filename: f.filename, rawData: f.arrayBuffer, comment: 'Created with savefileconverter.com' }));
+        let saveFiles = event.map((f) => ({ parsedFilename: N64MempackSaveData.parseFilename(f.filename), rawData: f.arrayBuffer }));
+
+        saveFiles = saveFiles.map((f) => ({
+          noteName: f.parsedFilename.noteName,
+          gameSerialCode: f.parsedFilename.gameSerialCode,
+          publisherCode: f.parsedFilename.publisherCode,
+          comment: 'Created with savefileconverter.com',
+          rawData: f.rawData,
+        }));
 
         this.dexDriveSaveData = N64DexDriveSaveData.createFromSaveFiles(saveFiles);
       } catch (e) {
-        this.errorMessage = 'One or more files appear to not be in the correct format';
+        this.errorMessage = e.message;
         this.dexDriveSaveData = null;
         this.selectedSaveData = null;
       }
