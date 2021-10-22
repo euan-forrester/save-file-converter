@@ -72,6 +72,8 @@ Instructions:
   - MemcardRex format: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs
   - DexDrive format: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs
   - Signing a PSP .VMP file: https://github.com/dots-tb/vita-mcr2vmp
+- Goomba emulator
+  - https://www.reddit.com/r/everdrive/comments/qcgus7/using_a_gba_x5_goomba_sram_save_file_on_a_gbc_x7/
 
 ## GBA save file size difficulty
 - https://zork.net/~st/jottings/GBA_saves.html
