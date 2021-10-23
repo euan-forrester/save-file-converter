@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import seedrandom from 'seedrandom';
 import N64DexDriveSaveData from '@/save-formats/N64/DexDrive';
+import N64MempackSaveData from '@/save-formats/N64/Mempack';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 const DIR = './tests/unit/save-formats/data/n64/dexdrive';
@@ -179,10 +180,10 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(2);
     expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('SMSM');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('100% Completed');
-    expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal(N64DexDriveSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
-    expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal(N64DexDriveSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE);
-    expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal(N64DexDriveSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_REGION_CODE);
-    expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal(N64DexDriveSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_MEDIA_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_REGION_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_MEDIA_CODE);
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNoteArrayBuffer)).to.equal(true);
   });
 
@@ -202,20 +203,20 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(2);
     expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('BK6.SRAM');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('Save spot 3 contains a save with 63 jigsaws and 563 notes (time: 13:43:23)');
-    expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal(N64DexDriveSaveData.BLACKBAG_CART_SAVE_GAME_SERIAL_CODE);
-    expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal(N64DexDriveSaveData.BLACKBAG_CART_SAVE_PUBLISHER_CODE);
-    expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal(N64DexDriveSaveData.BLACKBAG_CART_SAVE_REGION_CODE);
-    expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal(N64DexDriveSaveData.BLACKBAG_CART_SAVE_MEDIA_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal(N64MempackSaveData.BLACKBAG_CART_SAVE_GAME_SERIAL_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal(N64MempackSaveData.BLACKBAG_CART_SAVE_PUBLISHER_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal(N64MempackSaveData.BLACKBAG_CART_SAVE_REGION_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal(N64MempackSaveData.BLACKBAG_CART_SAVE_MEDIA_CODE);
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNote1ArrayBuffer)).to.equal(true);
 
     expect(dexDriveSaveData.getSaveFiles()[1].startingPage).to.equal(7);
     expect(dexDriveSaveData.getSaveFiles()[1].pageNumbers.length).to.equal(2);
     expect(dexDriveSaveData.getSaveFiles()[1].noteName).to.equal('BK7.SRAM');
     expect(dexDriveSaveData.getSaveFiles()[1].comment).to.equal('not working?');
-    expect(dexDriveSaveData.getSaveFiles()[1].gameSerialCode).to.equal(N64DexDriveSaveData.BLACKBAG_CART_SAVE_GAME_SERIAL_CODE);
-    expect(dexDriveSaveData.getSaveFiles()[1].publisherCode).to.equal(N64DexDriveSaveData.BLACKBAG_CART_SAVE_PUBLISHER_CODE);
-    expect(dexDriveSaveData.getSaveFiles()[1].region).to.equal(N64DexDriveSaveData.BLACKBAG_CART_SAVE_REGION_CODE);
-    expect(dexDriveSaveData.getSaveFiles()[1].media).to.equal(N64DexDriveSaveData.BLACKBAG_CART_SAVE_MEDIA_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[1].gameSerialCode).to.equal(N64MempackSaveData.BLACKBAG_CART_SAVE_GAME_SERIAL_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[1].publisherCode).to.equal(N64MempackSaveData.BLACKBAG_CART_SAVE_PUBLISHER_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[1].region).to.equal(N64MempackSaveData.BLACKBAG_CART_SAVE_REGION_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[1].media).to.equal(N64MempackSaveData.BLACKBAG_CART_SAVE_MEDIA_CODE);
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[1].rawData, rawNote2ArrayBuffer)).to.equal(true);
   });
 
@@ -236,10 +237,10 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('DODO');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('101% Compleat, but I did not beat the game yet on this file.  '
       + 'Some stages have all 500 bananas collected, but others are missing some.  Try to find those if you want, but I\'ll try to update this file once I get those');
-    expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal(N64DexDriveSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
-    expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal(N64DexDriveSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE);
-    expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal(N64DexDriveSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_REGION_CODE);
-    expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal(N64DexDriveSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_MEDIA_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_REGION_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_MEDIA_CODE);
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNoteArrayBuffer)).to.equal(true);
   });
 });
