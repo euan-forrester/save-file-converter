@@ -3,8 +3,18 @@
     <div id="nav">
       <b-row>
         <b-col class="nav-row">
-          <router-link to="/retron-5">Retron{{'\xa0'}}5{{'\xa0'}}/{{'\xa0'}}RetroFreak</router-link> |
-          <router-link to="/wii">Wii{{'\xa0'}}Virtual{{'\xa0'}}Console</router-link>
+          <router-link to="/retron-5">Retron{{'\xa0'}}5{{'\xa0'}}/{{'\xa0'}}RetroFreak</router-link>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="nav-row">
+          <router-link to="/wii">Wii{{'\xa0'}}Virtual{{'\xa0'}}Console (NES, SNES, N64, TG-16, SMS, Genesis, Neo{{'\xa0'}}Geo, C64)</router-link>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="nav-row">
+          <router-link to="/n64/dexdrive">N64{{'\xa0'}}-{{'\xa0'}}DexDrive</router-link> |
+          <router-link to="/n64/controllerpak">N64{{'\xa0'}}-{{'\xa0'}}Controller{{'\xa0'}}Pak{{'\xa0'}}/{{'\xa0'}}emulator</router-link>
         </b-col>
       </b-row>
       <b-row>
@@ -19,12 +29,6 @@
           <router-link to="/ps1/dexdrive">PS1{{'\xa0'}}-{{'\xa0'}}DexDrive</router-link> |
           <router-link to="/ps1/psp">PS1{{'\xa0'}}-{{'\xa0'}}PSP</router-link> |
           <router-link to="/ps1/emulator">PS1{{'\xa0'}}-{{'\xa0'}}emulator</router-link>
-        </b-col>
-      </b-row>
-      <b-row>
-        <b-col class="nav-row">
-          <router-link to="/n64/dexdrive">N64{{'\xa0'}}-{{'\xa0'}}DexDrive</router-link> |
-          <router-link to="/n64/controllerpak">N64{{'\xa0'}}-{{'\xa0'}}Controller{{'\xa0'}}Pak</router-link>
         </b-col>
       </b-row>
       <b-row>
