@@ -75,6 +75,7 @@ Instructions:
   - http://micro-64.com/database/gamesave.shtml (list of games which use each save type)
   - https://www.reddit.com/r/n64/comments/ezhleg/guide_how_to_backup_your_n64_saves_to_your_pc/
   - https://www.youtube.com/watch?v=PpolokImIeU (convert individual note to .eep format)
+  - https://github.com/ssokolow/saveswap Swap endianness of N64 saves to move between Everdrive/emulators/etc
   - Game serial codes:
     - https://niwanetwork.org/wiki/List_of_Nintendo_64_games_by_serial_code
     - https://meanwhileblog.wordpress.com/n64-game-code-list/
