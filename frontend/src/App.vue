@@ -19,9 +19,9 @@
       </b-row>
       <b-row>
         <b-col class="nav-row">
-          <router-link to="/gameshark">GBA{{'\xa0'}}-{{'\xa0'}}GameShark</router-link> |
-          <router-link to="/gameshark-sp">GBA{{'\xa0'}}-{{'\xa0'}}GameShark{{'\xa0'}}SP</router-link> |
-          <router-link to="/action-replay">GBA{{'\xa0'}}-{{'\xa0'}}Action{{'\xa0'}}Replay</router-link>
+          <router-link to="/gba/gameshark">GBA{{'\xa0'}}-{{'\xa0'}}GameShark</router-link> |
+          <router-link to="/gba/gameshark-sp">GBA{{'\xa0'}}-{{'\xa0'}}GameShark{{'\xa0'}}SP</router-link> |
+          <router-link to="/gba/action-replay">GBA{{'\xa0'}}-{{'\xa0'}}Action{{'\xa0'}}Replay</router-link>
         </b-col>
       </b-row>
       <b-row>
