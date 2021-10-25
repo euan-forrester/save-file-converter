@@ -42,9 +42,7 @@
       <hr/>
     </div>
     <router-view/>
-    <mq-layout :mq="['xs', 'sm']">
-      <div class="footer"/> <!-- Add some blank space at the bottom to look better on mobile -->
-    </mq-layout>
+    <div class="footer"/> <!-- Add some blank space at the bottom to look better -->
   </div>
 </template>
 
@@ -75,6 +73,6 @@
 }
 
 .footer {
-  min-height: 7em;
+  min-height: 6em;
 }
 </style>
