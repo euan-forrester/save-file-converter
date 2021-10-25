@@ -41,7 +41,7 @@ function getComments(headerArrayBuffer) {
     const commentStartOffset = getCommentStartOffset(i);
     const commentArrayBuffer = headerArrayBuffer.slice(commentStartOffset, commentStartOffset + COMMENT_LENGTH);
 
-    comments.push(Util.trimNull(textDecoder.decode(commentArrayBuffer)));
+    comments.push(Util.trimNull(textDecoder.decode(commentArrayBuffer)).trim());
   }
 
   return comments;

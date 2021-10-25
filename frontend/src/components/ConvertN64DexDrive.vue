@@ -14,13 +14,13 @@
             <input-file
               @load="readDexDriveSaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose a file to convert (*.gme)"
-              acceptExtension=".gme"
+              placeholderText="Choose a file to convert (*.n64)"
+              acceptExtension=".n64"
               :leaveRoomForHelpIcon="false"
             />
             <file-list
               :display="this.dexDriveSaveData !== null"
-              :files="this.dexDriveSaveData ? this.dexDriveSaveData.getSaveFiles().map((x) => ({ displayText: x.description })) : []"
+              :files="this.getFileListNames()"
               v-model="selectedSaveData"
               @change="changeSelectedSaveData($event)"
             />
@@ -41,12 +41,18 @@
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
               <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })" :class="$mq === 'md' ? 'fix-jumbotron' : ''">
-                <template v-slot:header>Individual saves</template>
+                <template v-slot:header>{{ individualSavesOrMemoryCardText }}</template>
               </b-jumbotron>
             </b-col>
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'">
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
+            <individual-saves-or-memory-card-selector
+              :value="this.individualSavesOrMemoryCard"
+              @change="changeIndividualSavesOrMemoryCard($event)"
+              :individualSavesText="this.individualSavesText"
+              :memoryCardText="this.memoryCardText"
+            />
           </div>
           <div v-else>
             <input-file
@@ -58,7 +64,7 @@
             />
             <file-list
               :display="this.dexDriveSaveData !== null"
-              :files="this.dexDriveSaveData ? this.dexDriveSaveData.getSaveFiles() : []"
+              :files="this.getFileListNames()"
               :enabled="false"
             />
           </div>
@@ -67,7 +73,7 @@
       <b-row class="justify-content-md-center" align-h="center">
         <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
           <b-button
-            class="ps1-dexdrive-convert-button"
+            class="n64-dexdrive-convert-button"
             variant="success"
             block
             :disabled="this.convertButtonDisabled"
@@ -80,13 +86,16 @@
       <b-row>
         <b-col>
           <div class="help">
-            Help: how do I&nbsp;<b-link href="https://github.com/ShendoXT/memcardrex/releases">copy files to and from my DexDrive</b-link>?
+            Help: how do I <b-link href="https://www.raphnet-tech.com/products/n64_usb_adapter_gen3/index.php">copy .mpk or .n64 files to/from an N64 Controller Pak</b-link>?
           </div>
           <div class="help">
-            Help: how do I copy individual save files to and from a PS1 memory card?<br><b-link href="http://ps2ulaunchelf.pbworks.com/w/page/19520134/FrontPage">PS2 + USB stick</b-link> or <b-link href="https://github.com/ShendoXT/memcardrex/releases">PS3 USB memory card adaptor</b-link> or <b-link href="https://github.com/ShendoXT/memcardrex/releases">DexDrive</b-link> or <b-link href="https://8bitmods.com/memcard-pro-for-playstation-1-smoke-black/">MemCard Pro</b-link>
+            Help: how do I <b-link href="http://www.world-of-nintendo.com/manuals/nintendo_64/game_shark.shtml">copy 4kb or 16kb save files to/from a cartridge using an N64 Controller Pak</b-link>?
           </div>
           <div class="help">
-            Help: how do I <b-link href="https://www.google.com/search?q=ps2+mcboot+memory+card">run homebrew software on my PS2</b-link>?
+            Help: what devices can copy save files to and from an N64 cartridge?<br><b-link href="http://64drive.retroactive.be/features.php#ultrasave">UltraSave</b-link> or <b-link href="https://retrostage.net/?product=retroblaster-programmer-2-0">RetroBlaster{{'\xa0'}}2.0</b-link> or <b-link href="https://dragonbox.de/en/cartridge-dumper/retrode2-n64-plugin-without-joypad-connectors.html">Retrode</b-link>
+          </div>
+          <div class="help">
+            Help: where can I <b-link href="https://4layertech.com/products/forever-pak-64">buy a new N64 Controller Pak</b-link>?
           </div>
         </b-col>
       </b-row>
@@ -97,7 +106,7 @@
 <style scoped>
 
 /* Separate class for each different button to enable tracking in google tag manager */
-.ps1-dexdrive-convert-button {
+.n64-dexdrive-convert-button {
   margin-top: 1em;
 }
 
@@ -117,21 +126,28 @@
 
 <script>
 import { saveAs } from 'file-saver';
+import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import FileList from './FileList.vue';
-import Ps1DexDriveSaveData from '../save-formats/PS1/DexDrive';
+import IndividualSavesOrMemoryCardSelector from './IndividualSavesOrMemoryCardSelector.vue';
+import N64DexDriveSaveData from '../save-formats/N64/DexDrive';
+import N64MempackSaveData from '../save-formats/N64/Mempack';
 
 export default {
-  name: 'ConvertPs1DexDrive',
+  name: 'ConvertN64DexDrive',
   data() {
     return {
       dexDriveSaveData: null,
       errorMessage: null,
+      inputFilename: null,
       outputFilename: null,
       conversionDirection: 'convertToEmulator',
       selectedSaveData: null,
+      individualSavesOrMemoryCard: 'individual-saves',
+      individualSavesText: 'Individual saves',
+      memoryCardText: 'Controller Pak',
     };
   },
   components: {
@@ -139,6 +155,7 @@ export default {
     InputFile,
     OutputFilename,
     FileList,
+    IndividualSavesOrMemoryCardSelector,
   },
   computed: {
     convertButtonDisabled() {
@@ -146,19 +163,46 @@ export default {
 
       return !this.dexDriveSaveData || this.dexDriveSaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
     },
+    individualSavesOrMemoryCardText() {
+      return (this.individualSavesOrMemoryCard === 'individual-saves') ? this.individualSavesText : this.memoryCardText;
+    },
   },
   methods: {
+    changeIndividualSavesOrMemoryCard(newValue) {
+      if (this.individualSavesOrMemoryCard !== newValue) {
+        this.individualSavesOrMemoryCard = newValue;
+
+        if (newValue === 'individual-saves') {
+          if (this.selectedSaveData == null) {
+            this.changeSelectedSaveData(0);
+          }
+        } else {
+          this.outputFilename = Util.changeFilenameExtension(this.inputFilename, 'mpk');
+          this.selectedSaveData = null;
+        }
+      }
+    },
+    getFileListNames() {
+      if ((this.dexDriveSaveData !== null) && (this.dexDriveSaveData.getSaveFiles() !== null)) {
+        return this.dexDriveSaveData.getSaveFiles().map((x) => ({ displayText: N64MempackSaveData.isCartSave(x) ? `Cartridge save: ${x.noteName}` : x.noteName }));
+      }
+
+      return [];
+    },
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
       this.dexDriveSaveData = null;
       this.errorMessage = null;
+      this.inputFilename = null;
       this.outputFilename = null;
       this.selectedSaveData = null;
+      this.individualSavesOrMemoryCard = 'individual-saves';
     },
     changeSelectedSaveData(newSaveData) {
       if (this.dexDriveSaveData.getSaveFiles().length > 0) {
         this.selectedSaveData = newSaveData;
-        this.outputFilename = this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData].filename;
+        this.outputFilename = N64MempackSaveData.createFilename(this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData]);
+        this.changeIndividualSavesOrMemoryCard('individual-saves');
       } else {
         this.selectedSaveData = null;
         this.outputFilename = null;
@@ -167,9 +211,20 @@ export default {
     readDexDriveSaveData(event) {
       this.errorMessage = null;
       this.selectedSaveData = null;
+      this.inputFilename = event.filename;
       try {
-        this.dexDriveSaveData = Ps1DexDriveSaveData.createFromDexDriveData(event.arrayBuffer);
-        this.changeSelectedSaveData(0);
+        this.dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(event.arrayBuffer);
+
+        const containsCartSave = this.dexDriveSaveData.getSaveFiles().some((x) => N64MempackSaveData.isCartSave(x));
+
+        this.individualSavesOrMemoryCard = null;
+
+        if (containsCartSave) {
+          this.changeIndividualSavesOrMemoryCard('individual-saves');
+          this.changeSelectedSaveData(0);
+        } else {
+          this.changeIndividualSavesOrMemoryCard('memory-card');
+        }
       } catch (e) {
         this.errorMessage = 'File appears to not be in the correct format';
         this.dexDriveSaveData = null;
@@ -179,10 +234,19 @@ export default {
     readEmulatorSaveData(event) {
       this.errorMessage = null;
       this.selectedSaveData = null;
+      this.inputFilename = null;
       try {
-        const saveFiles = event.map((f) => ({ filename: f.filename, rawData: f.arrayBuffer, comment: 'Created with savefileconverter.com' }));
+        let saveFiles = event.map((f) => ({ parsedFilename: N64MempackSaveData.parseFilename(f.filename), rawData: f.arrayBuffer }));
 
-        this.dexDriveSaveData = Ps1DexDriveSaveData.createFromSaveFiles(saveFiles);
+        saveFiles = saveFiles.map((f) => ({
+          noteName: f.parsedFilename.noteName,
+          gameSerialCode: f.parsedFilename.gameSerialCode,
+          publisherCode: f.parsedFilename.publisherCode,
+          comment: 'Created with savefileconverter.com',
+          rawData: f.rawData,
+        }));
+
+        this.dexDriveSaveData = N64DexDriveSaveData.createFromSaveFiles(saveFiles);
       } catch (e) {
         this.errorMessage = e.message;
         this.dexDriveSaveData = null;
@@ -190,7 +254,17 @@ export default {
       }
     },
     convertFile() {
-      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData].rawData : this.dexDriveSaveData.getArrayBuffer();
+      let outputArrayBuffer = null;
+
+      if (this.conversionDirection === 'convertToEmulator') {
+        if (this.individualSavesOrMemoryCard === 'individual-saves') {
+          outputArrayBuffer = this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData].rawData;
+        } else {
+          outputArrayBuffer = this.dexDriveSaveData.getMempack().getArrayBuffer();
+        }
+      } else {
+        outputArrayBuffer = this.dexDriveSaveData.getArrayBuffer();
+      }
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 

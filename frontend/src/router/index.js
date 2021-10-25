@@ -8,6 +8,8 @@ import Wii from '../views/Wii.vue';
 import Ps1DexDrive from '../views/Ps1DexDrive.vue';
 import Ps1Psp from '../views/Ps1Psp.vue';
 import Ps1Emulator from '../views/Ps1Emulator.vue';
+import N64DexDrive from '../views/N64DexDrive.vue';
+import N64Mempack from '../views/N64Mempack.vue';
 import OtherConverters from '../views/OtherConverters.vue';
 import DownloadSaves from '../views/DownloadSaves.vue';
 import Troubleshooting from '../views/Troubleshooting.vue';
@@ -25,24 +27,28 @@ const routes = [
     component: Retron5,
   },
   {
-    path: '/action-replay',
+    path: '/wii',
+    name: 'Wii',
+    component: Wii,
+  },
+  {
+    path: '/gba/action-replay',
     name: 'ActionReplay',
     component: ActionReplay,
   },
   {
-    path: '/gameshark',
+    path: '/gba/gameshark',
     name: 'GameShark',
     component: GameShark,
   },
   {
-    path: '/gameshark-sp',
+    path: '/gba/gameshark-sp',
     name: 'GameShark SP',
     component: GameSharkSP,
   },
   {
-    path: '/wii',
-    name: 'Wii',
-    component: Wii,
+    path: '/gba',
+    redirect: '/gba/gameshark',
   },
   {
     path: '/ps1/emulator',
@@ -62,6 +68,20 @@ const routes = [
   {
     path: '/ps1',
     redirect: '/ps1/dexdrive',
+  },
+  {
+    path: '/n64/dexdrive',
+    name: 'N64 - DexDrive',
+    component: N64DexDrive,
+  },
+  {
+    path: '/n64/controller-pak',
+    name: 'N64 - Controller Pak',
+    component: N64Mempack,
+  },
+  {
+    path: '/n64',
+    redirect: '/n64/dexdrive',
   },
   {
     path: '/troubleshooting',
@@ -85,6 +105,19 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
+  },
+  // Old paths
+  {
+    path: '/action-replay',
+    redirect: '/gba/action-replay',
+  },
+  {
+    path: '/gameshark',
+    redirect: '/gba/gameshark',
+  },
+  {
+    path: '/gameshark-sp',
+    redirect: '/gba/gameshark-sp',
   },
 ];
 

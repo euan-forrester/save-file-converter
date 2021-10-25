@@ -22,11 +22,19 @@
 <script>
 
 export default {
-  name: 'MemoryCardSelector',
+  name: 'IndividualSavesOrMemoryCardSelector',
   props: {
     value: {
-      type: Number,
+      type: String,
       default: null,
+    },
+    individualSavesText: {
+      type: String,
+      default: 'Individual saves',
+    },
+    memoryCardText: {
+      type: String,
+      default: 'Memory card',
     },
   },
   model: {
@@ -42,8 +50,8 @@ export default {
   data() {
     return {
       options: [
-        { value: 0, text: 'Memory card 1' },
-        { value: 1, text: 'Memory card 2' },
+        { value: 'individual-saves', text: this.individualSavesText },
+        { value: 'memory-card', text: this.memoryCardText },
       ],
     };
   },

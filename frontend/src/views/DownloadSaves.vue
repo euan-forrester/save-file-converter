@@ -117,15 +117,11 @@
         Selection of Zelda games.
       </b-col>
     </b-row>
-    <div class="footer"/>
   </div>
 </template>
 
 <style scoped>
 .blank-line {
   min-height: 1em;
-}
-.footer {
-  min-height: 3em;
 }
 </style>

@@ -58,7 +58,7 @@ export default {
   computed: {
     options() {
       const optionsEnabled = this.enabled;
-      return this.files.map((f, i) => ({ value: i, text: f.description, disabled: !optionsEnabled }));
+      return this.files.map((f, i) => ({ value: i, text: f.displayText, disabled: !optionsEnabled }));
     },
     valueLocal: {
       get() { return this.value; },

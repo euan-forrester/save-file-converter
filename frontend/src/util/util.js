@@ -92,4 +92,37 @@ export default class Util {
   static trimNull(s) {
     return s.replace(/\0[\s\S]*$/g, ''); // https://stackoverflow.com/questions/22809401/removing-a-null-character-from-a-string-in-javascript
   }
+
+  static setArrayBufferPortion(destination, source, destinationOffset, sourceOffset, length) {
+    const destinationArray = new Uint8Array(destination);
+    const sourceArray = new Uint8Array(source.slice(sourceOffset, sourceOffset + length));
+
+    const output = new ArrayBuffer(destination.byteLength);
+    const outputArray = new Uint8Array(output);
+
+    outputArray.set(destinationArray);
+    outputArray.set(sourceArray, destinationOffset);
+
+    return output;
+  }
+
+  static fillArrayBufferPortion(arrayBuffer, startIndex, length, fillValue) {
+    const outputArrayBuffer = new ArrayBuffer(arrayBuffer.byteLength);
+    const outputArray = new Uint8Array(outputArrayBuffer);
+    const inputArray = new Uint8Array(arrayBuffer);
+
+    outputArray.set(inputArray);
+    outputArray.fill(fillValue, startIndex, startIndex + length);
+
+    return outputArrayBuffer;
+  }
+
+  static fillArrayBuffer(arrayBuffer, fillValue) {
+    const outputArrayBuffer = new ArrayBuffer(arrayBuffer.byteLength);
+    const outputArray = new Uint8Array(outputArrayBuffer);
+
+    outputArray.fill(fillValue);
+
+    return outputArrayBuffer;
+  }
 }
