@@ -254,7 +254,17 @@ export default {
       }
     },
     convertFile() {
-      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData].rawData : this.dexDriveSaveData.getArrayBuffer();
+      let outputArrayBuffer = null;
+
+      if (this.conversionDirection === 'convertToEmulator') {
+        if (this.individualSavesOrMemoryCard === 'individual-saves') {
+          outputArrayBuffer = this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData].rawData;
+        } else {
+          outputArrayBuffer = this.dexDriveSaveData.getMempack().getArrayBuffer();
+        }
+      } else {
+        outputArrayBuffer = this.dexDriveSaveData.getArrayBuffer();
+      }
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 
