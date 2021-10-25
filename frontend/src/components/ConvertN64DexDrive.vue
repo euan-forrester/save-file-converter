@@ -41,12 +41,18 @@
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
               <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })" :class="$mq === 'md' ? 'fix-jumbotron' : ''">
-                <template v-slot:header>Individual saves</template>
+                <template v-slot:header>{{ individualSavesOrMemoryCardText }}</template>
               </b-jumbotron>
             </b-col>
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'">
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
+            <individual-saves-or-memory-card-selector
+              :value="this.individualSavesOrMemoryCard"
+              @change="changeIndividualSavesOrMemoryCard($event)"
+              :individualSavesText="this.individualSavesText"
+              :memoryCardText="this.memoryCardText"
+            />
           </div>
           <div v-else>
             <input-file
@@ -83,7 +89,10 @@
             Help: how do I <b-link href="https://www.raphnet-tech.com/products/n64_usb_adapter_gen3/index.php">copy .mpk or .n64 files to/from an N64 Controller Pak</b-link>?
           </div>
           <div class="help">
-            Help: how do I <b-link href="http://www.world-of-nintendo.com/manuals/nintendo_64/game_shark.shtml">copy saves to/from a cartridge using an N64 Controller Pak</b-link>?
+            Help: how do I <b-link href="http://www.world-of-nintendo.com/manuals/nintendo_64/game_shark.shtml">copy 4kb or 16kb save files to/from a cartridge using an N64 Controller Pak</b-link>?
+          </div>
+          <div class="help">
+            Help: what devices can copy save files to and from an N64 cartridge?<br><b-link href="http://64drive.retroactive.be/features.php#ultrasave">UltraSave</b-link> or <b-link href="https://retrostage.net/?product=retroblaster-programmer-2-0">RetroBlaster{{'\xa0'}}2.0</b-link> or <b-link href="https://dragonbox.de/en/cartridge-dumper/retrode2-n64-plugin-without-joypad-connectors.html">Retrode</b-link>
           </div>
           <div class="help">
             Help: where can I <b-link href="https://4layertech.com/products/forever-pak-64">buy a new N64 Controller Pak</b-link>?
@@ -117,10 +126,12 @@
 
 <script>
 import { saveAs } from 'file-saver';
+import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import FileList from './FileList.vue';
+import IndividualSavesOrMemoryCardSelector from './IndividualSavesOrMemoryCardSelector.vue';
 import N64DexDriveSaveData from '../save-formats/N64/DexDrive';
 import N64MempackSaveData from '../save-formats/N64/Mempack';
 
@@ -130,9 +141,13 @@ export default {
     return {
       dexDriveSaveData: null,
       errorMessage: null,
+      inputFilename: null,
       outputFilename: null,
       conversionDirection: 'convertToEmulator',
       selectedSaveData: null,
+      individualSavesOrMemoryCard: 'individual-saves',
+      individualSavesText: 'Individual saves',
+      memoryCardText: 'Controller Pak',
     };
   },
   components: {
@@ -140,6 +155,7 @@ export default {
     InputFile,
     OutputFilename,
     FileList,
+    IndividualSavesOrMemoryCardSelector,
   },
   computed: {
     convertButtonDisabled() {
@@ -147,8 +163,25 @@ export default {
 
       return !this.dexDriveSaveData || this.dexDriveSaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
     },
+    individualSavesOrMemoryCardText() {
+      return (this.individualSavesOrMemoryCard === 'individual-saves') ? this.individualSavesText : this.memoryCardText;
+    },
   },
   methods: {
+    changeIndividualSavesOrMemoryCard(newValue) {
+      if (this.individualSavesOrMemoryCard !== newValue) {
+        this.individualSavesOrMemoryCard = newValue;
+
+        if (newValue === 'individual-saves') {
+          if (this.selectedSaveData == null) {
+            this.changeSelectedSaveData(0);
+          }
+        } else {
+          this.outputFilename = Util.changeFilenameExtension(this.inputFilename, 'mpk');
+          this.selectedSaveData = null;
+        }
+      }
+    },
     getFileListNames() {
       if ((this.dexDriveSaveData !== null) && (this.dexDriveSaveData.getSaveFiles() !== null)) {
         return this.dexDriveSaveData.getSaveFiles().map((x) => ({ displayText: N64MempackSaveData.isCartSave(x) ? `Cartridge save: ${x.noteName}` : x.noteName }));
@@ -160,13 +193,16 @@ export default {
       this.conversionDirection = newDirection;
       this.dexDriveSaveData = null;
       this.errorMessage = null;
+      this.inputFilename = null;
       this.outputFilename = null;
       this.selectedSaveData = null;
+      this.individualSavesOrMemoryCard = 'individual-saves';
     },
     changeSelectedSaveData(newSaveData) {
       if (this.dexDriveSaveData.getSaveFiles().length > 0) {
         this.selectedSaveData = newSaveData;
         this.outputFilename = N64MempackSaveData.createFilename(this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData]);
+        this.changeIndividualSavesOrMemoryCard('individual-saves');
       } else {
         this.selectedSaveData = null;
         this.outputFilename = null;
@@ -175,9 +211,20 @@ export default {
     readDexDriveSaveData(event) {
       this.errorMessage = null;
       this.selectedSaveData = null;
+      this.inputFilename = event.filename;
       try {
         this.dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(event.arrayBuffer);
-        this.changeSelectedSaveData(0);
+
+        const containsCartSave = this.dexDriveSaveData.getSaveFiles().some((x) => N64MempackSaveData.isCartSave(x));
+
+        this.individualSavesOrMemoryCard = null;
+
+        if (containsCartSave) {
+          this.changeIndividualSavesOrMemoryCard('individual-saves');
+          this.changeSelectedSaveData(0);
+        } else {
+          this.changeIndividualSavesOrMemoryCard('memory-card');
+        }
       } catch (e) {
         this.errorMessage = 'File appears to not be in the correct format';
         this.dexDriveSaveData = null;
@@ -187,6 +234,7 @@ export default {
     readEmulatorSaveData(event) {
       this.errorMessage = null;
       this.selectedSaveData = null;
+      this.inputFilename = null;
       try {
         let saveFiles = event.map((f) => ({ parsedFilename: N64MempackSaveData.parseFilename(f.filename), rawData: f.arrayBuffer }));
 
