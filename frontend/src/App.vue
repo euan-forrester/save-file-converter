@@ -14,7 +14,7 @@
       <b-row>
         <b-col class="nav-row">
           <router-link to="/n64/dexdrive">N64{{'\xa0'}}-{{'\xa0'}}DexDrive</router-link> |
-          <router-link to="/n64/controllerpak">N64{{'\xa0'}}-{{'\xa0'}}Controller{{'\xa0'}}Pak{{'\xa0'}}/{{'\xa0'}}emulator</router-link>
+          <router-link to="/n64/controller-pak">N64{{'\xa0'}}-{{'\xa0'}}Controller{{'\xa0'}}Pak{{'\xa0'}}/{{'\xa0'}}emulator</router-link>
         </b-col>
       </b-row>
       <b-row>
