@@ -20,7 +20,7 @@
             />
             <file-list
               :display="this.memcardSaveData !== null"
-              :files="this.memcardSaveData ? this.memcardSaveData.getSaveFiles() : []"
+              :files="this.getFileListNames()"
               v-model="selectedSaveData"
               @change="changeSelectedSaveData($event)"
             />
@@ -145,6 +145,13 @@ export default {
     },
   },
   methods: {
+    getFileListNames() {
+      if ((this.memcardSaveData !== null) && (this.memcardSaveData.getSaveFiles() !== null)) {
+        return this.memcardSaveData.getSaveFiles().map((x) => ({ displayText: x.description }));
+      }
+
+      return [];
+    },
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
       this.memcardSaveData = null;
@@ -177,7 +184,7 @@ export default {
       this.errorMessage = null;
       this.selectedSaveData = null;
       try {
-        const saveFiles = event.map((f) => ({ filename: f.filename, rawData: f.arrayBuffer, comment: 'Created with savefileconverter.com' }));
+        const saveFiles = event.map((f) => ({ filename: f.filename, rawData: f.arrayBuffer }));
 
         this.memcardSaveData = Ps1MemcardSaveData.createFromSaveFiles(saveFiles);
       } catch (e) {

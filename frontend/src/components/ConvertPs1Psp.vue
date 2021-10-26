@@ -20,7 +20,7 @@
             />
             <file-list
               :display="this.pspSaveData !== null"
-              :files="this.pspSaveData ? this.pspSaveData.getSaveFiles() : []"
+              :files="this.getFileListNames()"
               v-model="selectedSaveData"
               @change="changeSelectedSaveData($event)"
             />
@@ -41,13 +41,23 @@
         <b-col sm=12 md=5 align-self="start">
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
-              <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })" :class="$mq === 'md' ? 'fix-jumbotron' : ''">
-                <template v-slot:header>Individual saves</template>
+              <b-jumbotron
+                fluid
+                :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })"
+                :class="($mq === 'md') && (this.individualSavesOrMemoryCard === 'individual-saves') ? 'fix-jumbotron' : ''"
+              >
+                <template v-slot:header>{{ individualSavesOrMemoryCardText }}</template>
               </b-jumbotron>
             </b-col>
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'">
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
+            <individual-saves-or-memory-card-selector
+              :value="this.individualSavesOrMemoryCard"
+              @change="changeIndividualSavesOrMemoryCard($event)"
+              :individualSavesText="this.individualSavesText"
+              :memoryCardText="this.memoryCardText"
+            />
           </div>
           <div v-else>
             <input-file
@@ -119,10 +129,12 @@
 
 <script>
 import { saveAs } from 'file-saver';
+import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import FileList from './FileList.vue';
+import IndividualSavesOrMemoryCardSelector from './IndividualSavesOrMemoryCardSelector.vue';
 import MemoryCardSelector from './MemoryCardSelector.vue';
 import PspSaveData from '../save-formats/PS1/Psp';
 
@@ -132,10 +144,14 @@ export default {
     return {
       pspSaveData: null,
       errorMessage: null,
+      inputFilename: null,
       outputFilename: null,
       conversionDirection: 'convertToEmulator',
       selectedSaveData: null,
       memoryCardIndex: 0,
+      individualSavesOrMemoryCard: 'individual-saves',
+      individualSavesText: 'Individual saves',
+      memoryCardText: 'Raw/emulator',
     };
   },
   components: {
@@ -144,6 +160,7 @@ export default {
     OutputFilename,
     FileList,
     MemoryCardSelector,
+    IndividualSavesOrMemoryCardSelector,
   },
   computed: {
     convertButtonDisabled() {
@@ -151,15 +168,43 @@ export default {
 
       return !this.pspSaveData || this.pspSaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
     },
+    individualSavesOrMemoryCardText() {
+      return (this.individualSavesOrMemoryCard === 'individual-saves') ? this.individualSavesText : this.memoryCardText;
+    },
   },
   methods: {
+    changeIndividualSavesOrMemoryCard(newValue) {
+      if (this.individualSavesOrMemoryCard !== newValue) {
+        this.individualSavesOrMemoryCard = newValue;
+
+        if (newValue === 'individual-saves') {
+          if (this.selectedSaveData === null) {
+            this.changeSelectedSaveData(0);
+          }
+        } else {
+          if (this.inputFilename !== null) {
+            this.outputFilename = Util.changeFilenameExtension(this.inputFilename, 'mcr');
+          }
+          this.selectedSaveData = null;
+        }
+      }
+    },
+    getFileListNames() {
+      if ((this.pspSaveData !== null) && (this.pspSaveData.getSaveFiles() !== null)) {
+        return this.pspSaveData.getSaveFiles().map((x) => ({ displayText: x.description }));
+      }
+
+      return [];
+    },
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
       this.pspSaveData = null;
       this.errorMessage = null;
+      this.inputFilename = null;
       this.outputFilename = null;
       this.selectedSaveData = null;
       this.memoryCardIndex = 0;
+      this.individualSavesOrMemoryCard = 'individual-saves';
 
       if (newDirection === 'convertToRetron5') {
         this.changeMemoryCardIndex();
@@ -169,19 +214,27 @@ export default {
       this.outputFilename = `SCEVMC${this.memoryCardIndex}.VMP`;
     },
     changeSelectedSaveData(newSaveData) {
-      if (this.pspSaveData.getSaveFiles().length > 0) {
-        this.selectedSaveData = newSaveData;
-        this.outputFilename = this.pspSaveData.getSaveFiles()[this.selectedSaveData].filename;
-      } else {
-        this.selectedSaveData = null;
-        this.outputFilename = null;
+      if (newSaveData !== null) {
+        if ((this.pspSaveData !== null) && (this.pspSaveData.getSaveFiles().length > 0)) {
+          this.selectedSaveData = newSaveData;
+          this.outputFilename = this.pspSaveData.getSaveFiles()[this.selectedSaveData].filename;
+          this.changeIndividualSavesOrMemoryCard('individual-saves');
+        } else {
+          this.selectedSaveData = null;
+          this.outputFilename = null;
+        }
       }
     },
     readpspSaveData(event) {
       this.errorMessage = null;
       this.selectedSaveData = null;
+      this.inputFilename = event.filename;
       try {
         this.pspSaveData = PspSaveData.createFromPspData(event.arrayBuffer);
+
+        this.individualSavesOrMemoryCard = null;
+
+        this.changeIndividualSavesOrMemoryCard('individual-saves');
         this.changeSelectedSaveData(0);
       } catch (e) {
         this.errorMessage = 'File appears to not be in the correct format';
@@ -192,6 +245,7 @@ export default {
     readEmulatorSaveData(event) {
       this.errorMessage = null;
       this.selectedSaveData = null;
+      this.inputFilename = null;
       try {
         const saveFiles = event.map((f) => ({ filename: f.filename, rawData: f.arrayBuffer, comment: 'Created with savefileconverter.com' }));
 
@@ -203,7 +257,17 @@ export default {
       }
     },
     convertFile() {
-      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.pspSaveData.getSaveFiles()[this.selectedSaveData].rawData : this.pspSaveData.getArrayBuffer();
+      let outputArrayBuffer = null;
+
+      if (this.conversionDirection === 'convertToEmulator') {
+        if (this.individualSavesOrMemoryCard === 'individual-saves') {
+          outputArrayBuffer = this.pspSaveData.getSaveFiles()[this.selectedSaveData].rawData;
+        } else {
+          outputArrayBuffer = this.pspSaveData.getMemoryCard().getArrayBuffer();
+        }
+      } else {
+        outputArrayBuffer = this.pspSaveData.getArrayBuffer();
+      }
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 

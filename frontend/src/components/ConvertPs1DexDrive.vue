@@ -20,7 +20,7 @@
             />
             <file-list
               :display="this.dexDriveSaveData !== null"
-              :files="this.dexDriveSaveData ? this.dexDriveSaveData.getSaveFiles().map((x) => ({ displayText: x.description })) : []"
+              :files="this.getFileListNames()"
               v-model="selectedSaveData"
               @change="changeSelectedSaveData($event)"
             />
@@ -40,13 +40,23 @@
         <b-col sm=12 md=5 align-self="start">
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
-              <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })" :class="$mq === 'md' ? 'fix-jumbotron' : ''">
-                <template v-slot:header>Individual saves</template>
+              <b-jumbotron
+                fluid
+                :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })"
+                :class="($mq === 'md') && (this.individualSavesOrMemoryCard === 'individual-saves') ? 'fix-jumbotron' : ''"
+              >
+                <template v-slot:header>{{ individualSavesOrMemoryCardText }}</template>
               </b-jumbotron>
             </b-col>
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'">
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
+            <individual-saves-or-memory-card-selector
+              :value="this.individualSavesOrMemoryCard"
+              @change="changeIndividualSavesOrMemoryCard($event)"
+              :individualSavesText="this.individualSavesText"
+              :memoryCardText="this.memoryCardText"
+            />
           </div>
           <div v-else>
             <input-file
@@ -58,7 +68,7 @@
             />
             <file-list
               :display="this.dexDriveSaveData !== null"
-              :files="this.dexDriveSaveData ? this.dexDriveSaveData.getSaveFiles() : []"
+              :files="this.getFileListNames()"
               :enabled="false"
             />
           </div>
@@ -117,21 +127,27 @@
 
 <script>
 import { saveAs } from 'file-saver';
+import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import FileList from './FileList.vue';
-import Ps1DexDriveSaveData from '../save-formats/PS1/DexDrive';
+import IndividualSavesOrMemoryCardSelector from './IndividualSavesOrMemoryCardSelector.vue';
+import PS1DexDriveSaveData from '../save-formats/PS1/DexDrive';
 
 export default {
-  name: 'ConvertPs1DexDrive',
+  name: 'ConvertN64DexDrive',
   data() {
     return {
       dexDriveSaveData: null,
       errorMessage: null,
+      inputFilename: null,
       outputFilename: null,
       conversionDirection: 'convertToEmulator',
       selectedSaveData: null,
+      individualSavesOrMemoryCard: 'individual-saves',
+      individualSavesText: 'Individual saves',
+      memoryCardText: 'Raw/emulator',
     };
   },
   components: {
@@ -139,6 +155,7 @@ export default {
     InputFile,
     OutputFilename,
     FileList,
+    IndividualSavesOrMemoryCardSelector,
   },
   computed: {
     convertButtonDisabled() {
@@ -146,29 +163,65 @@ export default {
 
       return !this.dexDriveSaveData || this.dexDriveSaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
     },
+    individualSavesOrMemoryCardText() {
+      return (this.individualSavesOrMemoryCard === 'individual-saves') ? this.individualSavesText : this.memoryCardText;
+    },
   },
   methods: {
+    changeIndividualSavesOrMemoryCard(newValue) {
+      if (this.individualSavesOrMemoryCard !== newValue) {
+        this.individualSavesOrMemoryCard = newValue;
+
+        if (newValue === 'individual-saves') {
+          if (this.selectedSaveData === null) {
+            this.changeSelectedSaveData(0);
+          }
+        } else {
+          if (this.inputFilename !== null) {
+            this.outputFilename = Util.changeFilenameExtension(this.inputFilename, 'mcr');
+          }
+          this.selectedSaveData = null;
+        }
+      }
+    },
+    getFileListNames() {
+      if ((this.dexDriveSaveData !== null) && (this.dexDriveSaveData.getSaveFiles() !== null)) {
+        return this.dexDriveSaveData.getSaveFiles().map((x) => ({ displayText: x.description }));
+      }
+
+      return [];
+    },
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
       this.dexDriveSaveData = null;
       this.errorMessage = null;
+      this.inputFilename = null;
       this.outputFilename = null;
       this.selectedSaveData = null;
+      this.individualSavesOrMemoryCard = 'individual-saves';
     },
     changeSelectedSaveData(newSaveData) {
-      if (this.dexDriveSaveData.getSaveFiles().length > 0) {
-        this.selectedSaveData = newSaveData;
-        this.outputFilename = this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData].filename;
-      } else {
-        this.selectedSaveData = null;
-        this.outputFilename = null;
+      if (newSaveData !== null) {
+        if ((this.dexDriveSaveData !== null) && (this.dexDriveSaveData.getSaveFiles().length > 0)) {
+          this.selectedSaveData = newSaveData;
+          this.outputFilename = this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData].filename;
+          this.changeIndividualSavesOrMemoryCard('individual-saves');
+        } else {
+          this.selectedSaveData = null;
+          this.outputFilename = null;
+        }
       }
     },
     readDexDriveSaveData(event) {
       this.errorMessage = null;
       this.selectedSaveData = null;
+      this.inputFilename = event.filename;
       try {
-        this.dexDriveSaveData = Ps1DexDriveSaveData.createFromDexDriveData(event.arrayBuffer);
+        this.dexDriveSaveData = PS1DexDriveSaveData.createFromDexDriveData(event.arrayBuffer);
+
+        this.individualSavesOrMemoryCard = null;
+
+        this.changeIndividualSavesOrMemoryCard('individual-saves');
         this.changeSelectedSaveData(0);
       } catch (e) {
         this.errorMessage = 'File appears to not be in the correct format';
@@ -179,10 +232,11 @@ export default {
     readEmulatorSaveData(event) {
       this.errorMessage = null;
       this.selectedSaveData = null;
+      this.inputFilename = null;
       try {
         const saveFiles = event.map((f) => ({ filename: f.filename, rawData: f.arrayBuffer, comment: 'Created with savefileconverter.com' }));
 
-        this.dexDriveSaveData = Ps1DexDriveSaveData.createFromSaveFiles(saveFiles);
+        this.dexDriveSaveData = PS1DexDriveSaveData.createFromSaveFiles(saveFiles);
       } catch (e) {
         this.errorMessage = e.message;
         this.dexDriveSaveData = null;
@@ -190,7 +244,17 @@ export default {
       }
     },
     convertFile() {
-      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData].rawData : this.dexDriveSaveData.getArrayBuffer();
+      let outputArrayBuffer = null;
+
+      if (this.conversionDirection === 'convertToEmulator') {
+        if (this.individualSavesOrMemoryCard === 'individual-saves') {
+          outputArrayBuffer = this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData].rawData;
+        } else {
+          outputArrayBuffer = this.dexDriveSaveData.getMemoryCard().getArrayBuffer();
+        }
+      } else {
+        outputArrayBuffer = this.dexDriveSaveData.getArrayBuffer();
+      }
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 

@@ -185,13 +185,17 @@ export default class PspSaveData {
     // Parse the rest of the file
     const memcardArrayBuffer = arrayBuffer.slice(HEADER_LENGTH); // The remainder of the file is the actual contents of the memory card
 
-    const memcard = Ps1MemcardSaveData.createFromPs1MemcardData(memcardArrayBuffer);
+    this.memoryCard = Ps1MemcardSaveData.createFromPs1MemcardData(memcardArrayBuffer);
 
-    this.saveFiles = memcard.getSaveFiles();
+    this.saveFiles = this.memoryCard.getSaveFiles();
   }
 
   getSaveFiles() {
     return this.saveFiles;
+  }
+
+  getMemoryCard() {
+    return this.memoryCard;
   }
 
   getArrayBuffer() {

@@ -173,11 +173,13 @@ export default {
         this.individualSavesOrMemoryCard = newValue;
 
         if (newValue === 'individual-saves') {
-          if (this.selectedSaveData == null) {
+          if (this.selectedSaveData === null) {
             this.changeSelectedSaveData(0);
           }
         } else {
-          this.outputFilename = Util.changeFilenameExtension(this.inputFilename, 'mpk');
+          if (this.inputFilename !== null) {
+            this.outputFilename = Util.changeFilenameExtension(this.inputFilename, 'mpk');
+          }
           this.selectedSaveData = null;
         }
       }
@@ -199,13 +201,15 @@ export default {
       this.individualSavesOrMemoryCard = 'individual-saves';
     },
     changeSelectedSaveData(newSaveData) {
-      if (this.dexDriveSaveData.getSaveFiles().length > 0) {
-        this.selectedSaveData = newSaveData;
-        this.outputFilename = N64MempackSaveData.createFilename(this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData]);
-        this.changeIndividualSavesOrMemoryCard('individual-saves');
-      } else {
-        this.selectedSaveData = null;
-        this.outputFilename = null;
+      if (newSaveData !== null) {
+        if ((this.dexDriveSaveData !== null) && (this.dexDriveSaveData.getSaveFiles().length > 0)) {
+          this.selectedSaveData = newSaveData;
+          this.outputFilename = N64MempackSaveData.createFilename(this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData]);
+          this.changeIndividualSavesOrMemoryCard('individual-saves');
+        } else {
+          this.selectedSaveData = null;
+          this.outputFilename = null;
+        }
       }
     },
     readDexDriveSaveData(event) {
