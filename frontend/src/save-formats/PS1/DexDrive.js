@@ -132,14 +132,18 @@ export default class Ps1DexDriveSaveData {
     // Parse the rest of the file
     const memcardArrayBuffer = arrayBuffer.slice(HEADER_LENGTH); // The remainder of the file is the actual contents of the memory card
 
-    const memcard = Ps1MemcardSaveData.createFromPs1MemcardData(memcardArrayBuffer);
+    this.memoryCard = Ps1MemcardSaveData.createFromPs1MemcardData(memcardArrayBuffer);
 
     // Add in the comments we found in the header
-    this.saveFiles = memcard.getSaveFiles().map((x) => ({ ...x, comment: comments[x.startingBlock] }));
+    this.saveFiles = this.memoryCard.getSaveFiles().map((x) => ({ ...x, comment: comments[x.startingBlock] }));
   }
 
   getSaveFiles() {
     return this.saveFiles;
+  }
+
+  getMemoryCard() {
+    return this.memoryCard;
   }
 
   getArrayBuffer() {
