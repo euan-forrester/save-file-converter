@@ -77,7 +77,7 @@
       <b-row class="justify-content-md-center" align-h="center">
         <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
           <b-button
-            class="n64-dexdrive-convert-button"
+            class="ps1-dexdrive-convert-button"
             variant="success"
             block
             :disabled="this.convertButtonDisabled"
@@ -107,7 +107,7 @@
 <style scoped>
 
 /* Separate class for each different button to enable tracking in google tag manager */
-.n64-dexdrive-convert-button {
+.ps1-dexdrive-convert-button {
   margin-top: 1em;
 }
 
