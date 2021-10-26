@@ -20,7 +20,7 @@
             />
             <file-list
               :display="this.pspSaveData !== null"
-              :files="this.pspSaveData ? this.pspSaveData.getSaveFiles() : []"
+              :files="this.getFileListNames()"
               v-model="selectedSaveData"
               @change="changeSelectedSaveData($event)"
             />
@@ -153,6 +153,13 @@ export default {
     },
   },
   methods: {
+    getFileListNames() {
+      if ((this.pspSaveData !== null) && (this.pspSaveData.getSaveFiles() !== null)) {
+        return this.pspSaveData.getSaveFiles().map((x) => ({ displayText: x.description }));
+      }
+
+      return [];
+    },
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
       this.pspSaveData = null;
