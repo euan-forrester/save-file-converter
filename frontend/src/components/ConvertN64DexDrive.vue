@@ -173,7 +173,7 @@ export default {
         this.individualSavesOrMemoryCard = newValue;
 
         if (newValue === 'individual-saves') {
-          if (this.selectedSaveData == null) {
+          if (this.selectedSaveData === null) {
             this.changeSelectedSaveData(0);
           }
         } else {
