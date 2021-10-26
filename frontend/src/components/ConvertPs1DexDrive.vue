@@ -177,7 +177,9 @@ export default {
             this.changeSelectedSaveData(0);
           }
         } else {
-          this.outputFilename = Util.changeFilenameExtension(this.inputFilename, 'mcr');
+          if (this.inputFilename !== null) {
+            this.outputFilename = Util.changeFilenameExtension(this.inputFilename, 'mcr');
+          }
           this.selectedSaveData = null;
         }
       }
@@ -200,7 +202,7 @@ export default {
     },
     changeSelectedSaveData(newSaveData) {
       if (newSaveData !== null) {
-        if (this.dexDriveSaveData.getSaveFiles().length > 0) {
+        if ((this.dexDriveSaveData !== null) && (this.dexDriveSaveData.getSaveFiles().length > 0)) {
           this.selectedSaveData = newSaveData;
           this.outputFilename = this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData].filename;
           this.changeIndividualSavesOrMemoryCard('individual-saves');
