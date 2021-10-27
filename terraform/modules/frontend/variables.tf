@@ -36,17 +36,26 @@ variable "application_domain" {
 variable "zone_id" {
 }
 
+variable "enable_continuous_deployment" {
+  type = bool
+}
+
 variable "project_github_location" {
+  default = ""
 }
 
 variable "build_logs_bucket_id" {
+  default = ""
 }
 
 variable "buildspec_location" {
+  default = ""
 }
 
 variable "file_path" {
+  default = ""
 }
 
 variable "build_service_role_arn" {
+  default = ""
 }

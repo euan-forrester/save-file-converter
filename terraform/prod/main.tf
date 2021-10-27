@@ -19,6 +19,7 @@ module "frontend" {
   application_domain    = var.application_domain
   zone_id               = var.route_53_zone_id
 
+  enable_continuous_deployment = true
   project_github_location = var.project_github_location
   build_logs_bucket_id    = module.build-common-infrastructure.build_logs_bucket_id
   buildspec_location      = "frontend/buildspec.yml"

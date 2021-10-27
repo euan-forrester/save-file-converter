@@ -24,4 +24,3 @@ variable "file_path" {
 
 variable "build_service_role_arn" {
 }
-

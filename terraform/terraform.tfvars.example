@@ -4,3 +4,4 @@ bucketname_user_string = ""
 alarms_email = ""
 application_domain = ""
 route_53_zone_id = "" # Zone created by Route 53 for our application domain
+project_github_location = "https://github.com/euan-forrester/save-file-converter"

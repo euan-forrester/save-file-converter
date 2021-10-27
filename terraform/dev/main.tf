@@ -18,6 +18,8 @@ module "frontend" {
   use_custom_domain     = false
   application_domain    = var.application_domain
   zone_id               = var.route_53_zone_id
+
+  enable_continuous_deployment = false
 }
 
 module "alarms" {
