@@ -1,7 +1,7 @@
 module "build" {
   source = "../build-pipeline-frontend"
 
-  count = var.enable_continuous_deployment ? 1 : 0
+  // count = var.enable_continuous_deployment ? 1 : 0
 
   environment              = var.environment
   environment_long_name    = var.environment_long_name
