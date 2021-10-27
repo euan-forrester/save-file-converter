@@ -1,0 +1,19 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 12
+    commands:
+      - apt-get update -y
+      - apt-get install -y yarn
+  pre_build:
+    commands:
+      - cd frontend
+      - yarn install
+  build:
+    commands:
+      - yarn build --mode=$ENVIRONMENT
+  post_build:
+    commands:
+      - yarn deploy --mode=$ENVIRONMENT && yarn deploy:cleanup --mode=$ENVIRONMENT
