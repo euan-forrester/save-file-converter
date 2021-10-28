@@ -16,12 +16,14 @@ resource "aws_acm_certificate" "cert" {
   }
 }
 
+# FIXME: Need to revisit this to use newer syntax and clean it up
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/guides/version-3-upgrade#domain_validation_options-changed-from-list-to-set
 resource "aws_route53_record" "cert_validation" {
   count   = var.use_custom_domain ? 1 : 0
   zone_id = var.zone_id
-  name    = aws_acm_certificate.cert[count.index].domain_validation_options.0.resource_record_name
-  type    = aws_acm_certificate.cert[count.index].domain_validation_options.0.resource_record_type
-  records = [aws_acm_certificate.cert[count.index].domain_validation_options.0.resource_record_value]
+  name    = tolist(aws_acm_certificate.cert[count.index].domain_validation_options)[0].resource_record_name
+  type    = tolist(aws_acm_certificate.cert[count.index].domain_validation_options)[0].resource_record_type
+  records = [tolist(aws_acm_certificate.cert[count.index].domain_validation_options)[0].resource_record_value]
   ttl     = 60
 }
 
