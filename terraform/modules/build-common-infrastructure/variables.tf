@@ -26,3 +26,5 @@ variable "days_to_keep_build_logs" {
 variable "s3_deployment_bucket_arn" {
 }
 
+variable "cloudfront_distribution_arn" {
+}

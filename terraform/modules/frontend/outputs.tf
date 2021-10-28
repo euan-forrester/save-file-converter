@@ -12,3 +12,8 @@ output "s3_deployment_bucket_arn" {
   value       = aws_s3_bucket.frontend.arn
   description = "The ARN of the bucket that hosts our deployment"
 }
+
+output "cloudfront_distribution_arn" {
+  value       = element(concat(aws_cloudfront_distribution.application.*.arn, [""]), 0)
+  description = "The ARN of the Cloudfront distribution that fronts our deployment"
+}

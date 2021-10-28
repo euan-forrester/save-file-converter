@@ -77,6 +77,15 @@ resource "aws_iam_role_policy" "build_common_infrastructure" {
       ]
     },
     {
+      "Effect": "Allow",
+      "Action": [
+        "cloudfront:CreateInvalidation"
+      ],
+      "Resource": [
+        "${var.cloudfront_distribution_arn}"
+      ]
+    },
+    {
       "Action": [
         "ecr:BatchCheckLayerAvailability",
         "ecr:CompleteLayerUpload",
