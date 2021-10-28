@@ -37,6 +37,8 @@ module "build-common-infrastructure" {
   project_github_location  = var.project_github_location
   s3_deployment_bucket_arn = module.frontend.s3_deployment_bucket_arn
 
+  cloudfront_distribution_arn = module.frontend.cloudfront_distribution_arn
+
   build_logs_bucket               = "${var.application_name}-build-logs"
   bucketname_user_string          = var.bucketname_user_string
   retain_build_logs_after_destroy = true # For prod we don't want to lose logs, even after a terraform destroy
