@@ -69,7 +69,10 @@ resource "aws_iam_role_policy" "build_common_infrastructure" {
       "Action": [
         "s3:ListBucket",
         "s3:PutObject*",
-        "s3:PutBucketWebsite"
+        "s3:PutBucketWebsite",
+        "s3:ListObjectsV2",
+        "s3:GetObject*",
+        "s3:CopyObject"
       ],
       "Resource": [
         "${var.s3_deployment_bucket_arn}",
