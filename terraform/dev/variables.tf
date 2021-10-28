@@ -25,3 +25,6 @@ variable "application_domain" {
 
 variable "route_53_zone_id" {
 }
+
+variable "project_github_location" {
+}
