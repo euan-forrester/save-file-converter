@@ -11,6 +11,3 @@ Vue.use(VueGtm, {
   loadScript: true,
   vueRouter: router,
 });
-
-console.log(`Enable GTM set to ${process.env.VUE_APP_ENABLE_GOOGLE_TAG_MANAGER} type: ${typeof process.env.VUE_APP_ENABLE_GOOGLE_TAG_MANAGER}`);
-console.log(`Debug GTM set to ${process.env.VUE_APP_DEBUG_GOOGLE_TAG_MANAGER} type: ${typeof process.env.VUE_APP_DEBUG_GOOGLE_TAG_MANAGER}`);
