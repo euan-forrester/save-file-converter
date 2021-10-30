@@ -905,6 +905,18 @@
   resolved "https://registry.yarnpkg.com/@fortawesome/vue-fontawesome/-/vue-fontawesome-2.0.2.tgz#5b86cd2fb7b4c17e5dede722c1c2855c97eceaea"
   integrity sha512-ecpKSBUWXsxRJVi/dbOds4tkKwEcBQ1JSDZFzE2jTFpF8xIh3OgTX8POIor6bOltjibr3cdEyvnDjecMwUmxhQ==
 
+"@gtm-support/core@1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@gtm-support/core/-/core-1.1.0.tgz#bacc66e1b64a3c6b6302bb7feb81ba506c5330ba"
+  integrity sha512-GyiZEfKejkAQq2lDS0u2mv6NDVdNWqXi+uQX0zcBOsIpWHfQxWpuCeTTCSv3DZEKv2LMkC0cwv6ukVRJvPmpaA==
+
+"@gtm-support/vue2-gtm@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@gtm-support/vue2-gtm/-/vue2-gtm-1.2.0.tgz#4bb1e84843e26f2bf43b2dc71080f166901e6f76"
+  integrity sha512-0nMMgeh6NyiXFtNAaNq0AMBupjf03uXIIvOBwrbDQ5X/2fo0Y0mKG9kw5t4+dLhR7hBWlpga2w1XSkEjPnASsw==
+  dependencies:
+    "@gtm-support/core" "1.1.0"
+
 "@hapi/address@2.x.x":
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/@hapi/address/-/address-2.1.4.tgz#5d67ed43f3fd41a69d4b9ff7b56e7c0d1d0a81e5"
