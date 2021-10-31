@@ -1,18 +1,5 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import Retron5 from '../views/Retron5.vue';
-import ActionReplay from '../views/ActionReplay.vue';
-import GameShark from '../views/GameShark.vue';
-import GameSharkSP from '../views/GameSharkSP.vue';
-import Wii from '../views/Wii.vue';
-import Ps1DexDrive from '../views/Ps1DexDrive.vue';
-import Ps1Psp from '../views/Ps1Psp.vue';
-import Ps1Emulator from '../views/Ps1Emulator.vue';
-import N64DexDrive from '../views/N64DexDrive.vue';
-import N64Mempack from '../views/N64Mempack.vue';
-import OtherConverters from '../views/OtherConverters.vue';
-import DownloadSaves from '../views/DownloadSaves.vue';
-import Troubleshooting from '../views/Troubleshooting.vue';
 
 Vue.use(VueRouter);
 
@@ -24,27 +11,27 @@ const routes = [
   {
     path: '/retron-5',
     name: 'Retron5',
-    component: Retron5,
+    component: () => import(/* webpackChunkName: "retron5" */ '../views/Retron5.vue'),
   },
   {
     path: '/wii',
     name: 'Wii',
-    component: Wii,
+    component: () => import(/* webpackChunkName: "wii" */ '../views/Wii.vue'),
   },
   {
     path: '/gba/action-replay',
     name: 'ActionReplay',
-    component: ActionReplay,
+    component: () => import(/* webpackChunkName: "gba-action-replay" */ '../views/ActionReplay.vue'),
   },
   {
     path: '/gba/gameshark',
     name: 'GameShark',
-    component: GameShark,
+    component: () => import(/* webpackChunkName: "gba-gameshark" */ '../views/GameShark.vue'),
   },
   {
     path: '/gba/gameshark-sp',
     name: 'GameShark SP',
-    component: GameSharkSP,
+    component: () => import(/* webpackChunkName: "gba-gameshark-sp" */ '../views/GameSharkSP.vue'),
   },
   {
     path: '/gba',
@@ -53,17 +40,17 @@ const routes = [
   {
     path: '/ps1/emulator',
     name: 'PS1 - Emulator',
-    component: Ps1Emulator,
+    component: () => import(/* webpackChunkName: "ps1-emulator" */ '../views/Ps1Emulator.vue'),
   },
   {
     path: '/ps1/dexdrive',
     name: 'PS1 - DexDrive',
-    component: Ps1DexDrive,
+    component: () => import(/* webpackChunkName: "ps1-dexdrive" */ '../views/Ps1DexDrive.vue'),
   },
   {
     path: '/ps1/psp',
     name: 'PS1 - PSP',
-    component: Ps1Psp,
+    component: () => import(/* webpackChunkName: "ps1-psp" */ '../views/Ps1Psp.vue'),
   },
   {
     path: '/ps1',
@@ -72,12 +59,12 @@ const routes = [
   {
     path: '/n64/dexdrive',
     name: 'N64 - DexDrive',
-    component: N64DexDrive,
+    component: () => import(/* webpackChunkName: "n64-dexdrive" */ '../views/N64DexDrive.vue'),
   },
   {
     path: '/n64/controller-pak',
     name: 'N64 - Controller Pak',
-    component: N64Mempack,
+    component: () => import(/* webpackChunkName: "n64-mempack" */ '../views/N64Mempack.vue'),
   },
   {
     path: '/n64',
@@ -86,17 +73,17 @@ const routes = [
   {
     path: '/troubleshooting',
     name: 'Troubleshooting',
-    component: Troubleshooting,
+    component: () => import(/* webpackChunkName: "troubleshooting" */ '../views/Troubleshooting.vue'),
   },
   {
     path: '/other-converters',
     name: 'OtherConverters',
-    component: OtherConverters,
+    component: () => import(/* webpackChunkName: "other-converters" */ '../views/OtherConverters.vue'),
   },
   {
     path: '/download-saves',
     name: 'DownloadSaves',
-    component: DownloadSaves,
+    component: () => import(/* webpackChunkName: "download-saves" */ '../views/DownloadSaves.vue'),
   },
   {
     path: '/about',
