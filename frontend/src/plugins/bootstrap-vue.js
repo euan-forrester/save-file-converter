@@ -26,7 +26,6 @@ import {
   FormInputPlugin,
   LinkPlugin,
   FormSelectPlugin,
-  PopoverPlugin,
   ListGroupPlugin,
   CollapsePlugin,
   SpinnerPlugin,
@@ -45,7 +44,6 @@ Vue.use(FormGroupPlugin);
 Vue.use(FormInputPlugin);
 Vue.use(LinkPlugin);
 Vue.use(FormSelectPlugin);
-Vue.use(PopoverPlugin);
 Vue.use(ListGroupPlugin);
 Vue.use(CollapsePlugin);
 Vue.use(SpinnerPlugin);

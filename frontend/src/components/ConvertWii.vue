@@ -113,6 +113,7 @@
 </style>
 
 <script>
+import { BPopover } from 'bootstrap-vue';
 import { saveAs } from 'file-saver';
 import Util from '../util/util';
 import InputFile from './InputFile.vue';
@@ -140,6 +141,7 @@ export default {
     };
   },
   components: {
+    BPopover,
     ConversionDirection,
     InputFile,
     OutputFilename,
