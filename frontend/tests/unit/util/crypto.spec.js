@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import Crypto from '@/util/crypto';
 import Util from '@/util/util';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
@@ -13,11 +14,11 @@ describe('util', () => {
     const textEncoder = new TextEncoder(PLAINTEXT_ENCODING);
     const plaintextArrayBuffer = Util.bufferToArrayBuffer(textEncoder.encode(PLAINTEXT_STRING));
 
-    const encryptedArrayBuffer = Util.encrypt(Util.addPkcsPadding(plaintextArrayBuffer), ENCRYPTION_ALGORITHM, ENCRYPTION_KEY, ENCRYPTION_INITIALIZATION_VECTOR);
+    const encryptedArrayBuffer = Crypto.encrypt(Crypto.addPkcsPadding(plaintextArrayBuffer), ENCRYPTION_ALGORITHM, ENCRYPTION_KEY, ENCRYPTION_INITIALIZATION_VECTOR);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(plaintextArrayBuffer, encryptedArrayBuffer)).to.equal(false);
 
-    const decryptedArrayBuffer = Util.removePkcsPadding(Util.decrypt(encryptedArrayBuffer, ENCRYPTION_ALGORITHM, ENCRYPTION_KEY, ENCRYPTION_INITIALIZATION_VECTOR));
+    const decryptedArrayBuffer = Crypto.removePkcsPadding(Crypto.decrypt(encryptedArrayBuffer, ENCRYPTION_ALGORITHM, ENCRYPTION_KEY, ENCRYPTION_INITIALIZATION_VECTOR));
 
     expect(ArrayBufferUtil.arrayBuffersEqual(decryptedArrayBuffer, plaintextArrayBuffer)).to.equal(true);
 
