@@ -27,6 +27,9 @@ module.exports = {
         Value: 'DeleteMe',
       },
     },
+    webpackBundleAnalyzer: {
+      openAnalyzer: true,
+    },
   },
   configureWebpack: {
     resolve: {
