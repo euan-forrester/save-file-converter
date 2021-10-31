@@ -12,7 +12,10 @@ of encryption and hashes with some other random operations thrown in for good me
 based on https://github.com/dots-tb/vita-mcr2vmp
 */
 
-import crypto from 'crypto';
+// Also, rather than importing the node crypto module, which is huge, we're going to use
+// just a portion of it as implemented in https://github.com/crypto-browserify/createHash
+
+import createHash from 'create-hash';
 import Ps1MemcardSaveData from './Memcard';
 import Util from '../../util/util';
 import Crypto from '../../util/crypto';
@@ -108,14 +111,14 @@ function calculateSignature(arrayBuffer, saltSeed) {
 
   const inputArrayBufferWithoutHash = Util.fillArrayBufferPortion(arrayBuffer, SIGNATURE_OFFSET, SIGNATURE_LENGTH, 0);
 
-  const hash1 = crypto.createHash(HASH_ALGORITHM);
+  const hash1 = createHash(HASH_ALGORITHM);
 
   hash1.update(Buffer.from(salt));
   hash1.update(Buffer.from(inputArrayBufferWithoutHash));
 
   const hash1Output = hash1.digest();
 
-  const hash2 = crypto.createHash(HASH_ALGORITHM);
+  const hash2 = createHash(HASH_ALGORITHM);
 
   salt = xorWithByte(salt, 0x6A, SALT_LENGTH);
 
