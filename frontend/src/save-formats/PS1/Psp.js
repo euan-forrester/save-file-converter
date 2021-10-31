@@ -12,9 +12,13 @@ of encryption and hashes with some other random operations thrown in for good me
 based on https://github.com/dots-tb/vita-mcr2vmp
 */
 
-import crypto from 'crypto';
+// Also, rather than importing the node crypto module, which is huge, we're going to use
+// just a portion of it as implemented in https://github.com/crypto-browserify/createHash
+
+import createHash from 'create-hash';
 import Ps1MemcardSaveData from './Memcard';
 import Util from '../../util/util';
+import Crypto from '../../util/crypto';
 
 // PSP header
 
@@ -86,11 +90,11 @@ function calculateSignature(arrayBuffer, saltSeed) {
   let workBuffer = new ArrayBuffer(ENCRYPTION_KEY_LENGTH); // In the code we're copying from, only this many bytes are actually used from this buffer, until the very end when it's repurposed to receive the final sha1 digest
 
   workBuffer = Util.setArrayBufferPortion(workBuffer, saltSeed, 0, 0, ENCRYPTION_KEY_LENGTH);
-  workBuffer = Util.decrypt(workBuffer, ENCRYPTION_ALGORITHM, ENCRYPTION_KEY, ENCRYPTION_IV);
+  workBuffer = Crypto.decrypt(workBuffer, ENCRYPTION_ALGORITHM, ENCRYPTION_KEY, ENCRYPTION_IV);
   salt = Util.setArrayBufferPortion(salt, workBuffer, 0, 0, ENCRYPTION_KEY_LENGTH);
 
   workBuffer = Util.setArrayBufferPortion(workBuffer, saltSeed, 0, 0, ENCRYPTION_KEY_LENGTH);
-  workBuffer = Util.encrypt(workBuffer, ENCRYPTION_ALGORITHM, ENCRYPTION_KEY, ENCRYPTION_IV);
+  workBuffer = Crypto.encrypt(workBuffer, ENCRYPTION_ALGORITHM, ENCRYPTION_KEY, ENCRYPTION_IV);
   salt = Util.setArrayBufferPortion(salt, workBuffer, ENCRYPTION_KEY_LENGTH, 0, ENCRYPTION_KEY_LENGTH);
 
   salt = xorWithIv(salt, 0, ENCRYPTION_IV_PRETEND); // The only place our IV is actually used: as a random series of bytes
@@ -107,14 +111,14 @@ function calculateSignature(arrayBuffer, saltSeed) {
 
   const inputArrayBufferWithoutHash = Util.fillArrayBufferPortion(arrayBuffer, SIGNATURE_OFFSET, SIGNATURE_LENGTH, 0);
 
-  const hash1 = crypto.createHash(HASH_ALGORITHM);
+  const hash1 = createHash(HASH_ALGORITHM);
 
   hash1.update(Buffer.from(salt));
   hash1.update(Buffer.from(inputArrayBufferWithoutHash));
 
   const hash1Output = hash1.digest();
 
-  const hash2 = crypto.createHash(HASH_ALGORITHM);
+  const hash2 = createHash(HASH_ALGORITHM);
 
   salt = xorWithByte(salt, 0x6A, SALT_LENGTH);
 

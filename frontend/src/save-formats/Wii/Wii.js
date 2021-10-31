@@ -16,7 +16,7 @@ The overall file structure looks like:
 Some parts are encrypted and some aren't
 */
 
-import Util from '../../util/util';
+import Crypto from '../../util/crypto';
 
 const LITTLE_ENDIAN = false;
 const GAME_TITLE_ENCODING = 'utf-16be';
@@ -71,7 +71,7 @@ function parseFile(arrayBuffer, currentByte, asciiDecoder) {
   let decryptedData = null;
 
   try {
-    decryptedData = Util.decrypt(encryptedData, ENCRYPTION_ALGORITHM, SD_KEY, initializationVector);
+    decryptedData = Crypto.decrypt(encryptedData, ENCRYPTION_ALGORITHM, SD_KEY, initializationVector);
   } catch (e) {
     throw new Error(INCORRECT_FORMAT_ERROR_MESSAGE, e); // Error trying to decrypt indicates that something is malformed
   }
@@ -107,7 +107,7 @@ export default class WiiSaveData {
     let decryptedArrayBuffer = null;
 
     try {
-      decryptedArrayBuffer = Util.decrypt(arrayBuffer, ENCRYPTION_ALGORITHM, SD_KEY, SD_INITIALIZATION_VECTOR);
+      decryptedArrayBuffer = Crypto.decrypt(arrayBuffer, ENCRYPTION_ALGORITHM, SD_KEY, SD_INITIALIZATION_VECTOR);
     } catch (e) {
       throw new Error(INCORRECT_FORMAT_ERROR_MESSAGE, e); // Error trying to decrypt indicates that something is malformed
     }

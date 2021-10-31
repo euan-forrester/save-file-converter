@@ -12,11 +12,16 @@
 </template>
 
 <script>
+import { BPopover } from 'bootstrap-vue';
+
 export default {
   name: 'HelpButton',
   props: [
     'popoverText',
     'id',
   ],
+  components: {
+    BPopover,
+  },
 };
 </script>

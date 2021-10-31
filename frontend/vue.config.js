@@ -3,6 +3,7 @@ const path = require('path');
 const testsDir = './tests';
 
 module.exports = {
+  productionSourceMap: process.env.VUE_APP_ENABLE_SOURCE_MAPS === 'true',
   pluginOptions: {
     s3Deploy: {
       registry: undefined,
@@ -26,6 +27,9 @@ module.exports = {
         Key: 'DeployLifecycle',
         Value: 'DeleteMe',
       },
+    },
+    webpackBundleAnalyzer: {
+      openAnalyzer: false,
     },
   },
   configureWebpack: {

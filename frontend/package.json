@@ -19,8 +19,10 @@
     "axios-retry": "^3.1.9",
     "bootstrap": "^4.6.0",
     "bootstrap-vue": "^2.21.2",
+    "browserify-aes": "^1.2.0",
     "core-js": "^3.6.5",
     "crc-32": "^1.2.0",
+    "create-hash": "^1.2.0",
     "dayjs": "^1.10.4",
     "file-saver": "^2.0.5",
     "lodash-es": "^4.17.21",
@@ -50,7 +52,9 @@
     "eslint-plugin-vue": "^6.2.2",
     "seedrandom": "^3.0.5",
     "vue-cli-plugin-s3-deploy-cleanup": "~1.0.1",
-    "vue-template-compiler": "^2.6.12"
+    "vue-cli-plugin-webpack-bundle-analyzer": "~4.0.0",
+    "vue-template-compiler": "^2.6.12",
+    "webpack-bundle-analyzer": "^4.5.0"
   },
   "eslintConfig": {
     "root": true,
