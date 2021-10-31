@@ -17,8 +17,8 @@ Instructions:
 ## Upcoming features
 
 - Decrypt PSP saves
-- Reorganize the interface to be listed by game console rather than save file format
 - Be able to autodetect the format of a given save file (note that raw files need their size checked, unrecognized size means invalid file)
+- What are the 64kB `.srm` files for SNES etc on thetechgame.com? Want to extract a 'normal' `.srm` file from them
 - I need suggestions!
 
 ## Save file formats
