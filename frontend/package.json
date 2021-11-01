@@ -51,7 +51,7 @@
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-vue": "^6.2.2",
     "seedrandom": "^3.0.5",
-    "vue-cli-plugin-s3-deploy-cleanup": "^1.0.4",
+    "vue-cli-plugin-s3-deploy-cleanup": "^1.0.5",
     "vue-cli-plugin-webpack-bundle-analyzer": "~4.0.0",
     "vue-template-compiler": "^2.6.12",
     "webpack-bundle-analyzer": "^4.5.0"
