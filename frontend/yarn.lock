@@ -9225,10 +9225,10 @@ vm-browserify@^1.0.1:
   resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.2.tgz#78641c488b8e6ca91a75f511e7a3b32a86e5dda0"
   integrity sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==
 
-vue-cli-plugin-s3-deploy-cleanup@~1.0.1:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/vue-cli-plugin-s3-deploy-cleanup/-/vue-cli-plugin-s3-deploy-cleanup-1.0.2.tgz#a3b84fc6abe2da742329962e5ba127f458be8af8"
-  integrity sha512-AltU73arRAAh/nkJCixteWxGWbIPUzB6b/6VAXmJe/a+9EPaYPZHzebIvxbdqd4yfWE+6F/L8GgipCSErOtXwA==
+vue-cli-plugin-s3-deploy-cleanup@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/vue-cli-plugin-s3-deploy-cleanup/-/vue-cli-plugin-s3-deploy-cleanup-1.0.4.tgz#74b3cb0ee9c4caa8f0b83caa5715b3c967d8c8cf"
+  integrity sha512-t5XddKYeqh2WhUyfS5ROqDAGQRpkvwX4WwpIE/DXiRJVvsN572GxBnHiGFcshFolhr2diU9OiBnH4XKEcDy7Gw==
   dependencies:
     aws-sdk "2.688.0"
     glob "7.1.6"
