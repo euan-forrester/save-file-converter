@@ -7,10 +7,10 @@ phases:
     commands:
       - apt-get update -y
       - apt-get install -y yarn
-  pre_build:
-    commands:
       - cd frontend
       - yarn install
+  pre_build:
+    commands:
       - yarn test:unit
   build:
     commands:
