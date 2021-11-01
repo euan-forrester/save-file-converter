@@ -25,8 +25,4 @@ describe('Retron 5 save format', () => {
 
     expect(ArrayBufferUtil.arrayBuffersEqual(retron5SaveData.getArrayBuffer(), retron5ArrayBuffer)).to.equal(true);
   });
-
-  it('should fail intentionally', () => {
-    expect(false).to.equal(true);
-  });
 });
