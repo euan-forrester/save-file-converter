@@ -11,6 +11,7 @@ phases:
     commands:
       - cd frontend
       - yarn install
+      - yarn test:unit
   build:
     commands:
       - yarn build --mode=$ENVIRONMENT
