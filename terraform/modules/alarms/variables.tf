@@ -7,7 +7,7 @@ variable "region" {
 variable "topic_name" {
 }
 
-variable "alarms_email" {
+variable "notifications_email" {
 }
 
 variable "enable_alarms" {

@@ -52,7 +52,7 @@ module "alarms" {
   region            = var.region
 
   topic_name        = var.application_name
-  alarms_email      = var.alarms_email
+  notifications_email = var.notifications_email
 
   bucket_name       = module.frontend.bucket_name
   bucket_metrics_filter_id = module.frontend.bucket_metrics_filter_id
