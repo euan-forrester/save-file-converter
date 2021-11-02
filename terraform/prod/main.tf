@@ -43,6 +43,9 @@ module "build-common-infrastructure" {
   bucketname_user_string          = var.bucketname_user_string
   retain_build_logs_after_destroy = true # For prod we don't want to lose logs, even after a terraform destroy
   days_to_keep_build_logs         = 90
+
+  topic_name          = "${var.application_name}-builds"
+  notifications_email = var.notifications_email
 }
 
 module "alarms" {
@@ -51,7 +54,7 @@ module "alarms" {
   environment       = var.environment
   region            = var.region
 
-  topic_name        = var.application_name
+  topic_name          = "${var.application_name}-alarms"
   notifications_email = var.notifications_email
 
   bucket_name       = module.frontend.bucket_name

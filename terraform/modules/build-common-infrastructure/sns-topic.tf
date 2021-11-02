@@ -1,6 +1,6 @@
 # Based on https://stephenmann.io/post/setting-up-monitoring-and-alerting-on-amazon-aws-with-terraform/
 
-resource "aws_sns_topic" "alarms" {
+resource "aws_sns_topic" "builds" {
   name            = "${var.topic_name}-${var.environment}"
   delivery_policy = <<EOF
 {

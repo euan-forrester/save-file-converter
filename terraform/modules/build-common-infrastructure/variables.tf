@@ -28,3 +28,9 @@ variable "s3_deployment_bucket_arn" {
 
 variable "cloudfront_distribution_arn" {
 }
+
+variable "topic_name" {
+}
+
+variable "notifications_email" {
+}
