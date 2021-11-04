@@ -61,7 +61,9 @@ variable "build_service_role_arn" {
 }
 
 variable "build_sns_topic_arn" {
+  default = ""
 }
 
 variable "alarms_sns_topic_arn" {
+  default = ""
 }
