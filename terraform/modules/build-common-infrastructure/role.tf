@@ -2,7 +2,7 @@
 # The policy is also detailed here: https://docs.aws.amazon.com/codebuild/latest/userguide/auth-and-access-control-iam-identity-based-access-control.html#customer-managed-policies-example-create-vpc-network-interface
 
 resource "aws_iam_role" "build_common_infrastructure" {
-  name = "codebuild-${var.environment}"
+  name = "${var.application_name}-codebuild-${var.environment}"
 
   assume_role_policy = <<EOF
 {
@@ -96,6 +96,29 @@ resource "aws_iam_role_policy" "build_common_infrastructure" {
         "ecr:InitiateLayerUpload",
         "ecr:PutImage",
         "ecr:UploadLayerPart"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    },
+    {
+      "Sid": "SNSAccessPolicy",
+      "Effect": "Allow",
+      "Action": [
+        "sns:CreateTopic",
+        "sns:GetTopicAttributes",
+        "sns:List*",
+        "sns:Publish",
+        "sns:SetTopicAttributes",
+        "sns:Subscribe"
+      ],
+      "Resource": [
+        "*"
+      ]
+    },
+    {
+      "Action": [
+        "events:*",
+        "iam:PassRole"
       ],
       "Resource": "*",
       "Effect": "Allow"

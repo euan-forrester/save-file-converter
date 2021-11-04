@@ -34,3 +34,6 @@ variable "topic_name" {
 
 variable "notifications_email" {
 }
+
+variable "application_name" {
+}

@@ -1,5 +1,5 @@
 resource "aws_codebuild_project" "frontend" {
-  name          = "frontend-${var.environment}"
+  name          = "${var.application_name}-frontend-${var.environment}"
   description   = "Builds the ${var.environment} frontend"
   build_timeout = "5"
   service_role  = var.build_service_role_arn

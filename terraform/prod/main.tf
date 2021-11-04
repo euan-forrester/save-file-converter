@@ -25,11 +25,14 @@ module "frontend" {
   buildspec_location      = "frontend/buildspec.yml"
   file_path               = "frontend/*"
   build_service_role_arn  = module.build-common-infrastructure.build_service_role_arn
+  build_sns_topic_arn     = module.build-common-infrastructure.sns_topic_arn
+  alarms_sns_topic_arn    = module.alarms.sns_topic_arn
 }
 
 module "build-common-infrastructure" {
   source = "../modules/build-common-infrastructure"
 
+  application_name      = var.application_name
   environment           = var.environment
   environment_long_name = var.environment_long_name
   region                = var.region
