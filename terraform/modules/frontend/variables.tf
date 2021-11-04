@@ -59,3 +59,9 @@ variable "file_path" {
 variable "build_service_role_arn" {
   default = ""
 }
+
+variable "build_sns_topic_arn" {
+}
+
+variable "alarms_sns_topic_arn" {
+}

@@ -8,3 +8,7 @@ output "build_logs_bucket_id" {
   description = "ID of the bucket that will contain our build logs"
 }
 
+output "sns_topic_arn" {
+  value       = aws_sns_topic.builds.arn
+  description = "ARN for the SNS topic used to receive build events"
+}

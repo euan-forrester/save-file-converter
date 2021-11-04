@@ -25,11 +25,14 @@ module "frontend" {
   buildspec_location      = "frontend/buildspec.yml"
   file_path               = "frontend/*"
   build_service_role_arn  = module.build-common-infrastructure.build_service_role_arn
+  build_sns_topic_arn     = module.build-common-infrastructure.sns_topic_arn
+  alarms_sns_topic_arn    = module.alarms.sns_topic_arn
 }
 
 module "build-common-infrastructure" {
   source = "../modules/build-common-infrastructure"
 
+  application_name      = var.application_name
   environment           = var.environment
   environment_long_name = var.environment_long_name
   region                = var.region
@@ -43,6 +46,9 @@ module "build-common-infrastructure" {
   bucketname_user_string          = var.bucketname_user_string
   retain_build_logs_after_destroy = true # For prod we don't want to lose logs, even after a terraform destroy
   days_to_keep_build_logs         = 90
+
+  topic_name          = "${var.application_name}-builds"
+  notifications_email = var.notifications_email
 }
 
 module "alarms" {
@@ -51,8 +57,8 @@ module "alarms" {
   environment       = var.environment
   region            = var.region
 
-  topic_name        = var.application_name
-  alarms_email      = var.alarms_email
+  topic_name          = "${var.application_name}-alarms"
+  notifications_email = var.notifications_email
 
   bucket_name       = module.frontend.bucket_name
   bucket_metrics_filter_id = module.frontend.bucket_metrics_filter_id
