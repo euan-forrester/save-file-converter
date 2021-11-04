@@ -28,8 +28,8 @@ The second header is information from the ROM of the game the save is for:
 (see https://github.com/visualboyadvance-m/visualboyadvance-m/blob/master/src/gba/GBA.cpp#L1168)
 */
 
-import GbaRom from '../rom-formats/gba';
-import Util from '../util/util';
+import GbaRom from '../../rom-formats/gba';
+import Util from '../../util/util';
 
 const LITTLE_ENDIAN = true;
 const SHARK_PORT_SAVE = 'SharkPortSave';

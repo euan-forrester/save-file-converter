@@ -20,18 +20,18 @@ const routes = [
   },
   {
     path: '/gba/action-replay',
-    name: 'ActionReplay',
-    component: () => import(/* webpackChunkName: "gba-action-replay" */ '../views/ActionReplay.vue'),
+    name: 'GBA - ActionReplay',
+    component: () => import(/* webpackChunkName: "gba-action-replay" */ '../views/GbaActionReplay.vue'),
   },
   {
     path: '/gba/gameshark',
-    name: 'GameShark',
-    component: () => import(/* webpackChunkName: "gba-gameshark" */ '../views/GameShark.vue'),
+    name: 'GBA - GameShark',
+    component: () => import(/* webpackChunkName: "gba-gameshark" */ '../views/GbaGameShark.vue'),
   },
   {
     path: '/gba/gameshark-sp',
-    name: 'GameShark SP',
-    component: () => import(/* webpackChunkName: "gba-gameshark-sp" */ '../views/GameSharkSP.vue'),
+    name: 'GBA - GameShark SP',
+    component: () => import(/* webpackChunkName: "gba-gameshark-sp" */ '../views/GbaGameSharkSP.vue'),
   },
   {
     path: '/gba',

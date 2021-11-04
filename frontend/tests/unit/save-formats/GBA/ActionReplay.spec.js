@@ -1,8 +1,8 @@
 import { expect } from 'chai';
-import ActionReplaySaveData from '@/save-formats/ActionReplay';
+import ActionReplaySaveData from '@/save-formats/GBA/ActionReplay';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/action-replay';
+const DIR = './tests/unit/save-formats/data/gba/action-replay';
 
 const ACTIONREPLAY_FILENAME = `${DIR}/final-fantasy-tactics-advance.10238.xps`;
 const RAW_FILENAME = `${DIR}/final-fantasy-tactics-advance.10238.srm`;

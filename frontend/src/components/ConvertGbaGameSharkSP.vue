@@ -6,7 +6,7 @@
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
               <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })">
-                <template v-slot:header>GameShark</template>
+                <template v-slot:header>GameShark{{'\xa0'}}SP</template> <!-- Not sure why &nbsp; doesn't work here, but this does -->
               </b-jumbotron>
             </b-col>
           </b-row>
@@ -15,8 +15,8 @@
               id="choose-gameshark-file"
               @load="readGameSharkSaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose a file to convert (*.sps)"
-              acceptExtension=".sps"
+              placeholderText="Choose a file to convert (*.gsv)"
+              acceptExtension=".gsv"
               :leaveRoomForHelpIcon="false"
             />
           </div>
@@ -30,8 +30,13 @@
             :horizontalLayout="['md', 'lg', 'xl']"
             :verticalLayout="['xs', 'sm']"
             :conversionDirection="this.conversionDirection"
+            disableDirection="convertToRetron5"
             @change="changeConversionDirection($event)"
+            id="conversion-direction"
           />
+          <b-popover target="conversion-direction" triggers="focus hover" placement="bottom">
+            Not enough is known about GameShark SP saves to be able to write out a file in this format. We can currently only extract the raw save from these files.
+          </b-popover>
         </b-col>
         <b-col sm=12 md=5 align-self="start">
           <b-row no-gutters align-h="center" align-v="start">
@@ -58,7 +63,7 @@
               @load="readRomData($event)"
               :errorMessage="null"
               placeholderText="Choose the ROM for this file (*.gba)"
-              helpText="GameShark save files contain some information from the corresponding ROM, and some emulators check this information before allowing the save to be loaded.
+              helpText="GameShark SP save files contain some information from the corresponding ROM, and some emulators check this information before allowing the save to be loaded.
               All processing by this website is done on your local machine, and your ROMs are not sent anywhere."
               acceptExtension=".gba"
               :leaveRoomForHelpIcon="true"
@@ -69,7 +74,7 @@
       <b-row class="justify-content-md-center" align-h="center">
         <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
           <b-button
-            class="gameshark-convert-button"
+            class="gameshark-sp-convert-button"
             variant="success"
             block
             :disabled="!this.gameSharkSaveData || !outputFilename"
@@ -82,7 +87,7 @@
       <b-row>
         <b-col>
           <div class="help">
-            Help: how do I&nbsp;<b-link href="https://gamehacking.org/vb/forum/video-game-hacking-and-development/school-of-hacking/14153-gameshark-advance-and-color-save-backup">copy save files to and from my GameShark</b-link>?
+            Help: how do I&nbsp;<b-link href="https://www.manualslib.com/manual/515605/Mad-Catz-Gameshark-Sp.html?page=17#manual">copy save files to and from my GameShark SP</b-link>?
           </div>
           <div class="help">
             Help: what devices can copy save files to and from a GBA cartridge?<br><router-link to="/retron-5">Retron{{'\xa0'}}5</router-link> or <b-link href="https://www.epilogue.co/product/gb-operator">GB{{'\xa0'}}Operator</b-link> or <b-link href="https://bennvenn.myshopify.com/products/usb-gb-c-cart-dumper-the-joey-jr">Joey{{'\xa0'}}Jr.</b-link> or <b-link href="https://www.gbxcart.com/">GBxCart{{'\xa0'}}RW</b-link>
@@ -102,7 +107,7 @@
 <style scoped>
 
 /* Separate class for each different button to enable tracking in google tag manager */
-.gameshark-convert-button {
+.gameshark-sp-convert-button {
   margin-top: 1em;
 }
 
@@ -117,17 +122,17 @@
 </style>
 
 <script>
-import dayjs from 'dayjs';
+import { BPopover } from 'bootstrap-vue';
 import { saveAs } from 'file-saver';
 import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import OutputFilesize from './OutputFilesize.vue';
 import ConversionDirection from './ConversionDirection.vue';
-import GameSharkSaveData from '../save-formats/GameShark';
+import GameSharkSpSaveData from '../save-formats/GBA/GameSharkSP';
 
 export default {
-  name: 'ConvertGameShark',
+  name: 'ConvertGbaGameSharkSP',
   data() {
     return {
       gameSharkSaveData: null,
@@ -141,6 +146,7 @@ export default {
     };
   },
   components: {
+    BPopover,
     ConversionDirection,
     InputFile,
     OutputFilename,
@@ -150,26 +156,14 @@ export default {
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
       this.gameSharkSaveData = null;
-      this.romData = null;
-      this.emulatorSaveData = null;
-      this.emulatorSaveDataFilename = null;
       this.errorMessage = null;
       this.outputFilename = null;
       this.outputFilesize = null;
     },
-    readRomData(event) {
-      this.romData = event.arrayBuffer;
-      this.tryToCreateGameSharkSaveDataFromEmulatorSaveData();
-    },
-    readEmulatorSaveData(event) {
-      this.emulatorSaveData = event.arrayBuffer;
-      this.emulatorSaveDataFilename = event.filename;
-      this.tryToCreateGameSharkSaveDataFromEmulatorSaveData();
-    },
     readGameSharkSaveData(event) {
       this.errorMessage = null;
       try {
-        this.gameSharkSaveData = GameSharkSaveData.createFromGameSharkData(event.arrayBuffer);
+        this.gameSharkSaveData = GameSharkSpSaveData.createFromGameSharkSpData(event.arrayBuffer);
         this.outputFilename = Util.changeFilenameExtension(event.filename, 'srm');
         this.outputFilesize = this.gameSharkSaveData.getRawSaveData().byteLength;
       } catch (e) {
@@ -179,31 +173,12 @@ export default {
         this.outputFilesize = null;
       }
     },
-    tryToCreateGameSharkSaveDataFromEmulatorSaveData() {
-      if ((this.romData !== null) && (this.emulatorSaveData !== null) && (this.emulatorSaveDataFilename !== null)) { // Need to be careful that the user can choose the save data and ROM files in any order, so only proceed once both have been chosen
-        this.errorMessage = null;
-
-        try {
-          const title = Util.removeFilenameExtension(this.emulatorSaveDataFilename);
-          const date = dayjs().format('DD/MM/YYYY hh:mm:ss a');
-          const notes = 'Created with savefileconverter.com';
-          this.gameSharkSaveData = GameSharkSaveData.createFromEmulatorData(this.emulatorSaveData, title, date, notes, this.romData);
-          this.outputFilename = this.changeFilenameExtension(this.emulatorSaveDataFilename, 'sps');
-          this.outputFilesize = this.gameSharkSaveData.getRawSaveData().byteLength;
-        } catch (e) {
-          this.errorMessage = e.message;
-          this.gameSharkSaveData = null;
-          this.outputFilename = null;
-          this.outputFilesize = null;
-        }
-      }
-    },
     convertFile() {
-      if (this.gameSharkSaveData.getRawSaveData().byteLength !== this.outputFilesize) {
-        this.gameSharkSaveData = GameSharkSaveData.createWithNewSize(this.gameSharkSaveData, this.outputFilesize);
-      }
+      let outputArrayBuffer = this.gameSharkSaveData.getRawSaveData();
 
-      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.gameSharkSaveData.getRawSaveData() : this.gameSharkSaveData.getArrayBuffer();
+      if (outputArrayBuffer.byteLength !== this.outputFilesize) {
+        outputArrayBuffer = Util.resizeRawSave(outputArrayBuffer, this.outputFilesize);
+      }
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 
