@@ -16,7 +16,6 @@ Instructions:
 
 ## Upcoming features
 
-- Decrypt PSP saves
 - Be able to autodetect the format of a given save file (note that raw files need their size checked, unrecognized size means invalid file)
 - PS2 formats (check out https://gamefaqs.gamespot.com/ps2/536777-suikoden-iii/saves for a potential list)
 - PS1 saves in PS3 format
@@ -75,6 +74,9 @@ Instructions:
   - https://github.com/TheHellcat/psp-hb/blob/master/SavegameDeemer_620TN/deemer_hooker/main.c#L204 Code for a plugin that does this. It intercepts the call to save the game, and writes out a copy of the save in plaintext, plus the key
   - https://wololo.net/talk/viewtopic.php?p=137153&sid=37bd385d91e7c2d89cf1ff8d70e8c640#p137153 Discussion saying that you need to either use a plugin, or parse the executable for look for code around a certain system call to figure out what value is being passed to it
   - I can't seem to find an online list of game keys, and requiring users to install a plugin on their PSP then type a gamekey into the interface seems like too much to ask.
+  - https://github.com/hrydgard/ppsspp PSP emulator
+    - https://github.com/hrydgard/ppsspp/blob/master/Tools/SaveTool/decrypt.c This decrypts a savegame file
+    - https://github.com/hrydgard/ppsspp/blob/81b5e080ff885e98b5761632158457ce3e5d1fb5/Core/HLE/sceKernelModule.cpp#L1251 The code before here decrypts the executable
 - NES/SNES Classic save game format
   - https://github.com/TeamShinkansen/Hakchi2-CE (tool used to write games onto the devices)
   - https://github.com/JanErikGunnar/ClassicEditionTools (scripts to convert raw saves to/from NES Classic format)
