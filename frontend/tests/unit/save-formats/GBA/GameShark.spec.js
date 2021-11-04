@@ -1,8 +1,8 @@
 import { expect } from 'chai';
-import GameSharkSaveData from '@/save-formats/GameShark';
+import GameSharkSaveData from '@/save-formats/GBA/GameShark';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/gameshark';
+const DIR = './tests/unit/save-formats/data/gba/gameshark';
 
 const GAMESHARK_FILENAME = `${DIR}/the-legend-of-zelda-the-minish-cap.6650.sps`;
 const SAVE_TITLE = 'GBAZELDA MC';
