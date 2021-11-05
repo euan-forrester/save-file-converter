@@ -9,6 +9,8 @@
 // These files appear to be purposefully obfuscated for some reason. To decode them, work in blocks of 4 bytes and xor each block
 // with bitwise-not the block before it. There is a seed block in the header for use with the first block of data.
 //
+// Note that this looks a lot like Cipher Block Chaining (CBC), with the seed block as an initialization vector: https://searchsecurity.techtarget.com/definition/cipher-block-chaining
+//
 // Additional resources:
 //
 // 1) More information about PC Engine saving: https://blackfalcongames.net/?p=190
