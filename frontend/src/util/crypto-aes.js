@@ -5,10 +5,9 @@
 // just a portion of it as implemented in https://github.com/crypto-browserify/browserify-aes
 
 import browserifyAes from 'browserify-aes';
-import { pad, unpad } from 'pkcs7';
 import Util from './util';
 
-export default class Crypto {
+export default class CryptoAes {
   static decrypt(encryptedArrayBuffer, algorithm, key, initializationVector) {
     const decipher = browserifyAes.createDecipheriv(algorithm, key, initializationVector);
     decipher.setAutoPadding(false); // Different platforms have different default padding: https://github.com/nodejs/node/issues/2794#issuecomment-139436581
@@ -27,13 +26,5 @@ export default class Crypto {
     const encryptedBuffer = Buffer.concat([cipher.update(decryptedBuffer), cipher.final()]);
 
     return Util.bufferToArrayBuffer(encryptedBuffer);
-  }
-
-  static addPkcsPadding(arrayBuffer) {
-    return Util.bufferToArrayBuffer(pad(new Uint8Array(arrayBuffer)));
-  }
-
-  static removePkcsPadding(arrayBuffer) {
-    return Util.bufferToArrayBuffer(unpad(new Uint8Array(arrayBuffer)));
   }
 }

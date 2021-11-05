@@ -4,7 +4,8 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 const DIR = './tests/unit/save-formats/data/psp';
 
-const DECRYPTION_KEY = Buffer.from('deadbeef', 'hex');
+const DECRYPTION_KEY = Buffer.from('CAFEBABE', 'hex');
+const DECRYPTION_IV = Buffer.from('CAFED00D', 'hex');
 
 const ENCRYPTED_FILENAME = `${DIR}/DRACULA.BIN`;
 const UNENCRYPTED_FILENAME = `${DIR}/DRACULA-unencrypted.BIN`;
@@ -14,7 +15,7 @@ describe('PSP save decryption', () => {
     const encryptedArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_FILENAME);
     // const unencryptedArrayBuffer = await ArrayBufferUtil.readArrayBuffer(UNENCRYPTED_FILENAME);
 
-    const pspSaveData = PspSaveData.createFromEncryptedData(encryptedArrayBuffer, DECRYPTION_KEY);
+    const pspSaveData = PspSaveData.createFromEncryptedData(encryptedArrayBuffer, DECRYPTION_KEY, DECRYPTION_IV);
 
     ArrayBufferUtil.writeArrayBuffer(UNENCRYPTED_FILENAME, pspSaveData.getUnencryptedArrayBuffer());
 

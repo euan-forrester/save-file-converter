@@ -2228,7 +2228,7 @@ browserify-cipher@^1.0.0:
     browserify-des "^1.0.0"
     evp_bytestokey "^1.0.0"
 
-browserify-des@^1.0.0:
+browserify-des@^1.0.0, browserify-des@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/browserify-des/-/browserify-des-1.0.2.tgz#3af4f1f59839403572f1c66204375f7a7f703e9c"
   integrity sha512-BioO1xf3hFwz4kc6iBhI3ieDFompMhrMlnDFC4/0/vd5MokpuAc3R+LYbwTA9A5Yc9pq9UYPqffKpW2ObuwX5A==
