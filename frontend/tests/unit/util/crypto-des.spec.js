@@ -4,7 +4,7 @@ import Util from '@/util/util';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 import CryptoUtil from '#/util/Crypto';
 
-const PLAINTEXT_STRING = 'Gargoyle\'s Quest > Demon\'s Crest, Megaman X3 > Megaman X2, Adventure of Link > Link to the Past';
+const PLAINTEXT_STRING = 'Mega Man > Mega Man Powered Up, Mega Man X > Mega Man Maverick Hunter X, Need for Speed: Underground > Need for Speed: Underground Rivals';
 const PLAINTEXT_ENCODING = 'utf8';
 const ENCRYPTION_ALGORITHM = 'des-cbc';
 const ENCRYPTION_KEY = Buffer.from('abcdef0123456789', 'hex');
