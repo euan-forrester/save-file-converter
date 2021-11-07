@@ -69,7 +69,6 @@ Instructions:
   - https://www.psdevwiki.com/ps3/PSP_Savedata
   - https://github.com/BrianBTB/SED-PC (PC application that decrypts/encrypts saves)
   - https://github.com/cielavenir/psp-savedata-endecrypter (improvement to SED-PC that works with "mode 4" (whatever that is???))
-  - https://github.com/retrohead/PSPo2iSaveEditor/blob/master/CSEncryptDecrypt/encryptRoutineType.cs (PC application that allows save editing for a specific game)
   - https://wololo.net/talk/viewtopic.php?t=37556 (PSP plugin that dumps a game's key)
   - https://github.com/TheHellcat/psp-hb/blob/master/SavegameDeemer_620TN/deemer_hooker/main.c#L204 Code for a plugin that does this. It intercepts the call to save the game, and writes out a copy of the save in plaintext, plus the key
   - https://wololo.net/talk/viewtopic.php?p=137153&sid=37bd385d91e7c2d89cf1ff8d70e8c640#p137153 Discussion saying that you need to either use a plugin, or parse the executable for look for code around a certain system call to figure out what value is being passed to it
