@@ -1,11 +1,19 @@
-import CryptoDes from '../../util/crypto-des';
+/* eslint-disable no-underscore-dangle */
 
-const ENCRYPTION_ALGORITHM = 'des-cbc';
+import createModule from '@/save-formats/PSP/kirk-engine/test-webassembly';
 
 // const INCORRECT_FORMAT_ERROR_MESSAGE = 'This does not appear to be a PSP save file';
 
 export default class PspSaveData {
-  static createFromEncryptedData(encryptedArrayBuffer, gameKey) {
+  static async createFromEncryptedData(encryptedArrayBuffer, gameKey) {
+    const moduleOverrides = {
+      locateFile: (s) => `src/save-formats/PSP/kirk-engine/${s}`,
+    };
+
+    const moduleInstance = await createModule(moduleOverrides);
+
+    console.log(`Got result ${moduleInstance._testCaller(13, 29)}`);
+
     return new PspSaveData(encryptedArrayBuffer, gameKey);
   }
 
@@ -21,13 +29,7 @@ export default class PspSaveData {
   constructor(encryptedArrayBuffer, gameKey) {
     this.encryptedArrayBuffer = encryptedArrayBuffer;
 
-    let unencryptedArrayBuffer = null;
-
-    // try {
-    unencryptedArrayBuffer = CryptoDes.decrypt(encryptedArrayBuffer, ENCRYPTION_ALGORITHM, gameKey, gameKey);
-    // } catch (e) {
-    //   throw new Error(INCORRECT_FORMAT_ERROR_MESSAGE, e); // Error trying to decrypt indicates that something is malformed
-    // }
+    const unencryptedArrayBuffer = gameKey.length;
 
     this.unencryptedArrayBuffer = unencryptedArrayBuffer;
   }
