@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import moduleFactory from '@/save-formats/PSP/kirk-engine/test-webassembly';
+import createModule from '@/save-formats/PSP/kirk-engine/test-webassembly';
 
 describe('kirk-engine imported library', function () { // eslint-disable-line func-names
   // No arrow function above so that 'this' binds correctly
@@ -8,7 +8,7 @@ describe('kirk-engine imported library', function () { // eslint-disable-line fu
       locateFile: (s) => `src/save-formats/PSP/kirk-engine/${s}`,
     };
 
-    this.moduleInstance = await moduleFactory(moduleOverrides);
+    this.moduleInstance = await createModule(moduleOverrides);
   });
 
   it('should run a test function using cwrap', () => {
