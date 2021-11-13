@@ -5,12 +5,12 @@ const ENCRYPTION_ALGORITHM = 'des-cbc';
 // const INCORRECT_FORMAT_ERROR_MESSAGE = 'This does not appear to be a PSP save file';
 
 export default class PspSaveData {
-  static createFromEncryptedData(encryptedArrayBuffer, decryptionKey) {
-    return new PspSaveData(encryptedArrayBuffer, decryptionKey);
+  static createFromEncryptedData(encryptedArrayBuffer, gameKey) {
+    return new PspSaveData(encryptedArrayBuffer, gameKey);
   }
 
   /*
-  static createFromUnencryptedData(unencryptedArrayBuffer, encryptionKey) {
+  static createFromUnencryptedData(unencryptedArrayBuffer, gameKey) {
     const encryptedArrayBuffer = unencryptedArrayBuffer;
 
     return new PspSaveData(encryptedArrayBuffer);
