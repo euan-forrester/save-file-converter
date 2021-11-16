@@ -14,7 +14,7 @@ describe('PSP save decryption', () => {
     const encryptedArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_FILENAME);
     // const unencryptedArrayBuffer = await ArrayBufferUtil.readArrayBuffer(UNENCRYPTED_FILENAME);
 
-    const pspSaveData = PspSaveData.createFromEncryptedData(encryptedArrayBuffer, GAME_KEY);
+    const pspSaveData = await PspSaveData.createFromEncryptedData(encryptedArrayBuffer, GAME_KEY);
 
     ArrayBufferUtil.writeArrayBuffer(UNENCRYPTED_FILENAME, pspSaveData.getUnencryptedArrayBuffer());
 

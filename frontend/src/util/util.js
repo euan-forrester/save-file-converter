@@ -14,7 +14,9 @@ export default class Util {
   }
 
   static appendToFilename(filename, stringToAppend) {
-    return `${Util.removeFilenameExtension(filename)}${stringToAppend}.${path.extname(filename)}`;
+    return `${Util.removeFilenameExtension(filename)}${stringToAppend}${path.extname(filename)}`;
+  }
+
   }
 
   static bufferToArrayBuffer(b) {

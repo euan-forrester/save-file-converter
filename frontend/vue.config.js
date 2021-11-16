@@ -58,6 +58,18 @@ module.exports = {
           });
         });
       }
+    },
+    module: {
+      rules: [
+        { 
+          test: /\.wasm$/,
+          type: 'javascript/auto',
+          loader: 'file-loader',
+          options: {
+            name: '[name]-[contenthash].[ext]',         
+          }        
+        }
+      ]
     }
   }
 };

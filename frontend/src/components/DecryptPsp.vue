@@ -119,20 +119,20 @@ export default {
       this.errorMessage = null;
       this.outputFilename = null;
     },
-    readEncryptedSaveData(event) {
+    async readEncryptedSaveData(event) {
       this.errorMessage = null;
       try {
-        this.pspSaveData = PspSaveData.createFromEncryptedData(event.arrayBuffer, Buffer.from('0102030405060708', 'hex'));
+        this.pspSaveData = await PspSaveData.createFromEncryptedData(event.arrayBuffer, Buffer.from('0102030405060708', 'hex'));
         this.outputFilename = Util.appendToFilename(event.filename, '_decrypted');
       } catch (e) {
         this.errorMessage = e.message;
         this.pspSaveData = null;
       }
     },
-    readUnencryptedSaveData(event) {
+    async readUnencryptedSaveData(event) {
       this.errorMessage = null;
       try {
-        this.pspSaveData = PspSaveData.createFromUnencryptedData(event.arrayBuffer, Buffer.from('0102030405060708', 'hex'));
+        this.pspSaveData = await PspSaveData.createFromUnencryptedData(event.arrayBuffer, Buffer.from('0102030405060708', 'hex'));
         this.outputFilename = Util.appendToFilename(event.filename, '_encrypted');
       } catch (e) {
         this.errorMessage = e.message;
