@@ -88,6 +88,7 @@ Instructions:
 - 3DS Virtual Console
   - SNES games: https://github.com/manuGMG/3ds-snes-sc
   - The tool above apparently works on some WiiU VC games as well: https://gbatemp.net/threads/release-3ds-snes-save-converter.574927/
+  - Pokemon saves: https://sav2vc.fm1337.com/
 
 ## GBA save file size difficulty
 - https://zork.net/~st/jottings/GBA_saves.html
