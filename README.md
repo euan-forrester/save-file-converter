@@ -18,6 +18,7 @@ Instructions:
 
 - Decrypt PSP saves
 - Be able to autodetect the format of a given save file (note that raw files need their size checked, unrecognized size means invalid file)
+- PS2 formats (check out https://gamefaqs.gamespot.com/ps2/536777-suikoden-iii/saves for a potential list)
 - What are the 64kB `.srm` files for SNES etc on thetechgame.com? Want to extract a 'normal' `.srm` file from them
 - I need suggestions!
 
