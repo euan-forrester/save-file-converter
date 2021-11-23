@@ -39,7 +39,9 @@ Instructions:
 - PS3 PS1/PS2 virtual memory card: https://github.com/bucanero/psv-save-converter
 - PS2
   - Save Tools: https://www.ps2savetools.com/
-  - Save tool: http://www.csclub.uwaterloo.ca:11068/mymc/
+  - Save tool: 
+    - http://www.csclub.uwaterloo.ca:11068/mymc/
+    - https://github.com/ps2dev/mymc
   - Memory card format: http://www.csclub.uwaterloo.ca:11068/mymc/ps2mcfs.html
 - Wii Virtual Console save game format (note that the files are encrypted)
   - https://wiibrew.org/wiki/Wii_Savegame_Parser
