@@ -83,7 +83,9 @@ Instructions:
     - https://meanwhileblog.wordpress.com/n64-game-code-list/
 - Goomba emulator
   - https://www.reddit.com/r/everdrive/comments/qcgus7/using_a_gba_x5_goomba_sram_save_file_on_a_gbc_x7/
-- 3DS VC: https://github.com/manuGMG/3ds-snes-sc
+- 3DS Virtual Console
+  - SNES games: https://github.com/manuGMG/3ds-snes-sc
+  - The tool above apparently works on some WiiU VC games as well: https://gbatemp.net/threads/release-3ds-snes-save-converter.574927/
 
 ## GBA save file size difficulty
 - https://zork.net/~st/jottings/GBA_saves.html
