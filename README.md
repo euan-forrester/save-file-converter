@@ -25,7 +25,7 @@ Instructions:
 
 ## Usecases for further thought
 - Automatically add/remove header added by some flash carts (e.g. EZ Flash) given an example file
-- Be able to change the size of a GBA save to help move between emulators
+- Be able to change the size of a raw GBA save to help move between emulators
 
 ## Save file formats
 
