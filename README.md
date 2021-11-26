@@ -27,6 +27,11 @@ Instructions:
 - Automatically add/remove header added by some flash carts (e.g. EZ Flash) given an example file
 - Be able to change the size of a raw GBA save to help move between emulators
 
+## Emulators with incompatible save formats
+
+- Pizza Boy GBA files incompatible with mGBA (believe mGBA uses raw files)
+- Beetle HW incompatible with DuckStation
+
 ## Save file formats
 
 - Retron5
