@@ -29,8 +29,9 @@ Instructions:
 
 ## Emulators with incompatible save formats
 
-- Pizza Boy GBA files incompatible with mGBA (believe mGBA uses raw files)
-- Beetle HW incompatible with DuckStation
+- (GBA) Pizza Boy GBA files incompatible with mGBA (believe mGBA uses raw files)
+- (PS1) Beetle HW incompatible with DuckStation
+- (Saturn) SSF incompatible with Mednafen/Beetle Saturn
 
 ## Save file formats
 
