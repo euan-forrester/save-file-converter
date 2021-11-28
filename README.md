@@ -19,7 +19,9 @@ Instructions:
 - Decrypt PSP saves
 - Be able to autodetect the format of a given save file (note that raw files need their size checked, unrecognized size means invalid file)
 - PS2 formats (check out https://gamefaqs.gamespot.com/ps2/536777-suikoden-iii/saves for a potential list)
+- PS1 saves in PS3 format
 - GameCube formats (check out https://gamefaqs.gamespot.com/gamecube/533008-soulcalibur-ii/saves for a potential list)
+- Saturn formats
 - What are the 64kB `.srm` files for SNES etc on thetechgame.com? Want to extract a 'normal' `.srm` file from them
 - I need suggestions!
 
@@ -99,6 +101,10 @@ Instructions:
   - SNES games: https://github.com/manuGMG/3ds-snes-sc
   - The tool above apparently works on some WiiU VC games as well: https://gbatemp.net/threads/release-3ds-snes-save-converter.574927/
   - Pokemon saves: https://sav2vc.fm1337.com/
+- Sega Saturn
+  - https://github.com/hitomi2500/ss-save-parser
+- Gamecube
+  - https://github.com/kwsch/PKHeX (Save editor for Pokemon games. Can apparently parse GCN files among others. Needs a closer look)
 
 ## GBA save file size difficulty
 - https://zork.net/~st/jottings/GBA_saves.html

@@ -47,6 +47,15 @@
     <div class="blank-line"/>
     <b-row align-h="center">
       <b-col cols=12 md=5 lg=5 xl=4>
+        <b-link href="https://github.com/hitomi2500/ss-save-parser">Sega Saturn save parser</b-link>
+      </b-col>
+      <b-col cols=12 md=5 lg=5 xl=4>
+        Various Saturn formats. Requires Windows. <b-link href="https://github.com/hitomi2500/ss-save-parser/releases">Download{{'\xa0'}}here</b-link>
+      </b-col>
+    </b-row>
+    <div class="blank-line"/>
+    <b-row align-h="center">
+      <b-col cols=12 md=5 lg=5 xl=4>
         <b-link href="https://bryc.github.io/mempak/">MPKEdit</b-link>
       </b-col>
       <b-col cols=12 md=5 lg=5 xl=4>
