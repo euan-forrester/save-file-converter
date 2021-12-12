@@ -22,7 +22,7 @@
       <b-row class="justify-content-md-center" align-h="center">
         <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
           <b-button
-            class="retron5-delete-save-convert-button"
+            class="retron5-erase-save-convert-button"
             variant="success"
             block
             :disabled="!this.retron5SaveData || !outputFilename"
@@ -63,7 +63,7 @@
 <style scoped>
 
 /* Separate class for each different button to enable tracking in google tag manager */
-.retron5-delete-save-convert-button {
+.retron5-erase-save-convert-button {
   margin-top: 1em;
 }
 
