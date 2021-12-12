@@ -6,7 +6,7 @@
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
               <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })">
-                <template v-slot:header>Erase cartridge using Retron 5</template>
+                <template v-slot:header>Erase save using Retron 5</template>
               </b-jumbotron>
             </b-col>
           </b-row>
@@ -22,7 +22,7 @@
       <b-row class="justify-content-md-center" align-h="center">
         <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
           <b-button
-            class="retron5-erase-cartridge-convert-button"
+            class="retron5-delete-save-convert-button"
             variant="success"
             block
             :disabled="!this.retron5SaveData || !outputFilename"
@@ -43,6 +43,7 @@
               <div class="help, text-left">
                 <ol>
                   <li>Use the Retron 5 to copy the save from the cartridge to an SD card</li>
+                  <li>Make a backup copy of the save from the SD card if you wish</li>
                   <li>Convert the save from the SD card using this tool</li>
                   <li>Overwrite the save on the SD card with the new one you just created</li>
                   <li>Use the Retron 5 to copy the new save from the SD card to the cartridge</li>
@@ -62,7 +63,7 @@
 <style scoped>
 
 /* Separate class for each different button to enable tracking in google tag manager */
-.retron5-erase-cartridge-convert-button {
+.retron5-delete-save-convert-button {
   margin-top: 1em;
 }
 

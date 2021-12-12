@@ -4,7 +4,7 @@
       <b-row>
         <b-col class="nav-row">
           <router-link to="/retron-5">Retron{{'\xa0'}}5 / RetroFreak</router-link> |
-          <router-link to="/retron-5/erase-cartridge">Erase{{'\xa0'}}cartridge (using Retron{{'\xa0'}}5 / RetroFreak)</router-link>
+          <router-link to="/retron-5/erase-save">Erase{{'\xa0'}}save from cartridge (using Retron{{'\xa0'}}5 / RetroFreak)</router-link>
         </b-col>
       </b-row>
       <b-row>
@@ -34,7 +34,7 @@
       </b-row>
       <b-row>
         <b-col class="nav-row">
-          <router-link to="/utilities/erase-cartridge">Erase{{'\xa0'}}cartridge</router-link> |
+          <router-link to="/utilities/erase-save">Erase{{'\xa0'}}save from cartridge</router-link> |
           <router-link to="/utilities/troubleshooting">Troubleshooting{{'\xa0'}}(Beta)</router-link>
         </b-col>
       </b-row>
