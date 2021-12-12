@@ -80,7 +80,7 @@ import InputFile from './InputFile.vue';
 import Retron5SaveData from '../save-formats/Retron5';
 
 export default {
-  name: 'Retron5EraseCartridge',
+  name: 'Retron5EraseSave',
   data() {
     return {
       retron5SaveData: null,

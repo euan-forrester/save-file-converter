@@ -1,17 +1,17 @@
 <template>
   <div class="home">
-    <EraseCartridge/>
+    <EraseSave/>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import EraseCartridge from '@/components/EraseCartridge.vue';
+import EraseSave from '@/components/EraseSave.vue';
 
 export default {
   name: 'EraseCart',
   components: {
-    EraseCartridge,
+    EraseSave,
   },
 };
 </script>
