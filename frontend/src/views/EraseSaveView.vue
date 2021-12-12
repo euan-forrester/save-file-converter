@@ -9,7 +9,7 @@
 import EraseSave from '@/components/EraseSave.vue';
 
 export default {
-  name: 'EraseCart',
+  name: 'EraseSaveView',
   components: {
     EraseSave,
   },

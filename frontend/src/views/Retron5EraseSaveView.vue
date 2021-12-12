@@ -9,7 +9,7 @@
 import Retron5EraseSave from '@/components/Retron5EraseSave.vue';
 
 export default {
-  name: 'Retron5EraseCart',
+  name: 'Retron5EraseSaveView',
   components: {
     Retron5EraseSave,
   },

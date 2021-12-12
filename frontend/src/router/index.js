@@ -16,7 +16,7 @@ const routes = [
   {
     path: '/retron-5/erase-save',
     name: 'Erase save - Retron5',
-    component: () => import(/* webpackChunkName: "erase-save-retron5" */ '../views/Retron5EraseCart.vue'),
+    component: () => import(/* webpackChunkName: "erase-save-retron5" */ '../views/Retron5EraseSaveView.vue'),
   },
   {
     path: '/wii',
@@ -87,7 +87,7 @@ const routes = [
   {
     path: '/utilities/erase-save',
     name: 'Erase save',
-    component: () => import(/* webpackChunkName: "erase-save" */ '../views/EraseCart.vue'),
+    component: () => import(/* webpackChunkName: "erase-save" */ '../views/EraseSaveView.vue'),
   },
   {
     path: '/other-converters',
