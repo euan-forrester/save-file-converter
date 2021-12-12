@@ -125,6 +125,7 @@
 import { BPopover } from 'bootstrap-vue';
 import { saveAs } from 'file-saver';
 import Util from '../util/util';
+import SaveFilesUtil from '../util/SaveFiles';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import OutputFilesize from './OutputFilesize.vue';
@@ -177,7 +178,7 @@ export default {
       let outputArrayBuffer = this.gameSharkSaveData.getRawSaveData();
 
       if (outputArrayBuffer.byteLength !== this.outputFilesize) {
-        outputArrayBuffer = Util.resizeRawSave(outputArrayBuffer, this.outputFilesize);
+        outputArrayBuffer = SaveFilesUtil.resizeRawSave(outputArrayBuffer, this.outputFilesize);
       }
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
