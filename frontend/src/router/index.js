@@ -14,6 +14,11 @@ const routes = [
     component: () => import(/* webpackChunkName: "retron5" */ '../views/Retron5.vue'),
   },
   {
+    path: '/retron-5/erase-cartridge',
+    name: 'Erase cartridge - Retron5',
+    component: () => import(/* webpackChunkName: "retron5" */ '../views/Retron5EraseCart.vue'),
+  },
+  {
     path: '/wii',
     name: 'Wii',
     component: () => import(/* webpackChunkName: "wii" */ '../views/Wii.vue'),
@@ -71,9 +76,18 @@ const routes = [
     redirect: '/n64/dexdrive',
   },
   {
-    path: '/troubleshooting',
+    path: '/utilities',
+    redirect: '/utilities/troubleshooting',
+  },
+  {
+    path: '/utilities/troubleshooting',
     name: 'Troubleshooting',
     component: () => import(/* webpackChunkName: "troubleshooting" */ '../views/Troubleshooting.vue'),
+  },
+  {
+    path: '/utilities/erase-cartridge',
+    name: 'Erase cartridge',
+    component: () => import(/* webpackChunkName: "erase-cartridge" */ '../views/EraseCart.vue'),
   },
   {
     path: '/other-converters',
@@ -105,6 +119,10 @@ const routes = [
   {
     path: '/gameshark-sp',
     redirect: '/gba/gameshark-sp',
+  },
+  {
+    path: '/troubleshooting',
+    redirect: '/utilities/troubleshooting',
   },
 ];
 
