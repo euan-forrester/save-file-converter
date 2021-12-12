@@ -6,7 +6,7 @@
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
               <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })">
-                <template v-slot:header>Retron 5</template>
+                <template v-slot:header>Erase cartridge using Retron 5</template>
               </b-jumbotron>
             </b-col>
           </b-row>
@@ -32,8 +32,24 @@
           </b-button>
         </b-col>
       </b-row>
+      <hr/>
       <b-row>
         <b-col>
+          <div class="help">
+            Instructions:
+          </div>
+          <b-row class="justify-content-md-left, help" align-h="center">
+            <b-col sm=12 md=6>
+              <div class="help, text-left">
+                <ol>
+                  <li>Use the Retron 5 to copy the save from the cartridge to an SD card</li>
+                  <li>Convert the save from the SD card using this tool</li>
+                  <li>Overwrite the save on the SD card with the new one you just created</li>
+                  <li>Use the Retron 5 to copy the new save from the SD card to the cartridge</li>
+                </ol>
+              </div>
+            </b-col>
+          </b-row>
           <div class="help">
             Help: how do I&nbsp;<b-link href="https://projectpokemon.org/home/tutorials/save-editing/managing-gb-gbc-saves/using-the-retron-5-r53/">copy files to and from my Retron 5</b-link>?
           </div>
