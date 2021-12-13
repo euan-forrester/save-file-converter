@@ -3,7 +3,8 @@
     <div id="nav">
       <b-row>
         <b-col class="nav-row">
-          <router-link to="/retron-5">Retron{{'\xa0'}}5{{'\xa0'}}/{{'\xa0'}}RetroFreak</router-link>
+          <router-link to="/retron-5">Retron{{'\xa0'}}5 / RetroFreak</router-link> |
+          <router-link to="/retron-5/erase-save">Erase{{'\xa0'}}save from cartridge (using Retron{{'\xa0'}}5 / RetroFreak)</router-link>
         </b-col>
       </b-row>
       <b-row>
@@ -32,8 +33,13 @@
         </b-col>
       </b-row>
       <b-row>
+        <b-col class="nav-row">
+          <router-link to="/utilities/erase-save">Erase{{'\xa0'}}save from cartridge</router-link> |
+          <router-link to="/utilities/troubleshooting">Troubleshooting{{'\xa0'}}(Beta)</router-link>
+        </b-col>
+      </b-row>
+      <b-row>
         <b-col>
-          <router-link to="/troubleshooting">Troubleshooting{{'\xa0'}}(Beta)</router-link> |
           <router-link to="/other-converters">Other{{'\xa0'}}converters</router-link> |
           <router-link to="/download-saves">Download{{'\xa0'}}saves</router-link> |
           <router-link to="/about">About{{'\xa0'}}/{{'\xa0'}}Contact</router-link>
