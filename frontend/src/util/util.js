@@ -17,8 +17,6 @@ export default class Util {
     return `${Util.removeFilenameExtension(filename)}${stringToAppend}${path.extname(filename)}`;
   }
 
-  }
-
   static bufferToArrayBuffer(b) {
     return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength); // https://stackoverflow.com/questions/8609289/convert-a-binary-nodejs-buffer-to-javascript-arraybuffer/31394257#31394257
   }
