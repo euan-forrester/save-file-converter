@@ -1,5 +1,7 @@
 /* eslint no-bitwise: ["error", { "allow": ["&", ">>=", "<<"] }] */
 
+import MathUtil from './Math';
+
 export default class Troubleshooting {
   static attemptFix(testSaveArrayBuffer, brokenSaveArrayBuffer) {
     // First, temporarily remove any padding from the start of the 2 saves
@@ -66,7 +68,7 @@ export default class Troubleshooting {
     // some of that "padding" was legit data so we don't want to trim it.
 
     const apparentRemainingSize = arrayBuffer.byteLength - count;
-    const realRemainingSize = Troubleshooting.getNextLargestPowerOf2(apparentRemainingSize);
+    const realRemainingSize = MathUtil.getNextLargestPowerOf2(apparentRemainingSize);
 
     count -= (realRemainingSize - apparentRemainingSize);
 
@@ -132,28 +134,5 @@ export default class Troubleshooting {
     }
 
     return count;
-  }
-
-  static getNextLargestPowerOf2(n) {
-    // Input values shouldn't be negative
-    if (n <= 0) {
-      return 0;
-    }
-
-    // Is the value already a power of 2?
-    if ((n & (n - 1)) === 0) {
-      return n;
-    }
-
-    // Keep removing bits until we're left with 0
-    let count = 0;
-    let x = n;
-
-    while (x !== 0) {
-      x >>= 1;
-      count += 1;
-    }
-
-    return 1 << count;
   }
 }

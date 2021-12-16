@@ -1,11 +1,16 @@
 // /* eslint-disable no-underscore-dangle */
 /* eslint-disable */
 
-import createModule from '@/save-formats/PSP/kirk-engine/test-webassembly';
+import MathUtil from '@/util/Math';
 
-import(/* webpackChunkName: "kirkEngineWasmName" */ "./kirk-engine/test-webassembly.wasm");
+import createModule from '@/save-formats/PSP/kirk-engine/kirk-engine';
+
+import(/* webpackChunkName: "kirkEngineWasmName" */ "./kirk-engine/kirk-engine.wasm");
 
 // const INCORRECT_FORMAT_ERROR_MESSAGE = 'This does not appear to be a PSP save file';
+
+const MODE_SAVE_IS_ENCRYPTED = 3; // https://github.com/hrydgard/ppsspp/blob/master/Tools/SaveTool/decrypt.c#L115
+const MODE_SAVE_IS_NOT_ENCRYPTED = 1;
 
 async function getModuleInstance() {
     // This is a total hack to get the runtime name (with hash) of the .wasm file.
@@ -64,9 +69,33 @@ export default class PspSaveData {
   static async createFromEncryptedData(encryptedArrayBuffer, gameKey) {
     const moduleInstance = await getModuleInstance();
 
-    console.log(`Got result ${moduleInstance._testCaller(13, 29)}`);
+    const decryptData = moduleInstance.cwrap('decrypt_data', 'number', ['number', 'array', 'number', 'number', 'array']);
 
-    return new PspSaveData(encryptedArrayBuffer, gameKey);
+    const encryptedArray = new Uint8Array(encryptedArrayBuffer);
+    const gameKeyArray = new Uint8Array(gameKey);
+    let dataLength = encryptedArrayBuffer.byteLength;
+    let alignedLength = MathUtil.getNextMultipleOf16(dataLength);
+
+    const dataLengthPtr = moduleInstance._malloc(4);
+    const alignedLengthPtr = moduleInstance._malloc(4);
+
+    moduleInstance.setValue(dataLengthPtr, dataLength, 'i32');
+    moduleInstance.setValue(alignedLengthPtr, alignedLength, 'i32');
+
+    console.log(`Before call: data length: ${dataLength}, aligned length: ${alignedLength}`);
+
+    const result = decryptData(MODE_SAVE_IS_ENCRYPTED, encryptedArray, dataLengthPtr, alignedLengthPtr, gameKeyArray);
+
+    dataLength = moduleInstance.getValue(dataLengthPtr, 'i32');
+    alignedLength = moduleInstance.getValue(alignedLengthPtr, 'i32');
+
+    moduleInstance._free(alignedLengthPtr);
+    moduleInstance._free(dataLengthPtr);
+
+    console.log(`After call: data length: ${dataLength}, aligned length: ${alignedLength}`);
+    console.log(`Got back ${result} from decrypt_data()`);
+
+    return new PspSaveData(encryptedArrayBuffer);
   }
 
   /*
@@ -77,17 +106,9 @@ export default class PspSaveData {
   }
   */
 
-  // This constructor creates a new object from a binary representation of an encrypted PSP save data file
-  constructor(encryptedArrayBuffer, gameKey) {
-    this.encryptedArrayBuffer = encryptedArrayBuffer;
-
-    const unencryptedArrayBuffer = gameKey.length;
-
-    this.unencryptedArrayBuffer = encryptedArrayBuffer;
-  }
-
-  getEncryptedArrayBuffer() {
-    return this.encryptedArrayBuffer;
+  // This constructor creates a new object from a binary representation of an unencrypted PSP save data file
+  constructor(unencryptedArrayBuffer) {
+    this.unencryptedArrayBuffer = unencryptedArrayBuffer;
   }
 
   getUnencryptedArrayBuffer() {

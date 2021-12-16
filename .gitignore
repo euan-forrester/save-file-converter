@@ -1,3 +1,5 @@
 .DS_Store
 /test
 /frontend/stats.json
+
+/frontend/src/save-formats/PSP/kirk-engine/
