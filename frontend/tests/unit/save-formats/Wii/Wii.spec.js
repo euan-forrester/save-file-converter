@@ -33,42 +33,4 @@ describe('Wii save format', () => {
 
     expect(ArrayBufferUtil.arrayBuffersEqual(file.data, rawArrayBuffer)).to.equal(true);
   });
-
-  it('should correctly round up to the nearest 64 bytes', () => {
-    expect(WiiSaveData.roundUpToNearest64Bytes(-1)).to.equal(0);
-    expect(WiiSaveData.roundUpToNearest64Bytes(0)).to.equal(0);
-
-    expect(WiiSaveData.roundUpToNearest64Bytes(1)).to.equal(64);
-    expect(WiiSaveData.roundUpToNearest64Bytes(2)).to.equal(64);
-    expect(WiiSaveData.roundUpToNearest64Bytes(63)).to.equal(64);
-    expect(WiiSaveData.roundUpToNearest64Bytes(64)).to.equal(64);
-
-    expect(WiiSaveData.roundUpToNearest64Bytes(65)).to.equal(128);
-    expect(WiiSaveData.roundUpToNearest64Bytes(127)).to.equal(128);
-    expect(WiiSaveData.roundUpToNearest64Bytes(128)).to.equal(128);
-
-    expect(WiiSaveData.roundUpToNearest64Bytes(129)).to.equal(192);
-    expect(WiiSaveData.roundUpToNearest64Bytes(191)).to.equal(192);
-    expect(WiiSaveData.roundUpToNearest64Bytes(192)).to.equal(192);
-
-    expect(WiiSaveData.roundUpToNearest64Bytes(193)).to.equal(256);
-    expect(WiiSaveData.roundUpToNearest64Bytes(255)).to.equal(256);
-    expect(WiiSaveData.roundUpToNearest64Bytes(256)).to.equal(256);
-
-    expect(WiiSaveData.roundUpToNearest64Bytes(257)).to.equal(320);
-    expect(WiiSaveData.roundUpToNearest64Bytes(319)).to.equal(320);
-    expect(WiiSaveData.roundUpToNearest64Bytes(320)).to.equal(320);
-
-    expect(WiiSaveData.roundUpToNearest64Bytes(321)).to.equal(384);
-    expect(WiiSaveData.roundUpToNearest64Bytes(383)).to.equal(384);
-    expect(WiiSaveData.roundUpToNearest64Bytes(384)).to.equal(384);
-
-    expect(WiiSaveData.roundUpToNearest64Bytes(385)).to.equal(448);
-    expect(WiiSaveData.roundUpToNearest64Bytes(447)).to.equal(448);
-    expect(WiiSaveData.roundUpToNearest64Bytes(448)).to.equal(448);
-
-    expect(WiiSaveData.roundUpToNearest64Bytes(449)).to.equal(512);
-    expect(WiiSaveData.roundUpToNearest64Bytes(511)).to.equal(512);
-    expect(WiiSaveData.roundUpToNearest64Bytes(512)).to.equal(512);
-  });
 });

@@ -17,6 +17,7 @@ Some parts are encrypted and some aren't
 */
 
 import CryptoAes from '../../util/crypto-aes';
+import MathUtil from '@/util/Math';
 
 const LITTLE_ENDIAN = false;
 const GAME_TITLE_ENCODING = 'utf-16be';
@@ -159,17 +160,8 @@ export default class WiiSaveData {
       const file = parseFile(encryptedArrayBuffer, currentByte, asciiDecoder);
       this.files.push(file);
 
-      currentByte += (FILE_HEADER_SIZE + WiiSaveData.roundUpToNearest64Bytes(file.size));
+      currentByte += (FILE_HEADER_SIZE + MathUtil.roundUpToNearest64Bytes(file.size));
     }
-  }
-
-  // Made a public member of the class so we can write tests for it specifically
-  static roundUpToNearest64Bytes(num) {
-    if (num < 0) {
-      return 0;
-    }
-
-    return (((num + 0x3F) >>> 6) << 6);
   }
 
   getGameTitle() {

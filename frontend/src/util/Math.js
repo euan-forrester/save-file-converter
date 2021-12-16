@@ -1,4 +1,4 @@
-/* eslint no-bitwise: ["error", { "allow": ["&", ">>=", "<<", ">>"] }] */
+/* eslint no-bitwise: ["error", { "allow": ["&", ">>=", "<<", ">>", ">>>"] }] */
 
 export default class MathUtil {
   static getNextLargestPowerOf2(n) {
@@ -30,6 +30,14 @@ export default class MathUtil {
       return 0;
     }
 
-    return ((n + 0xF) >> 4) << 4;
+    return ((n + 0xF) >>> 4) << 4;
+  }
+
+  static roundUpToNearest64Bytes(num) {
+    if (num < 0) {
+      return 0;
+    }
+
+    return (((num + 0x3F) >>> 6) << 6);
   }
 }
