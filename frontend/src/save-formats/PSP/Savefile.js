@@ -1,16 +1,11 @@
 // /* eslint-disable no-underscore-dangle */
 /* eslint-disable */
 
-import MathUtil from '@/util/Math';
-
 import createModule from '@/save-formats/PSP/kirk-engine/kirk-engine';
 
 import(/* webpackChunkName: "kirkEngineWasmName" */ "./kirk-engine/kirk-engine.wasm");
 
 // const INCORRECT_FORMAT_ERROR_MESSAGE = 'This does not appear to be a PSP save file';
-
-const MODE_SAVE_IS_ENCRYPTED = 3; // https://github.com/hrydgard/ppsspp/blob/master/Tools/SaveTool/decrypt.c#L115
-const MODE_SAVE_IS_NOT_ENCRYPTED = 1;
 
 async function getModuleInstance() {
     // This is a total hack to get the runtime name (with hash) of the .wasm file.
@@ -65,37 +60,70 @@ async function getModuleInstance() {
     return await createModule(moduleOverrides);
 }
 
+function bufferToPtr(buffer, moduleInstance) {
+  const array = new Uint8Array(buffer);
+
+  const ptr = moduleInstance._malloc(array.length);
+
+  for (let i = 0; i < array.length; i += 1) {
+    moduleInstance.setValue(ptr + i, array[i], 'i8');
+  }
+
+  return ptr;
+}
+
+function ptrToArrayBuffer(ptr, length, moduleInstance) {
+  const arrayBuffer = new ArrayBuffer(length);
+  const array = new Uint8Array(arrayBuffer);
+
+  for (let i = 0; i < length; i += 1) {
+    array[i] = moduleInstance.getValue(ptr + i, 'i8');
+  }
+
+  return arrayBuffer;
+}
+
+function intToPtr(n, moduleInstance) {
+  const ptr = moduleInstance._malloc(4);
+
+  moduleInstance.setValue(ptr, n, 'i32');
+
+  return ptr;
+}
+
+function ptrToInt(ptr, moduleInstance) {
+  return moduleInstance.getValue(ptr, 'i32');
+}
+
 export default class PspSaveData {
   static async createFromEncryptedData(encryptedArrayBuffer, gameKey) {
     const moduleInstance = await getModuleInstance();
 
-    const decryptData = moduleInstance.cwrap('decrypt_data', 'number', ['number', 'array', 'number', 'number', 'array']);
+    const decryptData = moduleInstance.cwrap('decrypt_buffer', 'number', ['number', 'number', 'number']);
 
-    const encryptedArray = new Uint8Array(encryptedArrayBuffer);
-    const gameKeyArray = new Uint8Array(gameKey);
     let dataLength = encryptedArrayBuffer.byteLength;
-    let alignedLength = MathUtil.getNextMultipleOf16(dataLength);
 
-    const dataLengthPtr = moduleInstance._malloc(4);
-    const alignedLengthPtr = moduleInstance._malloc(4);
+    const encryptedArrayPtr = bufferToPtr(encryptedArrayBuffer, moduleInstance);
+    const gameKeyPtr = bufferToPtr(gameKey, moduleInstance);
 
-    moduleInstance.setValue(dataLengthPtr, dataLength, 'i32');
-    moduleInstance.setValue(alignedLengthPtr, alignedLength, 'i32');
+    const dataLengthPtr = intToPtr(dataLength, moduleInstance);
 
-    console.log(`Before call: data length: ${dataLength}, aligned length: ${alignedLength}`);
+    console.log(`Before call: data length: ${dataLength}`);
 
-    const result = decryptData(MODE_SAVE_IS_ENCRYPTED, encryptedArray, dataLengthPtr, alignedLengthPtr, gameKeyArray);
+    const result = decryptData(encryptedArrayPtr, dataLengthPtr, gameKeyPtr);
 
-    dataLength = moduleInstance.getValue(dataLengthPtr, 'i32');
-    alignedLength = moduleInstance.getValue(alignedLengthPtr, 'i32');
+    dataLength = ptrToInt(dataLengthPtr, moduleInstance);
 
-    moduleInstance._free(alignedLengthPtr);
+    const unencryptedArrayBuffer = ptrToArrayBuffer(encryptedArrayBuffer, dataLength, moduleInstance);
+
     moduleInstance._free(dataLengthPtr);
+    moduleInstance._free(gameKeyPtr);
+    moduleInstance._free(encryptedArrayPtr);
 
-    console.log(`After call: data length: ${dataLength}, aligned length: ${alignedLength}`);
+    console.log(`After call: data length: ${dataLength}`);
     console.log(`Got back ${result} from decrypt_data()`);
 
-    return new PspSaveData(encryptedArrayBuffer);
+    return new PspSaveData(unencryptedArrayBuffer);
   }
 
   /*
