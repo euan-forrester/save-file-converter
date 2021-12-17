@@ -114,7 +114,7 @@ export default class PspSaveData {
 
     dataLength = ptrToInt(dataLengthPtr, moduleInstance);
 
-    const unencryptedArrayBuffer = ptrToArrayBuffer(encryptedArrayBuffer, dataLength, moduleInstance);
+    const unencryptedArrayBuffer = ptrToArrayBuffer(encryptedArrayPtr, dataLength, moduleInstance);
 
     moduleInstance._free(dataLengthPtr);
     moduleInstance._free(gameKeyPtr);
