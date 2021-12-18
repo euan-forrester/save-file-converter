@@ -96,32 +96,31 @@ function ptrToInt(ptr, moduleInstance) {
 }
 
 export default class PspSaveData {
-  static async createFromEncryptedData(encryptedArrayBuffer, gameKey) {
-    const moduleInstance = await getModuleInstance();
+  static async init() {
+    PspSaveData.moduleInstance = await getModuleInstance();
 
-    const decryptData = moduleInstance.cwrap('decrypt_buffer', 'number', ['number', 'number', 'number']);
+    PspSaveData.moduleInstance._kirk_init();
 
+    PspSaveData.decryptData = PspSaveData.moduleInstance.cwrap('decrypt_buffer', 'number', ['number', 'number', 'number']);
+  }
+
+  static createFromEncryptedData(encryptedArrayBuffer, gameKey) {
     let dataLength = encryptedArrayBuffer.byteLength;
 
-    const encryptedArrayPtr = bufferToPtr(encryptedArrayBuffer, moduleInstance);
-    const gameKeyPtr = bufferToPtr(gameKey, moduleInstance);
+    const encryptedArrayPtr = bufferToPtr(encryptedArrayBuffer, PspSaveData.moduleInstance);
+    const gameKeyPtr = bufferToPtr(gameKey, PspSaveData.moduleInstance);
 
-    const dataLengthPtr = intToPtr(dataLength, moduleInstance);
+    const dataLengthPtr = intToPtr(dataLength, PspSaveData.moduleInstance);
 
-    console.log(`Before call: data length: ${dataLength}`);
+    const result = PspSaveData.decryptData(encryptedArrayPtr, dataLengthPtr, gameKeyPtr);
 
-    const result = decryptData(encryptedArrayPtr, dataLengthPtr, gameKeyPtr);
+    dataLength = ptrToInt(dataLengthPtr, PspSaveData.moduleInstance);
 
-    dataLength = ptrToInt(dataLengthPtr, moduleInstance);
+    const unencryptedArrayBuffer = ptrToArrayBuffer(encryptedArrayPtr, dataLength, PspSaveData.moduleInstance);
 
-    const unencryptedArrayBuffer = ptrToArrayBuffer(encryptedArrayPtr, dataLength, moduleInstance);
-
-    moduleInstance._free(dataLengthPtr);
-    moduleInstance._free(gameKeyPtr);
-    moduleInstance._free(encryptedArrayPtr);
-
-    console.log(`After call: data length: ${dataLength}`);
-    console.log(`Got back ${result} from decrypt_data()`);
+    PspSaveData.moduleInstance._free(dataLengthPtr);
+    PspSaveData.moduleInstance._free(gameKeyPtr);
+    PspSaveData.moduleInstance._free(encryptedArrayPtr);
 
     return new PspSaveData(unencryptedArrayBuffer);
   }
