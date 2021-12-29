@@ -96,12 +96,14 @@ function ptrToInt(ptr, moduleInstance) {
 }
 
 export default class PspSaveData {
+
   static async init() {
     PspSaveData.moduleInstance = await getModuleInstance();
 
     PspSaveData.moduleInstance._kirk_init();
 
-    PspSaveData.decryptData = PspSaveData.moduleInstance.cwrap('decrypt_buffer', 'number', ['number', 'number', 'number']);
+    PspSaveData.decryptSaveData = PspSaveData.moduleInstance.cwrap('decrypt_save_buffer', 'number', ['number', 'number', 'number']);
+    PspSaveData.encryptSaveData = PspSaveData.moduleInstance.cwrap('encrypt_save_buffer', 'number', ['number', 'number', 'number', 'number', 'number', 'string', 'number']);
   }
 
   static createFromEncryptedData(encryptedArrayBuffer, gameKey) {
@@ -112,7 +114,11 @@ export default class PspSaveData {
 
     const dataLengthPtr = intToPtr(dataLength, PspSaveData.moduleInstance);
 
-    const result = PspSaveData.decryptData(encryptedArrayPtr, dataLengthPtr, gameKeyPtr);
+    const result = PspSaveData.decryptSaveData(encryptedArrayPtr, dataLengthPtr, gameKeyPtr);
+
+    if (result !== 0) {
+      throw new Error(`Encountered error ${result} trying to decrypt save data`);
+    }
 
     dataLength = ptrToInt(dataLengthPtr, PspSaveData.moduleInstance);
 
@@ -122,23 +128,59 @@ export default class PspSaveData {
     PspSaveData.moduleInstance._free(gameKeyPtr);
     PspSaveData.moduleInstance._free(encryptedArrayPtr);
 
-    return new PspSaveData(unencryptedArrayBuffer);
+    return new PspSaveData(encryptedArrayBuffer, unencryptedArrayBuffer, null);
   }
 
-  /*
-  static createFromUnencryptedData(unencryptedArrayBuffer, gameKey) {
-    const encryptedArrayBuffer = unencryptedArrayBuffer;
+  static createFromUnencryptedData(unencryptedArrayBuffer, encryptedFilename, paramSfoArrayBuffer, gameKey) {
+    let dataLength = unencryptedArrayBuffer.byteLength;
 
-    return new PspSaveData(encryptedArrayBuffer);
+    const unencryptedArrayPtr = bufferToPtr(unencryptedArrayBuffer, PspSaveData.moduleInstance);
+    const encryptedArrayPtrPtr = intToPtr(0, PspSaveData.moduleInstance);
+    const paramSfoArrayPtr = bufferToPtr(paramSfoArrayBuffer, PspSaveData.moduleInstance);
+    const gameKeyPtr = bufferToPtr(gameKey, PspSaveData.moduleInstance);
+
+    const dataLengthPtr = intToPtr(dataLength, PspSaveData.moduleInstance);
+    const paramSfoLength = paramSfoArrayBuffer.byteLength;
+
+    const result = PspSaveData.encryptSaveData(unencryptedArrayPtr, encryptedArrayPtrPtr, dataLengthPtr, paramSfoArrayPtr, paramSfoLength, encryptedFilename, gameKeyPtr);
+
+    if (result !== 0) {
+      throw new Error(`Encountered error ${result} trying to decrypt save data`);
+    }
+
+    const encryptedArrayPtr = ptrToInt(encryptedArrayPtrPtr, PspSaveData.moduleInstance);
+
+    dataLength = ptrToInt(dataLengthPtr, PspSaveData.moduleInstance);
+
+    const encryptedArrayBuffer = ptrToArrayBuffer(encryptedArrayPtr, dataLength, PspSaveData.moduleInstance);
+    const newParamSfoArrayBuffer = ptrToArrayBuffer(paramSfoArrayPtr, paramSfoLength, PspSaveData.moduleInstance);
+
+    PspSaveData.moduleInstance._free(dataLengthPtr);
+    PspSaveData.moduleInstance._free(encryptedArrayPtrPtr);
+    PspSaveData.moduleInstance._free(encryptedArrayPtr); // This was allocated in C++ but must be free'd here
+    PspSaveData.moduleInstance._free(gameKeyPtr);
+    PspSaveData.moduleInstance._free(paramSfoArrayPtr);
+    PspSaveData.moduleInstance._free(unencryptedArrayPtr);
+
+    return new PspSaveData(encryptedArrayBuffer, unencryptedArrayBuffer, newParamSfoArrayBuffer);
   }
-  */
 
-  // This constructor creates a new object from a binary representation of an unencrypted PSP save data file
-  constructor(unencryptedArrayBuffer) {
+  // This constructor creates a new object from the encrypted and unencrypted binary representations of a PSP save data file
+  constructor(encryptedArrayBuffer, unencryptedArrayBuffer, paramSfoArrayBuffer) {
+    this.encryptedArrayBuffer = encryptedArrayBuffer;
     this.unencryptedArrayBuffer = unencryptedArrayBuffer;
+    this.paramSfoArrayBuffer = paramSfoArrayBuffer;
   }
 
   getUnencryptedArrayBuffer() {
     return this.unencryptedArrayBuffer;
+  }
+
+  getEncryptedArrayBuffer() {
+    return this.encryptedArrayBuffer;
+  }
+
+  getParamSfoArrayBuffer() {
+    return this.paramSfoArrayBuffer;
   }
 }
