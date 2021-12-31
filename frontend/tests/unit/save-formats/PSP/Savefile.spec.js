@@ -5,6 +5,7 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 const DIR = './tests/unit/save-formats/data/psp';
 
+const PSP_ENCRYPTION_WASM_BUILD_MDOE = 'release'; // For some reason, the outputted encrypted files are different if the psp-encryption lib is built in debug or release, but the results are still deterministic within those build modes
 const KIRK_INIT_SEED = 0x12345678;
 
 const GAME_KEY = Buffer.from('01020304050607080900010203040506', 'hex'); // Apparently Castlevania: Dracula X Chronicles uses a super sekret encryption key for its save data
@@ -14,8 +15,14 @@ const PARAM_SFO_FILENAME = `${DIR}/DRACULA-PARAM.SFO`;
 
 const UNENCRYPTED_FILENAME = `${DIR}/DRACULA-unencrypted.BIN`;
 
-const REENCRYPTED_FILENAME = `${DIR}/DRACULA-reencrypted.BIN`;
-const REENCRYPTED_PARAM_SFO_FILENAME = `${DIR}/DRACULA-PARAM-reencrypted.SFO`;
+const REENCRYPTED_FILENAME = {
+  debug: `${DIR}/DRACULA-reencrypted-debug.BIN`,
+  release: `${DIR}/DRACULA-reencrypted-release.BIN`,
+};
+const REENCRYPTED_PARAM_SFO_FILENAME = {
+  debug: `${DIR}/DRACULA-PARAM-reencrypted-debug.SFO`,
+  release: `${DIR}/DRACULA-PARAM-reencrypted-release.SFO`,
+};
 
 describe('PSP save decryption', () => {
   before(async () => {
@@ -38,8 +45,8 @@ describe('PSP save decryption', () => {
     const unencryptedArrayBuffer = await ArrayBufferUtil.readArrayBuffer(UNENCRYPTED_FILENAME);
     const paramSfoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(PARAM_SFO_FILENAME);
 
-    const reencryptedArrayBuffer = await ArrayBufferUtil.readArrayBuffer(REENCRYPTED_FILENAME);
-    const reencryptedParamSfoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(REENCRYPTED_PARAM_SFO_FILENAME);
+    const reencryptedArrayBuffer = await ArrayBufferUtil.readArrayBuffer(REENCRYPTED_FILENAME[PSP_ENCRYPTION_WASM_BUILD_MDOE]);
+    const reencryptedParamSfoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(REENCRYPTED_PARAM_SFO_FILENAME[PSP_ENCRYPTION_WASM_BUILD_MDOE]);
 
     const encryptedFilename = Util.getFilename(ENCRYPTED_FILENAME);
 
