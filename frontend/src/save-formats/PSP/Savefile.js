@@ -95,10 +95,14 @@ function ptrToInt(ptr, moduleInstance) {
 }
 
 export default class PspSaveData {
-  static async init() {
+  static async init(deterministicSeed = null) {
     PspSaveData.moduleInstance = await getModuleInstance();
 
-    PspSaveData.moduleInstance._kirk_init();
+    if (deterministicSeed === null) {
+      PspSaveData.moduleInstance._kirk_init();
+    } else {
+      PspSaveData.moduleInstance._kirk_init_deterministic(deterministicSeed);
+    }
 
     PspSaveData.decryptSaveData = PspSaveData.moduleInstance.cwrap('decrypt_save_buffer', 'number', ['number', 'number', 'number']);
     PspSaveData.encryptSaveData = PspSaveData.moduleInstance.cwrap('encrypt_save_buffer', 'number', ['number', 'number', 'number', 'number', 'number', 'string', 'number']);
