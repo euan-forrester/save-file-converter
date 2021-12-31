@@ -16,8 +16,8 @@ The overall file structure looks like:
 Some parts are encrypted and some aren't
 */
 
-import CryptoAes from '../../util/crypto-aes';
 import MathUtil from '@/util/Math';
+import CryptoAes from '../../util/crypto-aes';
 
 const LITTLE_ENDIAN = false;
 const GAME_TITLE_ENCODING = 'utf-16be';

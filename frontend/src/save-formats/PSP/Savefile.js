@@ -33,7 +33,23 @@ async function getModuleInstance() {
   };
 
   if (window && window.webpackJsonp && !window.webpackHotUpdate) { // webpackHotUpdate is defined if running a dev server on the local machine
-    const wasmNameList = window.webpackJsonp.filter((x) => x[0][0] === 'pspEncryptionWasmName');
+    let wasmNameList = [];
+    let iterations = 0;
+
+    while (iterations < 10) {
+      // This doesn't show up in the window object right away when the containing component is mounted,
+      // so let's wait a while for it to show up. It usually appears on the second attempt
+
+      wasmNameList = window.webpackJsonp.filter((x) => x[0][0] === 'pspEncryptionWasmName');
+
+      if (wasmNameList.length > 0) {
+        break;
+      }
+
+      // Copied from https://stackoverflow.com/a/39914235
+      await new Promise((r) => setTimeout(r, 500)); // eslint-disable-line no-await-in-loop
+      iterations += 1;
+    }
 
     if (wasmNameList.length >= 1) {
       const a = {

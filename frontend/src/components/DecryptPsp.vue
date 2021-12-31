@@ -107,6 +107,9 @@ export default {
       conversionDirection: 'convertToEmulator',
     };
   },
+  async mounted() {
+    await PspSaveData.init();
+  },
   components: {
     ConversionDirection,
     InputFile,
@@ -122,7 +125,7 @@ export default {
     async readEncryptedSaveData(event) {
       this.errorMessage = null;
       try {
-        this.pspSaveData = await PspSaveData.createFromEncryptedData(event.arrayBuffer, Buffer.from('0102030405060708', 'hex'));
+        this.pspSaveData = await PspSaveData.createFromEncryptedData(event.arrayBuffer, Buffer.from('01020304050607080900010203040506', 'hex'));
         this.outputFilename = Util.appendToFilename(event.filename, '_decrypted');
       } catch (e) {
         this.errorMessage = e.message;
@@ -132,7 +135,7 @@ export default {
     async readUnencryptedSaveData(event) {
       this.errorMessage = null;
       try {
-        this.pspSaveData = await PspSaveData.createFromUnencryptedData(event.arrayBuffer, Buffer.from('0102030405060708', 'hex'));
+        this.pspSaveData = await PspSaveData.createFromUnencryptedData(event.arrayBuffer, Buffer.from('01020304050607080900010203040506', 'hex'));
         this.outputFilename = Util.appendToFilename(event.filename, '_encrypted');
       } catch (e) {
         this.errorMessage = e.message;
