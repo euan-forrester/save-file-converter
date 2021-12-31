@@ -19,7 +19,7 @@ const REENCRYPTED_PARAM_SFO_FILENAME = `${DIR}/DRACULA-PARAM-reencrypted.SFO`;
 
 describe('PSP save decryption', () => {
   before(async () => {
-    await PspSaveData.init(KIRK_INIT_SEED); // Load in the wasm file and initialize the kirk engine deterministically (so that the encryption result aren't random)
+    await PspSaveData.init(KIRK_INIT_SEED); // Load in the wasm file and initialize the kirk engine deterministically (so that the encryption results aren't random)
   });
 
   it('should decrypt an encrypted PSP save file', async () => {
@@ -32,14 +32,20 @@ describe('PSP save decryption', () => {
   });
 
   it('should encrypt an unencrypted PSP save file', async () => {
+    // Note that the 2 files get re-encrypted to different contents than the originally-encrypted files.
+    // The new contents are deterministic though, due to how we initialized PspSaveData above.
+
     const unencryptedArrayBuffer = await ArrayBufferUtil.readArrayBuffer(UNENCRYPTED_FILENAME);
     const paramSfoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(PARAM_SFO_FILENAME);
+
+    const reencryptedArrayBuffer = await ArrayBufferUtil.readArrayBuffer(REENCRYPTED_FILENAME);
+    const reencryptedParamSfoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(REENCRYPTED_PARAM_SFO_FILENAME);
 
     const encryptedFilename = Util.getFilename(ENCRYPTED_FILENAME);
 
     const pspSaveData = PspSaveData.createFromUnencryptedData(unencryptedArrayBuffer, encryptedFilename, paramSfoArrayBuffer, GAME_KEY);
 
-    ArrayBufferUtil.writeArrayBuffer(REENCRYPTED_FILENAME, pspSaveData.getEncryptedArrayBuffer());
-    ArrayBufferUtil.writeArrayBuffer(REENCRYPTED_PARAM_SFO_FILENAME, pspSaveData.getParamSfoArrayBuffer());
+    expect(ArrayBufferUtil.arrayBuffersEqual(pspSaveData.getEncryptedArrayBuffer(), reencryptedArrayBuffer)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(pspSaveData.getParamSfoArrayBuffer(), reencryptedParamSfoArrayBuffer)).to.equal(true);
   });
 });
