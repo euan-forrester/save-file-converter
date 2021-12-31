@@ -1,15 +1,15 @@
 /* eslint-disable no-underscore-dangle */
 
-import createModule from '@/save-formats/PSP/kirk-engine/kirk-engine';
+import createModule from '@/save-formats/PSP/psp-encryption/psp-encryption';
 
-import(/* webpackChunkName: "kirkEngineWasmName" */ './kirk-engine/kirk-engine.wasm'); // eslint-disable-line no-unused-expressions
+import(/* webpackChunkName: "pspEncryptionWasmName" */ './psp-encryption/psp-encryption.wasm'); // eslint-disable-line no-unused-expressions
 
 // const INCORRECT_FORMAT_ERROR_MESSAGE = 'This does not appear to be a PSP save file';
 
 async function getModuleInstance() {
   // This is a total hack to get the runtime name (with hash) of the .wasm file.
   // We import it above so that webpack will include it (and append a hash, thanks to our webpack config),
-  // and the magic comment above results in a file called js/kirkEngineWasmName.[hash].js also being emitted (for some reason -- I don't see any documentation about this).
+  // and the magic comment above results in a file called js/pspEncryptionWasmName.[hash].js also being emitted (for some reason -- I don't see any documentation about this).
   // If we look in that file, we see some weird javascript that adds an item to
   // the array stored in window['webpackJsonp']. Take a look at that generated file
   // (it's simpler in production mode) so see how we're undoing it to get at the
@@ -29,11 +29,11 @@ async function getModuleInstance() {
   // We want to use this formulation when in tests, or when running a local server on our desktop,
   // to get the file from our local machine in the src/ dir
   let moduleOverrides = {
-    locateFile: (s) => `src/save-formats/PSP/kirk-engine/${s}`,
+    locateFile: (s) => `src/save-formats/PSP/psp-encryption/${s}`,
   };
 
   if (window && window.webpackJsonp && !window.webpackHotUpdate) { // webpackHotUpdate is defined if running a dev server on the local machine
-    const wasmNameList = window.webpackJsonp.filter((x) => x[0][0] === 'kirkEngineWasmName');
+    const wasmNameList = window.webpackJsonp.filter((x) => x[0][0] === 'pspEncryptionWasmName');
 
     if (wasmNameList.length >= 1) {
       const a = {
