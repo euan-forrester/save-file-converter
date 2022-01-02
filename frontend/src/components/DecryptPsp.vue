@@ -2,7 +2,7 @@
   <div>
     <b-container>
       <b-row no-gutters align-h="center" align-v="start">
-        <b-col sm=12 md=5 align-self="center">
+        <b-col sm=12 md=5 align-self="start">
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
               <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })">
@@ -29,8 +29,8 @@
               v-model="outputFilename"
               :leaveRoomForHelpIcon="true"
               id="output-filename-encrypted"
-              helpText="Be sure to set the same filename here as the original encrypted file created by your PSP or emulator:
-              this filename is baked into the PARAM.SFO file that you will download in addition to the encrypted file.
+              helpText="Be sure to set the same filename here as the original encrypted file created by your PSP or emulator.
+              This filename is baked into the PARAM.SFO file that you will download in addition to the encrypted file.
               Please copy both the new encrypted file and new PARAM.SFO over top of the corresponding files on your PSP or created by your emulator."
             />
           </div>
@@ -58,8 +58,20 @@
             <input-file
               @load="readUnencryptedSaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose a file to encrypt (*.BIN)"
-              acceptExtension=".BIN"
+              placeholderText="Choose a file to encrypt"
+              :leaveRoomForHelpIcon="false"
+            />
+            <input-file
+              @load="readParamSfoFile($event)"
+              :errorMessage="this.errorMessage"
+              placeholderText="Choose the PARAM.SFO file"
+              acceptExtension=".SFO"
+              :leaveRoomForHelpIcon="false"
+            />
+            <input-file
+              @load="readGamekeyFile($event)"
+              :errorMessage="this.errorMessage"
+              placeholderText="Choose your game key file"
               :leaveRoomForHelpIcon="false"
             />
           </div>
@@ -71,7 +83,7 @@
             class="psp-encryption-button"
             variant="success"
             block
-            :disabled="!this.pspDataArrayBuffer || !this.gamekeyArrayBuffer || !outputFilename"
+            :disabled="!this.hasEnoughInfoToConvertFile()"
             @click="convertFile()"
           >
           Convert!
@@ -124,6 +136,7 @@ export default {
   data() {
     return {
       pspDataArrayBuffer: null,
+      paramSfoArrayBuffer: null,
       gamekeyArrayBuffer: null,
       errorMessage: null,
       outputFilename: null,
@@ -142,12 +155,17 @@ export default {
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
       this.pspDataArrayBuffer = null;
+      this.paramSfoArrayBuffer = null;
       this.gamekeyArrayBuffer = null;
       this.errorMessage = null;
       this.outputFilename = null;
     },
     readGamekeyFile(event) {
       this.gamekeyArrayBuffer = event.arrayBuffer;
+      this.errorMessage = null;
+    },
+    readParamSfoFile(event) {
+      this.paramSfoArrayBuffer = event.arrayBuffer;
       this.errorMessage = null;
     },
     readEncryptedSaveData(event) {
@@ -160,18 +178,31 @@ export default {
       this.outputFilename = null;
       this.errorMessage = null;
     },
+    hasEnoughInfoToConvertFile() {
+      if (this.conversionDirection === 'convertToEmulator') {
+        // Decrypting
+        return this.pspDataArrayBuffer && this.gamekeyArrayBuffer && this.outputFilename;
+      }
+
+      // Encrypting
+      return this.pspDataArrayBuffer && this.gamekeyArrayBuffer && this.outputFilename && this.paramSfoArrayBuffer;
+    },
     convertFile() {
       try {
         if (this.conversionDirection === 'convertToEmulator') {
+          // Decrypting
+
           const pspSaveData = PspSaveData.createFromEncryptedData(this.pspDataArrayBuffer, this.gamekeyArrayBuffer);
 
           const outputBlob = new Blob([pspSaveData.getUnencryptedArrayBuffer()], { type: 'application/octet-stream' });
 
           saveAs(outputBlob, this.outputFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
         } else {
-          const pspSaveData = PspSaveData.createFromUnencryptedData(this.pspDataArrayBuffer, this.gamekeyArrayBuffer);
+          // Encrypting
 
-          const outputBlobEncrypted = new Blob([pspSaveData.getUnencryptedArrayBuffer()], { type: 'application/octet-stream' });
+          const pspSaveData = PspSaveData.createFromUnencryptedData(this.pspDataArrayBuffer, Util.getFilename(this.outputFilename), this.paramSfoArrayBuffer, this.gamekeyArrayBuffer);
+
+          const outputBlobEncrypted = new Blob([pspSaveData.getEncryptedArrayBuffer()], { type: 'application/octet-stream' });
 
           saveAs(outputBlobEncrypted, this.outputFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
 
