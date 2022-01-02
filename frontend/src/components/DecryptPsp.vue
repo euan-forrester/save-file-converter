@@ -14,8 +14,13 @@
             <input-file
               @load="readEncryptedSaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose a file to decrypt (*.BIN)"
-              acceptExtension=".BIN"
+              placeholderText="Choose a file to decrypt"
+              :leaveRoomForHelpIcon="false"
+            />
+            <input-file
+              @load="readGamekeyFile($event)"
+              :errorMessage="this.errorMessage"
+              placeholderText="Choose your game key file"
               :leaveRoomForHelpIcon="false"
             />
           </div>
@@ -66,7 +71,7 @@
             class="psp-encryption-button"
             variant="success"
             block
-            :disabled="!this.pspSaveData || !outputFilename"
+            :disabled="!this.pspDataArrayBuffer || !this.gamekeyArrayBuffer || !outputFilename"
             @click="convertFile()"
           >
           Convert!
@@ -118,7 +123,8 @@ export default {
   name: 'DecryptPsp',
   data() {
     return {
-      pspSaveData: null,
+      pspDataArrayBuffer: null,
+      gamekeyArrayBuffer: null,
       errorMessage: null,
       outputFilename: null,
       conversionDirection: 'convertToEmulator',
@@ -135,36 +141,47 @@ export default {
   methods: {
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
-      this.pspSaveData = null;
+      this.pspDataArrayBuffer = null;
+      this.gamekeyArrayBuffer = null;
       this.errorMessage = null;
       this.outputFilename = null;
     },
-    async readEncryptedSaveData(event) {
+    readGamekeyFile(event) {
+      this.gamekeyArrayBuffer = event.arrayBuffer;
       this.errorMessage = null;
-      try {
-        this.pspSaveData = await PspSaveData.createFromEncryptedData(event.arrayBuffer, Buffer.from('01020304050607080900010203040506', 'hex'));
-        this.outputFilename = Util.appendToFilename(event.filename, '_decrypted');
-      } catch (e) {
-        this.errorMessage = e.message;
-        this.pspSaveData = null;
-      }
     },
-    async readUnencryptedSaveData(event) {
+    readEncryptedSaveData(event) {
+      this.pspDataArrayBuffer = event.arrayBuffer;
+      this.outputFilename = Util.appendToFilename(event.filename, '_decrypted');
       this.errorMessage = null;
-      try {
-        this.pspSaveData = await PspSaveData.createFromUnencryptedData(event.arrayBuffer, Buffer.from('01020304050607080900010203040506', 'hex'));
-        this.outputFilename = Util.appendToFilename(event.filename, '_encrypted');
-      } catch (e) {
-        this.errorMessage = e.message;
-        this.pspSaveData = null;
-      }
+    },
+    readUnencryptedSaveData(event) {
+      this.pspDataArrayBuffer = event.arrayBuffer;
+      this.outputFilename = null;
+      this.errorMessage = null;
     },
     convertFile() {
-      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.pspSaveData.getUnencryptedArrayBuffer() : this.pspSaveData.getEncryptedArrayBuffer();
+      try {
+        if (this.conversionDirection === 'convertToEmulator') {
+          const pspSaveData = PspSaveData.createFromEncryptedData(this.pspDataArrayBuffer, this.gamekeyArrayBuffer);
 
-      const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
+          const outputBlob = new Blob([pspSaveData.getUnencryptedArrayBuffer()], { type: 'application/octet-stream' });
 
-      saveAs(outputBlob, this.outputFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
+          saveAs(outputBlob, this.outputFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
+        } else {
+          const pspSaveData = PspSaveData.createFromUnencryptedData(this.pspDataArrayBuffer, this.gamekeyArrayBuffer);
+
+          const outputBlobEncrypted = new Blob([pspSaveData.getUnencryptedArrayBuffer()], { type: 'application/octet-stream' });
+
+          saveAs(outputBlobEncrypted, this.outputFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
+
+          const outputBlobParamSfo = new Blob([pspSaveData.getParamSfoArrayBuffer()], { type: 'application/octet-stream' });
+
+          saveAs(outputBlobParamSfo, 'PARAM.SFO'); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
+        }
+      } catch (e) {
+        this.errorMessage = e.message;
+      }
     },
   },
 };
