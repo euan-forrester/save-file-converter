@@ -15,13 +15,15 @@
               @load="readEncryptedSaveData($event)"
               :errorMessage="this.errorMessage"
               placeholderText="Choose a file to decrypt"
-              :leaveRoomForHelpIcon="false"
+              :leaveRoomForHelpIcon="true"
             />
             <input-file
               @load="readGamekeyFile($event)"
               :errorMessage="this.errorMessage"
               placeholderText="Choose your game key file"
-              :leaveRoomForHelpIcon="false"
+              :leaveRoomForHelpIcon="true"
+              id="input-file-game-key"
+              :helpText="this.gamekeyHelpText"
             />
           </div>
           <div v-else>
@@ -59,20 +61,25 @@
               @load="readUnencryptedSaveData($event)"
               :errorMessage="this.errorMessage"
               placeholderText="Choose a file to encrypt"
-              :leaveRoomForHelpIcon="false"
+              :leaveRoomForHelpIcon="true"
             />
             <input-file
               @load="readParamSfoFile($event)"
               :errorMessage="this.errorMessage"
               placeholderText="Choose the PARAM.SFO file"
               acceptExtension=".SFO"
-              :leaveRoomForHelpIcon="false"
+              :leaveRoomForHelpIcon="true"
+              id="input-file-param-sfo"
+              helpText="There will be a file named PARAM.SFO beside the original encrypted save file on your PSP, or created by your emulator.
+              This file needs to be updated during the encryption process, and you will receive a new PARAM.SFO file in addition to the new encrypted file."
             />
             <input-file
               @load="readGamekeyFile($event)"
               :errorMessage="this.errorMessage"
               placeholderText="Choose your game key file"
-              :leaveRoomForHelpIcon="false"
+              :leaveRoomForHelpIcon="true"
+              id="input-file-game-key"
+              :helpText="this.gamekeyHelpText"
             />
           </div>
         </b-col>
@@ -88,6 +95,14 @@
           >
           Convert!
           </b-button>
+        <div v-if="this.conversionDirection !== 'convertToEmulator'">
+          <help-button
+            popover-text="You will need to download 2 files: the encrypted save file and an updated PARAM.SFO file.
+            Copy them over the original files on your PSP or created by your emulator."
+            id="convert-button"
+            class="help-button"
+          />
+        </div>
         </b-col>
       </b-row>
       <b-row>
@@ -121,6 +136,12 @@
   margin-top: 1em;
 }
 
+.help-button {
+  position: absolute;
+  right: -0.2em;
+  top: 1em;
+}
+
 </style>
 
 <script>
@@ -130,6 +151,7 @@ import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import PspSaveData from '../save-formats/PSP/Savefile';
+import HelpButton from './HelpButton.vue';
 
 export default {
   name: 'DecryptPsp',
@@ -141,6 +163,7 @@ export default {
       errorMessage: null,
       outputFilename: null,
       conversionDirection: 'convertToEmulator',
+      gamekeyHelpText: 'See the help links below for information on how to install custom firmware on your PSP, and how to install a plugin that will output a game key file for each game.',
     };
   },
   async mounted() {
@@ -150,6 +173,7 @@ export default {
     ConversionDirection,
     InputFile,
     OutputFilename,
+    HelpButton,
   },
   methods: {
     changeConversionDirection(newDirection) {
