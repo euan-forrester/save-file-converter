@@ -20,7 +20,14 @@
             />
           </div>
           <div v-else>
-            <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
+            <output-filename
+              v-model="outputFilename"
+              :leaveRoomForHelpIcon="true"
+              id="output-filename-encrypted"
+              helpText="Be sure to set the same filename here as the original encrypted file created by your PSP or emulator:
+              this filename is baked into the PARAM.SFO file that you will download in addition to the encrypted file.
+              Please copy both the new encrypted file and new PARAM.SFO over top of the corresponding files on your PSP or created by your emulator."
+            />
           </div>
         </b-col>
         <b-col sm=12 md=2 lg=2 xl=2 align-self="start">
@@ -56,7 +63,7 @@
       <b-row class="justify-content-md-center" align-h="center">
         <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
           <b-button
-            class="retron5-convert-button"
+            class="psp-encryption-button"
             variant="success"
             block
             :disabled="!this.pspSaveData || !outputFilename"
@@ -71,6 +78,15 @@
           <div class="help">
             Help: how do I&nbsp;<b-link href="https://www.wikihow.com/Put-Game-Saves-on-Your-PSP">copy save files to and from my PSP</b-link>?
           </div>
+          <div class="help">
+            Help: how do I&nbsp;<b-link href="https://psp.brewology.com/downloads/download.php?id=13861&mcid=1">get a game key file for a particular game</b-link>?
+          </div>
+          <div class="help">
+            Help: how do I&nbsp;<b-link href="https://forums.afterdawn.com/threads/guide-how-to-install-plugins-on-a-psp-includes-on-how-to-install-two-or-more.657638/">install a plugin on my PSP</b-link>?
+          </div>
+          <div class="help">
+            Help: how do I&nbsp;<b-link href="https://revive.today/psp/cfw/">install custom firmware on my PSP</b-link>?
+          </div>
         </b-col>
       </b-row>
     </b-container>
@@ -80,13 +96,14 @@
 <style scoped>
 
 /* Separate class for each different button to enable tracking in google tag manager */
-.retron5-convert-button {
+.psp-encryption-button {
   margin-top: 1em;
 }
 
 .help {
   margin-top: 1em;
 }
+
 </style>
 
 <script>
