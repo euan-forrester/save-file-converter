@@ -209,18 +209,20 @@ export default {
       return this.pspDataArrayBuffer && this.gamekeyArrayBuffer && this.outputFilename && this.paramSfoArrayBuffer;
     },
     convertFile() {
-      try {
-        if (this.conversionDirection === 'convertToEmulator') {
-          // Decrypting
-
+      if (this.conversionDirection === 'convertToEmulator') {
+        // Decrypting
+        try {
           const pspSaveData = PspSaveData.createFromEncryptedData(this.pspDataArrayBuffer, this.gamekeyArrayBuffer);
 
           const outputBlob = new Blob([pspSaveData.getUnencryptedArrayBuffer()], { type: 'application/octet-stream' });
 
           saveAs(outputBlob, this.outputFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
-        } else {
-          // Encrypting
-
+        } catch (e) {
+          this.errorMessage = 'Encountered an error trying to decrypt file. Please double-check that you supplied an encrypted PSP save file, and a 16 byte game key file';
+        }
+      } else {
+        // Encrypting
+        try {
           const pspSaveData = PspSaveData.createFromUnencryptedData(this.pspDataArrayBuffer, Util.getFilename(this.outputFilename), this.paramSfoArrayBuffer, this.gamekeyArrayBuffer);
 
           const outputBlobEncrypted = new Blob([pspSaveData.getEncryptedArrayBuffer()], { type: 'application/octet-stream' });
@@ -230,9 +232,10 @@ export default {
           const outputBlobParamSfo = new Blob([pspSaveData.getParamSfoArrayBuffer()], { type: 'application/octet-stream' });
 
           saveAs(outputBlobParamSfo, 'PARAM.SFO'); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
+        } catch (e) {
+          this.errorMessage = 'Encountered an error trying to encrypt file. Please double-check that you supplied an unencrypted PSP save file,'
+          + ' the correct PARAM.SFO file, and a 16 byte game key file';
         }
-      } catch (e) {
-        this.errorMessage = e.message;
       }
     },
   },
