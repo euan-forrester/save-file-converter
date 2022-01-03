@@ -76,6 +76,7 @@ Instructions:
   - https://github.com/hrydgard/ppsspp PSP emulator
     - https://github.com/hrydgard/ppsspp/blob/master/Tools/SaveTool/decrypt.c This decrypts a savegame file
     - https://github.com/hrydgard/ppsspp/blob/81b5e080ff885e98b5761632158457ce3e5d1fb5/Core/HLE/sceKernelModule.cpp#L1251 The code before here decrypts the executable
+    - https://github.com/euan-forrester/psp-encryption-webassembly Copy of the relevant code in PPSSPP, compiled into webassembly
 - NES/SNES Classic save game format
   - https://github.com/TeamShinkansen/Hakchi2-CE (tool used to write games onto the devices)
   - https://github.com/JanErikGunnar/ClassicEditionTools (scripts to convert raw saves to/from NES Classic format)
