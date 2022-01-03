@@ -1,4 +1,5 @@
 const path = require('path');
+const contentBase = path.resolve(__dirname);
 
 const testsDir = './tests';
 
@@ -37,6 +38,38 @@ module.exports = {
       alias: {
         "#": path.join(__dirname, testsDir)
       }
+    },
+    // Copied from https://github.com/emscripten-core/emscripten/issues/10114#issuecomment-569561505
+    devServer: {
+      before(app) {
+        // use proper mime-type for wasm files
+        app.get('*.wasm', function (req, res, next) {
+          var options = {
+            root: contentBase,
+            dotfiles: 'deny',
+            headers: {
+              'Content-Type': 'application/wasm'
+            }
+          };
+          res.sendFile(req.url, options, function (err) {
+            if (err) {
+              next(err);
+            }
+          });
+        });
+      }
+    },
+    module: {
+      rules: [
+        { 
+          test: /\.wasm$/,
+          type: 'javascript/auto',
+          loader: 'file-loader',
+          options: {
+            name: '[name]-[contenthash].[ext]',         
+          }        
+        }
+      ]
     }
   }
 };

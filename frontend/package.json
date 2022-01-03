@@ -20,6 +20,7 @@
     "bootstrap": "^4.6.0",
     "bootstrap-vue": "^2.21.2",
     "browserify-aes": "^1.2.0",
+    "browserify-des": "^1.0.2",
     "core-js": "^3.6.5",
     "crc-32": "^1.2.0",
     "create-hash": "^1.2.0",
@@ -29,7 +30,6 @@
     "node-html-parser": "^4.0.0",
     "pako": "^2.0.3",
     "path": "^0.12.7",
-    "pkcs7": "^1.0.4",
     "vue": "^2.6.12",
     "vue-cli-plugin-s3-deploy": "^3.0.0",
     "vue-mq": "^1.0.1",
@@ -54,7 +54,8 @@
     "vue-cli-plugin-s3-deploy-cleanup": "^1.0.5",
     "vue-cli-plugin-webpack-bundle-analyzer": "~4.0.0",
     "vue-template-compiler": "^2.6.12",
-    "webpack-bundle-analyzer": "^4.5.0"
+    "webpack-bundle-analyzer": "^4.5.0",
+    "pkcs7": "^1.0.4"
   },
   "eslintConfig": {
     "root": true,

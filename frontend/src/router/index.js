@@ -62,6 +62,11 @@ const routes = [
     redirect: '/ps1/dexdrive',
   },
   {
+    path: '/psp',
+    name: 'PSP decrypt',
+    component: () => import(/* webpackChunkName: "psp-decrypt" */ '../views/PspDecrypt.vue'),
+  },
+  {
     path: '/n64/dexdrive',
     name: 'N64 - DexDrive',
     component: () => import(/* webpackChunkName: "n64-dexdrive" */ '../views/N64DexDrive.vue'),

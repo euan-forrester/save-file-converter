@@ -4,7 +4,7 @@
       <b-row>
         <b-col class="nav-row">
           <router-link to="/retron-5">Retron{{'\xa0'}}5 / RetroFreak</router-link> |
-          <router-link to="/retron-5/erase-save">Erase{{'\xa0'}}save from cartridge (using Retron{{'\xa0'}}5 / RetroFreak)</router-link>
+          <router-link to="/retron-5/erase-save">Erase{{'\xa0'}}save from cartridge</router-link>
         </b-col>
       </b-row>
       <b-row>
@@ -30,6 +30,11 @@
           <router-link to="/ps1/dexdrive">PS1{{'\xa0'}}-{{'\xa0'}}DexDrive</router-link> |
           <router-link to="/ps1/psp">PS1{{'\xa0'}}-{{'\xa0'}}PSP</router-link> |
           <router-link to="/ps1/emulator">PS1{{'\xa0'}}-{{'\xa0'}}emulator</router-link>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="nav-row">
+          <router-link to="/psp">PSP{{'\xa0'}}-{{'\xa0'}}Save{{'\xa0'}}decryption{{'\xa0'}}</router-link>
         </b-col>
       </b-row>
       <b-row>
