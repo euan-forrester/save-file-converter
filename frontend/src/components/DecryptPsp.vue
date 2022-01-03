@@ -19,7 +19,6 @@
             />
             <input-file
               @load="readGamekeyFile($event)"
-              :errorMessage="this.errorMessage"
               placeholderText="Choose your game key file"
               :leaveRoomForHelpIcon="true"
               id="input-file-game-key"
@@ -65,7 +64,6 @@
             />
             <input-file
               @load="readParamSfoFile($event)"
-              :errorMessage="this.errorMessage"
               placeholderText="Choose the PARAM.SFO file"
               acceptExtension=".SFO"
               :leaveRoomForHelpIcon="true"
@@ -75,7 +73,6 @@
             />
             <input-file
               @load="readGamekeyFile($event)"
-              :errorMessage="this.errorMessage"
               placeholderText="Choose your game key file"
               :leaveRoomForHelpIcon="true"
               id="input-file-game-key"
