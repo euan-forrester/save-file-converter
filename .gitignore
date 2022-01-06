@@ -1,3 +1,4 @@
 .DS_Store
 /test
 /frontend/stats.json
+/frontend/tests/unit/rom-formats/data/psp/*.ISO
