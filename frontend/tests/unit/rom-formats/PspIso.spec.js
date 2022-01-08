@@ -6,19 +6,27 @@ const TIMEOUT_MS = 20000; // Need to load in some large files
 
 const DIR = './tests/unit/rom-formats/data/psp';
 
-const ISO_FILENAME = `${DIR}/Castlevania - Dracula X Chronicles.ISO`;
+const CASTLEVANIA_ISO_FILENAME = `${DIR}/retail/Castlevania - Dracula X Chronicles.ISO`;
+const CASTLEVANIA_EXECUTABLE_FILENAME = `${DIR}/retail/Castlevania - Dracula X Chronicles - EBOOT.BIN`;
 
 describe('PSP ISO parsing', function () { // eslint-disable-line func-names
   this.timeout(TIMEOUT_MS); // Can't use arrow function above if referencing 'this' here
 
   it('should find an encrypted executable in the Castlevania ISO', async () => {
-    const isoFileExists = await ArrayBufferUtil.fileExists(ISO_FILENAME);
+    const isoFileExists = await ArrayBufferUtil.fileExists(CASTLEVANIA_ISO_FILENAME);
+    const executableFileExists = await ArrayBufferUtil.fileExists(CASTLEVANIA_EXECUTABLE_FILENAME);
 
-    if (isoFileExists) {
-      const isoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ISO_FILENAME);
+    expect(isoFileExists).to.equal(executableFileExists);
+
+    if (isoFileExists && executableFileExists) {
+      const isoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(CASTLEVANIA_ISO_FILENAME);
+      const executableArrayBuffer = await ArrayBufferUtil.readArrayBuffer(CASTLEVANIA_EXECUTABLE_FILENAME);
+
       const pspIso = await PspIso.Create(isoArrayBuffer, 'Castlevania');
 
-      expect(pspIso.foundExecutable()).to.equal(true);
+      expect(pspIso.getExecutableInfo().path).to.equal('/PSP_GAME/SYSDIR/EBOOT.BIN');
+      expect(pspIso.getExecutableInfo().encrypted).to.equal(true);
+      expect(ArrayBufferUtil.arrayBuffersEqual(pspIso.getExecutableInfo().arrayBuffer, executableArrayBuffer)).to.equal(true);
     }
   });
 });
