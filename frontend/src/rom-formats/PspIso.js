@@ -177,6 +177,7 @@ async function getExecutable(fs, gameId) {
   }
 
   return {
+    gameId,
     path: pathToExecutable,
     encrypted: executableIsEncrypted,
     arrayBuffer: executableArrayBuffer,
