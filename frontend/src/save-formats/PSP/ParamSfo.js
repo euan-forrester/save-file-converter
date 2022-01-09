@@ -1,5 +1,13 @@
 // Based on https://github.com/hrydgard/ppsspp/blob/master/Core/ELF/ParamSFO.cpp
 
+// The overall format is:
+// - Header
+// - N index table entries
+// - Key table (all the keys, one after another)
+// - Value table (all the values, one after another)
+
+// Some interesting info regarding the 'REGION' key/value pair, which always seems to be set to 32768: https://github.com/hrydgard/ppsspp/issues/12639
+
 import Util from '../../util/util';
 
 const LITTLE_ENDIAN = true;
