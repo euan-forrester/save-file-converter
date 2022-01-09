@@ -4,6 +4,7 @@
 import * as BrowserFS from 'browserfs';
 
 import Util from '../util/util';
+import PspParmSfo from '../save-formats/PSP/ParamSfo';
 
 const EXECUTABLE_MAGIC_ENCODING = 'US-ASCII';
 const EXECUTABLE_MAGIC = ['~PSP', '\x7FELF'];
@@ -11,6 +12,8 @@ const EXECUTABLE_MAGIC_OFFSET = 0;
 
 const MAIN_EXECUTABLE_PATH = '/PSP_GAME/SYSDIR/EBOOT.BIN';
 const UNENCRYPTED_EXECUTABLE_PATH = '/PSP_GAME/SYSDIR/BOOT.BIN'; // After firmware 3 was released, games no longer came with unencrypted versions on the UMD. The file is still present, but it's all dummy data for those later games. Apparently the size of the dummy data is the correct size of the decrypted executable though
+
+const PARAM_SFO_PATH = '/PSP_GAME/PARAM.SFO';
 
 // Taken from https://github.com/hrydgard/ppsspp/blob/e094f5673a4f171927afe6eb41eba0326c4511c7/Core/PSPLoaders.cpp#L221
 //
@@ -84,8 +87,18 @@ async function readFile(fs, path) {
   });
 }
 
-async function getGameId(/* fs */) {
-  return 'ABC123';
+async function getGameId(fs) {
+  const paramSfoExists = await fileExists(fs, PARAM_SFO_PATH);
+
+  if (!paramSfoExists) {
+    return null; // PPSSPP doesn't fail loading a game if this file is missing, so we shouldn't either
+  }
+
+  const paramSfoArrayBuffer = await readFile(fs, PARAM_SFO_PATH);
+
+  const paramSfo = new PspParmSfo(paramSfoArrayBuffer);
+
+  return paramSfo.getValue('DISC_ID');
 }
 
 async function findFirstPathThatExists(fs, pathsArray) {
