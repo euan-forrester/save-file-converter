@@ -77,16 +77,17 @@ export default class PspParamSfo {
 
       const keyOffset = keyTableStart + indexTableEntryDataView.getUint16(INDEX_TABLE_KEY_OFFSET, LITTLE_ENDIAN);
       const valueOffset = valueTableStart + indexTableEntryDataView.getUint32(INDEX_TABLE_VALUE_OFFSET, LITTLE_ENDIAN);
-      const valueLength = indexTableEntryDataView.getUint32(INDEX_TABLE_VALUE_LENGTH_OFFSET, LITTLE_ENDIAN);
-      const valueMaxLength = indexTableEntryDataView.getUint32(INDEX_TABLE_VALUE_MAX_LENGTH_OFFSET, LITTLE_ENDIAN);
 
       if ((keyOffset > fileSize) || (valueOffset > fileSize)) {
         throw new Error(getErrorMessage(fileVersion));
       }
 
-      const valueFormat = indexTableEntryDataView.getUint16(INDEX_TABLE_VALUE_FORMAT_OFFSET, LITTLE_ENDIAN);
       const key = Util.readNullTerminatedString(fileUint8Array, keyOffset, KEY_ENCODING);
       let value = null;
+
+      const valueFormat = indexTableEntryDataView.getUint16(INDEX_TABLE_VALUE_FORMAT_OFFSET, LITTLE_ENDIAN);
+      const valueLength = indexTableEntryDataView.getUint32(INDEX_TABLE_VALUE_LENGTH_OFFSET, LITTLE_ENDIAN);
+      const valueMaxLength = indexTableEntryDataView.getUint32(INDEX_TABLE_VALUE_MAX_LENGTH_OFFSET, LITTLE_ENDIAN);
 
       switch (valueFormat) {
         case VALUE_FORMAT_UINT32: {
