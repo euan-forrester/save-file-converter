@@ -55,4 +55,20 @@ describe('PSP save decryption', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(pspSaveData.getEncryptedArrayBuffer(), reencryptedArrayBuffer)).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(pspSaveData.getParamSfoArrayBuffer(), reencryptedParamSfoArrayBuffer)).to.equal(true);
   });
+
+  it('should decrypt a re-encrypted PSP save file to get the same data', async () => {
+    // Note that the 2 files get re-encrypted to different contents than the originally-encrypted files.
+    // The new contents are deterministic though, due to how we initialized PspSaveData above.
+
+    const unencryptedArrayBuffer = await ArrayBufferUtil.readArrayBuffer(UNENCRYPTED_FILENAME);
+    const paramSfoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(PARAM_SFO_FILENAME);
+
+    const encryptedFilename = Util.getFilename(ENCRYPTED_FILENAME);
+
+    const pspEncryptedSaveData = PspSaveData.createFromUnencryptedData(unencryptedArrayBuffer, encryptedFilename, paramSfoArrayBuffer, GAME_KEY);
+
+    const pspRedecryptedSaveData = PspSaveData.createFromEncryptedData(pspEncryptedSaveData.getEncryptedArrayBuffer(), GAME_KEY);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(pspRedecryptedSaveData.getUnencryptedArrayBuffer(), unencryptedArrayBuffer)).to.equal(true);
+  });
 });
