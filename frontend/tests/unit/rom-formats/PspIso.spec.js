@@ -33,6 +33,21 @@ const ENCRYPTED_EXECUTABLE_INCORRECT_MAGIC = `${DIR}/encrypted-executable-incorr
 const ENCRYPTED_EXECUTABLE_INCORRECT_MAGIC_EXECUTABLE_PATH = '/PSP_GAME/SYSDIR/BOOT.BIN';
 const ENCRYPTED_EXECUTABLE_INCORRECT_MAGIC_GAME_ID = 'ULUS12345';
 
+const ENCRYPTED_EXECUTABLE_ALTERNATIVE_BOOT_ISO = `${DIR}/encrypted-executable-alternative-boot.iso`;
+const ENCRYPTED_EXECUTABLE_ALTERNATIVE_BOOT = `${DIR}/encrypted-executable-alternative-boot - EBOOT.DNR`;
+const ENCRYPTED_EXECUTABLE_ALTERNATIVE_BOOT_EXECUTABLE_PATH = '/PSP_GAME/SYSDIR/EBOOT.DNR';
+const ENCRYPTED_EXECUTABLE_ALTERNATIVE_BOOT_GAME_ID = 'ULUS12345';
+
+const ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_ISO = `${DIR}/encrypted-executable-other-alternative-boot.iso`;
+const ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT = `${DIR}/encrypted-executable-other-alternative-boot - GBL`;
+const ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_EXECUTABLE_PATH = '/PSP_GAME/USRDIR/DATA/GIM/GBL';
+const ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_GAME_ID = 'NPJH00100';
+
+const ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_WRONG_GAME_ID_ISO = `${DIR}/encrypted-executable-other-alternative-boot-wrong-game-id.iso`;
+const ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_WRONG_GAME_ID = `${DIR}/encrypted-executable-other-alternative-boot-wrong-game-id - EBOOT.BIN`;
+const ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_WRONG_GAME_ID_EXECUTABLE_PATH = '/PSP_GAME/SYSDIR/EBOOT.BIN';
+const ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_WRONG_GAME_ID_GAME_ID = 'ULUS12345';
+
 describe('PSP ISO parsing', function () { // eslint-disable-line func-names
   this.timeout(TIMEOUT_MS); // Can't use arrow function above if referencing 'this' here
 
@@ -103,7 +118,7 @@ describe('PSP ISO parsing', function () { // eslint-disable-line func-names
       const isoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(UNENCRYPTED_EXECUTABLE_ISO);
       const executableArrayBuffer = await ArrayBufferUtil.readArrayBuffer(UNENCRYPTED_EXECUTABLE);
 
-      const pspIso = await PspIso.Create(isoArrayBuffer, 'EncryptedExecutableMagic1');
+      const pspIso = await PspIso.Create(isoArrayBuffer, 'UnencryptedExecutable');
 
       expect(pspIso.getExecutableInfo().gameId).to.equal(UNENCRYPTED_EXECUTABLE_GAME_ID);
       expect(pspIso.getExecutableInfo().path).to.equal(UNENCRYPTED_EXECUTABLE_EXECUTABLE_PATH);
@@ -122,11 +137,68 @@ describe('PSP ISO parsing', function () { // eslint-disable-line func-names
       const isoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_INCORRECT_MAGIC_ISO);
       const executableArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_INCORRECT_MAGIC);
 
-      const pspIso = await PspIso.Create(isoArrayBuffer, 'EncryptedExecutableMagic1');
+      const pspIso = await PspIso.Create(isoArrayBuffer, 'EncryptedExecutableMagicDoesNotMatch');
 
       expect(pspIso.getExecutableInfo().gameId).to.equal(ENCRYPTED_EXECUTABLE_INCORRECT_MAGIC_GAME_ID);
       expect(pspIso.getExecutableInfo().path).to.equal(ENCRYPTED_EXECUTABLE_INCORRECT_MAGIC_EXECUTABLE_PATH);
       expect(pspIso.getExecutableInfo().encrypted).to.equal(false);
+      expect(ArrayBufferUtil.arrayBuffersEqual(pspIso.getExecutableInfo().arrayBuffer, executableArrayBuffer)).to.equal(true);
+    }
+  });
+
+  it('should find an encrypted executable in an alternative location', async () => {
+    const isoFileExists = await ArrayBufferUtil.fileExists(ENCRYPTED_EXECUTABLE_ALTERNATIVE_BOOT_ISO);
+    const executableFileExists = await ArrayBufferUtil.fileExists(ENCRYPTED_EXECUTABLE_ALTERNATIVE_BOOT);
+
+    expect(isoFileExists).to.equal(executableFileExists);
+
+    if (isoFileExists && executableFileExists) {
+      const isoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_ALTERNATIVE_BOOT_ISO);
+      const executableArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_ALTERNATIVE_BOOT);
+
+      const pspIso = await PspIso.Create(isoArrayBuffer, 'EncryptedExecutableAlternativeLocation');
+
+      expect(pspIso.getExecutableInfo().gameId).to.equal(ENCRYPTED_EXECUTABLE_ALTERNATIVE_BOOT_GAME_ID);
+      expect(pspIso.getExecutableInfo().path).to.equal(ENCRYPTED_EXECUTABLE_ALTERNATIVE_BOOT_EXECUTABLE_PATH);
+      expect(pspIso.getExecutableInfo().encrypted).to.equal(true);
+      expect(ArrayBufferUtil.arrayBuffersEqual(pspIso.getExecutableInfo().arrayBuffer, executableArrayBuffer)).to.equal(true);
+    }
+  });
+
+  it('should find an encrypted executable in an other alternative location', async () => {
+    const isoFileExists = await ArrayBufferUtil.fileExists(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_ISO);
+    const executableFileExists = await ArrayBufferUtil.fileExists(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT);
+
+    expect(isoFileExists).to.equal(executableFileExists);
+
+    if (isoFileExists && executableFileExists) {
+      const isoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_ISO);
+      const executableArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT);
+
+      const pspIso = await PspIso.Create(isoArrayBuffer, 'EncryptedExecutableOtherAlternativeLocation');
+
+      expect(pspIso.getExecutableInfo().gameId).to.equal(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_GAME_ID);
+      expect(pspIso.getExecutableInfo().path).to.equal(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_EXECUTABLE_PATH);
+      expect(pspIso.getExecutableInfo().encrypted).to.equal(true);
+      expect(ArrayBufferUtil.arrayBuffersEqual(pspIso.getExecutableInfo().arrayBuffer, executableArrayBuffer)).to.equal(true);
+    }
+  });
+
+  it('should not find an encrypted executable in an other alternative location if the game ID doen\'t match', async () => {
+    const isoFileExists = await ArrayBufferUtil.fileExists(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_WRONG_GAME_ID_ISO);
+    const executableFileExists = await ArrayBufferUtil.fileExists(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_WRONG_GAME_ID);
+
+    expect(isoFileExists).to.equal(executableFileExists);
+
+    if (isoFileExists && executableFileExists) {
+      const isoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_WRONG_GAME_ID_ISO);
+      const executableArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_WRONG_GAME_ID);
+
+      const pspIso = await PspIso.Create(isoArrayBuffer, 'EncryptedExecutableOtherAlternativeLocationWrongGameId');
+
+      expect(pspIso.getExecutableInfo().gameId).to.equal(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_WRONG_GAME_ID_GAME_ID);
+      expect(pspIso.getExecutableInfo().path).to.equal(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_WRONG_GAME_ID_EXECUTABLE_PATH);
+      expect(pspIso.getExecutableInfo().encrypted).to.equal(true);
       expect(ArrayBufferUtil.arrayBuffersEqual(pspIso.getExecutableInfo().arrayBuffer, executableArrayBuffer)).to.equal(true);
     }
   });

@@ -21,22 +21,22 @@ const PARAM_SFO_PATH = '/PSP_GAME/PARAM.SFO';
 // and then make a new EBOOT.BIN that first launches a plugin and then the actual game.
 // We want to look in the actual executable to try and find our gamekey
 const ALTERNATIVE_EXECUTABLE_PATHS = [
-  'PSP_GAME/SYSDIR/EBOOT.OLD',
-  'PSP_GAME/SYSDIR/EBOOT.DAT',
-  'PSP_GAME/SYSDIR/EBOOT.BI',
-  'PSP_GAME/SYSDIR/EBOOT.LLD',
-  // 'PSP_GAME/SYSDIR/OLD_EBOOT.BIN', //Utawareru Mono Chinese version
-  'PSP_GAME/SYSDIR/EBOOT.123',
-  // 'PSP_GAME/SYSDIR/EBOOT_LRC_CH.BIN', // Hatsune Miku Project Diva Extend chinese version
-  'PSP_GAME/SYSDIR/BOOT0.OLD',
-  'PSP_GAME/SYSDIR/BOOT1.OLD',
-  'PSP_GAME/SYSDIR/BINOT.BIN',
-  'PSP_GAME/SYSDIR/EBOOT.FRY',
-  'PSP_GAME/SYSDIR/EBOOT.Z.Y',
-  'PSP_GAME/SYSDIR/EBOOT.LEI',
-  'PSP_GAME/SYSDIR/EBOOT.DNR',
-  'PSP_GAME/SYSDIR/DBZ2.BIN',
-  // 'PSP_GAME/SYSDIR/ss.RAW',//Code Geass: Lost Colors chinese version
+  '/PSP_GAME/SYSDIR/EBOOT.OLD',
+  '/PSP_GAME/SYSDIR/EBOOT.DAT',
+  '/PSP_GAME/SYSDIR/EBOOT.BI',
+  '/PSP_GAME/SYSDIR/EBOOT.LLD',
+  // '/PSP_GAME/SYSDIR/OLD_EBOOT.BIN', //Utawareru Mono Chinese version
+  '/PSP_GAME/SYSDIR/EBOOT.123',
+  // '/PSP_GAME/SYSDIR/EBOOT_LRC_CH.BIN', // Hatsune Miku Project Diva Extend chinese version
+  '/PSP_GAME/SYSDIR/BOOT0.OLD',
+  '/PSP_GAME/SYSDIR/BOOT1.OLD',
+  '/PSP_GAME/SYSDIR/BINOT.BIN',
+  '/PSP_GAME/SYSDIR/EBOOT.FRY',
+  '/PSP_GAME/SYSDIR/EBOOT.Z.Y',
+  '/PSP_GAME/SYSDIR/EBOOT.LEI',
+  '/PSP_GAME/SYSDIR/EBOOT.DNR',
+  '/PSP_GAME/SYSDIR/DBZ2.BIN',
+  // '/PSP_GAME/SYSDIR/ss.RAW',//Code Geass: Lost Colors chinese version
 ];
 
 // Taken from https://github.com/hrydgard/ppsspp/blob/e094f5673a4f171927afe6eb41eba0326c4511c7/Core/PSPLoaders.cpp#L264
