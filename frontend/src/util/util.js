@@ -53,6 +53,24 @@ export default class Util {
     return s.replace(/\0[\s\S]*$/g, ''); // https://stackoverflow.com/questions/22809401/removing-a-null-character-from-a-string-in-javascript
   }
 
+  static readNullTerminatedString(uint8Array, startOffset, encoding, maxLength = -1) {
+    const textDecoder = new TextDecoder(encoding);
+
+    let end = uint8Array.length;
+
+    if (maxLength >= 0) {
+      end = Math.min(end, startOffset + maxLength);
+    }
+
+    for (let i = startOffset; i < end; i += 1) {
+      if (uint8Array[i] === 0) {
+        return textDecoder.decode(uint8Array.slice(startOffset, i));
+      }
+    }
+
+    return textDecoder.decode(uint8Array.slice(startOffset, end));
+  }
+
   static setArrayBufferPortion(destination, source, destinationOffset, sourceOffset, length) {
     const destinationArray = new Uint8Array(destination);
     const sourceArray = new Uint8Array(source.slice(sourceOffset, sourceOffset + length));
