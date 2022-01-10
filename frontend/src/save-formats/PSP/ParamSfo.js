@@ -110,8 +110,6 @@ export default class PspParamSfo {
         }
       }
 
-      console.log(`Found key '${key}' with value '${value}'`);
-
       if (value !== null) {
         this.keyValuePairs[key] = value;
       }
