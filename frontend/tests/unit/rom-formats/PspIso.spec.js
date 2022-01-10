@@ -2,7 +2,8 @@ import { expect } from 'chai';
 import PspIso from '@/rom-formats/PspIso';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const TEST_RETAIL_ISOS = true; // They're large files and so take several seconds to load
+const TEST_ISOS = true; // Even small ISOs take a long time to load
+const TEST_RETAIL_ISOS = true; // They're quite large files and so take several seconds to load
 
 const TIMEOUT_MS = 20000; // Need to load in some large files
 
@@ -57,7 +58,7 @@ describe('PSP ISO parsing', function () { // eslint-disable-line func-names
 
     expect(isoFileExists).to.equal(executableFileExists);
 
-    if (isoFileExists && executableFileExists && TEST_RETAIL_ISOS) {
+    if (isoFileExists && executableFileExists && TEST_ISOS && TEST_RETAIL_ISOS) {
       const isoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(CASTLEVANIA_ISO_FILENAME);
       const executableArrayBuffer = await ArrayBufferUtil.readArrayBuffer(CASTLEVANIA_EXECUTABLE_FILENAME);
 
@@ -71,12 +72,7 @@ describe('PSP ISO parsing', function () { // eslint-disable-line func-names
   });
 
   it('should find an encrypted executable matching magic 0', async () => {
-    const isoFileExists = await ArrayBufferUtil.fileExists(ENCRYPTED_EXECUTABLE_MAGIC0_ISO);
-    const executableFileExists = await ArrayBufferUtil.fileExists(ENCRYPTED_EXECUTABLE_MAGIC0);
-
-    expect(isoFileExists).to.equal(executableFileExists);
-
-    if (isoFileExists && executableFileExists) {
+    if (TEST_ISOS) {
       const isoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_MAGIC0_ISO);
       const executableArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_MAGIC0);
 
@@ -90,12 +86,7 @@ describe('PSP ISO parsing', function () { // eslint-disable-line func-names
   });
 
   it('should find an encrypted executable matching magic 1', async () => {
-    const isoFileExists = await ArrayBufferUtil.fileExists(ENCRYPTED_EXECUTABLE_MAGIC1_ISO);
-    const executableFileExists = await ArrayBufferUtil.fileExists(ENCRYPTED_EXECUTABLE_MAGIC1);
-
-    expect(isoFileExists).to.equal(executableFileExists);
-
-    if (isoFileExists && executableFileExists) {
+    if (TEST_ISOS) {
       const isoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_MAGIC1_ISO);
       const executableArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_MAGIC1);
 
@@ -109,12 +100,7 @@ describe('PSP ISO parsing', function () { // eslint-disable-line func-names
   });
 
   it('should find an unencrypted executable if there is no encrypted one', async () => {
-    const isoFileExists = await ArrayBufferUtil.fileExists(UNENCRYPTED_EXECUTABLE_ISO);
-    const executableFileExists = await ArrayBufferUtil.fileExists(UNENCRYPTED_EXECUTABLE);
-
-    expect(isoFileExists).to.equal(executableFileExists);
-
-    if (isoFileExists && executableFileExists) {
+    if (TEST_ISOS) {
       const isoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(UNENCRYPTED_EXECUTABLE_ISO);
       const executableArrayBuffer = await ArrayBufferUtil.readArrayBuffer(UNENCRYPTED_EXECUTABLE);
 
@@ -128,12 +114,7 @@ describe('PSP ISO parsing', function () { // eslint-disable-line func-names
   });
 
   it('should find an unencrypted executable if the encrypted one\'s magic doesn\'t match', async () => {
-    const isoFileExists = await ArrayBufferUtil.fileExists(ENCRYPTED_EXECUTABLE_INCORRECT_MAGIC_ISO);
-    const executableFileExists = await ArrayBufferUtil.fileExists(ENCRYPTED_EXECUTABLE_INCORRECT_MAGIC);
-
-    expect(isoFileExists).to.equal(executableFileExists);
-
-    if (isoFileExists && executableFileExists) {
+    if (TEST_ISOS) {
       const isoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_INCORRECT_MAGIC_ISO);
       const executableArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_INCORRECT_MAGIC);
 
@@ -147,12 +128,7 @@ describe('PSP ISO parsing', function () { // eslint-disable-line func-names
   });
 
   it('should find an encrypted executable in an alternative location', async () => {
-    const isoFileExists = await ArrayBufferUtil.fileExists(ENCRYPTED_EXECUTABLE_ALTERNATIVE_BOOT_ISO);
-    const executableFileExists = await ArrayBufferUtil.fileExists(ENCRYPTED_EXECUTABLE_ALTERNATIVE_BOOT);
-
-    expect(isoFileExists).to.equal(executableFileExists);
-
-    if (isoFileExists && executableFileExists) {
+    if (TEST_ISOS) {
       const isoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_ALTERNATIVE_BOOT_ISO);
       const executableArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_ALTERNATIVE_BOOT);
 
@@ -166,12 +142,7 @@ describe('PSP ISO parsing', function () { // eslint-disable-line func-names
   });
 
   it('should find an encrypted executable in an other alternative location', async () => {
-    const isoFileExists = await ArrayBufferUtil.fileExists(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_ISO);
-    const executableFileExists = await ArrayBufferUtil.fileExists(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT);
-
-    expect(isoFileExists).to.equal(executableFileExists);
-
-    if (isoFileExists && executableFileExists) {
+    if (TEST_ISOS) {
       const isoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_ISO);
       const executableArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT);
 
@@ -185,12 +156,7 @@ describe('PSP ISO parsing', function () { // eslint-disable-line func-names
   });
 
   it('should not find an encrypted executable in an other alternative location if the game ID doen\'t match', async () => {
-    const isoFileExists = await ArrayBufferUtil.fileExists(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_WRONG_GAME_ID_ISO);
-    const executableFileExists = await ArrayBufferUtil.fileExists(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_WRONG_GAME_ID);
-
-    expect(isoFileExists).to.equal(executableFileExists);
-
-    if (isoFileExists && executableFileExists) {
+    if (TEST_ISOS) {
       const isoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_WRONG_GAME_ID_ISO);
       const executableArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_WRONG_GAME_ID);
 
