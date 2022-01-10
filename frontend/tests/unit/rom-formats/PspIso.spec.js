@@ -219,7 +219,7 @@ TEST_ISOS && describe('PSP test ISO parsing', function () { // eslint-disable-li
     expect(ArrayBufferUtil.arrayBuffersEqual(pspIso.getExecutableInfo().arrayBuffer, executableArrayBuffer)).to.equal(true);
   });
 
-  it('should not find an encrypted executable in an other alternative location if the game ID doen\'t match', async () => {
+  it('should not find an encrypted executable in an other alternative location if the game ID doesn\'t match', async () => {
     const isoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_WRONG_GAME_ID_ISO);
     const executableArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ENCRYPTED_EXECUTABLE_OTHER_ALTERNATIVE_BOOT_WRONG_GAME_ID);
 
