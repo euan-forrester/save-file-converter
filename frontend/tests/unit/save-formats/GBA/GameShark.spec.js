@@ -3,6 +3,7 @@ import GameSharkSaveData from '@/save-formats/GBA/GameShark';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 const DIR = './tests/unit/save-formats/data/gba/gameshark';
+const ROM_DIR = './tests/unit/rom-formats/data/gba';
 
 const GAMESHARK_FILENAME = `${DIR}/the-legend-of-zelda-the-minish-cap.6650.sps`;
 const SAVE_TITLE = 'GBAZELDA MC';
@@ -10,7 +11,7 @@ const SAVE_TIME = '07/03/05 01:32:40 a.m.';
 const SAVE_NOTES = '';
 
 const RAW_FILENAME = `${DIR}/the-legend-of-zelda-the-minish-cap.6650.srm`;
-const ROM_FILENAME = `${DIR}/Legend of Zelda, The - The Minish Cap (U).gba`; // Not a real ROM file (!), just the parts in the header that we read
+const ROM_FILENAME = `${ROM_DIR}/Zelda - Minish Cap header.gba`; // Not a real ROM file (!), just the parts in the header that we read
 
 const GAMESHARK_SIZE = 65536; // Bytes
 const RAW_SIZE = 8192; // Bytes
