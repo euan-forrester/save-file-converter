@@ -5,7 +5,7 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 const TEST_ISOS = true; // Even small ISOs take a long time to load
 const TEST_RETAIL_ISOS = true; // They're quite large files and so take several seconds to load
 
-const TIMEOUT_MS = 20000; // Need to load in some large files
+const TIMEOUT_MS = 40000; // Need to load in some large files
 
 const DIR = './tests/unit/rom-formats/data/psp';
 
@@ -13,6 +13,21 @@ const CASTLEVANIA_ISO_FILENAME = `${DIR}/retail/Castlevania - Dracula X Chronicl
 const CASTLEVANIA_EXECUTABLE_FILENAME = `${DIR}/retail/Castlevania - Dracula X Chronicles - EBOOT.BIN`;
 const CASTLEVANIA_EXECUTABLE_PATH = '/PSP_GAME/SYSDIR/EBOOT.BIN';
 const CASTLEVANIA_GAME_ID = 'ULUS10277';
+
+const FINAL_FANTASY_TACTICS_ISO_FILENAME = `${DIR}/retail/Final Fantasy Tactics - War of the Lions.ISO`;
+const FINAL_FANTASY_TACTICS_EXECUTABLE_FILENAME = `${DIR}/retail/Final Fantasy Tactics - War of the Lions - EBOOT.BIN`;
+const FINAL_FANTASY_TACTICS_EXECUTABLE_PATH = '/PSP_GAME/SYSDIR/EBOOT.BIN';
+const FINAL_FANTASY_TACTICS_GAME_ID = 'ULUS10297';
+
+const MEGA_MAN_ISO_FILENAME = `${DIR}/retail/Mega Man Maverick Hunter X.ISO`;
+const MEGA_MAN_EXECUTABLE_FILENAME = `${DIR}/retail/Mega Man Maverick Hunter X - EBOOT.BIN`;
+const MEGA_MAN_EXECUTABLE_PATH = '/PSP_GAME/SYSDIR/EBOOT.BIN';
+const MEGA_MAN_GAME_ID = 'ULUS10068';
+
+const NEED_FOR_SPEED_ISO_FILENAME = `${DIR}/retail/Need for Speed Underground Rivals.ISO`;
+const NEED_FOR_SPEED_EXECUTABLE_FILENAME = `${DIR}/retail/Need for Speed Underground Rivals - EBOOT.BIN`;
+const NEED_FOR_SPEED_EXECUTABLE_PATH = '/PSP_GAME/SYSDIR/EBOOT.BIN';
+const NEED_FOR_SPEED_GAME_ID = 'ULUS10007';
 
 const ENCRYPTED_EXECUTABLE_MAGIC0_ISO = `${DIR}/encrypted-executable-magic0.iso`;
 const ENCRYPTED_EXECUTABLE_MAGIC0 = `${DIR}/encrypted-executable-magic0 - EBOOT.BIN`;
@@ -58,7 +73,7 @@ TEST_ISOS && TEST_RETAIL_ISOS && describe('PSP retail ISO parsing', function () 
 
     expect(isoFileExists).to.equal(executableFileExists);
 
-    if (isoFileExists && executableFileExists) {
+    if (isoFileExists && executableFileExists) { // These files are not included in our repo for obvious reasons
       const isoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(CASTLEVANIA_ISO_FILENAME);
       const executableArrayBuffer = await ArrayBufferUtil.readArrayBuffer(CASTLEVANIA_EXECUTABLE_FILENAME);
 
@@ -66,6 +81,63 @@ TEST_ISOS && TEST_RETAIL_ISOS && describe('PSP retail ISO parsing', function () 
 
       expect(pspIso.getExecutableInfo().gameId).to.equal(CASTLEVANIA_GAME_ID);
       expect(pspIso.getExecutableInfo().path).to.equal(CASTLEVANIA_EXECUTABLE_PATH);
+      expect(pspIso.getExecutableInfo().encrypted).to.equal(true);
+      expect(ArrayBufferUtil.arrayBuffersEqual(pspIso.getExecutableInfo().arrayBuffer, executableArrayBuffer)).to.equal(true);
+    }
+  });
+
+  it('should find an encrypted executable in the Final Fantasy Tactics ISO', async () => {
+    const isoFileExists = await ArrayBufferUtil.fileExists(FINAL_FANTASY_TACTICS_ISO_FILENAME);
+    const executableFileExists = await ArrayBufferUtil.fileExists(FINAL_FANTASY_TACTICS_EXECUTABLE_FILENAME);
+
+    expect(isoFileExists).to.equal(executableFileExists);
+
+    if (isoFileExists && executableFileExists) { // These files are not included in our repo for obvious reasons
+      const isoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(FINAL_FANTASY_TACTICS_ISO_FILENAME);
+      const executableArrayBuffer = await ArrayBufferUtil.readArrayBuffer(FINAL_FANTASY_TACTICS_EXECUTABLE_FILENAME);
+
+      const pspIso = await PspIso.Create(isoArrayBuffer, 'FinalFantasyTactics');
+
+      expect(pspIso.getExecutableInfo().gameId).to.equal(FINAL_FANTASY_TACTICS_GAME_ID);
+      expect(pspIso.getExecutableInfo().path).to.equal(FINAL_FANTASY_TACTICS_EXECUTABLE_PATH);
+      expect(pspIso.getExecutableInfo().encrypted).to.equal(true);
+      expect(ArrayBufferUtil.arrayBuffersEqual(pspIso.getExecutableInfo().arrayBuffer, executableArrayBuffer)).to.equal(true);
+    }
+  });
+
+  it('should find an encrypted executable in the Mega Man ISO', async () => {
+    const isoFileExists = await ArrayBufferUtil.fileExists(MEGA_MAN_ISO_FILENAME);
+    const executableFileExists = await ArrayBufferUtil.fileExists(MEGA_MAN_EXECUTABLE_FILENAME);
+
+    expect(isoFileExists).to.equal(executableFileExists);
+
+    if (isoFileExists && executableFileExists) { // These files are not included in our repo for obvious reasons
+      const isoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEGA_MAN_ISO_FILENAME);
+      const executableArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEGA_MAN_EXECUTABLE_FILENAME);
+
+      const pspIso = await PspIso.Create(isoArrayBuffer, 'MegaMan');
+
+      expect(pspIso.getExecutableInfo().gameId).to.equal(MEGA_MAN_GAME_ID);
+      expect(pspIso.getExecutableInfo().path).to.equal(MEGA_MAN_EXECUTABLE_PATH);
+      expect(pspIso.getExecutableInfo().encrypted).to.equal(true);
+      expect(ArrayBufferUtil.arrayBuffersEqual(pspIso.getExecutableInfo().arrayBuffer, executableArrayBuffer)).to.equal(true);
+    }
+  });
+
+  it('should find an encrypted executable in the Need for Speed ISO', async () => {
+    const isoFileExists = await ArrayBufferUtil.fileExists(NEED_FOR_SPEED_ISO_FILENAME);
+    const executableFileExists = await ArrayBufferUtil.fileExists(NEED_FOR_SPEED_EXECUTABLE_FILENAME);
+
+    expect(isoFileExists).to.equal(executableFileExists);
+
+    if (isoFileExists && executableFileExists) { // These files are not included in our repo for obvious reasons
+      const isoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NEED_FOR_SPEED_ISO_FILENAME);
+      const executableArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NEED_FOR_SPEED_EXECUTABLE_FILENAME);
+
+      const pspIso = await PspIso.Create(isoArrayBuffer, 'NeedForSpeed');
+
+      expect(pspIso.getExecutableInfo().gameId).to.equal(NEED_FOR_SPEED_GAME_ID);
+      expect(pspIso.getExecutableInfo().path).to.equal(NEED_FOR_SPEED_EXECUTABLE_PATH);
       expect(pspIso.getExecutableInfo().encrypted).to.equal(true);
       expect(ArrayBufferUtil.arrayBuffersEqual(pspIso.getExecutableInfo().arrayBuffer, executableArrayBuffer)).to.equal(true);
     }
