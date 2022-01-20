@@ -87,7 +87,7 @@
         <b-link href="https://www.emunations.com/gamesave">EmuNations</b-link>
       </b-col>
       <b-col cols=12 md=5 lg=5 xl=4>
-        Small selection of games for various systems in various emulator formats.
+        Selection of games for various systems in various emulator formats.
       </b-col>
     </b-row>
     <div class="blank-line"/>
