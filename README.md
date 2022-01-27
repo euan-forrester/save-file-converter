@@ -35,6 +35,10 @@ Instructions:
 - (GBA) Pizza Boy GBA files incompatible with mGBA (believe mGBA uses raw files)
 - (PS1) Beetle HW incompatible with DuckStation
 - (Saturn) SSF incompatible with Mednafen/Beetle Saturn
+- (N64) Mupen64Plus Next files incompatible with Wii64
+
+## Other cartridge readers
+- Open source/Arduino: https://github.com/sanni/cartreader
 
 ## Save file formats
 
