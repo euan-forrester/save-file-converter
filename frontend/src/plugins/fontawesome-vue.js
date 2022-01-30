@@ -7,6 +7,8 @@ import {
   faArrowCircleUp,
   faArrowCircleDown,
   faQuestionCircle,
+  faCheck,
+  faTimes,
 } from '@fortawesome/free-solid-svg-icons';
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
@@ -16,6 +18,8 @@ library.add(faArrowCircleRight);
 library.add(faArrowCircleUp);
 library.add(faArrowCircleDown);
 library.add(faQuestionCircle);
+library.add(faCheck);
+library.add(faTimes);
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 

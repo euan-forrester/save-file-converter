@@ -105,6 +105,11 @@ const routes = [
     component: () => import(/* webpackChunkName: "download-saves" */ '../views/DownloadSaves.vue'),
   },
   {
+    path: '/real-hardware',
+    name: 'RealHardware',
+    component: () => import(/* webpackChunkName: "real-hardware" */ '../views/RealHardware.vue'),
+  },
+  {
     path: '/about',
     name: 'About',
     // route level code-splitting
