@@ -32,7 +32,7 @@ import {
 } from 'bootstrap-vue';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-// import 'bootstrap-vue/dist/bootstrap-vue.css'; // Is this file necessary? The docs say it is, but I don't see anything missing without it: https://bootstrap-vue.js.org/docs/
+import 'bootstrap-vue/dist/bootstrap-vue.min.css';
 
 Vue.use(LayoutPlugin);
 Vue.use(AlertPlugin);
