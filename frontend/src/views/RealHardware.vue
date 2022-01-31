@@ -9,7 +9,15 @@
     </b-row>
     <div class="blank-line"/>
     <div class="d-none d-md-block"/>
-    <b-table striped hover :items="items" :fields="fields">
+    <b-table
+      striped
+      sort-icon-left
+      responsive="md"
+      :items="items"
+      :fields="fields"
+      :sort-compare="sortCompare"
+      primary-key="index"
+    > <!-- Need a primary key to make sure Vue updates all columns of our table when sorting-->
       <template #cell(product)="data">
         <b-link :href="data.value.link">{{ data.value.name }}</b-link>
       </template>
@@ -30,7 +38,7 @@
 }
 
 .not-supported {
-  color:  lightgrey;
+  color: lightgrey;
 }
 
 </style>
@@ -43,12 +51,33 @@ export default {
   components: {
     BTable,
   },
+  methods: {
+    sortCompare(aRow, bRow, key, sortDesc, formatter, compareOptions, compareLocale) {
+      const a = aRow[key];
+      const b = bRow[key];
+
+      if ((typeof a === 'boolean') && (typeof b === 'boolean')) {
+        if (a === b) {
+          return aRow.product.name.localeCompare(bRow.product.name, compareLocale, compareOptions); // Sort all of the boolean trues together by name, and the falses by name, so it's easier to read and everything is in a deterministic order
+        }
+
+        return a ? -1 : 1;
+      }
+
+      if (key === 'product') {
+        return a.name.localeCompare(b.name, compareLocale, compareOptions);
+      }
+
+      return 0;
+    },
+  },
   data() {
     return {
       fields: [
         {
           key: 'product',
           label: 'Product name',
+          sortable: true,
         },
         {
           key: 'nes',
@@ -108,6 +137,7 @@ export default {
       ],
       items: [
         {
+          index: 0,
           product: {
             name: 'RetroBlaster',
             link: 'https://retrostage.net/?product=retroblaster-programmer-2-0',
@@ -125,6 +155,7 @@ export default {
           ps2: false,
         },
         {
+          index: 1,
           product: {
             name: 'RetroN 5',
             link: 'https://www.hyperkin.com/retron-5-hd-gaming-console-for-gba-gbc-gb-snes-nes-super-famicom-famicom-genesis-mega-drive-master-system-black-hyperkin.html',
@@ -142,6 +173,7 @@ export default {
           ps2: false,
         },
         {
+          index: 2,
           product: {
             name: 'GB Operator',
             link: 'https://www.epilogue.co/product/gb-operator',
@@ -159,6 +191,7 @@ export default {
           ps2: false,
         },
         {
+          index: 3,
           product: {
             name: 'Joey Jr.',
             link: 'https://bennvenn.myshopify.com/products/usb-gb-c-cart-dumper-the-joey-jr',
@@ -176,6 +209,7 @@ export default {
           ps2: false,
         },
         {
+          index: 4,
           product: {
             name: 'GBxCart RW',
             link: 'https://www.gbxcart.com/',
@@ -193,6 +227,7 @@ export default {
           ps2: false,
         },
         {
+          index: 5,
           product: {
             name: 'Memcard Pro',
             link: 'https://8bitmods.com/memcard-pro-for-playstation-1-smoke-black/',
@@ -210,6 +245,7 @@ export default {
           ps2: false,
         },
         {
+          index: 6,
           product: {
             name: 'RetroUSB AVS',
             link: 'https://www.retrousb.com/product_info.php?cPath=36&products_id=78&osCsid=57b224729a57c970466b063c02d2a56b',
