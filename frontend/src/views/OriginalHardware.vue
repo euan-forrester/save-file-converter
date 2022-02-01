@@ -25,6 +25,7 @@
       <template #cell()="data">
         <i :class="data.value ? 'fas fa-check fa-2x supported' : 'fas fa-times fa-2x not-supported'"></i>
       </template>
+      <template #table-caption><p class="contact-info">Missing stuff? Mistakes? Contact savefileconverter (at) gmail (dot) com</p></template>
     </b-table>
   </div>
 </template>
@@ -40,6 +41,10 @@
 
 .not-supported {
   color: lightgrey;
+}
+
+.contact-info {
+  margin-left: 3em;
 }
 
 </style>
