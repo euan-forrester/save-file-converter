@@ -40,7 +40,7 @@
       <b-row>
         <b-col class="nav-row">
           <router-link to="/utilities/erase-save">Erase{{'\xa0'}}save from cartridge</router-link> |
-          <router-link to="/real-hardware">Copy{{'\xa0'}}saves{{'\xa0'}}to/from{{'\xa0'}}real{{'\xa0'}}hardware{{'\xa0'}}</router-link>
+          <router-link to="/original-hardware">Copy{{'\xa0'}}saves{{'\xa0'}}to/from{{'\xa0'}}original{{'\xa0'}}hardware{{'\xa0'}}</router-link>
         </b-col>
       </b-row>
       <b-row class="nav-row">

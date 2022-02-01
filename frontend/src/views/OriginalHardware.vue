@@ -3,7 +3,7 @@
     <b-row>
       <b-col>
         <h2>
-          Copy saves to/from real hardware
+          Copy saves to/from original hardware
         </h2>
       </b-col>
     </b-row>
@@ -48,7 +48,7 @@
 import { BTable } from 'bootstrap-vue';
 
 export default {
-  name: 'RealHardware',
+  name: 'OriginalHardware',
   components: {
     BTable,
   },

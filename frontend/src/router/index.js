@@ -105,9 +105,9 @@ const routes = [
     component: () => import(/* webpackChunkName: "download-saves" */ '../views/DownloadSaves.vue'),
   },
   {
-    path: '/real-hardware',
-    name: 'RealHardware',
-    component: () => import(/* webpackChunkName: "real-hardware" */ '../views/RealHardware.vue'),
+    path: '/original-hardware',
+    name: 'OriginalHardware',
+    component: () => import(/* webpackChunkName: "original-hardware" */ '../views/OriginalHardware.vue'),
   },
   {
     path: '/about',
