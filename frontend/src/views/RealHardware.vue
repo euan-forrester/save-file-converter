@@ -11,12 +11,13 @@
     <div class="d-none d-md-block"/>
     <b-table
       striped
-      sort-icon-left
-      responsive="md"
+      responsive="lg"
       :items="items"
       :fields="fields"
       :sort-compare="sortCompare"
       primary-key="index"
+      sort-by="product"
+      :sticky-header="$mq | mq({ xs: 'calc(100vh - 4em)', sm: 'calc(100vh - 4em)', md: 'calc(100vh - 4em)', lg: false, xl: false })"
     > <!-- Need a primary key to make sure Vue updates all columns of our table when sorting-->
       <template #cell(product)="data">
         <b-link :href="data.value.link">{{ data.value.name }}</b-link>
