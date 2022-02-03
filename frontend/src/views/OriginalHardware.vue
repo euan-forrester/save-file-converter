@@ -92,9 +92,6 @@ export default {
     BCard,
   },
   methods: {
-    printObject(obj) {
-      console.log(Object.keys(obj));
-    },
     sortCompare(aRow, bRow, key, sortDesc, formatter, compareOptions, compareLocale) {
       const a = aRow[key];
       const b = bRow[key];
