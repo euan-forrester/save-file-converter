@@ -58,7 +58,7 @@
           </b-card>
         </div>
       </template>
-      <template #table-caption><p class="contact-info">Missing stuff? Mistakes? Contact savefileconverter (at) gmail (dot) com</p></template>
+      <template #table-caption><p class="contact-info">Anything missing? Found a mistake? Contact savefileconverter (at) gmail (dot) com</p></template>
     </b-table>
   </div>
 </template>
@@ -198,7 +198,7 @@ export default {
           gb: true,
           gba: true,
           gamegear: false,
-          sms: false,
+          sms: false, // Feb 1, 2022: Not currently possible via a SMS-to-Genesis adapter, although an SMS-specific adapter is in the workd
           genesis: true,
           saturn: false,
           tg16: false,
@@ -211,13 +211,13 @@ export default {
             name: 'RetroN 5',
             link: 'https://www.hyperkin.com/retron-5-hd-gaming-console-for-gba-gbc-gb-snes-nes-super-famicom-famicom-genesis-mega-drive-master-system-black-hyperkin.html',
           },
-          nes: true,
+          nes: false, // I never could get this to work with mine, although the device supports NES/FC games
           snes: true,
           n64: false,
           gb: true,
-          gba: true,
+          gba: true, // This only partially worked with mine. Some random-seeming games just wouldn't work with it
           gamegear: false,
-          sms: true,
+          sms: true, // This is just an assumption, given that you can play SMS games with a SMS-to-Genesis adapter
           genesis: true,
           saturn: false,
           tg16: false,
@@ -306,6 +306,12 @@ export default {
             name: 'RetroUSB AVS',
             link: 'https://www.retrousb.com/product_info.php?products_id=78',
           },
+          software: {
+            name: 'Scoreboard (under Firmware Downloads)',
+            link: 'https://www.retrousb.com/product_info.php?products_id=78',
+            howToRun: 'Requires a Windows or Mac computer',
+            howToRunLink: 'https://twitter.com/retrousb/status/1154136414247882753?lang=en',
+          },
           nes: true,
           snes: false,
           n64: false,
@@ -376,6 +382,7 @@ export default {
           ps1: false,
           ps2: false,
         },
+        /* Feb 3, 2022: Contacted raphnet and they say this cart programmer cannot yet read/write sram although it technically is possible. They say they will be adding this feature soon
         {
           index: 10,
           hardware: {
@@ -395,6 +402,7 @@ export default {
           ps1: false,
           ps2: false,
         },
+        */
         {
           index: 11,
           hardware: {
@@ -404,7 +412,7 @@ export default {
           software: {
             name: 'MemcardRex',
             link: 'https://github.com/ShendoXT/memcardrex/releases',
-            howToRun: 'Runs on a Windows computer',
+            howToRun: 'Requires a Windows computer',
           },
           nes: false,
           snes: false,
@@ -428,7 +436,7 @@ export default {
           software: {
             name: 'MemcardRex',
             link: 'https://github.com/ShendoXT/memcardrex/releases',
-            howToRun: 'Runs on a Windows computer',
+            howToRun: 'Requires a Windows computer',
           },
           nes: false,
           snes: false,
@@ -451,7 +459,7 @@ export default {
           software: {
             name: 'uLaunchElf',
             link: 'http://ps2ulaunchelf.pbworks.com/w/page/19520134/FrontPage',
-            howToRun: 'Get a PS2 memory card with Free MCBoot preinstalled',
+            howToRun: 'PS2 memory card with Free MCBoot preinstalled',
             howToRunLink: 'https://www.google.com/search?q=ps2+mcboot+memory+card',
           },
           nes: false,
@@ -526,7 +534,7 @@ export default {
           software: {
             name: 'GBA Backup Tool',
             link: 'https://projectpokemon.org/home/tutorials/save-editing/managing-gba-saves/using-gba-backup-tool-r55/',
-            howToRun: 'Buy an R4 cartridge',
+            howToRun: 'R4 cartridge',
             howToRunLink: 'https://www.google.com/search?q=best+r4+card+no+timebomb',
           },
           nes: false,
@@ -563,6 +571,144 @@ export default {
           sms: false,
           genesis: false,
           saturn: false,
+          tg16: false,
+          ps1: false,
+          ps2: false,
+        },
+        {
+          index: 18,
+          hardware: {
+            name: 'Turbo Everdrive',
+            link: 'https://krikzz.com/our-products/cartridges/turbo-everdrive-v2.html',
+          },
+          software: {
+            name: 'TEOS Beta4 firmware',
+            link: 'https://krikzz.com/forum/index.php?topic=9417.msg71671#msg71671',
+            howToRun: 'How to install OS files on Turbo Everdrive',
+            howToRunLink: 'https://youtube.com/clip/UgkxzaGhUNm20tYKK8slOsuMqjbYWvJnU3d5',
+          },
+          nes: false,
+          snes: false,
+          n64: false,
+          gb: false,
+          gba: false,
+          gamegear: false,
+          sms: false,
+          genesis: false,
+          saturn: false,
+          tg16: true,
+          ps1: false,
+          ps2: false,
+        },
+        {
+          index: 19,
+          hardware: {
+            name: '64drive + UltraSave',
+            link: 'http://64drive.retroactive.be/features.php',
+          },
+          nes: false,
+          snes: false,
+          n64: true,
+          gb: false,
+          gba: false,
+          gamegear: false,
+          sms: false,
+          genesis: false,
+          saturn: false,
+          tg16: false,
+          ps1: false,
+          ps2: false,
+        },
+        {
+          index: 20,
+          hardware: {
+            name: 'Saturn Gamer\'s Cartridge',
+            link: 'https://ppcenter.webou.net/satcart/#gamers',
+          },
+          nes: false,
+          snes: false,
+          n64: false,
+          gb: false,
+          gba: false,
+          gamegear: false,
+          sms: false,
+          genesis: false,
+          saturn: true,
+          tg16: false,
+          ps1: false,
+          ps2: false,
+        },
+        {
+          index: 21,
+          hardware: {
+            name: 'Terraonion MODE',
+            link: 'https://terraonion.com/en/producto/terraonion-mode/',
+          },
+          software: {
+            name: 'Official firmware update',
+            link: 'https://downloads.terraonion.com/shop/product/terraonion-mode-dreamcast-saturn-ode/view',
+            howToRun: 'Copy the entire Saturn save RAM, or individual saves',
+            howToRunLink: 'https://www.retrorgb.com/mode-saturn-save-restore-backup.html',
+          },
+          nes: false,
+          snes: false,
+          n64: false,
+          gb: false,
+          gba: false,
+          gamegear: false,
+          sms: false,
+          genesis: false,
+          saturn: true,
+          tg16: false,
+          ps1: false,
+          ps2: false,
+        },
+        {
+          index: 22,
+          hardware: {
+            name: 'Satiator ODE',
+            link: 'https://www.satiator.net/',
+          },
+          software: {
+            name: 'Save Game Copier',
+            link: 'https://github.com/slinga-homebrew/Save-Game-Copier',
+            howToRun: 'Copy individual saves',
+            howToRunLink: 'https://www.retrorgb.com/save-game-copier-project-by-slinga-homebrew.html',
+          },
+          nes: false,
+          snes: false,
+          n64: false,
+          gb: false,
+          gba: false,
+          gamegear: false,
+          sms: false,
+          genesis: false,
+          saturn: true,
+          tg16: false,
+          ps1: false,
+          ps2: false,
+        },
+        {
+          index: 23,
+          hardware: {
+            name: 'Fenrir ODE',
+            link: 'https://www.fenrir-ode.fr/',
+          },
+          software: {
+            name: 'Save Game Copier',
+            link: 'https://github.com/slinga-homebrew/Save-Game-Copier',
+            howToRun: 'Copy individual saves',
+            howToRunLink: 'https://www.retrorgb.com/save-game-copier-project-by-slinga-homebrew.html',
+          },
+          nes: false,
+          snes: false,
+          n64: false,
+          gb: false,
+          gba: false,
+          gamegear: false,
+          sms: false,
+          genesis: false,
+          saturn: true,
           tg16: false,
           ps1: false,
           ps2: false,
