@@ -39,7 +39,7 @@
       </b-row>
       <b-row>
         <b-col class="nav-row">
-          <router-link to="/utilities/erase-save">Erase{{'\xa0'}}save from cartridge</router-link> |
+          <router-link to="/download-saves">Download{{'\xa0'}}saves</router-link> |
           <router-link to="/original-hardware">Copy{{'\xa0'}}saves{{'\xa0'}}to/from{{'\xa0'}}original{{'\xa0'}}hardware{{'\xa0'}}</router-link>
         </b-col>
       </b-row>
@@ -47,7 +47,7 @@
         <b-col>
           <router-link to="/other-converters">Other{{'\xa0'}}converters</router-link> |
           <router-link to="/utilities/troubleshooting">Troubleshooting{{'\xa0'}}(Beta)</router-link> |
-          <router-link to="/download-saves">Download{{'\xa0'}}saves</router-link>
+          <router-link to="/utilities/erase-save">Erase{{'\xa0'}}save from cartridge</router-link>
         </b-col>
       </b-row>
       <b-row>
