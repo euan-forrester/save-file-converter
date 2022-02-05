@@ -93,6 +93,24 @@
     <div class="blank-line"/>
     <b-row align-h="center">
       <b-col cols=12 md=5 lg=5 xl=4>
+        <b-link href="http://www.bucanero.com.ar/dreamcast/vmu/">El Bucanero</b-link>
+      </b-col>
+      <b-col cols=12 md=5 lg=5 xl=4>
+        Selection of Dreamcast games.
+      </b-col>
+    </b-row>
+    <div class="blank-line"/>
+    <b-row align-h="center">
+      <b-col cols=12 md=5 lg=5 xl=4>
+        <b-link href="https://bswirl.kitsunet.org/vmu/save/public/index.php?lg=en&menu=on">Blue Swirl</b-link>
+      </b-col>
+      <b-col cols=12 md=5 lg=5 xl=4>
+        Selection of Dreamcast games.
+      </b-col>
+    </b-row>
+    <div class="blank-line"/>
+    <b-row align-h="center">
+      <b-col cols=12 md=5 lg=5 xl=4>
         <b-link href="http://n64.icequake.net/mirror/64scener.parodius.com/dexdrive.htm">64scener</b-link>
       </b-col>
       <b-col cols=12 md=5 lg=5 xl=4>
