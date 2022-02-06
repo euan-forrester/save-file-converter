@@ -80,16 +80,7 @@
       <b-row>
         <b-col>
           <div class="help">
-            Help: how do I <b-link href="https://www.raphnet-tech.com/products/n64_usb_adapter_gen3/index.php">copy .mpk or .n64 files to/from an N64 Controller Pak</b-link>?
-          </div>
-          <div class="help">
-            Help: how do I <b-link href="http://www.world-of-nintendo.com/manuals/nintendo_64/game_shark.shtml">copy 4kb or 16kb save files to/from a cartridge using an N64 Controller Pak</b-link>?
-          </div>
-          <div class="help">
-            Help: what devices can copy save files to and from an N64 cartridge?<br><b-link href="http://64drive.retroactive.be/features.php#ultrasave">UltraSave</b-link> or <b-link href="https://retrostage.net/?product=retroblaster-programmer-2-0">RetroBlaster{{'\xa0'}}2.0</b-link> or <b-link href="https://dragonbox.de/en/cartridge-dumper/retrode2-n64-plugin-without-joypad-connectors.html">Retrode</b-link>
-          </div>
-          <div class="help">
-            Help: where can I <b-link href="https://4layertech.com/products/forever-pak-64">buy a new N64 Controller Pak</b-link>?
+            Help: how can I <router-link to="/original-hardware?sort=n64">copy save files to and from an N64 cartridge or Controller Pak</router-link>?
           </div>
         </b-col>
       </b-row>
