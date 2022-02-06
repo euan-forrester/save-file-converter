@@ -28,7 +28,19 @@
         </div>
       </template>
       <template #cell()="data">
-        <i :class="data.value ? 'fas fa-check fa-2x supported' : 'fas fa-times fa-2x not-supported'"></i>
+        <div v-if="typeof data.value === 'string'">
+          <!-- Note that we choose a button because we need to render out an <a> element in order for the focus trigger to work for mobile:
+          https://bootstrap-vue.org/docs/components/popover#caveats-with-focus-trigger-on-button-elements -->
+          <b-button variant="link" :id="`${data.field.key}-${data.item.index}-popover-target`" href="#" tabindex="0">
+            <font-awesome-icon :icon="['fas', 'exclamation-triangle']" size="2x" class="supported-with-caveat"/>
+          </b-button>
+          <b-popover :target="`${data.field.key}-${data.item.index}-popover-target`" triggers="focus hover" placement="bottom">
+            {{ data.value }}
+          </b-popover>
+        </div>
+        <div v-else>
+          <i :class="data.value ? 'fas fa-check fa-2x supported' : 'fas fa-times fa-2x not-supported'"></i>
+        </div>
       </template>
       <template #cell(show_details)="row">
         <div v-if="row.item.hasOwnProperty('software')">
@@ -78,6 +90,10 @@
   color: lightgrey;
 }
 
+.supported-with-caveat {
+  color: goldenrod;
+}
+
 .contact-info {
   margin-left: 3em;
 }
@@ -85,25 +101,41 @@
 </style>
 
 <script>
-import { BTable, BCard } from 'bootstrap-vue';
+import {
+  BTable,
+  BCard,
+  BPopover,
+} from 'bootstrap-vue';
 
 export default {
   name: 'OriginalHardware',
   components: {
     BTable,
     BCard,
+    BPopover,
   },
   methods: {
     sortCompare(aRow, bRow, key, sortDesc, formatter, compareOptions, compareLocale) {
       const a = aRow[key];
       const b = bRow[key];
 
-      if ((typeof a === 'boolean') && (typeof b === 'boolean')) {
-        if (a === b) {
+      // Having a string for a value means "true with caveat" and we want to sort them as if they're true
+
+      const aType = typeof a;
+      const bType = typeof b;
+
+      const aBoolean = (aType === 'boolean') || (aType === 'string');
+      const bBoolean = (bType === 'boolean') || (bType === 'string');
+
+      const aValue = aBoolean && a;
+      const bValue = bBoolean && b;
+
+      if (aBoolean && bBoolean) {
+        if (aValue === bValue) {
           return aRow.hardware.name.localeCompare(bRow.hardware.name, compareLocale, compareOptions); // Sort all of the boolean trues together by name, and the falses by name, so it's easier to read and everything is in a deterministic order
         }
 
-        return a ? -1 : 1;
+        return aValue ? -1 : 1;
       }
 
       if (key === 'hardware') {
@@ -363,7 +395,7 @@ export default {
           gcn: false,
           gb: true,
           gba: true,
-          gamegear: false,
+          gamegear: 'There is a Game Gear adapter for the Retrode, but it has been discontinued and may be difficult to find',
           sms: true,
           genesis: true,
           saturn: false,
@@ -384,7 +416,7 @@ export default {
           gcn: false,
           gb: true,
           gba: true,
-          gamegear: false,
+          gamegear: 'Can use the Retrode SMS + Game Gear adapters, but the Game Gear adapter has been discontinued and may be difficult to find',
           sms: true,
           genesis: true,
           saturn: false,
@@ -882,7 +914,7 @@ export default {
           ps2: false,
         },
         {
-          index: 27,
+          index: 28,
           hardware: {
             name: 'USB-GDROM ODE',
             link: 'http://3do-renovation.ru/USB-GDROM_Controller.htm',
@@ -907,7 +939,7 @@ export default {
           ps2: false,
         },
         {
-          index: 28,
+          index: 29,
           hardware: {
             name: 'MemCARDuino',
             link: 'http://shendohardware.blogspot.com/2013/06/memcarduino.html',
@@ -933,7 +965,7 @@ export default {
           ps2: false,
         },
         {
-          index: 29,
+          index: 30,
           hardware: {
             name: 'PS1CardLink',
             link: 'https://github.com/ShendoXT/ps1cardlink',
@@ -959,7 +991,7 @@ export default {
           ps2: false,
         },
         {
-          index: 30,
+          index: 31,
           hardware: {
             name: 'Raphnet PS1/PS2-to-USB controller adapter + PS1 Multitap',
             link: 'https://www.raphnet-tech.com/products/psx_to_usb/index.php',
@@ -985,7 +1017,7 @@ export default {
           ps2: false,
         },
         {
-          index: 31,
+          index: 32,
           hardware: {
             name: 'Forever Pak 64',
             link: 'https://4layertech.com/products/forever-pak-64',
