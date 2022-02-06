@@ -16,7 +16,7 @@
       :fields="fields"
       :sort-compare="sortCompare"
       primary-key="index"
-      sort-by="hardware"
+      :sort-by="sortBy"
       :sticky-header="$mq | mq({ xs: 'calc(100vh - 4em)', sm: 'calc(100vh - 4em)', md: 'calc(100vh - 4em)', lg: false, xl: false })"
     > <!-- Need a primary key to make sure Vue updates all columns of our table when sorting-->
       <template #cell(hardware)="data">
@@ -114,6 +114,12 @@ export default {
     BCard,
     BPopover,
   },
+  props: {
+    initialSortBy: {
+      type: String,
+      default: 'hardware',
+    },
+  },
   methods: {
     sortCompare(aRow, bRow, key, sortDesc, formatter, compareOptions, compareLocale) {
       const a = aRow[key];
@@ -143,6 +149,17 @@ export default {
       }
 
       return 0;
+    },
+  },
+  computed: {
+    sortBy() {
+      const possibleSortKeys = this.fields.filter((i) => i.sortable).map((i) => i.key);
+
+      if (possibleSortKeys.indexOf(this.initialSortBy) >= 0) {
+        return this.initialSortBy;
+      }
+
+      return 'hardware';
     },
   },
   data() {
