@@ -60,7 +60,7 @@
           </b-card>
         </div>
       </template>
-      <template #table-caption><p class="contact-info">Anything missing? Found a mistake? Contact savefileconverter (at) gmail (dot) com</p></template>
+      <template #table-caption><p class="contact-info">Anything missing? Found a mistake? Product discontinued? Contact savefileconverter (at) gmail (dot) com</p></template>
     </b-table>
   </div>
 </template>
