@@ -961,7 +961,7 @@ export default {
         {
           index: 30,
           hardware: {
-            name: 'Raphnet PS1/PS2-to-USB controller adapter + Multitap',
+            name: 'Raphnet PS1/PS2-to-USB controller adapter + PS1 Multitap',
             link: 'https://www.raphnet-tech.com/products/psx_to_usb/index.php',
           },
           software: {
