@@ -396,7 +396,7 @@ export default {
         {
           index: 9,
           hardware: {
-            name: 'Raphnet controller adapter',
+            name: 'Raphnet N64-to-USB controller adapter',
             link: 'https://www.raphnet-tech.com/products/n64_usb_adapter_gen3/index.php',
           },
           software: {
@@ -781,7 +781,7 @@ export default {
         {
           index: 24,
           hardware: {
-            name: 'Raphnet controller adapter + Transfer Pak',
+            name: 'Raphnet N64-to-USB controller adapter + Transfer Pak',
             link: 'https://www.raphnet-tech.com/products/n64_usb_adapter_gen3/index.php',
           },
           software: {
@@ -956,6 +956,53 @@ export default {
           dc: false,
           tg16: false,
           ps1: true,
+          ps2: false,
+        },
+        {
+          index: 30,
+          hardware: {
+            name: 'Raphnet PS1/PS2-to-USB controller adapter + Multitap',
+            link: 'https://www.raphnet-tech.com/products/psx_to_usb/index.php',
+          },
+          software: {
+            name: 'Raphnet Adapter Manager',
+            link: 'https://www.raphnet-tech.com/products/adapter_manager/index.php',
+            howToRun: 'Requires a Windows computer',
+          },
+          nes: false,
+          snes: false,
+          n64: false,
+          gcn: false,
+          gb: false,
+          gba: false,
+          gamegear: false,
+          sms: false,
+          genesis: false,
+          saturn: false,
+          dc: false,
+          tg16: false,
+          ps1: true,
+          ps2: false,
+        },
+        {
+          index: 31,
+          hardware: {
+            name: 'Forever Pak 64',
+            link: 'https://4layertech.com/products/forever-pak-64',
+          },
+          nes: false,
+          snes: false,
+          n64: true,
+          gcn: false,
+          gb: false,
+          gba: false,
+          gamegear: false,
+          sms: false,
+          genesis: false,
+          saturn: false,
+          dc: false,
+          tg16: false,
+          ps1: false,
           ps2: false,
         },
       ],
