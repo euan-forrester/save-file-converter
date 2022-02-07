@@ -36,6 +36,7 @@ Instructions:
 - (PS1) Beetle HW incompatible with DuckStation
 - (Saturn) SSF incompatible with Mednafen/Beetle Saturn
 - (N64) Mupen64Plus Next files incompatible with Wii64
+- (Genesis) Everdrive is incompatible with MiSTER core (see https://github.com/euan-forrester/save-file-converter/issues/80)
 
 ## Other cartridge readers
 - Open source/Arduino: https://github.com/sanni/cartreader
