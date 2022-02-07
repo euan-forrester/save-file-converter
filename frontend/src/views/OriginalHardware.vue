@@ -1019,7 +1019,7 @@ export default {
         },
         {
           index: 30,
-          gtmClass: 'ps1cardline',
+          gtmClass: 'ps1cardlink',
           hardware: {
             name: 'PS1CardLink',
             link: 'https://github.com/ShendoXT/ps1cardlink',
