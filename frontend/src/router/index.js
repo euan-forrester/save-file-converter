@@ -105,6 +105,12 @@ const routes = [
     component: () => import(/* webpackChunkName: "download-saves" */ '../views/DownloadSaves.vue'),
   },
   {
+    path: '/original-hardware',
+    name: 'OriginalHardware',
+    component: () => import(/* webpackChunkName: "original-hardware" */ '../views/OriginalHardware.vue'),
+    props: (route) => ({ initialSortBy: route.query.sort }),
+  },
+  {
     path: '/about',
     name: 'About',
     // route level code-splitting

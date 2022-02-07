@@ -82,16 +82,10 @@
       <b-row>
         <b-col>
           <div class="help">
-            Help: how do I&nbsp;<b-link href="https://gamehacking.org/vb/forum/video-game-hacking-and-development/school-of-hacking/14153-gameshark-advance-and-color-save-backup">copy save files to and from my GameShark</b-link>?
+            Help: how can I <router-link to="/original-hardware?sort=gba">copy save files to and from a GBA cartridge</router-link>?
           </div>
           <div class="help">
-            Help: what devices can copy save files to and from a GBA cartridge?<br><router-link to="/retron-5">Retron{{'\xa0'}}5</router-link> or <b-link href="https://www.epilogue.co/product/gb-operator">GB{{'\xa0'}}Operator</b-link> or <b-link href="https://bennvenn.myshopify.com/products/usb-gb-c-cart-dumper-the-joey-jr">Joey{{'\xa0'}}Jr.</b-link> or <b-link href="https://www.gbxcart.com/">GBxCart{{'\xa0'}}RW</b-link> or <b-link href="https://retrostage.net/?product=retroblaster-programmer-2-0">RetroBlaster{{'\xa0'}}2.0</b-link>
-          </div>
-          <div class="help">
-            Help: what homebrew software can copy save files to and from a GBA cartridge?<br><b-link href="https://github.com/FIX94/gba-link-cable-dumper">GBA{{'\xa0'}}+{{'\xa0'}}GameCube/Wii{{'\xa0'}}+{{'\xa0'}}link{{'\xa0'}}cable</b-link> or <b-link href="https://www.gc-forever.com/wiki/index.php?title=Game_Boy_Interface#GBA_dumper">GameCube{{'\xa0'}}+{{'\xa0'}}GameBoy{{'\xa0'}}Player</b-link> or <b-link href="https://projectpokemon.org/home/tutorials/save-editing/managing-gba-saves/using-gba-backup-tool-r55/">Nintendo{{'\xa0'}}DS</b-link>
-          </div>
-          <div class="help">
-            Help: how do I run homebrew software on my <b-link href="https://www.gc-forever.com/wiki/index.php?title=Booting_Homebrew">GameCube</b-link>, <b-link href="https://wii.guide">Wii</b-link>, or <b-link href="https://www.google.com/search?q=best+r4+card+no+timebomb">Nintendo{{'\xa0'}}DS</b-link>?
+            Help: how do I <b-link href="https://gamehacking.org/vb/forum/video-game-hacking-and-development/school-of-hacking/14153-gameshark-advance-and-color-save-backup">copy save files to and from my GameShark</b-link>?
           </div>
         </b-col>
       </b-row>

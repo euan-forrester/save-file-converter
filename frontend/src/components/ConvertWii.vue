@@ -86,6 +86,15 @@
       <b-row>
         <b-col>
           <div class="help">
+            Help: how can I copy save files to and from my
+            <router-link to="/original-hardware?sort=nes">NES</router-link> /
+            <router-link to="/original-hardware?sort=snes">SNES</router-link> /
+            <router-link to="/original-hardware?sort=sms">SMS</router-link> /
+            <router-link to="/original-hardware?sort=genesis">Genesis</router-link> cartridge,
+            <router-link to="/original-hardware?sort=n64">N64</router-link> cartridge or Controller Pak, or
+            <router-link to="/original-hardware?sort=tg16">TG-16</router-link> console?
+          </div>
+          <div class="help">
             Help: how do I copy files&nbsp;<b-link href="https://en-americas-support.nintendo.com/app/answers/detail/a_id/2709/~/how-to-move-data-from-the-wii-to-an-sd-card">from my Nintendo Wii</b-link>, or&nbsp;<b-link href="https://en-americas-support.nintendo.com/app/answers/detail/a_id/2723/~/how-to-copy-save-data-to-the-wii-from-an-sd-card">to my Nintendo Wii</b-link>?
           </div>
         </b-col>
