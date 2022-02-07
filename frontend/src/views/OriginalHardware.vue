@@ -21,7 +21,7 @@
     > <!-- Need a primary key to make sure Vue updates all columns of our table when sorting-->
       <template #cell(hardware)="data">
         <div v-if="data.value.hasOwnProperty('link')">
-          <b-link :href="data.value.link">{{ data.value.name }}</b-link>
+          <b-link :class="`original-hardware-${data.item.gtmClass}`" :href="data.value.link">{{ data.value.name }}</b-link> <!-- Add in a class for tracking clicks in google tag manager -->
         </div>
         <div v-else>
           {{ data.value.name }}
@@ -98,6 +98,10 @@
 
 .contact-info {
   margin-left: 3em;
+}
+
+.mydude {
+  color: hotpink;
 }
 
 </style>
@@ -251,6 +255,7 @@ export default {
       items: [
         {
           index: 0,
+          gtmClass: 'retroblaster',
           hardware: {
             name: 'RetroBlaster',
             link: 'https://retrostage.net/?product=retroblaster-programmer-2-0',
@@ -272,6 +277,7 @@ export default {
         },
         {
           index: 1,
+          gtmClass: 'retron5',
           hardware: {
             name: 'RetroN 5',
             link: 'https://www.hyperkin.com/retron-5-hd-gaming-console-for-gba-gbc-gb-snes-nes-super-famicom-famicom-genesis-mega-drive-master-system-black-hyperkin.html',
@@ -293,6 +299,7 @@ export default {
         },
         {
           index: 2,
+          gtmClass: 'gb-operator',
           hardware: {
             name: 'GB Operator',
             link: 'https://www.epilogue.co/product/gb-operator',
@@ -314,6 +321,7 @@ export default {
         },
         {
           index: 3,
+          gtmClass: 'joey-jr',
           hardware: {
             name: 'Joey Jr.',
             link: 'https://bennvenn.myshopify.com/products/usb-gb-c-cart-dumper-the-joey-jr',
@@ -335,6 +343,7 @@ export default {
         },
         {
           index: 4,
+          gtmClass: 'gbxcart-rw',
           hardware: {
             name: 'GBxCart RW',
             link: 'https://www.gbxcart.com/',
@@ -356,6 +365,7 @@ export default {
         },
         {
           index: 5,
+          gtmClass: 'memcard-pro',
           hardware: {
             name: 'Memcard Pro',
             link: 'https://8bitmods.com/memcard-pro-for-playstation-1-smoke-black/',
@@ -377,6 +387,7 @@ export default {
         },
         {
           index: 6,
+          gtmClass: 'retrousb-avs',
           hardware: {
             name: 'RetroUSB AVS',
             link: 'https://www.retrousb.com/product_info.php?products_id=78',
@@ -404,6 +415,7 @@ export default {
         },
         {
           index: 7,
+          gtmClass: 'retrode2',
           hardware: {
             name: 'Retrode2',
             link: 'https://dragonbox.de/en/cartridge-dumper/retrode2.html',
@@ -425,6 +437,7 @@ export default {
         },
         {
           index: 8,
+          gtmClass: 'open-source-cartridge-reader',
           hardware: {
             name: 'Open Source Cartridge Reader',
             link: 'https://github.com/sanni/cartreader',
@@ -446,6 +459,7 @@ export default {
         },
         {
           index: 9,
+          gtmClass: 'raphnet-n64-adapter',
           hardware: {
             name: 'Raphnet N64-to-USB controller adapter',
             link: 'https://www.raphnet-tech.com/products/n64_usb_adapter_gen3/index.php',
@@ -473,6 +487,7 @@ export default {
         /* Feb 3, 2022: Contacted raphnet and they say this cart programmer cannot yet read/write sram although it technically is possible. They say they will be adding this feature soon
         {
           index: 10,
+          gtmClass: 'raphnet-cartridge-programmer',
           hardware: {
             name: 'Raphnet cartridge programmer',
             link: 'https://www.raphnet-tech.com/products/sms_cartridge_reader_programmer/index.php',
@@ -495,6 +510,7 @@ export default {
         */
         {
           index: 11,
+          gtmClass: 'ps3-memory-card-adapter',
           hardware: {
             name: 'PS3 USB Memory Card Adapter',
             link: 'https://www.psdevwiki.com/ps3/Card_Adapter',
@@ -521,6 +537,7 @@ export default {
         },
         {
           index: 12,
+          gtmClass: 'ps1-dexdrive',
           hardware: {
             name: 'PS1 DexDrive',
             link: 'https://en.wikipedia.org/wiki/DexDrive',
@@ -547,6 +564,7 @@ export default {
         },
         {
           index: 13,
+          gtmClass: 'playstation2-usb-stick',
           hardware: {
             name: 'PlayStation 2 + USB stick',
           },
@@ -573,6 +591,7 @@ export default {
         },
         {
           index: 14,
+          gtmClass: 'gba-link-cable-dumper-gcn',
           hardware: {
             name: 'GBA + GameCube + GC-to-GBA link cable',
             link: 'https://en.wikipedia.org/wiki/GameCube_%E2%80%93_Game_Boy_Advance_link_cable',
@@ -600,6 +619,7 @@ export default {
         },
         {
           index: 15,
+          gtmClass: 'gba-link-cable-dumper-wii',
           hardware: {
             name: 'GBA + Wii + GC-to-GBA link cable',
             link: 'https://en.wikipedia.org/wiki/GameCube_%E2%80%93_Game_Boy_Advance_link_cable',
@@ -627,6 +647,7 @@ export default {
         },
         {
           index: 16,
+          gtmClass: 'nintendo-ds-r4',
           hardware: {
             name: 'Nintendo DS + R4 cartridge',
             link: 'https://en.wikipedia.org/wiki/R4_cartridge',
@@ -654,6 +675,7 @@ export default {
         },
         {
           index: 17,
+          gtmClass: 'gcn-gameboy-player',
           hardware: {
             name: 'GameCube + GameBoy Player',
             link: 'https://en.wikipedia.org/wiki/Game_Boy_Player',
@@ -681,6 +703,7 @@ export default {
         },
         {
           index: 18,
+          gtmClass: 'turbo-everdrive',
           hardware: {
             name: 'Turbo Everdrive',
             link: 'https://krikzz.com/our-products/cartridges/turbo-everdrive-v2.html',
@@ -708,6 +731,7 @@ export default {
         },
         {
           index: 19,
+          gtmClass: '64drive-ultrasave',
           hardware: {
             name: '64drive + UltraSave',
             link: 'http://64drive.retroactive.be/features.php',
@@ -729,6 +753,7 @@ export default {
         },
         {
           index: 20,
+          gtmClass: 'saturn-gamers-cartridge',
           hardware: {
             name: 'Saturn Gamer\'s Cartridge',
             link: 'https://ppcenter.webou.net/satcart/#gamers',
@@ -750,6 +775,7 @@ export default {
         },
         {
           index: 21,
+          gtmClass: 'terraonion-mode-saturn',
           hardware: {
             name: 'Terraonion MODE',
             link: 'https://terraonion.com/en/producto/terraonion-mode/',
@@ -777,6 +803,7 @@ export default {
         },
         {
           index: 22,
+          gtmClass: 'satiator-ode',
           hardware: {
             name: 'Satiator ODE',
             link: 'https://www.satiator.net/',
@@ -804,6 +831,7 @@ export default {
         },
         {
           index: 23,
+          gtmClass: 'fenrir-ode',
           hardware: {
             name: 'Fenrir ODE',
             link: 'https://www.fenrir-ode.fr/',
@@ -831,6 +859,7 @@ export default {
         },
         {
           index: 24,
+          gtmClass: 'raphnet-n64-adapter-transfer-pak',
           hardware: {
             name: 'Raphnet N64-to-USB controller adapter + Transfer Pak',
             link: 'https://www.raphnet-tech.com/products/n64_usb_adapter_gen3/index.php',
@@ -857,6 +886,7 @@ export default {
         },
         {
           index: 25,
+          gtmClass: 'gamecube-sd-adapter',
           hardware: {
             name: 'GameCube + SD card adapter',
             link: 'https://www.google.com/search?q=gamecube+sd+card+adapter',
@@ -884,6 +914,7 @@ export default {
         },
         {
           index: 26,
+          gtmClass: 'terraonion-mode-dreamcast',
           hardware: {
             name: 'Terraonion MODE',
             link: 'https://terraonion.com/en/producto/terraonion-mode/',
@@ -909,6 +940,7 @@ export default {
         },
         {
           index: 27,
+          gtmClass: 'gdemu-ode',
           hardware: {
             name: 'GDEmu ODE',
             link: 'https://gdemu.wordpress.com/',
@@ -934,6 +966,7 @@ export default {
         },
         {
           index: 28,
+          gtmClass: 'usb-gdrom-ode',
           hardware: {
             name: 'USB-GDROM ODE',
             link: 'http://3do-renovation.ru/USB-GDROM_Controller.htm',
@@ -959,6 +992,7 @@ export default {
         },
         {
           index: 29,
+          gtmClass: 'memcarduino',
           hardware: {
             name: 'MemCARDuino',
             link: 'http://shendohardware.blogspot.com/2013/06/memcarduino.html',
@@ -985,6 +1019,7 @@ export default {
         },
         {
           index: 30,
+          gtmClass: 'ps1cardline',
           hardware: {
             name: 'PS1CardLink',
             link: 'https://github.com/ShendoXT/ps1cardlink',
@@ -1011,6 +1046,7 @@ export default {
         },
         {
           index: 31,
+          gtmClass: 'raphnet-ps1-adapter-multitap',
           hardware: {
             name: 'Raphnet PS1/PS2-to-USB controller adapter + PS1 Multitap',
             link: 'https://www.raphnet-tech.com/products/psx_to_usb/index.php',
@@ -1037,6 +1073,7 @@ export default {
         },
         {
           index: 32,
+          gtmClass: 'forever-pak-64',
           hardware: {
             name: 'Forever Pak 64',
             link: 'https://4layertech.com/products/forever-pak-64',
