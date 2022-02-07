@@ -82,10 +82,10 @@
       <b-row>
         <b-col>
           <div class="help">
-            Help: how do I <b-link href="https://gamehacking.org/vb/forum/video-game-hacking-and-development/school-of-hacking/14153-gameshark-advance-and-color-save-backup">copy save files to and from my GameShark</b-link>?
+            Help: how can I <router-link to="/original-hardware?sort=gba">copy save files to and from a GBA cartridge</router-link>?
           </div>
           <div class="help">
-            Help: how can I <router-link to="/original-hardware?sort=gba">copy save files to and from a GBA cartridge</router-link>?
+            Help: how do I <b-link href="https://gamehacking.org/vb/forum/video-game-hacking-and-development/school-of-hacking/14153-gameshark-advance-and-color-save-backup">copy save files to and from my GameShark</b-link>?
           </div>
         </b-col>
       </b-row>

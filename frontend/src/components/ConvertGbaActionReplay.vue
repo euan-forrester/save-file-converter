@@ -68,10 +68,10 @@
       <b-row>
         <b-col>
           <div class="help">
-            Help: how do I copy files to and from my <b-link href="https://www.youtube.com/watch?v=o7WQYnYYT6Y">Action Replay DSi</b-link> or <b-link href="http://uk.codejunkies.com/downloads/manuals/armax_gba_ds_english.pdf">Action Replay MAX DUO</b-link>?
+            Help: how can I <router-link to="/original-hardware?sort=gba">copy save files to and from a GBA cartridge</router-link>?
           </div>
           <div class="help">
-            Help: how can I <router-link to="/original-hardware?sort=gba">copy save files to and from a GBA cartridge</router-link>?
+            Help: how do I copy files to and from my <b-link href="https://www.youtube.com/watch?v=o7WQYnYYT6Y">Action Replay DSi</b-link> or <b-link href="http://uk.codejunkies.com/downloads/manuals/armax_gba_ds_english.pdf">Action Replay MAX DUO</b-link>?
           </div>
         </b-col>
       </b-row>

@@ -90,10 +90,10 @@
       <b-row>
         <b-col>
           <div class="help">
-            Help: how do I&nbsp;<b-link href="https://github.com/ShendoXT/memcardrex/releases">copy files to and from my DexDrive</b-link>?
+            Help: how can I <router-link to="/original-hardware?sort=ps1">copy save files to and from a PS1 memory card</router-link>?
           </div>
           <div class="help">
-            Help: how can I <router-link to="/original-hardware?sort=ps1">copy save files to and from a PS1 memory card</router-link>?
+            Help: how do I&nbsp;<b-link href="https://github.com/ShendoXT/memcardrex/releases">copy files to and from my DexDrive</b-link>?
           </div>
         </b-col>
       </b-row>

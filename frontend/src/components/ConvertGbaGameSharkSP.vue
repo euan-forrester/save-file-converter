@@ -87,10 +87,10 @@
       <b-row>
         <b-col>
           <div class="help">
-            Help: how do I <b-link href="https://www.manualslib.com/manual/515605/Mad-Catz-Gameshark-Sp.html?page=17#manual">copy save files to and from my GameShark SP</b-link>?
+            Help: how can I <router-link to="/original-hardware?sort=gba">copy save files to and from a GBA cartridge</router-link>?
           </div>
           <div class="help">
-            Help: how can I <router-link to="/original-hardware?sort=gba">copy save files to and from a GBA cartridge</router-link>?
+            Help: how do I <b-link href="https://www.manualslib.com/manual/515605/Mad-Catz-Gameshark-Sp.html?page=17#manual">copy save files to and from my GameShark SP</b-link>?
           </div>
         </b-col>
       </b-row>
