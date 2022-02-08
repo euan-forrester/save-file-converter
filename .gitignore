@@ -3,3 +3,4 @@
 /frontend/stats.json
 /frontend/tests/unit/rom-formats/data/psp/retail/*
 /frontend/tests/unit/rom-formats/data/psp/make-iso/*
+/frontend/tests/config.local.js

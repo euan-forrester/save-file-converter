@@ -1,0 +1,4 @@
+export default {
+  testPspIsos: true,
+  testPspRetailIsos: false,
+};
