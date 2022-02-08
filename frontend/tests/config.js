@@ -11,13 +11,9 @@ export default class Config {
   static async Create() {
     const localOverridesExist = await ArrayBufferUtil.fileExists(LOCAL_OVERRIDES_FILE_PATH);
 
-    console.log(`Looked for ${LOCAL_OVERRIDES_FILE_PATH} and found it ${localOverridesExist}`);
-
     if (localOverridesExist) {
       try {
         const localOverrides = require('./config.local.js'); // eslint-disable-line global-require, import/no-unresolved
-
-        console.log('Loaded in local overrides: ', localOverrides);
 
         return new Config({
           ...defaultConfig,
