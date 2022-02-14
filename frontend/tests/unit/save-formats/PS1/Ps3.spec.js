@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+// import { expect } from 'chai';
 import Ps3SaveData from '@/save-formats/PS1/Ps3';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
@@ -20,7 +20,7 @@ describe('PS1 - PS3 save format', () => {
       },
     ];
 
-    const ps3SaveData = Ps3SaveData.createFromPS3SaveFiles(ps3SaveFiles);
+    const ps3SaveData = Ps3SaveData.createFromPs3SaveFiles(ps3SaveFiles);
 
     ArrayBufferUtil.writeArrayBuffer(RAW_STREET_FIGHTER_EX2_PLUS_FILENAME, ps3SaveData.getMemoryCard().getArrayBuffer());
   });

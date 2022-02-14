@@ -76,7 +76,7 @@ export default class Util {
   }
 
   static uint8ArrayToHex(uint8Array) {
-    return uint8Array.map((x) => x.toString(16).padStart(2, '0').toUpperCase()).join('');
+    return Buffer.from(uint8Array).toString('hex').toUpperCase();
   }
 
   static setArrayBufferPortion(destination, source, destinationOffset, sourceOffset, length) {

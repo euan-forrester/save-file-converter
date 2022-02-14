@@ -11,6 +11,7 @@ found here: https://psdevwiki.com/ps3/PS1_Savedata#PS1_Single_Save_.3F_.28.PSV.2
 */
 
 import Ps1MemcardSaveData from './Memcard';
+import Sony from './Sony';
 import Util from '../../util/util';
 
 // PS3 header
@@ -24,6 +25,12 @@ const HEADER_FILENAME_PRODUCT_CODE_LENGTH = 0x0C;
 const HEADER_FILENAME_DESCRIPTION_OFFSET = 0x70;
 const HEADER_FILENAME_DESCRIPTION_LENGTH = 0x08;
 const HEADER_FILENAME_ENCODING = 'US-ASCII';
+
+const SALT_SEED_OFFSET = 0x08;
+const SALT_SEED_LENGTH = 0x14;
+
+const SIGNATURE_OFFSET = 0x1C;
+const SIGNATURE_LENGTH = 0x14;
 
 // Filename of a PS1 save in the style of uLaunchElf
 function getPs1IndividualFilename(ps3HeaderArrayBuffer, filenameTextDecoder) {
@@ -54,7 +61,7 @@ function createPs3SaveFile(ps1SaveFileArrayBuffer) {
 }
 
 export default class Ps3SaveData {
-  static createFromPS3SaveFiles(ps3SaveFiles) {
+  static createFromPs3SaveFiles(ps3SaveFiles) {
     // The PS3 image is the PS3 header then the regular memcard data
 
     const filenameTextDecoder = new TextDecoder(HEADER_FILENAME_ENCODING);
@@ -69,6 +76,21 @@ export default class Ps3SaveData {
       // Parse the PS3 filename into a PS1 filename. PS3 filename is the PS1 filename plus an encoded form of the description.
 
       console.log(`Generated PS3 filename: '${getPs3IndividualFilename(ps3HeaderArrayBuffer, filenameTextDecoder)}'`);
+
+      // Check the signature
+
+      const saltSeed = ps3HeaderArrayBuffer.slice(SALT_SEED_OFFSET, SALT_SEED_OFFSET + SALT_SEED_LENGTH);
+      const signatureCalculated = Sony.calculateSignature(ps3SaveFile.rawData, saltSeed, SALT_SEED_LENGTH, SIGNATURE_OFFSET, SIGNATURE_LENGTH);
+
+      // Check the signature we generated against the one we found
+
+      const signatureFound = Buffer.from(ps3HeaderArrayBuffer.slice(SIGNATURE_OFFSET, SIGNATURE_OFFSET + SIGNATURE_LENGTH));
+
+      if (signatureFound.compare(signatureCalculated) !== 0) {
+        throw new Error(`Save appears to be corrupted: expected signature ${signatureFound.toString('hex')} but calculated signature ${signatureCalculated.toString('hex')}`);
+      }
+
+      // Everything checks out
 
       return {
         startingBlock: 0, // Not needed to be set
