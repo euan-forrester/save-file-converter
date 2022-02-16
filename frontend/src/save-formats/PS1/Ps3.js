@@ -17,14 +17,10 @@ import Util from '../../util/util';
 // PS3 header
 
 const HEADER_LENGTH = 0x84;
+const LITTLE_ENDIAN = true;
+
 const HEADER_MAGIC = '\x00VSP\x00\x00\x00\x00';
 const HEADER_MAGIC_ENCODING = 'US-ASCII';
-
-const HEADER_FILENAME_PRODUCT_CODE_OFFSET = 0x64;
-const HEADER_FILENAME_PRODUCT_CODE_LENGTH = 0x0C;
-const HEADER_FILENAME_DESCRIPTION_OFFSET = 0x70;
-const HEADER_FILENAME_DESCRIPTION_LENGTH = 0x08;
-const HEADER_FILENAME_ENCODING = 'US-ASCII';
 
 const SALT_SEED_OFFSET = 0x08;
 const SALT_SEED_LENGTH = 0x14;
@@ -32,10 +28,26 @@ const SALT_SEED_LENGTH = 0x14;
 const SIGNATURE_OFFSET = 0x1C;
 const SIGNATURE_LENGTH = 0x14;
 
+const PLATFORM_INDICATOR_1_OFFSET = 0x38;
+const PLATFORM_INDICATOR_2_OFFSET = 0x3C;
+
+const PLATFORM_INDICATOR_1_PS1 = 0x14;
+// const PLATFORM_INDICATOR_1_PS2 = 0x2C;
+const PLATFORM_INDICATOR_2_PS1 = 0x1;
+// const PLATFORM_INDICATOR_2_PS2 = 0x2;
+
+const SAVE_SIZE_OFFSET = 0x40;
+
+const FILENAME_PRODUCT_CODE_OFFSET = 0x64;
+const FILENAME_PRODUCT_CODE_LENGTH = 0x0C;
+const FILENAME_DESCRIPTION_OFFSET = 0x70;
+const FILENAME_DESCRIPTION_LENGTH = 0x08;
+const FILENAME_ENCODING = 'US-ASCII';
+
 // Filename of a PS1 save in the style of uLaunchElf
 function getPs1IndividualFilename(ps3HeaderArrayBuffer, filenameTextDecoder) {
-  const offset = HEADER_FILENAME_PRODUCT_CODE_OFFSET;
-  const length = HEADER_FILENAME_PRODUCT_CODE_LENGTH + HEADER_FILENAME_DESCRIPTION_LENGTH;
+  const offset = FILENAME_PRODUCT_CODE_OFFSET;
+  const length = FILENAME_PRODUCT_CODE_LENGTH + FILENAME_DESCRIPTION_LENGTH;
 
   return Util.trimNull(filenameTextDecoder.decode(ps3HeaderArrayBuffer.slice(offset, offset + length)));
 }
@@ -46,10 +58,10 @@ function getPs1IndividualFilename(ps3HeaderArrayBuffer, filenameTextDecoder) {
 function getPs3IndividualFilename(ps3HeaderArrayBuffer, filenameTextDecoder) {
   const productCode = Util.trimNull(
     filenameTextDecoder.decode(
-      ps3HeaderArrayBuffer.slice(HEADER_FILENAME_PRODUCT_CODE_OFFSET, HEADER_FILENAME_PRODUCT_CODE_OFFSET + HEADER_FILENAME_PRODUCT_CODE_LENGTH),
+      ps3HeaderArrayBuffer.slice(FILENAME_PRODUCT_CODE_OFFSET, FILENAME_PRODUCT_CODE_OFFSET + FILENAME_PRODUCT_CODE_LENGTH),
     ),
   );
-  const descriptionArrayBuffer = ps3HeaderArrayBuffer.slice(HEADER_FILENAME_DESCRIPTION_OFFSET, HEADER_FILENAME_DESCRIPTION_OFFSET + HEADER_FILENAME_DESCRIPTION_LENGTH);
+  const descriptionArrayBuffer = ps3HeaderArrayBuffer.slice(FILENAME_DESCRIPTION_OFFSET, FILENAME_DESCRIPTION_OFFSET + FILENAME_DESCRIPTION_LENGTH);
   const descriptionArray = Util.getNullTerminatedArray(new Uint8Array(descriptionArrayBuffer), 0);
   const descriptionEncoded = Util.uint8ArrayToHex(descriptionArray);
 
@@ -64,12 +76,14 @@ export default class Ps3SaveData {
   static createFromPs3SaveFiles(ps3SaveFiles) {
     // The PS3 image is the PS3 header then the regular memcard data
 
-    const filenameTextDecoder = new TextDecoder(HEADER_FILENAME_ENCODING);
+    const filenameTextDecoder = new TextDecoder(FILENAME_ENCODING);
 
     const ps1SaveFiles = ps3SaveFiles.map((ps3SaveFile) => {
       // Parse the PS3-specific header
 
+      const ps1SaveDataArrayBuffer = ps3SaveFile.rawData.slice(HEADER_LENGTH);
       const ps3HeaderArrayBuffer = ps3SaveFile.rawData.slice(0, HEADER_LENGTH);
+      const ps3HeaderDataView = new DataView(ps3HeaderArrayBuffer);
 
       Util.checkMagic(ps3HeaderArrayBuffer, 0, HEADER_MAGIC, HEADER_MAGIC_ENCODING);
 
@@ -81,13 +95,27 @@ export default class Ps3SaveData {
 
       const saltSeed = ps3HeaderArrayBuffer.slice(SALT_SEED_OFFSET, SALT_SEED_OFFSET + SALT_SEED_LENGTH);
       const signatureCalculated = Sony.calculateSignature(ps3SaveFile.rawData, saltSeed, SALT_SEED_LENGTH, SIGNATURE_OFFSET, SIGNATURE_LENGTH);
-
-      // Check the signature we generated against the one we found
-
       const signatureFound = Buffer.from(ps3HeaderArrayBuffer.slice(SIGNATURE_OFFSET, SIGNATURE_OFFSET + SIGNATURE_LENGTH));
 
       if (signatureFound.compare(signatureCalculated) !== 0) {
         throw new Error(`Save appears to be corrupted: expected signature ${signatureFound.toString('hex')} but calculated signature ${signatureCalculated.toString('hex')}`);
+      }
+
+      // Check the platform
+
+      const platformIndicator1 = ps3HeaderDataView.getUint32(PLATFORM_INDICATOR_1_OFFSET, LITTLE_ENDIAN);
+      const platformIndicator2 = ps3HeaderDataView.getUint32(PLATFORM_INDICATOR_2_OFFSET, LITTLE_ENDIAN);
+
+      if ((platformIndicator1 !== PLATFORM_INDICATOR_1_PS1) || (platformIndicator2 !== PLATFORM_INDICATOR_2_PS1)) {
+        throw new Error('This does not appear to be a PS1 save file');
+      }
+
+      // Check the size
+
+      const saveSize = ps3HeaderDataView.getUint32(SAVE_SIZE_OFFSET, LITTLE_ENDIAN);
+
+      if (saveSize !== ps1SaveDataArrayBuffer.byteLength) {
+        throw new Error(`Size mismatch: size is specified as ${saveSize} bytes in the header but actual save size is ${ps1SaveDataArrayBuffer.byteLength} bytes`);
       }
 
       // Everything checks out
@@ -96,7 +124,7 @@ export default class Ps3SaveData {
         startingBlock: 0, // Not needed to be set
         filename: getPs1IndividualFilename(ps3HeaderArrayBuffer, filenameTextDecoder),
         description: null, // Not needed to be set
-        rawData: ps3SaveFile.rawData.slice(HEADER_LENGTH),
+        rawData: ps1SaveDataArrayBuffer,
       };
     });
 
