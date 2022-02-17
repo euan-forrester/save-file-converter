@@ -214,7 +214,9 @@ export default {
       this.selectedSaveData = null;
       this.inputFilename = event.filename;
       try {
-        this.ps3SaveData = Ps3SaveData.createFromPS3Data(event.arrayBuffer);
+        const saveFiles = [{ filename: event.filename, rawData: event.arrayBuffer }];
+
+        this.ps3SaveData = Ps3SaveData.createFromPs3SaveFiles(saveFiles);
 
         this.individualSavesOrMemoryCard = null;
 
@@ -250,7 +252,7 @@ export default {
           outputArrayBuffer = this.ps3SaveData.getMemoryCard().getArrayBuffer();
         }
       } else {
-        outputArrayBuffer = this.ps3SaveData.getArrayBuffer();
+        outputArrayBuffer = this.ps3SaveData.getPs3SaveFiles()[this.selectedSave].rawData;
       }
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
