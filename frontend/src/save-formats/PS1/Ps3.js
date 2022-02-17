@@ -20,7 +20,7 @@ const HEADER_LENGTH = 0x84;
 const LITTLE_ENDIAN = true;
 
 const HEADER_MAGIC = '\x00VSP\x00\x00\x00\x00';
-const HEADER_MAGIC_ENCODING = 'US-ASCII';
+const MAGIC_ENCODING = 'US-ASCII';
 
 const SALT_SEED_OFFSET = 0x08;
 const SALT_SEED_LENGTH = 0x14;
@@ -36,7 +36,10 @@ const PLATFORM_INDICATOR_1_PS1 = 0x14;
 const PLATFORM_INDICATOR_2_PS1 = 0x1;
 // const PLATFORM_INDICATOR_2_PS2 = 0x2;
 
-const SAVE_SIZE_OFFSET = 0x40;
+const SAVE_SIZE_OFFSET = 0x40; // Size of the PS1/2 data in the save (so, excluding the PS3 header)
+const SAVE_START_BYTE_OFFSET = 0x44; // How many bytes after the start of the file that the actual PS1/2 save starts
+const SAVE_HEADER_SIZE_OFFSET = 0x48; // How big the initial "SC" header is within the save data
+const SAVE_HEADER_SIZE_PS1 = Ps1MemcardSaveData.FRAME_SIZE * 4;
 
 const FILENAME_PRODUCT_CODE_OFFSET = 0x64;
 const FILENAME_PRODUCT_CODE_LENGTH = 0x0C;
@@ -68,8 +71,54 @@ function getPs3IndividualFilename(ps3HeaderArrayBuffer, filenameTextDecoder) {
   return `${productCode}${descriptionEncoded}.PSV`;
 }
 
-function createPs3SaveFile(ps1SaveFileArrayBuffer) {
-  return ps1SaveFileArrayBuffer;
+function createPs3SaveFile(ps1SaveFile) {
+  // First create the header
+
+  const ps3HeaderArrayBuffer = new ArrayBuffer(HEADER_LENGTH);
+  const ps3HeaderArray = new Uint8Array(ps3HeaderArrayBuffer);
+  const ps3HeaderDataView = new DataView(ps3HeaderArrayBuffer);
+
+  const magicTextEncoder = new TextEncoder(MAGIC_ENCODING);
+  const filenameTextEncoder = new TextEncoder(FILENAME_ENCODING);
+
+  const encodedFilename = Ps1MemcardSaveData.encodeFilename(ps1SaveFile.filename, filenameTextEncoder);
+
+  ps3HeaderArray.fill(0);
+
+  ps3HeaderArray.set(magicTextEncoder.encode(HEADER_MAGIC), 0);
+  ps3HeaderArray.set(new Uint8Array(Sony.SALT_SEED_INIT), SALT_SEED_OFFSET);
+  ps3HeaderArray.set(encodedFilename, FILENAME_PRODUCT_CODE_OFFSET);
+
+  ps3HeaderDataView.setUint32(PLATFORM_INDICATOR_1_OFFSET, PLATFORM_INDICATOR_1_PS1, LITTLE_ENDIAN);
+  ps3HeaderDataView.setUint32(PLATFORM_INDICATOR_2_OFFSET, PLATFORM_INDICATOR_2_PS1, LITTLE_ENDIAN);
+  ps3HeaderDataView.setUint32(SAVE_SIZE_OFFSET, ps1SaveFile.rawData.byteLength, LITTLE_ENDIAN);
+  ps3HeaderDataView.setUint32(SAVE_START_BYTE_OFFSET, HEADER_LENGTH, LITTLE_ENDIAN);
+  ps3HeaderDataView.setUint32(SAVE_HEADER_SIZE_OFFSET, SAVE_HEADER_SIZE_PS1, LITTLE_ENDIAN);
+
+  // These are listed as "unknown" on the ps3 dev wiki: https://psdevwiki.com/ps3/PS1_Savedata#PS1_Single_Save_.3F_.28.PSV.29
+  // And in memcardrex they're filled in with the examples from the wiki: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs#L333
+  // So we'll follow along with memcardrex
+  ps3HeaderDataView.setUint32(0x5C, 0x2000, LITTLE_ENDIAN);
+  ps3HeaderDataView.setUint32(0x60, 0x9003, LITTLE_ENDIAN);
+
+  // Now we can calculate a signature
+
+  const combinedArrayBuffer = Util.concatArrayBuffers([ps3HeaderArrayBuffer, ps1SaveFile.rawData]);
+
+  const signature = Sony.calculateSignature(combinedArrayBuffer, Sony.SALT_SEED_INIT, SALT_SEED_LENGTH, SIGNATURE_OFFSET, SIGNATURE_LENGTH);
+
+  const ps3SaveDataArrayBuffer = Util.setArrayBufferPortion(combinedArrayBuffer, signature, SIGNATURE_OFFSET, 0, SIGNATURE_LENGTH);
+
+  // We're all done!
+
+  const filenameTextDecoder = new TextDecoder(FILENAME_ENCODING);
+
+  return {
+    startingBlock: null, // Not needed to be set
+    filename: getPs3IndividualFilename(ps3HeaderArrayBuffer, filenameTextDecoder),
+    description: null, // Not needed to be set
+    rawData: ps3SaveDataArrayBuffer,
+  };
 }
 
 export default class Ps3SaveData {
@@ -85,11 +134,7 @@ export default class Ps3SaveData {
       const ps3HeaderArrayBuffer = ps3SaveFile.rawData.slice(0, HEADER_LENGTH);
       const ps3HeaderDataView = new DataView(ps3HeaderArrayBuffer);
 
-      Util.checkMagic(ps3HeaderArrayBuffer, 0, HEADER_MAGIC, HEADER_MAGIC_ENCODING);
-
-      // Parse the PS3 filename into a PS1 filename. PS3 filename is the PS1 filename plus an encoded form of the description.
-
-      console.log(`Generated PS3 filename: '${getPs3IndividualFilename(ps3HeaderArrayBuffer, filenameTextDecoder)}'`);
+      Util.checkMagic(ps3HeaderArrayBuffer, 0, HEADER_MAGIC, MAGIC_ENCODING);
 
       // Check the signature
 
@@ -110,26 +155,44 @@ export default class Ps3SaveData {
         throw new Error('This does not appear to be a PS1 save file');
       }
 
-      // Check the size
+      // Check the size etc
 
       const saveSize = ps3HeaderDataView.getUint32(SAVE_SIZE_OFFSET, LITTLE_ENDIAN);
+      const saveStartByte = ps3HeaderDataView.getUint32(SAVE_START_BYTE_OFFSET, LITTLE_ENDIAN);
+      const saveHeaderSize = ps3HeaderDataView.getUint32(SAVE_HEADER_SIZE_OFFSET, LITTLE_ENDIAN);
 
       if (saveSize !== ps1SaveDataArrayBuffer.byteLength) {
         throw new Error(`Size mismatch: size is specified as ${saveSize} bytes in the header but actual save size is ${ps1SaveDataArrayBuffer.byteLength} bytes`);
       }
 
+      if (saveStartByte !== HEADER_LENGTH) {
+        throw new Error('Save appears to be corrupted: save start byte does not match header size');
+      }
+
+      if (saveHeaderSize !== SAVE_HEADER_SIZE_PS1) {
+        throw new Error(`Save appears to be corrupted: save header size appears incorrect. Got ${saveHeaderSize}`);
+      }
+
       // Everything checks out
+      //
+      // Note that because we're creating this from PS1 save files, the new PS3 files that are created from this
+      // will have a different salt seed and thus signature than the original ones. In theory, we should be outputting
+      // the original PS3 saves again, but in practice who would want to convert a PS3 save to a PS3 save? So it shouldn't matter.
 
       return {
-        startingBlock: 0, // Not needed to be set
+        startingBlock: null, // Not needed to be set
         filename: getPs1IndividualFilename(ps3HeaderArrayBuffer, filenameTextDecoder),
         description: null, // Not needed to be set
         rawData: ps1SaveDataArrayBuffer,
       };
     });
 
-    console.log('Made list of ps1 save files: ', ps1SaveFiles);
+    const memcardSaveData = Ps1MemcardSaveData.createFromSaveFiles(ps1SaveFiles);
 
+    return new Ps3SaveData(memcardSaveData.getArrayBuffer());
+  }
+
+  static createFromPs1SaveFiles(ps1SaveFiles) {
     const memcardSaveData = Ps1MemcardSaveData.createFromSaveFiles(ps1SaveFiles);
 
     return new Ps3SaveData(memcardSaveData.getArrayBuffer());

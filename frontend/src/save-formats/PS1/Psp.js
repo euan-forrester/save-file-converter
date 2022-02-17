@@ -44,7 +44,7 @@ export default class PspSaveData {
 
     headerArray.set(HEADER_MAGIC, 0);
 
-    const saltSeedArray = new Uint8Array(Sony.getSaltSeedInit());
+    const saltSeedArray = new Uint8Array(Sony.SALT_SEED_INIT);
 
     headerArray.set(saltSeedArray, SALT_SEED_OFFSET);
 
@@ -54,7 +54,7 @@ export default class PspSaveData {
 
     // Now we can calculate our signature
 
-    const saltSeed = Util.bufferToArrayBuffer(Sony.getSaltSeedInit());
+    const saltSeed = Util.bufferToArrayBuffer(Sony.SALT_SEED_INIT);
     const signatureCalculated = Sony.calculateSignature(combinedArrayBuffer, saltSeed, SALT_SEED_LENGTH, SIGNATURE_OFFSET, SIGNATURE_LENGTH);
 
     // Inject the signature and we're done! We'll parse it again

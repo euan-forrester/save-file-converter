@@ -56,9 +56,7 @@ function xorWithByte(arrayBuffer, xorValue, length) {
 }
 
 export default class Sony {
-  static getSaltSeedInit() {
-    return SALT_SEED_INIT;
-  }
+  static SALT_SEED_INIT = SALT_SEED_INIT;
 
   // Note that our arrayBuffer is for the entire PSP file, including the header which must in turn include the salt seed
   // The signature in the header is zero'ed out before the signature is calculated, but everything else must be there

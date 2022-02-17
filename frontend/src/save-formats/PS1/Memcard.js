@@ -157,7 +157,7 @@ function createDirectoryFramesForSave(saveFile, blockNumber, filenameTextEncoder
     const array = new Uint8Array(arrayBuffer);
     const dataView = new DataView(arrayBuffer);
 
-    const encodedFilename = filenameTextEncoder.encode(saveFile.filename).slice(0, DIRECTORY_FRAME_FILENAME_LENGTH);
+    const encodedFilename = Ps1MemcardSaveData.encodeFilename(saveFile.filename, filenameTextEncoder);
 
     dataView.setUint8(DIRECTORY_FRAME_AVAILABLE_OFFSET, DIRECTORY_FRAME_FIRST_LINK_BLOCK);
     dataView.setUint32(DIRECTORY_FRAME_FILE_SIZE_OFFSET, saveFile.rawData.byteLength, LITTLE_ENDIAN);
@@ -217,11 +217,17 @@ function createDirectoryFramesForSave(saveFile, blockNumber, filenameTextEncoder
 export default class Ps1MemcardSaveData {
   static NUM_BLOCKS = NUM_BLOCKS;
 
+  static FRAME_SIZE = FRAME_SIZE;
+
   static DIRECTORY_FRAME_AVAILABLE_OFFSET = DIRECTORY_FRAME_AVAILABLE_OFFSET;
 
   static DIRECTORY_FRAME_NEXT_BLOCK_OFFSET = DIRECTORY_FRAME_NEXT_BLOCK_OFFSET;
 
   static DIRECTORY_FRAME_FIRST_LINK_BLOCK = DIRECTORY_FRAME_FIRST_LINK_BLOCK;
+
+  static encodeFilename(filename, filenameTextEncoder) {
+    return filenameTextEncoder.encode(filename).slice(0, DIRECTORY_FRAME_FILENAME_LENGTH);
+  }
 
   static createFromPs1MemcardData(memcardArrayBuffer) {
     return new Ps1MemcardSaveData(memcardArrayBuffer);
