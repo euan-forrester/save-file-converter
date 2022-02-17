@@ -11,7 +11,7 @@ found here: https://psdevwiki.com/ps3/PS1_Savedata#PS1_Single_Save_.3F_.28.PSV.2
 */
 
 import Ps1MemcardSaveData from './Memcard';
-import Sony from './Sony';
+import SonyUtil from './SonyUtil';
 import Util from '../../util/util';
 
 // PS3 header
@@ -86,7 +86,7 @@ function createPs3SaveFile(ps1SaveFile) {
   ps3HeaderArray.fill(0);
 
   ps3HeaderArray.set(magicTextEncoder.encode(HEADER_MAGIC), 0);
-  ps3HeaderArray.set(new Uint8Array(Sony.SALT_SEED_INIT), SALT_SEED_OFFSET);
+  ps3HeaderArray.set(new Uint8Array(SonyUtil.SALT_SEED_INIT), SALT_SEED_OFFSET);
   ps3HeaderArray.set(encodedFilename, FILENAME_PRODUCT_CODE_OFFSET);
 
   ps3HeaderDataView.setUint32(PLATFORM_INDICATOR_1_OFFSET, PLATFORM_INDICATOR_1_PS1, LITTLE_ENDIAN);
@@ -105,7 +105,7 @@ function createPs3SaveFile(ps1SaveFile) {
 
   const combinedArrayBuffer = Util.concatArrayBuffers([ps3HeaderArrayBuffer, ps1SaveFile.rawData]);
 
-  const signature = Sony.calculateSignature(combinedArrayBuffer, Sony.SALT_SEED_INIT, SALT_SEED_LENGTH, SIGNATURE_OFFSET, SIGNATURE_LENGTH);
+  const signature = SonyUtil.calculateSignature(combinedArrayBuffer, SonyUtil.SALT_SEED_INIT, SALT_SEED_LENGTH, SIGNATURE_OFFSET, SIGNATURE_LENGTH);
 
   const ps3SaveDataArrayBuffer = Util.setArrayBufferPortion(combinedArrayBuffer, signature, SIGNATURE_OFFSET, 0, SIGNATURE_LENGTH);
 
@@ -139,7 +139,7 @@ export default class Ps3SaveData {
       // Check the signature
 
       const saltSeed = ps3HeaderArrayBuffer.slice(SALT_SEED_OFFSET, SALT_SEED_OFFSET + SALT_SEED_LENGTH);
-      const signatureCalculated = Sony.calculateSignature(ps3SaveFile.rawData, saltSeed, SALT_SEED_LENGTH, SIGNATURE_OFFSET, SIGNATURE_LENGTH);
+      const signatureCalculated = SonyUtil.calculateSignature(ps3SaveFile.rawData, saltSeed, SALT_SEED_LENGTH, SIGNATURE_OFFSET, SIGNATURE_LENGTH);
       const signatureFound = Buffer.from(ps3HeaderArrayBuffer.slice(SIGNATURE_OFFSET, SIGNATURE_OFFSET + SIGNATURE_LENGTH));
 
       if (signatureFound.compare(signatureCalculated) !== 0) {

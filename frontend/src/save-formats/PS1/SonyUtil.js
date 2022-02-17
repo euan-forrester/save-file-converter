@@ -55,7 +55,7 @@ function xorWithByte(arrayBuffer, xorValue, length) {
   return outputArrayBuffer;
 }
 
-export default class Sony {
+export default class SonyUtil {
   static SALT_SEED_INIT = SALT_SEED_INIT;
 
   // Note that our arrayBuffer is for the entire PSP file, including the header which must in turn include the salt seed

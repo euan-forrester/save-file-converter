@@ -14,7 +14,7 @@ based on https://github.com/dots-tb/vita-mcr2vmp
 // just a portion of it as implemented in https://github.com/crypto-browserify/createHash
 
 import Ps1MemcardSaveData from './Memcard';
-import Sony from './Sony';
+import SonyUtil from './SonyUtil';
 import Util from '../../util/util';
 
 // PSP header
@@ -44,7 +44,7 @@ export default class PspSaveData {
 
     headerArray.set(HEADER_MAGIC, 0);
 
-    const saltSeedArray = new Uint8Array(Sony.SALT_SEED_INIT);
+    const saltSeedArray = new Uint8Array(SonyUtil.SALT_SEED_INIT);
 
     headerArray.set(saltSeedArray, SALT_SEED_OFFSET);
 
@@ -54,8 +54,8 @@ export default class PspSaveData {
 
     // Now we can calculate our signature
 
-    const saltSeed = Util.bufferToArrayBuffer(Sony.SALT_SEED_INIT);
-    const signatureCalculated = Sony.calculateSignature(combinedArrayBuffer, saltSeed, SALT_SEED_LENGTH, SIGNATURE_OFFSET, SIGNATURE_LENGTH);
+    const saltSeed = Util.bufferToArrayBuffer(SonyUtil.SALT_SEED_INIT);
+    const signatureCalculated = SonyUtil.calculateSignature(combinedArrayBuffer, saltSeed, SALT_SEED_LENGTH, SIGNATURE_OFFSET, SIGNATURE_LENGTH);
 
     // Inject the signature and we're done! We'll parse it again
     // to pull out the file descriptions
@@ -76,7 +76,7 @@ export default class PspSaveData {
     Util.checkMagicBytes(pspHeaderArrayBuffer, 0, HEADER_MAGIC);
 
     const saltSeed = pspHeaderArrayBuffer.slice(SALT_SEED_OFFSET, SALT_SEED_OFFSET + SALT_SEED_LENGTH);
-    const signatureCalculated = Sony.calculateSignature(arrayBuffer, saltSeed, SALT_SEED_LENGTH, SIGNATURE_OFFSET, SIGNATURE_LENGTH);
+    const signatureCalculated = SonyUtil.calculateSignature(arrayBuffer, saltSeed, SALT_SEED_LENGTH, SIGNATURE_OFFSET, SIGNATURE_LENGTH);
 
     // Check the signature we generated against the one we found
 
