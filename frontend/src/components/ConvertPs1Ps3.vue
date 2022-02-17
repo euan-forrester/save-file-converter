@@ -14,9 +14,10 @@
             <input-file
               @load="readPs3SaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose a file to convert (*.PSV)"
+              placeholderText="Choose fils to add (*.PSV)"
               acceptExtension=".PSV"
               :leaveRoomForHelpIcon="false"
+              :allowMultipleFiles="true"
             />
             <file-list
               :display="this.ps3SaveData !== null"
@@ -143,7 +144,7 @@ export default {
       conversionDirection: 'convertToEmulator',
       selectedSaveData: null,
       individualSavesOrMemoryCard: 'individual-saves',
-      individualSavesText: 'Individual save',
+      individualSavesText: 'Individual saves',
       memoryCardText: 'Raw/emulator',
     };
   },
@@ -212,9 +213,9 @@ export default {
     readPs3SaveData(event) {
       this.errorMessage = null;
       this.selectedSaveData = null;
-      this.inputFilename = event.filename;
+      this.inputFilename = null;
       try {
-        const saveFiles = [{ filename: event.filename, rawData: event.arrayBuffer }];
+        const saveFiles = event.map((f) => ({ filename: f.filename, rawData: f.arrayBuffer }));
 
         this.ps3SaveData = Ps3SaveData.createFromPs3SaveFiles(saveFiles);
 
