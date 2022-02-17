@@ -6,20 +6,20 @@
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
               <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })">
-                <template v-slot:header>DexDrive</template>
+                <template v-slot:header>PS3</template>
               </b-jumbotron>
             </b-col>
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'">
             <input-file
-              @load="readDexDriveSaveData($event)"
+              @load="readPs3SaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose a file to convert (*.gme)"
-              acceptExtension=".gme"
+              placeholderText="Choose a file to convert (*.PSV)"
+              acceptExtension=".PSV"
               :leaveRoomForHelpIcon="false"
             />
             <file-list
-              :display="this.dexDriveSaveData !== null"
+              :display="this.ps3SaveData !== null"
               :files="this.getFileListNames()"
               v-model="selectedSaveData"
               @change="changeSelectedSaveData($event)"
@@ -67,7 +67,7 @@
               :allowMultipleFiles="true"
             />
             <file-list
-              :display="this.dexDriveSaveData !== null"
+              :display="this.ps3SaveData !== null"
               :files="this.getFileListNames()"
               :enabled="false"
             />
@@ -77,7 +77,7 @@
       <b-row class="justify-content-md-center" align-h="center">
         <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
           <b-button
-            class="ps1-dexdrive-convert-button"
+            class="ps1-ps3-convert-button"
             variant="success"
             block
             :disabled="this.convertButtonDisabled"
@@ -93,7 +93,7 @@
             Help: how can I <router-link to="/original-hardware?sort=ps1">copy save files to and from a PS1 memory card</router-link>?
           </div>
           <div class="help">
-            Help: how do I&nbsp;<b-link href="https://github.com/ShendoXT/memcardrex/releases">copy files to and from my DexDrive</b-link>?
+            Help: how do I&nbsp;<b-link href="https://gbatemp.net/threads/tutorial-transfer-saves-from-ps1-to-ps3.573038/">copy PS1 save files to and from my PS3</b-link>? (Begin at step 3)
           </div>
         </b-col>
       </b-row>
@@ -104,7 +104,7 @@
 <style scoped>
 
 /* Separate class for each different button to enable tracking in google tag manager */
-.ps1-dexdrive-convert-button {
+.ps1-ps3-convert-button {
   margin-top: 1em;
 }
 
@@ -130,20 +130,20 @@ import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import FileList from './FileList.vue';
 import IndividualSavesOrMemoryCardSelector from './IndividualSavesOrMemoryCardSelector.vue';
-import PS1DexDriveSaveData from '../save-formats/PS1/DexDrive';
+import Ps3SaveData from '../save-formats/PS1/Ps3';
 
 export default {
-  name: 'ConvertPs1DexDrive',
+  name: 'ConvertPs1Ps3',
   data() {
     return {
-      dexDriveSaveData: null,
+      ps3SaveData: null,
       errorMessage: null,
       inputFilename: null,
       outputFilename: null,
       conversionDirection: 'convertToEmulator',
       selectedSaveData: null,
       individualSavesOrMemoryCard: 'individual-saves',
-      individualSavesText: 'Individual saves',
+      individualSavesText: 'Individual save',
       memoryCardText: 'Raw/emulator',
     };
   },
@@ -158,7 +158,7 @@ export default {
     convertButtonDisabled() {
       const haveDataSelected = (this.conversionDirection === 'convertToEmulator') ? true : this.selectedSaveData === null;
 
-      return !this.dexDriveSaveData || this.dexDriveSaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
+      return !this.ps3SaveData || this.ps3SaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
     },
     individualSavesOrMemoryCardText() {
       return (this.individualSavesOrMemoryCard === 'individual-saves') ? this.individualSavesText : this.memoryCardText;
@@ -182,15 +182,15 @@ export default {
       }
     },
     getFileListNames() {
-      if ((this.dexDriveSaveData !== null) && (this.dexDriveSaveData.getSaveFiles() !== null)) {
-        return this.dexDriveSaveData.getSaveFiles().map((x) => ({ displayText: x.description }));
+      if ((this.ps3SaveData !== null) && (this.ps3SaveData.getSaveFiles() !== null)) {
+        return this.ps3SaveData.getSaveFiles().map((x) => ({ displayText: x.description }));
       }
 
       return [];
     },
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
-      this.dexDriveSaveData = null;
+      this.ps3SaveData = null;
       this.errorMessage = null;
       this.inputFilename = null;
       this.outputFilename = null;
@@ -199,9 +199,9 @@ export default {
     },
     changeSelectedSaveData(newSaveData) {
       if (newSaveData !== null) {
-        if ((this.dexDriveSaveData !== null) && (this.dexDriveSaveData.getSaveFiles().length > 0)) {
+        if ((this.ps3SaveData !== null) && (this.ps3SaveData.getSaveFiles().length > 0)) {
           this.selectedSaveData = newSaveData;
-          this.outputFilename = this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData].filename;
+          this.outputFilename = this.ps3SaveData.getSaveFiles()[this.selectedSaveData].filename;
           this.changeIndividualSavesOrMemoryCard('individual-saves');
         } else {
           this.selectedSaveData = null;
@@ -209,12 +209,12 @@ export default {
         }
       }
     },
-    readDexDriveSaveData(event) {
+    readPs3SaveData(event) {
       this.errorMessage = null;
       this.selectedSaveData = null;
       this.inputFilename = event.filename;
       try {
-        this.dexDriveSaveData = PS1DexDriveSaveData.createFromDexDriveData(event.arrayBuffer);
+        this.ps3SaveData = Ps3SaveData.createFromPS3Data(event.arrayBuffer);
 
         this.individualSavesOrMemoryCard = null;
 
@@ -222,7 +222,7 @@ export default {
         this.changeSelectedSaveData(0);
       } catch (e) {
         this.errorMessage = 'File appears to not be in the correct format';
-        this.dexDriveSaveData = null;
+        this.ps3SaveData = null;
         this.selectedSaveData = null;
       }
     },
@@ -231,12 +231,12 @@ export default {
       this.selectedSaveData = null;
       this.inputFilename = null;
       try {
-        const saveFiles = event.map((f) => ({ filename: f.filename, rawData: f.arrayBuffer, comment: 'Created with savefileconverter.com' }));
+        const saveFiles = event.map((f) => ({ filename: f.filename, rawData: f.arrayBuffer }));
 
-        this.dexDriveSaveData = PS1DexDriveSaveData.createFromSaveFiles(saveFiles);
+        this.ps3SaveData = Ps3SaveData.createFromSaveFiles(saveFiles);
       } catch (e) {
         this.errorMessage = e.message;
-        this.dexDriveSaveData = null;
+        this.ps3SaveData = null;
         this.selectedSaveData = null;
       }
     },
@@ -245,12 +245,12 @@ export default {
 
       if (this.conversionDirection === 'convertToEmulator') {
         if (this.individualSavesOrMemoryCard === 'individual-saves') {
-          outputArrayBuffer = this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData].rawData;
+          outputArrayBuffer = this.ps3SaveData.getSaveFiles()[this.selectedSaveData].rawData;
         } else {
-          outputArrayBuffer = this.dexDriveSaveData.getMemoryCard().getArrayBuffer();
+          outputArrayBuffer = this.ps3SaveData.getMemoryCard().getArrayBuffer();
         }
       } else {
-        outputArrayBuffer = this.dexDriveSaveData.getArrayBuffer();
+        outputArrayBuffer = this.ps3SaveData.getArrayBuffer();
       }
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
