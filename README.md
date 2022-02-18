@@ -18,9 +18,6 @@ Instructions:
 
 - Be able to autodetect the format of a given save file (note that raw files need their size checked, unrecognized size means invalid file)
 - PS2 formats (check out https://gamefaqs.gamespot.com/ps2/536777-suikoden-iii/saves for a potential list)
-- PS1 saves in PS3 format
-  - File description: https://www.psdevwiki.com/ps3/PS1_Savedata#PS1_Single_Save_.3F_.28.PSV.29
-  - Example files: https://gamefaqs.gamespot.com/ps/914346-street-fighter-ex2-plus/saves
 - GameCube formats (check out https://gamefaqs.gamespot.com/gamecube/533008-soulcalibur-ii/saves for a potential list)
 - Saturn formats
 - What are the 64kB `.srm` files for SNES etc on thetechgame.com? Want to extract a 'normal' `.srm` file from them
