@@ -51,13 +51,14 @@ Instructions:
   - (reading): https://github.com/visualboyadvance-m/visualboyadvance-m/blob/master/src/gba/GBA.cpp#L1078
 - GameShark (PS2)
   - (partial): https://www.ps2savetools.com/documents/xps-format/
-- PS3 PS1/PS2 virtual memory card: https://github.com/bucanero/psv-save-converter
 - PS2
   - Save Tools: https://www.ps2savetools.com/
   - Save tool: 
     - http://www.csclub.uwaterloo.ca:11068/mymc/
     - https://github.com/ps2dev/mymc
   - Memory card format: http://www.csclub.uwaterloo.ca:11068/mymc/ps2mcfs.html
+  - Use PS2 files on PS3: https://github.com/bucanero/apollo-ps3
+  - Convert PS2 formats: https://github.com/bucanero/psv-save-converter
 - Wii Virtual Console save game format (note that the files are encrypted)
   - https://wiibrew.org/wiki/Wii_Savegame_Parser
   - https://wiibrew.org/wiki/Savegame_Files
@@ -89,6 +90,7 @@ Instructions:
   - MemcardRex format: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs
   - DexDrive format: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs
   - Signing a PSP .VMP file: https://github.com/dots-tb/vita-mcr2vmp
+  - PS3 format: https://psdevwiki.com/ps3/PS1_Savedata#PS1_Single_Save_.3F_.28.PSV.29
 - N64:
   - https://github.com/bryc/mempak
     - https://bryc.github.io/mempak/ (online preview)
