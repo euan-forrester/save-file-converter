@@ -174,8 +174,14 @@ export default {
             this.changeSelectedSaveData(0);
           }
         } else {
-          if (this.inputFilename !== null) {
-            this.outputFilename = Util.changeFilenameExtension(this.inputFilename, 'mcr');
+          // this.inputFilename is null because we can select multiple .PSV files to combine
+          // Leaving this.outputFilename blank seems a bit crummy because it might not be clear why
+          // the Convert button stays disabled, plus it may also not be clear that the new file
+          // should have a .mcr extension.
+          // So let's just pick the first filename as a placeholder and the user can change it if they wish
+
+          if ((this.ps3SaveData !== null) && (this.ps3SaveData.getSaveFiles().length > 0)) {
+            this.outputFilename = Util.changeFilenameExtension(this.ps3SaveData.getSaveFiles()[0].filename, 'mcr');
           }
           this.selectedSaveData = null;
         }
