@@ -14,7 +14,7 @@
             <input-file
               @load="readPs3SaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose fils to add (*.PSV)"
+              placeholderText="Choose files to add (*.PSV)"
               acceptExtension=".PSV"
               :leaveRoomForHelpIcon="false"
               :allowMultipleFiles="true"
@@ -63,9 +63,8 @@
             <input-file
               @load="readEmulatorSaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose files to add"
+              placeholderText="Choose a file to convert"
               :leaveRoomForHelpIcon="false"
-              :allowMultipleFiles="true"
             />
             <file-list
               :display="this.ps3SaveData !== null"
@@ -144,7 +143,7 @@ export default {
       conversionDirection: 'convertToEmulator',
       selectedSaveData: null,
       individualSavesOrMemoryCard: 'individual-saves',
-      individualSavesText: 'Individual saves',
+      individualSavesText: 'Individual save',
       memoryCardText: 'Raw/emulator',
     };
   },
@@ -157,7 +156,7 @@ export default {
   },
   computed: {
     convertButtonDisabled() {
-      const haveDataSelected = (this.conversionDirection === 'convertToEmulator') ? true : this.selectedSaveData === null;
+      const haveDataSelected = (this.individualSavesOrMemoryCard === 'individual-saves') ? (this.selectedSaveData !== null) : true;
 
       return !this.ps3SaveData || this.ps3SaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
     },
@@ -202,7 +201,11 @@ export default {
       if (newSaveData !== null) {
         if ((this.ps3SaveData !== null) && (this.ps3SaveData.getSaveFiles().length > 0)) {
           this.selectedSaveData = newSaveData;
-          this.outputFilename = this.ps3SaveData.getSaveFiles()[this.selectedSaveData].filename;
+          if (this.conversionDirection === 'convertToEmulator') {
+            this.outputFilename = this.ps3SaveData.getSaveFiles()[this.selectedSaveData].filename;
+          } else {
+            this.outputFilename = this.ps3SaveData.getPs3SaveFiles()[this.selectedSaveData].filename;
+          }
           this.changeIndividualSavesOrMemoryCard('individual-saves');
         } else {
           this.selectedSaveData = null;
@@ -234,9 +237,10 @@ export default {
       this.selectedSaveData = null;
       this.inputFilename = null;
       try {
-        const saveFiles = event.map((f) => ({ filename: f.filename, rawData: f.arrayBuffer }));
+        const saveFiles = [{ filename: event.filename, rawData: event.arrayBuffer }];
 
-        this.ps3SaveData = Ps3SaveData.createFromSaveFiles(saveFiles);
+        this.ps3SaveData = Ps3SaveData.createFromPs1SaveFiles(saveFiles);
+        this.changeSelectedSaveData(0);
       } catch (e) {
         this.errorMessage = e.message;
         this.ps3SaveData = null;
@@ -253,7 +257,7 @@ export default {
           outputArrayBuffer = this.ps3SaveData.getMemoryCard().getArrayBuffer();
         }
       } else {
-        outputArrayBuffer = this.ps3SaveData.getPs3SaveFiles()[this.selectedSave].rawData;
+        outputArrayBuffer = this.ps3SaveData.getPs3SaveFiles()[this.selectedSaveData].rawData;
       }
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });

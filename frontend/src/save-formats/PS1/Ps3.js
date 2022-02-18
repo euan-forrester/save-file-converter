@@ -114,9 +114,9 @@ function createPs3SaveFile(ps1SaveFile) {
   const filenameTextDecoder = new TextDecoder(FILENAME_ENCODING);
 
   return {
-    startingBlock: null, // Not needed to be set
+    startingBlock: ps1SaveFile.startingBlock,
     filename: getPs3IndividualFilename(ps3HeaderArrayBuffer, filenameTextDecoder),
-    description: null, // Not needed to be set
+    description: ps1SaveFile.description,
     rawData: ps3SaveDataArrayBuffer,
   };
 }
