@@ -29,6 +29,7 @@
         <b-col class="nav-row">
           <router-link to="/ps1/dexdrive">PS1{{'\xa0'}}-{{'\xa0'}}DexDrive</router-link> |
           <router-link to="/ps1/psp">PS1{{'\xa0'}}-{{'\xa0'}}PSP</router-link> |
+          <router-link to="/ps1/ps3">PS1{{'\xa0'}}-{{'\xa0'}}PS3</router-link> |
           <router-link to="/ps1/emulator">PS1{{'\xa0'}}-{{'\xa0'}}emulator</router-link>
         </b-col>
       </b-row>

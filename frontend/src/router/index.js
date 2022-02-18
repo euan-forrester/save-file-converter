@@ -58,6 +58,11 @@ const routes = [
     component: () => import(/* webpackChunkName: "ps1-psp" */ '../views/Ps1Psp.vue'),
   },
   {
+    path: '/ps1/ps3',
+    name: 'PS1 - PS3',
+    component: () => import(/* webpackChunkName: "ps1-ps3" */ '../views/Ps1Ps3.vue'),
+  },
+  {
     path: '/ps1',
     redirect: '/ps1/dexdrive',
   },
