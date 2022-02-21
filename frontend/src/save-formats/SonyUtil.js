@@ -3,8 +3,8 @@
 // Class for Sony-specific stuff, such as calculating the signature of a save file
 
 import createHash from 'create-hash';
-import CryptoAes from '../../util/crypto-aes';
-import Util from '../../util/util';
+import CryptoAes from '../util/crypto-aes';
+import Util from '../util/util';
 
 const ENCRYPTION_ALGORITHM = 'aes-128-ecb';
 const ENCRYPTION_ALGORITHM_BLOCK_LENGTH = 0x10; // A block in AES is always 128 bits regardless of the key size

@@ -11,7 +11,7 @@ found here: https://psdevwiki.com/ps3/PS1_Savedata#PS1_Single_Save_.3F_.28.PSV.2
 */
 
 import Ps1MemcardSaveData from './Memcard';
-import SonyUtil from './SonyUtil';
+import SonyUtil from '../SonyUtil';
 import Util from '../../util/util';
 
 // PS3 header
