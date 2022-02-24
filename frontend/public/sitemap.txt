@@ -11,6 +11,7 @@ https://savefileconverter.com/#/ps1/emulator
 https://savefileconverter.com/#/psp
 https://savefileconverter.com/#/n64/dexdrive
 https://savefileconverter.com/#/n64/controller-pak
+https://savefileconverter.com/#/mister
 https://savefileconverter.com/#/utilities/erase-save
 https://savefileconverter.com/#/utilities/troubleshooting
 https://savefileconverter.com/#/other-converters
