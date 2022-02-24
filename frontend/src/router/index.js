@@ -86,6 +86,11 @@ const routes = [
     redirect: '/n64/dexdrive',
   },
   {
+    path: '/mister',
+    name: 'MiSTer',
+    component: () => import(/* webpackChunkName: "mister" */ '../views/Mister.vue'),
+  },
+  {
     path: '/utilities',
     redirect: '/utilities/troubleshooting',
   },
