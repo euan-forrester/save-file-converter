@@ -2,7 +2,7 @@
   <div>
     <b-container>
       <b-row no-gutters align-h="center" align-v="start">
-        <b-col sm=12 md=5 align-self="center">
+        <b-col sm=12 md=5 align-self="start">
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
               <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })">
@@ -17,6 +17,12 @@
               placeholderText="Choose a file to convert (*.sav)"
               acceptExtension=".sav"
               :leaveRoomForHelpIcon="false"
+            />
+            <mister-platform
+              v-model="misterPlatform"
+              id="platform"
+              v-on:input="misterPlatformChanged()"
+              :disabled="false"
             />
           </div>
           <div v-else>
@@ -50,6 +56,12 @@
               acceptExtension=".srm"
               :leaveRoomForHelpIcon="false"
             />
+            <mister-platform
+              v-model="misterPlatform"
+              id="platform"
+              v-on:input="misterPlatformChanged()"
+              :disabled="false"
+            />
           </div>
         </b-col>
       </b-row>
@@ -59,7 +71,7 @@
             class="mister-convert-button"
             variant="success"
             block
-            :disabled="!this.misterSaveData || !outputFilename"
+            :disabled="!this.misterSaveData || !this.misterPlatform || !outputFilename"
             @click="convertFile()"
           >
           Convert!
@@ -88,6 +100,7 @@ import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
+import MisterPlatform from './MisterPlatform.vue';
 import MisterGenesisSaveData from '../save-formats/Mister/Genesis';
 
 export default {
@@ -95,42 +108,87 @@ export default {
   data() {
     return {
       misterSaveData: null,
+      misterPlatform: null,
+      misterPlatformClass: null,
       errorMessage: null,
       outputFilename: null,
       conversionDirection: 'convertToEmulator',
+      inputArrayBuffer: null,
+      inputFilename: null,
+      inputFileType: null,
     };
   },
   components: {
     ConversionDirection,
     InputFile,
     OutputFilename,
+    MisterPlatform,
   },
   methods: {
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
       this.misterSaveData = null;
+      this.misterPlatform = null;
+      this.misterPlatformClass = null;
       this.errorMessage = null;
       this.outputFilename = null;
+      this.inputArrayBuffer = null;
+      this.inputFilename = null;
+      this.inputFileType = null;
+    },
+    misterPlatformChanged() {
+      if (this.misterPlatform !== null) {
+        switch (this.misterPlatform) {
+          case 'Mister-MD': {
+            this.misterPlatformClass = MisterGenesisSaveData;
+            break;
+          }
+
+          default: {
+            this.misterPlatformClass = null;
+            break;
+          }
+        }
+      } else {
+        this.misterPlatformClass = null;
+      }
+
+      this.updateMisterSaveData();
+    },
+    updateMisterSaveData() {
+      this.errorMessage = null;
+
+      if ((this.misterPlatformClass !== null) && (this.inputArrayBuffer !== null) && (this.inputFilename !== null) && (this.inputFileType !== null)) {
+        try {
+          if (this.inputFileType === 'mister') {
+            this.misterSaveData = this.misterPlatformClass.createFromMisterData(this.inputArrayBuffer);
+            this.outputFilename = Util.changeFilenameExtension(this.inputFilename, 'srm');
+          } else {
+            this.misterSaveData = this.misterPlatformClass.createFromRawData(this.inputArrayBuffer);
+            this.outputFilename = Util.changeFilenameExtension(this.inputFilename, 'sav');
+          }
+        } catch (e) {
+          this.errorMessage = e.message;
+          this.misterSaveData = null;
+        }
+      } else {
+        this.misterSaveData = null;
+        this.outputFilename = null;
+      }
     },
     readMisterSaveData(event) {
-      this.errorMessage = null;
-      try {
-        this.misterSaveData = MisterGenesisSaveData.createFromMisterData(event.arrayBuffer);
-        this.outputFilename = Util.changeFilenameExtension(event.filename, 'srm');
-      } catch (e) {
-        this.errorMessage = e.message;
-        this.misterSaveData = null;
-      }
+      this.inputFileType = 'mister';
+      this.inputArrayBuffer = event.arrayBuffer;
+      this.inputFilename = event.filename;
+
+      this.updateMisterSaveData();
     },
     readEmulatorSaveData(event) {
-      this.errorMessage = null;
-      try {
-        this.misterSaveData = MisterGenesisSaveData.createFromRawData(event.arrayBuffer);
-        this.outputFilename = Util.changeFilenameExtension(event.filename, 'sav');
-      } catch (e) {
-        this.errorMessage = e.message;
-        this.misterSaveData = null;
-      }
+      this.inputFileType = 'raw';
+      this.inputArrayBuffer = event.arrayBuffer;
+      this.inputFilename = event.filename;
+
+      this.updateMisterSaveData();
     },
     convertFile() {
       const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.misterSaveData.getRawArrayBuffer() : this.misterSaveData.getMisterArrayBuffer();
