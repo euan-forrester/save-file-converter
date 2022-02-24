@@ -28,15 +28,13 @@ const SALT_SEED_LENGTH = 0x14;
 const SIGNATURE_OFFSET = 0x1C;
 const SIGNATURE_LENGTH = 0x14;
 
-const PLATFORM_INDICATOR_1_OFFSET = 0x38;
+const PLATFORM_INDICATOR_1_OFFSET = 0x38; // psv-save-converter calls this a "header size" but it's not clear to me what it corresponds to in the header. And we already have a couple of other "header size"es. https://github.com/bucanero/psv-save-converter/blob/master/include/ps2mc.h#L55
 const PLATFORM_INDICATOR_2_OFFSET = 0x3C;
 
 const PLATFORM_INDICATOR_1_PS1 = 0x14;
-// const PLATFORM_INDICATOR_1_PS2 = 0x2C;
 const PLATFORM_INDICATOR_2_PS1 = 0x1;
-// const PLATFORM_INDICATOR_2_PS2 = 0x2;
 
-const SAVE_SIZE_OFFSET = 0x40; // Size of the PS1/2 data in the save (so, excluding the PS3 header)
+const SAVE_SIZE_OFFSET = 0x40; // Size of the PS1 data in the save (so, excluding the PS3 header)
 const SAVE_START_BYTE_OFFSET = 0x44; // How many bytes after the start of the file that the actual PS1/2 save starts
 const SAVE_HEADER_SIZE_OFFSET = 0x48; // How big the initial "SC" header is within the save data
 const SAVE_HEADER_SIZE_PS1 = Ps1MemcardSaveData.FRAME_SIZE * 4;
