@@ -14,6 +14,9 @@ import ConvertFromN64 from './ConvertFromN64';
 import ConvertFromSega from './ConvertFromSega';
 import ConvertFromPcEngine from './ConvertFromPcEngine';
 
+// I don't see a better way of determining whether a Genesis game has SRAM/EEPROM/FRAM saving than by
+// just having a hardcoded list of game IDs. The Genesis save files all say "SRAM" in them.
+
 // Lists taken from https://forum.digitpress.com/forum/showthread.php?134961-NES-SNES-Genny-Games-with-Battery-Back-up-Save-feature&p=1614576&viewfull=1#post1614576
 
 const GENESIS_EEPROM_GAME_IDS = [
