@@ -139,13 +139,12 @@ export default (arrayBuffer, platformType, saveType = 'SRAM') => {
 
   // Genesis data may need a bit more finessing
 
-  // Genesis SRAM data needs to be converted from bytes into shorts
+  // Genesis SRAM/FRAM data needs to be converted from bytes into shorts
   // Genesis EEPROM data does not.
-  // FIXME: What about Genesis FRAM data?
 
   let saveData = null;
 
-  if (saveType === 'SRAM') {
+  if ((saveType === 'SRAM') || (saveType === 'FRAM')) {
     saveData = new ArrayBuffer(saveSize * 2);
 
     const saveDataView = new DataView(saveData);
