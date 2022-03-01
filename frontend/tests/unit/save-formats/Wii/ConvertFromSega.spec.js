@@ -11,6 +11,9 @@ const MASTER_SYSTEM_RAW_FILENAME = `${DIR}/phantasy-star.21604-raw.bin`;
 const GENESIS_EXTRACTED_FILENAME = `${DIR}/phantasy-star-ii.18168-extracted.bin`; // This one does not contain "compound data"
 const GENESIS_RAW_FILENAME = `${DIR}/phantasy-star-ii.18168-raw.bin`;
 
+const GENESIS_EEPROM_EXTRACTED_FILENAME = `${DIR}/wonder-boy-in-monster-world-extracted.bin`; // This one does not contain "compound data"
+const GENESIS_EEPROM_RAW_FILENAME = `${DIR}/wonder-boy-in-monster-world-raw.bin`;
+
 describe('Convert from the Wii Sega formats', () => {
   it('should convert a Master System game correctly', async () => {
     const extractedData = await ArrayBufferUtil.readArrayBuffer(MASTER_SYSTEM_EXTRACTED_FILENAME);
@@ -27,6 +30,16 @@ describe('Convert from the Wii Sega formats', () => {
     const expectedRawData = await ArrayBufferUtil.readArrayBuffer(GENESIS_RAW_FILENAME);
 
     const convertedData = ConvertFromSega(extractedData, 'VC-MD');
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(convertedData.saveData, expectedRawData)).to.equal(true);
+    expect(convertedData.fileExtension).to.equal('srm');
+  });
+
+  it('should convert a Genesis EEPROM game correctly', async () => {
+    const extractedData = await ArrayBufferUtil.readArrayBuffer(GENESIS_EEPROM_EXTRACTED_FILENAME);
+    const expectedRawData = await ArrayBufferUtil.readArrayBuffer(GENESIS_EEPROM_RAW_FILENAME);
+
+    const convertedData = ConvertFromSega(extractedData, 'VC-MD', 'EEPROM');
 
     expect(ArrayBufferUtil.arrayBuffersEqual(convertedData.saveData, expectedRawData)).to.equal(true);
     expect(convertedData.fileExtension).to.equal('srm');

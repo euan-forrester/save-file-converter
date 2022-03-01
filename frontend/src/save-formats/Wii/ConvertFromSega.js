@@ -44,7 +44,7 @@ function seekEndOfString(desiredString, arrayBuffer, startingByteOffset, textDec
   return -1;
 }
 
-export default (arrayBuffer, platformType) => {
+export default (arrayBuffer, platformType, saveType = 'SRAM') => {
   const textDecoder = new TextDecoder(CHARSET);
   const dataView = new DataView(arrayBuffer);
   let currentByte = 0;
@@ -137,14 +137,25 @@ export default (arrayBuffer, platformType) => {
     };
   }
 
-  // Genesis data needs to be converted from bytes into shorts
+  // Genesis data may need a bit more finessing
 
-  const saveData = new ArrayBuffer(saveSize * 2);
-  const saveDataView = new DataView(saveData);
+  // Genesis SRAM data needs to be converted from bytes into shorts
+  // Genesis EEPROM data does not.
+  // FIXME: What about Genesis FRAM data?
 
-  for (let i = 0; i < saveSize; i += 1) {
-    const n = dataView.getUint8(i + currentByte);
-    saveDataView.setUint16(i * 2, n, GENESIS_LITTLE_ENDIAN);
+  let saveData = null;
+
+  if (saveType === 'SRAM') {
+    saveData = new ArrayBuffer(saveSize * 2);
+
+    const saveDataView = new DataView(saveData);
+
+    for (let i = 0; i < saveSize; i += 1) {
+      const n = dataView.getUint8(i + currentByte);
+      saveDataView.setUint16(i * 2, n, GENESIS_LITTLE_ENDIAN);
+    }
+  } else {
+    saveData = arrayBuffer.slice(currentByte, currentByte + saveSize);
   }
 
   return {
