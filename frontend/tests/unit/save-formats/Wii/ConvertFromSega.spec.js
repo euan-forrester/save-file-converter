@@ -32,7 +32,7 @@ describe('Convert from the Wii Sega formats', () => {
     const extractedData = await ArrayBufferUtil.readArrayBuffer(GENESIS_SRAM_EXTRACTED_FILENAME);
     const expectedRawData = await ArrayBufferUtil.readArrayBuffer(GENESIS_SRAM_RAW_FILENAME);
 
-    const convertedData = ConvertFromSega(extractedData, 'VC-MD', 'SRAM');
+    const convertedData = ConvertFromSega(extractedData, 'VC-MD', 'MB8E'); // MB8E = Phantasy Star II
 
     expect(ArrayBufferUtil.arrayBuffersEqual(convertedData.saveData, expectedRawData)).to.equal(true);
     expect(convertedData.fileExtension).to.equal('srm');
@@ -42,7 +42,7 @@ describe('Convert from the Wii Sega formats', () => {
     const extractedData = await ArrayBufferUtil.readArrayBuffer(GENESIS_EEPROM_EXTRACTED_FILENAME);
     const expectedRawData = await ArrayBufferUtil.readArrayBuffer(GENESIS_EEPROM_RAW_FILENAME);
 
-    const convertedData = ConvertFromSega(extractedData, 'VC-MD', 'EEPROM');
+    const convertedData = ConvertFromSega(extractedData, 'VC-MD', 'MAVE'); // MAVE = Wonder Boy in Monster World
 
     expect(ArrayBufferUtil.arrayBuffersEqual(convertedData.saveData, expectedRawData)).to.equal(true);
     expect(convertedData.fileExtension).to.equal('srm');
@@ -52,7 +52,7 @@ describe('Convert from the Wii Sega formats', () => {
     const extractedData = await ArrayBufferUtil.readArrayBuffer(GENESIS_FRAM_EXTRACTED_FILENAME);
     const expectedRawData = await ArrayBufferUtil.readArrayBuffer(GENESIS_FRAM_RAW_FILENAME);
 
-    const convertedData = ConvertFromSega(extractedData, 'VC-MD', 'FRAM');
+    const convertedData = ConvertFromSega(extractedData, 'VC-MD', 'MBME'); // MBME = Sonic 3
 
     expect(ArrayBufferUtil.arrayBuffersEqual(convertedData.saveData, expectedRawData)).to.equal(true);
     expect(convertedData.fileExtension).to.equal('srm');
