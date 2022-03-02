@@ -4,7 +4,12 @@ The MiSTer saves Genesis data as bytes (similar to the internal Wii format) rath
 Based on https://github.com/superg/srmtools
 */
 
+import Troubleshooting from '../../util/Troubleshooting';
+
 const LITTLE_ENDIAN = false;
+
+const MISTER_FILE_SIZE = 65536; // All mister files seem to need to be padded out to 64kB
+const MISTER_PADDING_VALUE = 0xFF;
 
 export default class MisterGenesisSaveData {
   static createFromMisterData(misterArrayBuffer) {
@@ -49,7 +54,12 @@ export default class MisterGenesisSaveData {
       misterDataView.setUint8(i, currByte);
     }
 
-    return new MisterGenesisSaveData(rawArrayBuffer, misterArrayBuffer);
+    const padding = {
+      value: MISTER_PADDING_VALUE,
+      count: Math.max(MISTER_FILE_SIZE - misterArrayBuffer.byteLength, 0),
+    };
+
+    return new MisterGenesisSaveData(rawArrayBuffer, Troubleshooting.addPaddingToEnd(misterArrayBuffer, padding));
   }
 
   // This constructor creates a new object from a binary representation of a MiSTer save data file
