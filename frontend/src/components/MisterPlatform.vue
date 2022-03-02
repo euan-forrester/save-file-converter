@@ -49,22 +49,26 @@ export default {
   },
   data() {
     return {
+      // Commented out ones are platforms we support elsewhere on the site but are not possible to emulate on the MiSTer
+
       options: [
         { value: null, text: 'Choose platform', disabled: true },
         { value: 'Mister-NES', text: 'NES', disabled: true },
         { value: 'Mister-SNES', text: 'Super NES', disabled: true },
-        { value: 'Mister-N64', text: 'Nintendo 64', disabled: true },
-        { value: 'Mister-GCN', text: 'GameCube', disabled: true },
+        // { value: 'Mister-N64', text: 'Nintendo 64', disabled: true },
+        // { value: 'Mister-GCN', text: 'GameCube', disabled: true },
         { value: 'Mister-GB', text: 'Game Boy/Game Boy Color', disabled: true },
         { value: 'Mister-GBA', text: 'Game Boy Advance', disabled: true },
         { value: 'Mister-GG', text: 'Game Gear', disabled: true },
         { value: 'Mister-SMS', text: 'Sega Master System', disabled: true },
         { value: 'Mister-MD', text: 'Sega Genesis/Mega Drive' },
         { value: 'Mister-SAT', text: 'Sega Saturn', disabled: true },
-        { value: 'Mister-DC', text: 'Dreamcast', disabled: true },
+        // { value: 'Mister-DC', text: 'Dreamcast', disabled: true },
         { value: 'Mister-PCE', text: 'Turbografx-16/PC Engine', disabled: true },
-        { value: 'Mister-PS1', text: 'PlayStation', disabled: true },
-        { value: 'Mister-PS2', text: 'PlayStation 2', disabled: true },
+        { value: 'Mister-PS1', text: 'PlayStation 1', disabled: true },
+        // { value: 'Mister-PS2', text: 'PlayStation 2', disabled: true },
+        { value: 'Mister-WS', text: 'WonderSwan', disabled: true },
+        { value: 'Mister-AJ', text: 'Jaguar', disabled: true },
       ],
     };
   },
