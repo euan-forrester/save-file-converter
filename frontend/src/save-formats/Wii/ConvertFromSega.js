@@ -27,6 +27,39 @@ const CHARSET = 'US-ASCII';
 const LITTLE_ENDIAN = true; // Little endian file inside a big endian file (the original Wii file written to an SD card)
 const GENESIS_LITTLE_ENDIAN = false; // Big endian file inside a little endian file inside a big endian file :)
 
+// I don't see a better way of determining whether a Genesis game has SRAM/EEPROM/FRAM saving than by
+// just having a hardcoded list of game IDs. The Genesis save files all say "SRAM" in them.
+
+// Lists taken from https://forum.digitpress.com/forum/showthread.php?134961-NES-SNES-Genny-Games-with-Battery-Back-up-Save-feature&p=1614576&viewfull=1#post1614576
+
+const GENESIS_EEPROM_GAME_IDS = [
+// Blockbuster World Videogame Championship II (NBA Jam T.E. portion) (EEPROM)
+// Mega Man: The Wily Wars (Europe/Japan only title on physical cart; all European copies of the game, and the second ([alt] rom) release of the Japanese version, use EEPROM. The original Japanese release uses SRAM (battery).
+// Micro Machines 2 (Europe exclusive title) (EEPROM)
+// Micro Machines '96 (Europe exclusive title) (EEPROM)
+// Micro Machines Military (Europe exclusive title) (EEPROM)
+// Brian Lara/Shane Warne Cricket (Europe/Australia exclusive title) (EEPROM)
+// Barkley: Shut Up and Jam! 2 (EEPROM)
+// College Slam (EEPROM)
+// Evander "Real Deal" Holyfield Boxing (EEPROM)
+// Frank Thomas Big Hurt Baseball (EEPROM)
+// Greatest Heavyweights of the Ring (EEPROM)
+// NBA Jam (EEPROM)
+// NBA Jam Tournament Edition (EEPROM)
+// NFL Quarterback Club (EEPROM)
+// NFL Quarterback Club '96 (EEPROM)
+// NHLPA Hockey '93 (EEPROM)
+// Rings of Power (EEPROM)
+// Sports Talk Baseball (EEPROM)
+// Unnecessary Roughness '95 (EEPROM)
+  'MAVE', // Wonder Boy in Monster World (EEPROM)
+];
+
+const GENESIS_FRAM_GAME_IDS = [
+  'MBME', // Sonic the Hedgehog 3 (FRAM) (NTSC)
+  'MBMP', // Sonic the Hedgehog 3 (FRAM) (PAL)
+];
+
 function seekEndOfString(desiredString, arrayBuffer, startingByteOffset, textDecoder) {
   let currentByte = startingByteOffset;
 
@@ -44,7 +77,7 @@ function seekEndOfString(desiredString, arrayBuffer, startingByteOffset, textDec
   return -1;
 }
 
-export default (arrayBuffer, platformType, saveType = 'SRAM') => {
+export default (arrayBuffer, platformType, gameId) => {
   const textDecoder = new TextDecoder(CHARSET);
   const dataView = new DataView(arrayBuffer);
   let currentByte = 0;
@@ -141,6 +174,18 @@ export default (arrayBuffer, platformType, saveType = 'SRAM') => {
 
   // Genesis SRAM/FRAM data needs to be converted from bytes into shorts
   // Genesis EEPROM data does not.
+
+  // First determine the save type
+
+  let saveType = 'SRAM';
+
+  if (GENESIS_EEPROM_GAME_IDS.indexOf(gameId) >= 0) {
+    saveType = 'EEPROM';
+  } else if (GENESIS_FRAM_GAME_IDS.indexOf(gameId) >= 0) {
+    saveType = 'FRAM';
+  }
+
+  // Then figure out what to do based on the save type
 
   let saveData = null;
 
