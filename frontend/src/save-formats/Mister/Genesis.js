@@ -1,5 +1,3 @@
-/* eslint no-bitwise: ["error", { "allow": ["&"] }] */
-
 /*
 The MiSTer saves Genesis data as bytes (similar to the internal Wii format) rather than shorts like some emulators
 
@@ -29,7 +27,26 @@ export default class MisterGenesisSaveData {
     const rawDataView = new DataView(rawArrayBuffer);
 
     for (let i = 0; i < misterArrayBuffer.byteLength; i += 1) {
-      misterDataView.setUint8(i, rawDataView.getUint16(i * 2) & 0xFF);
+      const currByte = rawDataView.getUint16(i * 2);
+
+      // This may happen, for example, when using a Genesis EEPROM save. The Genesis EEPROM saves
+      // don't have this strange byte expansion to work in an emulator that the SRAM and FRAM saves
+      // for the Genesis do. And so it works as-is on a MiSTer.
+      //
+      // But, the user may not know that, and try to convert their save when trying to use it
+      // on a MiSTer.
+      //
+      // Rather than display an error, which may mislead the user into not using the tool for other
+      // subsequent files that DO require conversion, let's just silently pass back the same file
+      // and pretend we converted it.
+      //
+      // This only applies to a really small list of games, so whichever tactic we choose here
+      // won't have much of an impact (hopefully!)
+      if (currByte > 0xFF) {
+        return new MisterGenesisSaveData(rawArrayBuffer, rawArrayBuffer);
+      }
+
+      misterDataView.setUint8(i, currByte);
     }
 
     return new MisterGenesisSaveData(rawArrayBuffer, misterArrayBuffer);
