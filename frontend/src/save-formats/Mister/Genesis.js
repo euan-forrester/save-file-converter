@@ -25,6 +25,14 @@ function padArrayBuffer(inputArrayBuffer) {
 }
 
 export default class MisterGenesisSaveData {
+  static getMisterFileExtension() {
+    return 'sav';
+  }
+
+  static getRawFileExtension() {
+    return 'srm';
+  }
+
   static createFromMisterData(misterArrayBuffer) {
     // First, we need to unpad the mister save. Otherwise we will byte-expand all the 0xFFs at the end
     // which will result in a crazy file

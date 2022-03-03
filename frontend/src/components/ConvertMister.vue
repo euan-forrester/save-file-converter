@@ -14,8 +14,7 @@
             <input-file
               @load="readMisterSaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose a file to convert (*.sav)"
-              acceptExtension=".sav"
+              placeholderText="Choose a file to convert"
               :leaveRoomForHelpIcon="false"
             />
             <mister-platform
@@ -52,8 +51,7 @@
             <input-file
               @load="readEmulatorSaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose a file to convert (*.srm)"
-              acceptExtension=".srm"
+              placeholderText="Choose a file to convert"
               :leaveRoomForHelpIcon="false"
             />
             <mister-platform
@@ -101,7 +99,9 @@ import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import MisterPlatform from './MisterPlatform.vue';
+
 import MisterGenesisSaveData from '../save-formats/Mister/Genesis';
+import MisterPs1SaveData from '../save-formats/Mister/Ps1';
 
 export default {
   name: 'ConvertMister',
@@ -144,6 +144,11 @@ export default {
             break;
           }
 
+          case 'Mister-PS1': {
+            this.misterPlatformClass = MisterPs1SaveData;
+            break;
+          }
+
           default: {
             this.misterPlatformClass = null;
             break;
@@ -162,13 +167,13 @@ export default {
         try {
           if (this.inputFileType === 'mister') {
             this.misterSaveData = this.misterPlatformClass.createFromMisterData(this.inputArrayBuffer);
-            this.outputFilename = Util.changeFilenameExtension(this.inputFilename, 'srm');
+            this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.misterPlatformClass.getRawFileExtension());
           } else {
             this.misterSaveData = this.misterPlatformClass.createFromRawData(this.inputArrayBuffer);
-            this.outputFilename = Util.changeFilenameExtension(this.inputFilename, 'sav');
+            this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.misterPlatformClass.getMisterFileExtension());
           }
         } catch (e) {
-          this.errorMessage = e.message;
+          this.errorMessage = 'This file does not seem to be in the correct format';
           this.misterSaveData = null;
         }
       } else {
