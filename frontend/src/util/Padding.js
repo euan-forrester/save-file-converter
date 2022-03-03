@@ -50,8 +50,8 @@ export default class PaddingUtil {
   }
 
   static getPadValueAndCount(arrayBuffer) {
-    const pad00Count = PaddingUtil.countPadding(arrayBuffer, 0x00);
-    const padFFCount = PaddingUtil.countPadding(arrayBuffer, 0xFF);
+    const pad00Count = PaddingUtil.countPaddingFromStart(arrayBuffer, 0x00);
+    const padFFCount = PaddingUtil.countPaddingFromStart(arrayBuffer, 0xFF);
 
     let value = 0x00;
     let count = pad00Count;
@@ -114,11 +114,33 @@ export default class PaddingUtil {
     return newArrayBuffer;
   }
 
-  static countPadding(arrayBuffer, padValue) {
+  static countPaddingFromStart(arrayBuffer, padValue) {
     const uint8Array = new Uint8Array(arrayBuffer);
     let count = 0;
 
     for (let i = 0; i < uint8Array.length; i += 1) {
+      if (uint8Array[i] !== padValue) {
+        break;
+      }
+      count += 1;
+    }
+
+    // If everything looks like padding, then nothing is. This can happen, for example,
+    // when a user quickly creates a test save file without actually saving in-game. Not
+    // much we can do in that case other than to assume the whole thing is the correct size.
+    // Should flag the user that they need to provide a better file.
+    if (count === arrayBuffer.byteLength) {
+      count = 0;
+    }
+
+    return count;
+  }
+
+  static countPaddingFromEnd(arrayBuffer, padValue) {
+    const uint8Array = new Uint8Array(arrayBuffer);
+    let count = 0;
+
+    for (let i = uint8Array.length - 1; i >= 0; i -= 1) {
       if (uint8Array[i] !== padValue) {
         break;
       }
