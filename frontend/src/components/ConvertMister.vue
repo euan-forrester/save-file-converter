@@ -100,6 +100,8 @@ import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import MisterPlatform from './MisterPlatform.vue';
 
+import MisterNesSaveData from '../save-formats/Mister/Nes';
+import MisterSnesSaveData from '../save-formats/Mister/Snes';
 import MisterGenesisSaveData from '../save-formats/Mister/Genesis';
 import MisterPs1SaveData from '../save-formats/Mister/Ps1';
 
@@ -139,6 +141,16 @@ export default {
     misterPlatformChanged() {
       if (this.misterPlatform !== null) {
         switch (this.misterPlatform) {
+          case 'Mister-NES': {
+            this.misterPlatformClass = MisterNesSaveData;
+            break;
+          }
+
+          case 'Mister-SNES': {
+            this.misterPlatformClass = MisterSnesSaveData;
+            break;
+          }
+
           case 'Mister-MD': {
             this.misterPlatformClass = MisterGenesisSaveData;
             break;

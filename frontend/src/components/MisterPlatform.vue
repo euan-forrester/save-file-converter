@@ -53,8 +53,8 @@ export default {
 
       options: [
         { value: null, text: 'Choose platform', disabled: true },
-        { value: 'Mister-NES', text: 'NES', disabled: true },
-        { value: 'Mister-SNES', text: 'Super NES', disabled: true },
+        { value: 'Mister-NES', text: 'NES' },
+        { value: 'Mister-SNES', text: 'Super NES' },
         // { value: 'Mister-N64', text: 'Nintendo 64', disabled: true },
         // { value: 'Mister-GCN', text: 'GameCube', disabled: true },
         { value: 'Mister-GB', text: 'Game Boy/Game Boy Color', disabled: true },
