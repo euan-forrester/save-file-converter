@@ -8,8 +8,21 @@ import Troubleshooting from '../../util/Troubleshooting';
 
 const LITTLE_ENDIAN = false;
 
-const MISTER_FILE_SIZE = 65536; // All mister files seem to need to be padded out to 64kB
+// Files on the mister are padded out to 64k with 0xFFs.
+// The core is apparently pretty lenient on reading unpadded files, but we'll still be friendly and pad ours out.
+// There's one ROM hack, Sonic 1 Remastered, that instead requires padding out with 0x00s.
+// But we're not going to handle that. How could we?
+const MISTER_FILE_SIZE = 65536;
 const MISTER_PADDING_VALUE = 0xFF;
+
+function padArrayBuffer(inputArrayBuffer) {
+  const padding = {
+    value: MISTER_PADDING_VALUE,
+    count: Math.max(MISTER_FILE_SIZE - inputArrayBuffer.byteLength, 0),
+  };
+
+  return Troubleshooting.addPaddingToEnd(inputArrayBuffer, padding);
+}
 
 export default class MisterGenesisSaveData {
   static createFromMisterData(misterArrayBuffer) {
@@ -48,18 +61,13 @@ export default class MisterGenesisSaveData {
       // This only applies to a really small list of games, so whichever tactic we choose here
       // won't have much of an impact (hopefully!)
       if (currByte > 0xFF) {
-        return new MisterGenesisSaveData(rawArrayBuffer, rawArrayBuffer);
+        return new MisterGenesisSaveData(rawArrayBuffer, padArrayBuffer(rawArrayBuffer));
       }
 
       misterDataView.setUint8(i, currByte);
     }
 
-    const padding = {
-      value: MISTER_PADDING_VALUE,
-      count: Math.max(MISTER_FILE_SIZE - misterArrayBuffer.byteLength, 0),
-    };
-
-    return new MisterGenesisSaveData(rawArrayBuffer, Troubleshooting.addPaddingToEnd(misterArrayBuffer, padding));
+    return new MisterGenesisSaveData(rawArrayBuffer, padArrayBuffer(misterArrayBuffer));
   }
 
   // This constructor creates a new object from a binary representation of a MiSTer save data file
