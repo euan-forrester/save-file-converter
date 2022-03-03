@@ -6,8 +6,8 @@ export default class PaddingUtil {
   static attemptFix(testSaveArrayBuffer, brokenSaveArrayBuffer) {
     // First, temporarily remove any padding from the start of the 2 saves
 
-    const testSavePadding = PaddingUtil.getPadValueAndCount(testSaveArrayBuffer);
-    const brokenSavePadding = PaddingUtil.getPadValueAndCount(brokenSaveArrayBuffer);
+    const testSavePadding = PaddingUtil.getPadFromStartValueAndCount(testSaveArrayBuffer);
+    const brokenSavePadding = PaddingUtil.getPadFromStartValueAndCount(brokenSaveArrayBuffer);
 
     const testSaveNoPaddingAtStart = PaddingUtil.removePaddingFromStart(testSaveArrayBuffer, testSavePadding.count);
     const brokenSaveNoPaddingAtStart = PaddingUtil.removePaddingFromStart(brokenSaveArrayBuffer, brokenSavePadding.count);
@@ -34,13 +34,13 @@ export default class PaddingUtil {
     return brokenSaveFixed;
   }
 
-  static fileSizeAndPaddingIsSame(arrayBuffer1, arrayBuffer2) {
+  static fileSizeAndPaddingFromStartIsSame(arrayBuffer1, arrayBuffer2) {
     if (arrayBuffer1.byteLength !== arrayBuffer2.byteLength) {
       return false;
     }
 
-    const padding1 = PaddingUtil.getPadValueAndCount(arrayBuffer1);
-    const padding2 = PaddingUtil.getPadValueAndCount(arrayBuffer2);
+    const padding1 = PaddingUtil.getPadFromStartValueAndCount(arrayBuffer1);
+    const padding2 = PaddingUtil.getPadFromStartValueAndCount(arrayBuffer2);
 
     if ((padding1.count !== padding2.count) || (padding1.value !== padding2.value)) {
       return false;
@@ -49,7 +49,7 @@ export default class PaddingUtil {
     return true;
   }
 
-  static getPadValueAndCount(arrayBuffer) {
+  static getPadFromStartValueAndCount(arrayBuffer) {
     const pad00Count = PaddingUtil.countPaddingFromStart(arrayBuffer, 0x00);
     const padFFCount = PaddingUtil.countPaddingFromStart(arrayBuffer, 0xFF);
 

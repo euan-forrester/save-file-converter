@@ -22,7 +22,7 @@ describe('PaddingUtil', () => {
       }
     });
 
-    const padding = PaddingUtil.getPadValueAndCount(arrayBuffer);
+    const padding = PaddingUtil.getPadFromStartValueAndCount(arrayBuffer);
 
     expect(padding.value).to.equal(PADDING_VALUE_A);
     expect(padding.count).to.equal(EXTRA_PADDING_COUNT);
@@ -39,7 +39,7 @@ describe('PaddingUtil', () => {
       }
     });
 
-    const padding = PaddingUtil.getPadValueAndCount(arrayBuffer);
+    const padding = PaddingUtil.getPadFromStartValueAndCount(arrayBuffer);
 
     expect(padding.value).to.equal(PADDING_VALUE_B);
     expect(padding.count).to.equal(EXTRA_PADDING_COUNT);
@@ -58,7 +58,7 @@ describe('PaddingUtil', () => {
       }
     });
 
-    const padding = PaddingUtil.getPadValueAndCount(arrayBuffer);
+    const padding = PaddingUtil.getPadFromStartValueAndCount(arrayBuffer);
 
     expect(padding.value).to.equal(PADDING_VALUE_B);
     expect(padding.count).to.equal(EXTRA_PADDING_COUNT); // The extra byte of padding isn't counted
@@ -71,7 +71,7 @@ describe('PaddingUtil', () => {
       a[i] = DATA_VALUE;
     });
 
-    const padding = PaddingUtil.getPadValueAndCount(arrayBuffer);
+    const padding = PaddingUtil.getPadFromStartValueAndCount(arrayBuffer);
 
     expect(padding.count).to.equal(0);
   });
@@ -83,7 +83,7 @@ describe('PaddingUtil', () => {
       a[i] = PADDING_VALUE_B;
     });
 
-    const padding = PaddingUtil.getPadValueAndCount(arrayBuffer);
+    const padding = PaddingUtil.getPadFromStartValueAndCount(arrayBuffer);
 
     expect(padding.count).to.equal(0);
   });

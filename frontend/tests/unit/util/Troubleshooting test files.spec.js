@@ -69,20 +69,20 @@ describe('Troubleshooting example files', () => {
     const arrayBuffer1 = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan).srm');
     const arrayBuffer2 = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) fixed.srm');
 
-    expect(PaddingUtil.fileSizeAndPaddingIsSame(arrayBuffer1, arrayBuffer2)).to.equal(false);
+    expect(PaddingUtil.fileSizeAndPaddingFromStartIsSame(arrayBuffer1, arrayBuffer2)).to.equal(false);
   });
 
   it('should notice when 2 files have different sizes', async () => {
     const arrayBuffer1 = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) fixed.srm');
     const arrayBuffer2 = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) test save all padding.srm');
 
-    expect(PaddingUtil.fileSizeAndPaddingIsSame(arrayBuffer1, arrayBuffer2)).to.equal(true);
+    expect(PaddingUtil.fileSizeAndPaddingFromStartIsSame(arrayBuffer1, arrayBuffer2)).to.equal(true);
   });
 
   it('should notice when 2 files have the same size but different padding', async () => {
     const arrayBuffer1 = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) fixed extra padding at end.srm');
     const arrayBuffer2 = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) fixed extra padding at start.srm');
 
-    expect(PaddingUtil.fileSizeAndPaddingIsSame(arrayBuffer1, arrayBuffer2)).to.equal(false);
+    expect(PaddingUtil.fileSizeAndPaddingFromStartIsSame(arrayBuffer1, arrayBuffer2)).to.equal(false);
   });
 });
