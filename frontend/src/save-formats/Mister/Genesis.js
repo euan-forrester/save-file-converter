@@ -8,7 +8,7 @@ import PaddingUtil from '../../util/Padding';
 
 const LITTLE_ENDIAN = false;
 
-// Files on the mister are padded out to 64k with 0xFFs.
+// Genesis files on the mister are padded out to 64k with 0xFFs.
 // The core is apparently pretty lenient on reading unpadded files, but we'll still be friendly and pad ours out.
 // There's one ROM hack, Sonic 1 Remastered, that instead requires padding out with 0x00s.
 // But we're not going to handle that. How could we?
@@ -26,16 +26,29 @@ function padArrayBuffer(inputArrayBuffer) {
 
 export default class MisterGenesisSaveData {
   static createFromMisterData(misterArrayBuffer) {
-    const rawArrayBuffer = new ArrayBuffer(misterArrayBuffer.byteLength * 2);
+    // First, we need to unpad the mister save. Otherwise we will byte-expand all the 0xFFs at the end
+    // which will result in a crazy file
 
-    const misterDataView = new DataView(misterArrayBuffer);
-    const rawDataView = new DataView(rawArrayBuffer);
+    let unpaddedMisterArrayBuffer = misterArrayBuffer;
 
-    for (let i = 0; i < misterArrayBuffer.byteLength; i += 1) {
-      rawDataView.setUint16(i * 2, misterDataView.getUint8(i), LITTLE_ENDIAN);
+    const padding = PaddingUtil.getPadFromEndValueAndCount(misterArrayBuffer);
+
+    if (padding.value === MISTER_PADDING_VALUE) {
+      unpaddedMisterArrayBuffer = PaddingUtil.removePaddingFromEnd(misterArrayBuffer, padding.count);
     }
 
-    return new MisterGenesisSaveData(rawArrayBuffer, misterArrayBuffer);
+    // Now that the padding is gone, we can proceed
+
+    const rawArrayBuffer = new ArrayBuffer(unpaddedMisterArrayBuffer.byteLength * 2);
+
+    const unpaddedMisterDataView = new DataView(unpaddedMisterArrayBuffer);
+    const rawDataView = new DataView(rawArrayBuffer);
+
+    for (let i = 0; i < unpaddedMisterArrayBuffer.byteLength; i += 1) {
+      rawDataView.setUint16(i * 2, unpaddedMisterDataView.getUint8(i), LITTLE_ENDIAN);
+    }
+
+    return new MisterGenesisSaveData(rawArrayBuffer, misterArrayBuffer); // Note that we're passing through the padded file here as the mister file
   }
 
   static createFromRawData(rawArrayBuffer) {
@@ -55,7 +68,7 @@ export default class MisterGenesisSaveData {
       // on a MiSTer.
       //
       // Rather than display an error, which may mislead the user into not using the tool for other
-      // subsequent files that DO require conversion, let's just silently pass back the same file
+      // subsequent files that DO require conversion, let's just silently pass back the same file (but add padding)
       // and pretend we converted it.
       //
       // This only applies to a really small list of games, so whichever tactic we choose here

@@ -17,7 +17,6 @@ describe('MiSTer - Genesis save format', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(misterGenesisSaveData.getMisterArrayBuffer(), misterArrayBuffer)).to.equal(true);
   });
 
-/*
   it('should convert a MiSTer Genesis save to raw format', async () => {
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_PHANTASY_STAR_2_FILENAME);
     const misterArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MISTER_PHANTASY_STAR_2_FILENAME);
@@ -26,5 +25,4 @@ describe('MiSTer - Genesis save format', () => {
 
     expect(ArrayBufferUtil.arrayBuffersEqual(misterGenesisSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
-*/
 });
