@@ -2,15 +2,15 @@
 
 import MathUtil from './Math';
 
-export default class Troubleshooting {
+export default class PaddingUtil {
   static attemptFix(testSaveArrayBuffer, brokenSaveArrayBuffer) {
     // First, temporarily remove any padding from the start of the 2 saves
 
-    const testSavePadding = Troubleshooting.getPadValueAndCount(testSaveArrayBuffer);
-    const brokenSavePadding = Troubleshooting.getPadValueAndCount(brokenSaveArrayBuffer);
+    const testSavePadding = PaddingUtil.getPadValueAndCount(testSaveArrayBuffer);
+    const brokenSavePadding = PaddingUtil.getPadValueAndCount(brokenSaveArrayBuffer);
 
-    const testSaveNoPaddingAtStart = Troubleshooting.removePaddingFromStart(testSaveArrayBuffer, testSavePadding.count);
-    const brokenSaveNoPaddingAtStart = Troubleshooting.removePaddingFromStart(brokenSaveArrayBuffer, brokenSavePadding.count);
+    const testSaveNoPaddingAtStart = PaddingUtil.removePaddingFromStart(testSaveArrayBuffer, testSavePadding.count);
+    const brokenSaveNoPaddingAtStart = PaddingUtil.removePaddingFromStart(brokenSaveArrayBuffer, brokenSavePadding.count);
 
     // Now make the remainder of the broken save be the same length as the remainder of the good save
 
@@ -22,14 +22,14 @@ export default class Troubleshooting {
         count: testSaveNoPaddingAtStart.byteLength - brokenSaveNoPaddingAtStart.byteLength,
       };
 
-      brokenSaveNoPaddingAtStartCorrectLength = Troubleshooting.addPaddingToEnd(brokenSaveNoPaddingAtStart, endPadding);
+      brokenSaveNoPaddingAtStartCorrectLength = PaddingUtil.addPaddingToEnd(brokenSaveNoPaddingAtStart, endPadding);
     } else if (brokenSaveNoPaddingAtStart.byteLength > testSaveNoPaddingAtStart.byteLength) {
-      brokenSaveNoPaddingAtStartCorrectLength = Troubleshooting.removePaddingFromEnd(brokenSaveNoPaddingAtStart, brokenSaveNoPaddingAtStart.byteLength - testSaveNoPaddingAtStart.byteLength);
+      brokenSaveNoPaddingAtStartCorrectLength = PaddingUtil.removePaddingFromEnd(brokenSaveNoPaddingAtStart, brokenSaveNoPaddingAtStart.byteLength - testSaveNoPaddingAtStart.byteLength);
     }
 
     // Now add back any padding to the start that was present in the good save
 
-    const brokenSaveFixed = Troubleshooting.addPaddingToStart(brokenSaveNoPaddingAtStartCorrectLength, testSavePadding);
+    const brokenSaveFixed = PaddingUtil.addPaddingToStart(brokenSaveNoPaddingAtStartCorrectLength, testSavePadding);
 
     return brokenSaveFixed;
   }
@@ -39,8 +39,8 @@ export default class Troubleshooting {
       return false;
     }
 
-    const padding1 = Troubleshooting.getPadValueAndCount(arrayBuffer1);
-    const padding2 = Troubleshooting.getPadValueAndCount(arrayBuffer2);
+    const padding1 = PaddingUtil.getPadValueAndCount(arrayBuffer1);
+    const padding2 = PaddingUtil.getPadValueAndCount(arrayBuffer2);
 
     if ((padding1.count !== padding2.count) || (padding1.value !== padding2.value)) {
       return false;
@@ -50,8 +50,8 @@ export default class Troubleshooting {
   }
 
   static getPadValueAndCount(arrayBuffer) {
-    const pad00Count = Troubleshooting.countPadding(arrayBuffer, 0x00);
-    const padFFCount = Troubleshooting.countPadding(arrayBuffer, 0xFF);
+    const pad00Count = PaddingUtil.countPadding(arrayBuffer, 0x00);
+    const padFFCount = PaddingUtil.countPadding(arrayBuffer, 0xFF);
 
     let value = 0x00;
     let count = pad00Count;

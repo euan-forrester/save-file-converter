@@ -4,7 +4,7 @@ The MiSTer saves Genesis data as bytes (similar to the internal Wii format) rath
 Based on https://github.com/superg/srmtools
 */
 
-import Troubleshooting from '../../util/Troubleshooting';
+import PaddingUtil from '../../util/Padding';
 
 const LITTLE_ENDIAN = false;
 
@@ -21,7 +21,7 @@ function padArrayBuffer(inputArrayBuffer) {
     count: Math.max(MISTER_FILE_SIZE - inputArrayBuffer.byteLength, 0),
   };
 
-  return Troubleshooting.addPaddingToEnd(inputArrayBuffer, padding);
+  return PaddingUtil.addPaddingToEnd(inputArrayBuffer, padding);
 }
 
 export default class MisterGenesisSaveData {

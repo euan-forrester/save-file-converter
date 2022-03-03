@@ -130,7 +130,7 @@ import path from 'path';
 import { saveAs } from 'file-saver';
 import InputFile from './InputFile.vue';
 import FileInfo from './FileInfo.vue';
-import Troubleshooting from '../util/Troubleshooting';
+import PaddingUtil from '../util/Padding';
 
 export default {
   name: 'TroubleshootingUtils',
@@ -156,7 +156,7 @@ export default {
       return this.testSaveData
       && this.brokenSaveData
       && (this.testSaveDataFilename === this.brokenSaveDataFilename)
-      && Troubleshooting.fileSizeAndPaddingIsSame(this.testSaveData, this.brokenSaveData);
+      && PaddingUtil.fileSizeAndPaddingIsSame(this.testSaveData, this.brokenSaveData);
     },
   },
   components: {
@@ -173,7 +173,7 @@ export default {
       this.brokenSaveDataFilename = path.basename(event.filename);
     },
     fixFile() {
-      const outputArrayBuffer = Troubleshooting.attemptFix(this.testSaveData, this.brokenSaveData);
+      const outputArrayBuffer = PaddingUtil.attemptFix(this.testSaveData, this.brokenSaveData);
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 

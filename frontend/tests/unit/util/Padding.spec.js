@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 
 import { expect } from 'chai';
-import Troubleshooting from '@/util/Troubleshooting';
+import PaddingUtil from '@/util/Padding';
 import MathUtil from '@/util/Math';
 
 const ARRAY_BUFFER_SIZE = 32;
@@ -10,7 +10,7 @@ const PADDING_VALUE_A = 0x00; // Two common values for padding used by various e
 const PADDING_VALUE_B = 0xFF;
 const EXTRA_PADDING_COUNT = 16;
 
-describe('Troubleshooting', () => {
+describe('PaddingUtil', () => {
   it('should get the pad value and count', () => {
     const arrayBuffer = new ArrayBuffer(ARRAY_BUFFER_SIZE + EXTRA_PADDING_COUNT);
     const uint8Array = new Uint8Array(arrayBuffer);
@@ -22,7 +22,7 @@ describe('Troubleshooting', () => {
       }
     });
 
-    const padding = Troubleshooting.getPadValueAndCount(arrayBuffer);
+    const padding = PaddingUtil.getPadValueAndCount(arrayBuffer);
 
     expect(padding.value).to.equal(PADDING_VALUE_A);
     expect(padding.count).to.equal(EXTRA_PADDING_COUNT);
@@ -39,7 +39,7 @@ describe('Troubleshooting', () => {
       }
     });
 
-    const padding = Troubleshooting.getPadValueAndCount(arrayBuffer);
+    const padding = PaddingUtil.getPadValueAndCount(arrayBuffer);
 
     expect(padding.value).to.equal(PADDING_VALUE_B);
     expect(padding.count).to.equal(EXTRA_PADDING_COUNT);
@@ -58,7 +58,7 @@ describe('Troubleshooting', () => {
       }
     });
 
-    const padding = Troubleshooting.getPadValueAndCount(arrayBuffer);
+    const padding = PaddingUtil.getPadValueAndCount(arrayBuffer);
 
     expect(padding.value).to.equal(PADDING_VALUE_B);
     expect(padding.count).to.equal(EXTRA_PADDING_COUNT); // The extra byte of padding isn't counted
@@ -71,7 +71,7 @@ describe('Troubleshooting', () => {
       a[i] = DATA_VALUE;
     });
 
-    const padding = Troubleshooting.getPadValueAndCount(arrayBuffer);
+    const padding = PaddingUtil.getPadValueAndCount(arrayBuffer);
 
     expect(padding.count).to.equal(0);
   });
@@ -83,7 +83,7 @@ describe('Troubleshooting', () => {
       a[i] = PADDING_VALUE_B;
     });
 
-    const padding = Troubleshooting.getPadValueAndCount(arrayBuffer);
+    const padding = PaddingUtil.getPadValueAndCount(arrayBuffer);
 
     expect(padding.count).to.equal(0);
   });
@@ -99,7 +99,7 @@ describe('Troubleshooting', () => {
       }
     });
 
-    const unpaddedArrayBuffer = Troubleshooting.removePaddingFromStart(arrayBuffer, EXTRA_PADDING_COUNT);
+    const unpaddedArrayBuffer = PaddingUtil.removePaddingFromStart(arrayBuffer, EXTRA_PADDING_COUNT);
 
     const unpaddedUint8Array = new Uint8Array(unpaddedArrayBuffer);
 
@@ -115,7 +115,7 @@ describe('Troubleshooting', () => {
       a[i] = DATA_VALUE;
     });
 
-    const unpaddedArrayBuffer = Troubleshooting.removePaddingFromStart(arrayBuffer, 0);
+    const unpaddedArrayBuffer = PaddingUtil.removePaddingFromStart(arrayBuffer, 0);
 
     const unpaddedUint8Array = new Uint8Array(unpaddedArrayBuffer);
 
@@ -135,7 +135,7 @@ describe('Troubleshooting', () => {
       }
     });
 
-    const unpaddedArrayBuffer = Troubleshooting.removePaddingFromEnd(arrayBuffer, EXTRA_PADDING_COUNT);
+    const unpaddedArrayBuffer = PaddingUtil.removePaddingFromEnd(arrayBuffer, EXTRA_PADDING_COUNT);
 
     const unpaddedUint8Array = new Uint8Array(unpaddedArrayBuffer);
 
@@ -151,7 +151,7 @@ describe('Troubleshooting', () => {
       a[i] = DATA_VALUE;
     });
 
-    const unpaddedArrayBuffer = Troubleshooting.removePaddingFromEnd(arrayBuffer, 0);
+    const unpaddedArrayBuffer = PaddingUtil.removePaddingFromEnd(arrayBuffer, 0);
 
     const unpaddedUint8Array = new Uint8Array(unpaddedArrayBuffer);
 
@@ -170,7 +170,7 @@ describe('Troubleshooting', () => {
       count: EXTRA_PADDING_COUNT,
     };
 
-    const paddedArrayBuffer = Troubleshooting.addPaddingToStart(arrayBuffer, padding);
+    const paddedArrayBuffer = PaddingUtil.addPaddingToStart(arrayBuffer, padding);
     expect(paddedArrayBuffer.byteLength).to.equal(ARRAY_BUFFER_SIZE + EXTRA_PADDING_COUNT);
 
     const paddedUint8Array = new Uint8Array(paddedArrayBuffer);
@@ -194,7 +194,7 @@ describe('Troubleshooting', () => {
       count: 0,
     };
 
-    const paddedArrayBuffer = Troubleshooting.addPaddingToStart(arrayBuffer, padding);
+    const paddedArrayBuffer = PaddingUtil.addPaddingToStart(arrayBuffer, padding);
     expect(paddedArrayBuffer.byteLength).to.equal(ARRAY_BUFFER_SIZE);
 
     const paddedUint8Array = new Uint8Array(paddedArrayBuffer);
@@ -212,7 +212,7 @@ describe('Troubleshooting', () => {
       count: EXTRA_PADDING_COUNT,
     };
 
-    const paddedArrayBuffer = Troubleshooting.addPaddingToEnd(arrayBuffer, padding);
+    const paddedArrayBuffer = PaddingUtil.addPaddingToEnd(arrayBuffer, padding);
     expect(paddedArrayBuffer.byteLength).to.equal(ARRAY_BUFFER_SIZE + EXTRA_PADDING_COUNT);
 
     const paddedUint8Array = new Uint8Array(paddedArrayBuffer);
@@ -236,7 +236,7 @@ describe('Troubleshooting', () => {
       count: 0,
     };
 
-    const paddedArrayBuffer = Troubleshooting.addPaddingToEnd(arrayBuffer, padding);
+    const paddedArrayBuffer = PaddingUtil.addPaddingToEnd(arrayBuffer, padding);
     expect(paddedArrayBuffer.byteLength).to.equal(ARRAY_BUFFER_SIZE);
 
     const paddedUint8Array = new Uint8Array(paddedArrayBuffer);
@@ -249,7 +249,7 @@ describe('Troubleshooting', () => {
     const uint8Array = new Uint8Array(arrayBuffer);
     uint8Array.forEach((e, i, a) => { a[i] = DATA_VALUE; });
 
-    expect(Troubleshooting.countPadding(arrayBuffer, PADDING_VALUE_A)).to.equal(0);
+    expect(PaddingUtil.countPadding(arrayBuffer, PADDING_VALUE_A)).to.equal(0);
   });
 
   it('should count padding when it\'s all padding', () => {
@@ -257,7 +257,7 @@ describe('Troubleshooting', () => {
     const uint8Array = new Uint8Array(arrayBuffer);
     uint8Array.forEach((e, i, a) => { a[i] = PADDING_VALUE_A; });
 
-    expect(Troubleshooting.countPadding(arrayBuffer, PADDING_VALUE_A)).to.equal(0);
+    expect(PaddingUtil.countPadding(arrayBuffer, PADDING_VALUE_A)).to.equal(0);
   });
 
   it('should count padding', () => {
@@ -265,7 +265,7 @@ describe('Troubleshooting', () => {
     const uint8Array = new Uint8Array(arrayBuffer);
     uint8Array.forEach((e, i, a) => { a[i] = ((i < EXTRA_PADDING_COUNT) ? PADDING_VALUE_A : DATA_VALUE); });
 
-    expect(Troubleshooting.countPadding(arrayBuffer, PADDING_VALUE_A)).to.equal(EXTRA_PADDING_COUNT);
+    expect(PaddingUtil.countPadding(arrayBuffer, PADDING_VALUE_A)).to.equal(EXTRA_PADDING_COUNT);
   });
 
   it('should count different values of padding', () => {
@@ -273,6 +273,6 @@ describe('Troubleshooting', () => {
     const uint8Array = new Uint8Array(arrayBuffer);
     uint8Array.forEach((e, i, a) => { a[i] = ((i < EXTRA_PADDING_COUNT) ? PADDING_VALUE_B : DATA_VALUE); });
 
-    expect(Troubleshooting.countPadding(arrayBuffer, PADDING_VALUE_B)).to.equal(EXTRA_PADDING_COUNT);
+    expect(PaddingUtil.countPadding(arrayBuffer, PADDING_VALUE_B)).to.equal(EXTRA_PADDING_COUNT);
   });
 });
