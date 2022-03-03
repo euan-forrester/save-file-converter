@@ -2,6 +2,19 @@
 
 import MathUtil from './Math';
 
+function fixCountSoSaveIsPowerOf2(arrayBuffer, count) {
+  // Most raw save files (for cartridges anyway) have sizes that are a power of 2,
+  // because it's stored on a chip of one type or another and that's how they're manufactured.
+  //
+  // So, if we see apparent padding that seems to take our size below a power of 2 it's probable that
+  // some of that "padding" was legit data so we don't want to trim it.
+
+  const apparentRemainingSize = arrayBuffer.byteLength - count;
+  const realRemainingSize = MathUtil.getNextLargestPowerOf2(apparentRemainingSize);
+
+  return count - (realRemainingSize - apparentRemainingSize);
+}
+
 export default class PaddingUtil {
   static attemptFix(testSaveArrayBuffer, brokenSaveArrayBuffer) {
     // First, temporarily remove any padding from the start of the 2 saves
@@ -61,16 +74,27 @@ export default class PaddingUtil {
       count = padFFCount;
     }
 
-    // Most raw save files (for cartridges anyway) have sizes that are a power of 2,
-    // because it's stored on a chip of one type or another and that's how they're manufactured.
-    //
-    // So, if we see apparent padding that seems to take our size below a power of 2 it's probable that
-    // some of that "padding" was legit data so we don't want to trim it.
+    count = fixCountSoSaveIsPowerOf2(arrayBuffer, count);
 
-    const apparentRemainingSize = arrayBuffer.byteLength - count;
-    const realRemainingSize = MathUtil.getNextLargestPowerOf2(apparentRemainingSize);
+    return {
+      value,
+      count,
+    };
+  }
 
-    count -= (realRemainingSize - apparentRemainingSize);
+  static getPadFromEndValueAndCount(arrayBuffer) {
+    const pad00Count = PaddingUtil.countPaddingFromEnd(arrayBuffer, 0x00);
+    const padFFCount = PaddingUtil.countPaddingFromEnd(arrayBuffer, 0xFF);
+
+    let value = 0x00;
+    let count = pad00Count;
+
+    if (padFFCount > 0) {
+      value = 0xFF;
+      count = padFFCount;
+    }
+
+    count = fixCountSoSaveIsPowerOf2(arrayBuffer, count);
 
     return {
       value,
