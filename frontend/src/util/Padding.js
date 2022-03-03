@@ -2,7 +2,7 @@
 
 import MathUtil from './Math';
 
-function fixCountSoSaveIsPowerOf2(arrayBuffer, count) {
+function fixCountSoSaveSizeIsPowerOf2(arrayBuffer, count) {
   // Most raw save files (for cartridges anyway) have sizes that are a power of 2,
   // because it's stored on a chip of one type or another and that's how they're manufactured.
   //
@@ -74,7 +74,7 @@ export default class PaddingUtil {
       count = padFFCount;
     }
 
-    count = fixCountSoSaveIsPowerOf2(arrayBuffer, count);
+    count = fixCountSoSaveSizeIsPowerOf2(arrayBuffer, count);
 
     return {
       value,
@@ -94,7 +94,7 @@ export default class PaddingUtil {
       count = padFFCount;
     }
 
-    count = fixCountSoSaveIsPowerOf2(arrayBuffer, count);
+    count = fixCountSoSaveSizeIsPowerOf2(arrayBuffer, count);
 
     return {
       value,
