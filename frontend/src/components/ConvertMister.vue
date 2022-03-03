@@ -103,6 +103,7 @@ import MisterPlatform from './MisterPlatform.vue';
 import MisterNesSaveData from '../save-formats/Mister/Nes';
 import MisterSnesSaveData from '../save-formats/Mister/Snes';
 import MisterGenesisSaveData from '../save-formats/Mister/Genesis';
+import MisterPcEngineSaveData from '../save-formats/Mister/PcEngine';
 import MisterPs1SaveData from '../save-formats/Mister/Ps1';
 
 export default {
@@ -153,6 +154,11 @@ export default {
 
           case 'Mister-MD': {
             this.misterPlatformClass = MisterGenesisSaveData;
+            break;
+          }
+
+          case 'Mister-PCE': {
+            this.misterPlatformClass = MisterPcEngineSaveData;
             break;
           }
 
