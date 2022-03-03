@@ -65,7 +65,7 @@ export default {
         { value: 'Mister-SAT', text: 'Sega Saturn', disabled: true },
         // { value: 'Mister-DC', text: 'Dreamcast', disabled: true },
         { value: 'Mister-PCE', text: 'Turbografx-16/PC Engine', disabled: true },
-        { value: 'Mister-PS1', text: 'PlayStation 1', disabled: true },
+        { value: 'Mister-PS1', text: 'PlayStation 1' },
         // { value: 'Mister-PS2', text: 'PlayStation 2', disabled: true },
         { value: 'Mister-WS', text: 'WonderSwan', disabled: true },
         { value: 'Mister-AJ', text: 'Jaguar', disabled: true },
