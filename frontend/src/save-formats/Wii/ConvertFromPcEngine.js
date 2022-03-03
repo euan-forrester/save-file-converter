@@ -24,6 +24,8 @@
 // However, the Wii files are 8kB in size and correspondingly they write 0xA000 (0x8000 + 8 kB) to those bytes in their output.
 // So when we truncate the file to 2kB we need to update those values as well.
 
+import Util from '../../util/util';
+
 const LITTLE_ENDIAN = true;
 const BLOCK_SIZE = 4;
 const BRAM_MEMORY_ADDRESS = 0x8000; // The address in the CPU memory space that the BRAM is mapped to (see above)
@@ -34,6 +36,7 @@ const SEED_START = 4;
 const FOOTER_LENGTH = 16;
 const MAGIC = 'HUBM'; // Marker at the beginning that signifies correctly-formatted BRAM
 const MAGIC_ENCODING = 'US-ASCII';
+const MAGIC_OFFSET = 0;
 
 function getBlock(array, currentByte) {
   return array.slice(currentByte, currentByte + BLOCK_SIZE);
@@ -93,12 +96,7 @@ export default (arrayBuffer) => {
 
   // Now check that we got actual PC Engine data
 
-  const textDecoder = new TextDecoder(MAGIC_ENCODING);
-  const magicFound = textDecoder.decode(outputArray.slice(0, MAGIC.length));
-
-  if (magicFound !== MAGIC) {
-    throw new Error(`Save appears corrupted: found '${magicFound}' instead of '${MAGIC}' at the start of the file`);
-  }
+  Util.checkMagic(outputArray, MAGIC_OFFSET, MAGIC, MAGIC_ENCODING);
 
   // Return data truncated to the correct size
 
