@@ -1,8 +1,14 @@
 /*
-The MiSTer saves NES data as a regular raw file, but most files appear to be expanded out to 32kB, instead of the usual ~8kB, with garbage data.
-Some MiSTER NES saves are larger than 32kB -- I've seen a few 128kB ones.
+The MiSTer saves NES data as a regular raw file. If the NES ROM has an iNES header, then the MiSTer core will make a 32kB save.
+If it's a NES 2.0 headered ROM, then the MiSTer core will make a correct (usually 8kB) sized save.
 
-Loading these larger files straight in an emulator seems to work fine. But let's pad out an emulator file to 32kB when converting to MiSTer just to be nice
+If we made a file smaller than 32kB, the MiSTer core will leave the rest of the memory uninitialized (which shouldn't cause any harm),
+but let's be friendly and pad out our file to 32kB. Beyond that mark, the MiSTer core will start mirroring addresses (whatever that means :))
+
+Loading these too-large 32kB files straight in an emulator seems to work fine. Since we don't know what the actual size should be (even
+though it's usually 8kB) then let's just leave them alone.
+
+There are some games that will cause the MiSTer core to make a larger (e.g. 128kB) save.
 */
 
 import PaddingUtil from '../../util/Padding';
