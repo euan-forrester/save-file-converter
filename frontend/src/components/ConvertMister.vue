@@ -102,6 +102,8 @@ import MisterPlatform from './MisterPlatform.vue';
 
 import MisterNesSaveData from '../save-formats/Mister/Nes';
 import MisterSnesSaveData from '../save-formats/Mister/Snes';
+import MisterGameboySaveData from '../save-formats/Mister/Gameboy';
+import MisterGameboyAdvanceSaveData from '../save-formats/Mister/GameboyAdvance';
 import MisterGenesisSaveData from '../save-formats/Mister/Genesis';
 import MisterPcEngineSaveData from '../save-formats/Mister/PcEngine';
 import MisterPs1SaveData from '../save-formats/Mister/Ps1';
@@ -149,6 +151,16 @@ export default {
 
           case 'Mister-SNES': {
             this.misterPlatformClass = MisterSnesSaveData;
+            break;
+          }
+
+          case 'Mister-GB': {
+            this.misterPlatformClass = MisterGameboySaveData;
+            break;
+          }
+
+          case 'Mister-GBA': {
+            this.misterPlatformClass = MisterGameboyAdvanceSaveData;
             break;
           }
 
