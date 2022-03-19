@@ -30,29 +30,38 @@ const GENESIS_LITTLE_ENDIAN = false; // Big endian file inside a little endian f
 // I don't see a better way of determining whether a Genesis game has SRAM/EEPROM/FRAM saving than by
 // just having a hardcoded list of game IDs. The Genesis save files all say "SRAM" in them.
 
-// Lists taken from https://forum.digitpress.com/forum/showthread.php?134961-NES-SNES-Genny-Games-with-Battery-Back-up-Save-feature&p=1614576&viewfull=1#post1614576
+// EEPROM list taken from https://krikzz.com/pub/support/everdrive-md/v2/gen_eeprom.pdf
+// FRAM list taken from https://forum.digitpress.com/forum/showthread.php?134961-NES-SNES-Genny-Games-with-Battery-Back-up-Save-feature&p=1614576&viewfull=1#post1614576
+
+// Note that "Wonder Boy in Monster World" and "Wonder Boy V - Moster World III" are the same game but in different regions
 
 const GENESIS_EEPROM_GAME_IDS = [
-// Blockbuster World Videogame Championship II (NBA Jam T.E. portion) (EEPROM)
-// Mega Man: The Wily Wars (Europe/Japan only title on physical cart; all European copies of the game, and the second ([alt] rom) release of the Japanese version, use EEPROM. The original Japanese release uses SRAM (battery).
-// Micro Machines 2 (Europe exclusive title) (EEPROM)
-// Micro Machines '96 (Europe exclusive title) (EEPROM)
-// Micro Machines Military (Europe exclusive title) (EEPROM)
-// Brian Lara/Shane Warne Cricket (Europe/Australia exclusive title) (EEPROM)
-// Barkley: Shut Up and Jam! 2 (EEPROM)
-// College Slam (EEPROM)
-// Evander "Real Deal" Holyfield Boxing (EEPROM)
-// Frank Thomas Big Hurt Baseball (EEPROM)
-// Greatest Heavyweights of the Ring (EEPROM)
-// NBA Jam (EEPROM)
-// NBA Jam Tournament Edition (EEPROM)
-// NFL Quarterback Club (EEPROM)
-// NFL Quarterback Club '96 (EEPROM)
-// NHLPA Hockey '93 (EEPROM)
-// Rings of Power (EEPROM)
-// Sports Talk Baseball (EEPROM)
-// Unnecessary Roughness '95 (EEPROM)
-  'MAVE', // Wonder Boy in Monster World (EEPROM)
+  // NBA Jam (UE)(J)
+  // Blockbuster World Video Game Championship II (U)
+  // NBA Jam Tournament Edition (UE)(J)
+  // NFL Quarterback Club (JUE)
+  // NFL Quarterback Club 96 (UE)
+  // College Slam (U)
+  // Frank Thomas Big Hurt Baseball (UE)
+
+  // NHLPA Hockey 93 (UE)
+  // Rings of Power (UE)
+
+  // Evander 'Real Deal' Holyfield's Boxing (UE)(J)
+  // Greatest Heavyweights of the Ring (J)(U)(E)
+  'MAVE', // Wonder Boy in Monster World (UE)
+  'MAVJ', // Wonder Boy V - Monster World III (J)
+  // The above game was released in PAL regions as well, but I can't find a code for that one on gametdb
+  // Sports Talk Baseball
+
+  // Megaman - The Wily Wars (E)
+  // Rockman Mega World (J) [alt]
+
+  // Micro Machines 2 - Turbo Tournament (E) (J-Cart)
+  // Micro Machines Military (E) (J-Cart)
+  // Micro Machines Turbo Tournament 96 (E) (J-Cart)
+  // Brian Lara Cricket 96
+  // Shane Warne Cricket
 ];
 
 const GENESIS_FRAM_GAME_IDS = [
