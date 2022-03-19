@@ -59,7 +59,7 @@ export default {
         // { value: 'Mister-GCN', text: 'GameCube', disabled: true },
         { value: 'Mister-GB', text: 'Game Boy/Game Boy Color' },
         { value: 'Mister-GBA', text: 'Game Boy Advance' },
-        { value: 'Mister-GG', text: 'Game Gear', disabled: true },
+        { value: 'Mister-GG', text: 'Game Gear' },
         { value: 'Mister-SMS', text: 'Sega Master System' },
         { value: 'Mister-MD', text: 'Sega Genesis/Mega Drive' },
         { value: 'Mister-SAT', text: 'Sega Saturn', disabled: true },
