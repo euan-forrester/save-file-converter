@@ -62,6 +62,7 @@ export default {
         { value: 'Mister-GG', text: 'Game Gear' },
         { value: 'Mister-SMS', text: 'Sega Master System' },
         { value: 'Mister-MD', text: 'Sega Genesis/Mega Drive' },
+        { value: 'Mister-32X', text: 'Sega 32X', disabled: true },
         { value: 'Mister-SAT', text: 'Sega Saturn', disabled: true },
         // { value: 'Mister-DC', text: 'Dreamcast', disabled: true },
         { value: 'Mister-PCE', text: 'Turbografx-16/PC Engine' },
