@@ -49,29 +49,29 @@ export default {
   },
   data() {
     return {
-      // Commented out ones are platforms we support elsewhere on the site but are not possible to emulate on the MiSTer
+      // Commented out ones are platforms we support elsewhere on the site but are current;y available on the MiSTer
 
       options: [
         { value: null, text: 'Choose platform', disabled: true },
         { value: 'Mister-NES', text: 'NES' },
         { value: 'Mister-SNES', text: 'Super NES' },
-        // { value: 'Mister-N64', text: 'Nintendo 64', disabled: true },
-        // { value: 'Mister-GCN', text: 'GameCube', disabled: true },
+        // { value: 'Mister-N64', text: 'Nintendo 64', disabled: true }, // MiSTer hardware not powerful enough
+        // { value: 'Mister-GCN', text: 'GameCube', disabled: true }, // MiSTer hardware not powerful enough
         { value: 'Mister-GB', text: 'Game Boy/Game Boy Color' },
         { value: 'Mister-GBA', text: 'Game Boy Advance' },
         { value: 'Mister-GG', text: 'Game Gear' },
         { value: 'Mister-SMS', text: 'Sega Master System' },
         { value: 'Mister-MD', text: 'Sega Genesis/Mega Drive' },
         { value: 'Mister-MCD', text: 'Sega CD/Mega CD', disabled: true },
-        { value: 'Mister-32X', text: 'Sega 32X', disabled: true },
-        { value: 'Mister-SAT', text: 'Sega Saturn', disabled: true },
-        // { value: 'Mister-DC', text: 'Dreamcast', disabled: true },
+        // { value: 'Mister-32X', text: 'Sega 32X', disabled: true }, // Currently no core for this, might be created after the Saturn one
+        // { value: 'Mister-SAT', text: 'Sega Saturn', disabled: true }, // Core is currently in development
+        // { value: 'Mister-DC', text: 'Dreamcast', disabled: true }, // MiSTer hardware not powerful enough
         { value: 'Mister-PCE', text: 'Turbografx-16/PC Engine' },
         { value: 'Mister-PS1', text: 'PlayStation 1' },
-        // { value: 'Mister-PS2', text: 'PlayStation 2', disabled: true },
+        // { value: 'Mister-PS2', text: 'PlayStation 2', disabled: true }, // MiSTer hardware not powerful enough
         { value: 'Mister-WS', text: 'WonderSwan/WonderSwan Color', disabled: true },
-        { value: 'Mister-AJ', text: 'Jaguar', disabled: true },
-        { value: 'Mister-AL', text: 'Lynx', disabled: true },
+        { value: 'Mister-AJ', text: 'Jaguar', disabled: true }, // Core is in early stages, saving may not be supported yet
+        // { value: 'Mister-AL', text: 'Lynx', disabled: true }, // No commercial releases for Lynx with saving. A few homebrews do, but saving not implmented on the MiSTer core
       ],
     };
   },
