@@ -104,6 +104,8 @@ import MisterNesSaveData from '../save-formats/Mister/Nes';
 import MisterSnesSaveData from '../save-formats/Mister/Snes';
 import MisterGameboySaveData from '../save-formats/Mister/Gameboy';
 import MisterGameboyAdvanceSaveData from '../save-formats/Mister/GameboyAdvance';
+import MisterGameGearSaveData from '../save-formats/Mister/GameGear';
+import MisterSmsSaveData from '../save-formats/Mister/Sms';
 import MisterGenesisSaveData from '../save-formats/Mister/Genesis';
 import MisterPcEngineSaveData from '../save-formats/Mister/PcEngine';
 import MisterPs1SaveData from '../save-formats/Mister/Ps1';
@@ -161,6 +163,16 @@ export default {
 
           case 'Mister-GBA': {
             this.misterPlatformClass = MisterGameboyAdvanceSaveData;
+            break;
+          }
+
+          case 'Mister-GG': {
+            this.misterPlatformClass = MisterGameGearSaveData;
+            break;
+          }
+
+          case 'Mister-SMS': {
+            this.misterPlatformClass = MisterSmsSaveData;
             break;
           }
 
