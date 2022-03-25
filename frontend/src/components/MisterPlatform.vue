@@ -58,7 +58,7 @@ export default {
         // { value: 'Mister-N64', text: 'Nintendo 64', disabled: true }, // MiSTer hardware not powerful enough
         // { value: 'Mister-GCN', text: 'GameCube', disabled: true }, // MiSTer hardware not powerful enough
         { value: 'Mister-GB', text: 'Game Boy/Game Boy Color' },
-        { value: 'Mister-GBA', text: 'Game Boy Advance', disabled: true }, // The MiSTer files for some games (e.g. Metroid Fusion, Castlevania - Aria of Sorrow) are too small and don't contain all of the necessary data. The core may not have saving working for all types of saves.
+        { value: 'Mister-GBA', text: 'Game Boy Advance' },
         { value: 'Mister-GG', text: 'Game Gear' },
         { value: 'Mister-SMS', text: 'Sega Master System' },
         { value: 'Mister-MD', text: 'Sega Genesis/Mega Drive' },

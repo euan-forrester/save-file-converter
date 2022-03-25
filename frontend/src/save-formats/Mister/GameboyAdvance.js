@@ -1,5 +1,11 @@
 /*
-The MiSTer saves GBA data as just the raw data of the correct size: no transformation or padding required
+In the test files I was provided for GBA, the mister files looked "too short": the ones I had from a Retron 5 were longer and
+had data past where the mister ones ended.
+
+But the info for the GBA core seems to indicate that saving works fully and any remaining issues with the core
+are minor and cosmetic: https://github.com/MiSTer-devel/GBA_MiSTer
+
+So I'm just going to assume that no transformation is needed for GBA files until I hear otherwise.
 */
 
 export default class MisterGameboyAdvanceSaveData {

@@ -76,6 +76,16 @@
           </b-button>
         </b-col>
       </b-row>
+      <b-row>
+        <b-col>
+          <div class="help">
+            Greyed-out platforms currently do not fully support saving on the MiSTer.
+          </div>
+          <div class="help">
+            Is this information incorrect or out of date? Please <router-link to="/about">contact us</router-link>
+          </div>
+        </b-col>
+      </b-row>
     </b-container>
   </div>
 </template>
