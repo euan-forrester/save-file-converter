@@ -49,7 +49,7 @@ export default {
   },
   data() {
     return {
-      // Commented out ones are platforms we support elsewhere on the site but are current;y available on the MiSTer
+      // Commented out ones are platforms we support elsewhere on the site but are currently available on the MiSTer
 
       options: [
         { value: null, text: 'Choose platform', disabled: true },
