@@ -58,18 +58,22 @@ export default {
         // { value: 'Mister-N64', text: 'Nintendo 64', disabled: true }, // MiSTer hardware not powerful enough
         // { value: 'Mister-GCN', text: 'GameCube', disabled: true }, // MiSTer hardware not powerful enough
         { value: 'Mister-GB', text: 'Game Boy/Game Boy Color' },
-        { value: 'Mister-GBA', text: 'Game Boy Advance' },
+        { value: 'Mister-GBA', text: 'Game Boy Advance', disabled: true }, // The MiSTer files for some games (e.g. Metroid Fusion, Castlevania - Aria of Sorrow) are too small and don't contain all of the necessary data. The core may not have saving working for all types of saves.
         { value: 'Mister-GG', text: 'Game Gear' },
         { value: 'Mister-SMS', text: 'Sega Master System' },
         { value: 'Mister-MD', text: 'Sega Genesis/Mega Drive' },
-        { value: 'Mister-MCD', text: 'Sega CD/Mega CD', disabled: true },
+        /* Commented out differently because we may put it back when we get more information
+        { value: 'Mister-MCD', text: 'Sega CD/Mega CD', disabled: true }, // The MiSTer file created was too big. It contained a similar footer to the file created by the emulator, but could not be loaded in the emulator. Unsure what to do here: can the middle just be cut out?
+        */
         // { value: 'Mister-32X', text: 'Sega 32X', disabled: true }, // Currently no core for this, might be created after the Saturn one
         // { value: 'Mister-SAT', text: 'Sega Saturn', disabled: true }, // Core is currently in development
         // { value: 'Mister-DC', text: 'Dreamcast', disabled: true }, // MiSTer hardware not powerful enough
         { value: 'Mister-PCE', text: 'Turbografx-16/PC Engine' },
         { value: 'Mister-PS1', text: 'PlayStation 1' },
         // { value: 'Mister-PS2', text: 'PlayStation 2', disabled: true }, // MiSTer hardware not powerful enough
-        { value: 'Mister-WS', text: 'WonderSwan/WonderSwan Color', disabled: true },
+        /* Commented out differently because we may put it back when we get more information
+        { value: 'Mister-WS', text: 'WonderSwan/WonderSwan Color', disabled: true }, // Files created by the MiSTer are of several different sizes, each 0x200 bytes more than a power of two. Don't currently have sufficient test data to determine whether they're loadable by an emulator or vice versa
+        */
         { value: 'Mister-AJ', text: 'Jaguar', disabled: true }, // Core is in early stages, saving may not be supported yet
         // { value: 'Mister-AL', text: 'Lynx', disabled: true }, // No commercial releases for Lynx with saving. A few homebrews do, but saving not implmented on the MiSTer core
       ],
