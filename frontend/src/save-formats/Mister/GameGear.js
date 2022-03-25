@@ -1,6 +1,6 @@
 /*
-I don't have any test save files for Game Gear, so I'm just going to assume for now that we pass the file straight through
-in both directions
+The MiSTer makes saves that are 64kB in size and the emulator I tried makes saves that are 32kB. Each seems able to load the other's save.
+I'm not sure which of the two sizes is "correct", so I'm just going to leave everything alone.
 
 A list of Game Gear games that support saving can be found here:
 https://segaretro.org/Battery_backup#Game_Gear
