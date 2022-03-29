@@ -79,6 +79,83 @@ describe('MathUtil', () => {
     expect(MathUtil.getNextLargestPowerOf2(262144)).to.equal(262144);
   });
 
+  it('should determine whether a number is a power of 2', () => {
+    expect(MathUtil.isPowerOf2(-1)).to.equal(false);
+    expect(MathUtil.isPowerOf2(0)).to.equal(false);
+
+    expect(MathUtil.isPowerOf2(1)).to.equal(true);
+
+    expect(MathUtil.isPowerOf2(2)).to.equal(true);
+
+    expect(MathUtil.isPowerOf2(3)).to.equal(false);
+    expect(MathUtil.isPowerOf2(4)).to.equal(true);
+
+    expect(MathUtil.isPowerOf2(5)).to.equal(false);
+    expect(MathUtil.isPowerOf2(6)).to.equal(false);
+    expect(MathUtil.isPowerOf2(7)).to.equal(false);
+    expect(MathUtil.isPowerOf2(8)).to.equal(true);
+
+    expect(MathUtil.isPowerOf2(9)).to.equal(false);
+    expect(MathUtil.isPowerOf2(15)).to.equal(false);
+    expect(MathUtil.isPowerOf2(16)).to.equal(true);
+
+    expect(MathUtil.isPowerOf2(17)).to.equal(false);
+    expect(MathUtil.isPowerOf2(31)).to.equal(false);
+    expect(MathUtil.isPowerOf2(32)).to.equal(true);
+
+    expect(MathUtil.isPowerOf2(33)).to.equal(false);
+    expect(MathUtil.isPowerOf2(63)).to.equal(false);
+    expect(MathUtil.isPowerOf2(64)).to.equal(true);
+
+    expect(MathUtil.isPowerOf2(65)).to.equal(false);
+    expect(MathUtil.isPowerOf2(127)).to.equal(false);
+    expect(MathUtil.isPowerOf2(128)).to.equal(true);
+
+    expect(MathUtil.isPowerOf2(129)).to.equal(false);
+    expect(MathUtil.isPowerOf2(255)).to.equal(false);
+    expect(MathUtil.isPowerOf2(256)).to.equal(true);
+
+    expect(MathUtil.isPowerOf2(257)).to.equal(false);
+    expect(MathUtil.isPowerOf2(511)).to.equal(false);
+    expect(MathUtil.isPowerOf2(512)).to.equal(true);
+
+    expect(MathUtil.isPowerOf2(513)).to.equal(false);
+    expect(MathUtil.isPowerOf2(1023)).to.equal(false);
+    expect(MathUtil.isPowerOf2(1024)).to.equal(true);
+
+    expect(MathUtil.isPowerOf2(1025)).to.equal(false);
+    expect(MathUtil.isPowerOf2(2047)).to.equal(false);
+    expect(MathUtil.isPowerOf2(2048)).to.equal(true);
+
+    expect(MathUtil.isPowerOf2(2049)).to.equal(false);
+    expect(MathUtil.isPowerOf2(4095)).to.equal(false);
+    expect(MathUtil.isPowerOf2(4096)).to.equal(true);
+
+    expect(MathUtil.isPowerOf2(4097)).to.equal(false);
+    expect(MathUtil.isPowerOf2(8191)).to.equal(false);
+    expect(MathUtil.isPowerOf2(8192)).to.equal(true);
+
+    expect(MathUtil.isPowerOf2(8193)).to.equal(false);
+    expect(MathUtil.isPowerOf2(16383)).to.equal(false);
+    expect(MathUtil.isPowerOf2(16384)).to.equal(true);
+
+    expect(MathUtil.isPowerOf2(16385)).to.equal(false);
+    expect(MathUtil.isPowerOf2(32767)).to.equal(false);
+    expect(MathUtil.isPowerOf2(32768)).to.equal(true);
+
+    expect(MathUtil.isPowerOf2(32769)).to.equal(false);
+    expect(MathUtil.isPowerOf2(65535)).to.equal(false);
+    expect(MathUtil.isPowerOf2(65536)).to.equal(true);
+
+    expect(MathUtil.isPowerOf2(65537)).to.equal(false);
+    expect(MathUtil.isPowerOf2(131071)).to.equal(false);
+    expect(MathUtil.isPowerOf2(131072)).to.equal(true);
+
+    expect(MathUtil.isPowerOf2(131073)).to.equal(false);
+    expect(MathUtil.isPowerOf2(262143)).to.equal(false);
+    expect(MathUtil.isPowerOf2(262144)).to.equal(true);
+  });
+
   it('should correctly round up to the nearest 64 bytes', () => {
     expect(MathUtil.roundUpToNearest64Bytes(-1)).to.equal(0);
     expect(MathUtil.roundUpToNearest64Bytes(0)).to.equal(0);

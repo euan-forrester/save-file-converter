@@ -7,8 +7,7 @@ export default class MathUtil {
       return 0;
     }
 
-    // Is the value already a power of 2?
-    if ((n & (n - 1)) === 0) {
+    if (MathUtil.isPowerOf2(n)) {
       return n;
     }
 
@@ -22,6 +21,14 @@ export default class MathUtil {
     }
 
     return 1 << count;
+  }
+
+  static isPowerOf2(n) {
+    if (n <= 0) {
+      return false;
+    }
+
+    return ((n & (n - 1)) === 0);
   }
 
   static getNextMultipleOf16(n) {
