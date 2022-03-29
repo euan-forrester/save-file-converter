@@ -109,6 +109,7 @@ import MisterSmsSaveData from '../save-formats/Mister/Sms';
 import MisterGenesisSaveData from '../save-formats/Mister/Genesis';
 import MisterPcEngineSaveData from '../save-formats/Mister/PcEngine';
 import MisterPs1SaveData from '../save-formats/Mister/Ps1';
+import MisterWonderSwanSaveData from '../save-formats/Mister/WonderSwan';
 
 export default {
   name: 'ConvertMister',
@@ -188,6 +189,11 @@ export default {
 
           case 'Mister-PS1': {
             this.misterPlatformClass = MisterPs1SaveData;
+            break;
+          }
+
+          case 'Mister-WS': {
+            this.misterPlatformClass = MisterWonderSwanSaveData;
             break;
           }
 
