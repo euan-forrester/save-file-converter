@@ -110,6 +110,9 @@ Instructions:
   - https://github.com/hitomi2500/ss-save-parser
 - Gamecube
   - https://github.com/kwsch/PKHeX (Save editor for Pokemon games. Can apparently parse GCN files among others. Needs a closer look)
+- Goomba emulator (for flash carts)
+  - https://github.com/libertyernie/goombasav (save converter)
+  - https://github.com/masterhou/goombacolor/blob/master/src/sram.c
 
 ## GBA save file size difficulty
 - https://zork.net/~st/jottings/GBA_saves.html
