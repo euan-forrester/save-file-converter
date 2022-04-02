@@ -100,8 +100,6 @@ Instructions:
   - Game serial codes:
     - https://niwanetwork.org/wiki/List_of_Nintendo_64_games_by_serial_code
     - https://meanwhileblog.wordpress.com/n64-game-code-list/
-- Goomba emulator
-  - https://www.reddit.com/r/everdrive/comments/qcgus7/using_a_gba_x5_goomba_sram_save_file_on_a_gbc_x7/
 - 3DS Virtual Console
   - SNES games: https://github.com/manuGMG/3ds-snes-sc
   - The tool above apparently works on some WiiU VC games as well: https://gbatemp.net/threads/release-3ds-snes-save-converter.574927/
@@ -113,6 +111,7 @@ Instructions:
 - Goomba emulator (for flash carts)
   - https://github.com/libertyernie/goombasav (save converter)
   - https://github.com/masterhou/goombacolor/blob/master/src/sram.c
+  - https://www.reddit.com/r/everdrive/comments/qcgus7/using_a_gba_x5_goomba_sram_save_file_on_a_gbc_x7/****
 
 ## GBA save file size difficulty
 - https://zork.net/~st/jottings/GBA_saves.html
