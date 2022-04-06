@@ -117,6 +117,11 @@ Instructions:
 - https://zork.net/~st/jottings/GBA_saves.html
 - https://dillonbeliveau.com/2020/06/05/GBA-FLASH.html
 
+## Real-Time Clock save format
+- https://bgb.bircd.org/rtcsave.html
+
+Some platforms (e.g. some MiSTer cores) append RTC data to the end of a save file. The above link describes a common format for RTC data.
+
 ## Deployment instructions
 
 ### Backend setup: AWS and terraform
