@@ -1,4 +1,4 @@
-// import { expect } from 'chai';
+import { expect } from 'chai';
 import GoombaEmulatorSaveData from '@/save-formats/FlashCart/GoombaEmulator';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
@@ -9,13 +9,13 @@ const GOOMBA_ZELDA_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (U
 
 describe('Flash cart - Goomba emulator save format', () => {
   it('should convert a Goomba emulator save to raw format', async () => {
-    // const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_ZELDA_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_ZELDA_FILENAME);
     const goombaArrayBuffer = await ArrayBufferUtil.readArrayBuffer(GOOMBA_ZELDA_FILENAME);
 
     const goombaEmulatorSaveData = GoombaEmulatorSaveData.createFromGoombaData(goombaArrayBuffer);
 
-    ArrayBufferUtil.writeArrayBuffer(RAW_ZELDA_FILENAME, goombaEmulatorSaveData.getRawArrayBuffer());
+    // ArrayBufferUtil.writeArrayBuffer(RAW_ZELDA_FILENAME, goombaEmulatorSaveData.getRawArrayBuffer());
 
-    // expect(ArrayBufferUtil.arrayBuffersEqual(goombaEmulatorSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(goombaEmulatorSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
 });
