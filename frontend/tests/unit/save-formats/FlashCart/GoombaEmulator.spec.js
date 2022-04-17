@@ -1,11 +1,19 @@
 import { expect } from 'chai';
 import GoombaEmulatorSaveData from '@/save-formats/FlashCart/GoombaEmulator';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
+import Config from '#/config';
+
+const config = Config.Create();
+
+const TEST_RETAIL_ROMS = config.get().testFlashCartRetailGames; // We don't check retail ROMs into the repo
 
 const DIR = './tests/unit/save-formats/data/flashcart/goombaemulator';
 
 const RAW_ZELDA_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (USA, Europe).sav`;
 const GOOMBA_ZELDA_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (USA, Europe).esv`;
+
+const ZELDA_ROM_FILENAME = `${DIR}/retail/Legend of Zelda, The - Link's Awakening (USA, Europe).gb`;
+const ZELDA_ROM_CHECKSUM = 0x377aa60f;
 
 describe('Flash cart - Goomba emulator save format', () => {
   it('should convert a Goomba emulator save to raw format', async () => {
@@ -17,5 +25,16 @@ describe('Flash cart - Goomba emulator save format', () => {
     // ArrayBufferUtil.writeArrayBuffer(RAW_ZELDA_FILENAME, goombaEmulatorSaveData.getRawArrayBuffer());
 
     expect(ArrayBufferUtil.arrayBuffersEqual(goombaEmulatorSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
+    expect(goombaEmulatorSaveData.getRomChecksum()).to.equal(ZELDA_ROM_CHECKSUM);
+    expect(goombaEmulatorSaveData.getFrameCount()).to.equal(0); // Dunno what this means
+    expect(goombaEmulatorSaveData.getGameTitle()).to.equal('ZELDA');
+    expect(goombaEmulatorSaveData.getCompressedSize()).to.equal(196);
+    expect(goombaEmulatorSaveData.getUncompressedSize()).to.equal(rawArrayBuffer.byteLength);
+  });
+
+  TEST_RETAIL_ROMS && it('should calculate the checksum of a ROM', async () => { // eslint-disable-line no-unused-expressions
+    const romArrayBuffer = await ArrayBufferUtil.readArrayBuffer(ZELDA_ROM_FILENAME);
+
+    expect(GoombaEmulatorSaveData.calculateRomChecksum(romArrayBuffer)).to.equal(ZELDA_ROM_CHECKSUM);
   });
 });

@@ -1,4 +1,5 @@
 export default {
   testPspIsos: true,
   testPspRetailIsos: false,
+  testFlashCartRetailGames: true,
 };
