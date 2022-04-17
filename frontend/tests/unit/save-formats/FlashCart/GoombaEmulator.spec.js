@@ -22,8 +22,6 @@ describe('Flash cart - Goomba emulator save format', () => {
 
     const goombaEmulatorSaveData = GoombaEmulatorSaveData.createFromGoombaData(goombaArrayBuffer);
 
-    // ArrayBufferUtil.writeArrayBuffer(RAW_ZELDA_FILENAME, goombaEmulatorSaveData.getRawArrayBuffer());
-
     expect(ArrayBufferUtil.arrayBuffersEqual(goombaEmulatorSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
     expect(goombaEmulatorSaveData.getRomChecksum()).to.equal(ZELDA_ROM_CHECKSUM);
     expect(goombaEmulatorSaveData.getFrameCount()).to.equal(0); // Dunno what this means
