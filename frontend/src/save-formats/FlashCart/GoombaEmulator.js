@@ -110,7 +110,12 @@ function stateHeaderIsPlausible(stateHeader) {
 }
 
 // Taken from https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L249
-function getSramChecksumFromConfigData(arrayBuffer) {
+//
+// This is descrived as "checksum of rom using SRAM e000-ffff"
+// here https://github.com/libertyernie/goombasav/blob/master/goombasav.h#L80
+//
+// So it's a checksum of the ROM, but from a portion of the SRAM towards the end?
+function getSramRomChecksumFromConfigData(arrayBuffer) {
   const dataView = new DataView(arrayBuffer);
 
   let currentByte = MAGIC_LENGTH;
@@ -208,12 +213,12 @@ export default class GoombaEmulatorSaveData {
     //
     // So I guess we just shouldn't depend on either one? This all seems crazy to me.
 
-    const sramChecksum = getSramChecksumFromConfigData(goombaArrayBuffer);
+    const sramRomChecksum = getSramRomChecksumFromConfigData(goombaArrayBuffer);
 
-    if (sramChecksum === 0) {
+    if (sramRomChecksum === 0) {
       // File is clean
       console.log('*** File is clean');
-    } else if (sramChecksum === stateHeader.romChecksum) {
+    } else if (sramRomChecksum === stateHeader.romChecksum) {
       console.log('**** File is unclean, and needs to be cleaned');
     } else {
       console.log('***** File is unclean, but it should be okay');
