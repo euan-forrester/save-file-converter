@@ -51,7 +51,10 @@ const SMS_ADVANCE_CONFIG_DATA_SIZE = 0x34;
 const GOOMBA_AND_POCKET_NES_CONFIG_DATA_SRAM_CHECKSUM_OFFSET = 12;
 const SMS_ADVANCE_CONFIG_DATA_SRAM_OFFSET = 16;
 
-const LARGEST_GB_SAVE_SIZE = 8192;
+const LARGEST_GBC_SAVE_SIZE = 0x10000; // This is just used as a hint to the decompression algorithm so it can allocate memory. Value copied from https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L349
+
+const GOOMBA_COLOR_AVAILABLE_SIZE = 0xE000; // Not sure why this is named this, but when a file is "unclean" then there's uncompressed data here: Value copied from https://github.com/libertyernie/goombasav/blob/master/goombasav.h#L29
+const GOOMBA_COLOR_SRAM_SIZE = 0x10000; // Value copied from https://github.com/libertyernie/goombasav/blob/master/goombasav.h#L28
 
 function lzoDecompress(arrayBuffer, uncompressedSize) {
   const state = {
@@ -201,30 +204,29 @@ export default class GoombaEmulatorSaveData {
       throw new Error(`File appears to be ${FILE_TYPE_NAMES[stateHeader.type]} instead of ${FILE_TYPE_NAMES[TYPE_SRAM_SAVE]}`);
     }
 
-    // I full stop do not understand how compressed and uncompressed size actually work in all
-    // goomba and goomba color files.
-    //
     // The save editor makes the case that compressed size is the size stored in the file minus the header:
     // https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L348
     // https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L405
     //
     // And that uncompressed size is incorrectly stored in goomba (but not goomba color) files:
     // https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L405
-    //
-    // So I guess we just shouldn't depend on either one? This all seems crazy to me.
 
     const sramRomChecksum = getSramRomChecksumFromConfigData(goombaArrayBuffer);
 
+    let needsCleaning = false;
+
     if (sramRomChecksum === 0) {
       // File is clean
-      console.log('*** File is clean');
     } else if (sramRomChecksum === stateHeader.romChecksum) {
-      console.log('**** File is unclean, and needs to be cleaned');
+      // File is unclean, and needs to be cleaned
+      // https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L342
+      needsCleaning = true;
     } else {
-      console.log('***** File is unclean, but it should be okay');
+      // File is unclean, but it shouldn't affect the data we're interested in
+      // https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L345
     }
 
-    this.compressedSize = stateHeader.size;
+    this.compressedSize = stateHeader.size - STATE_HEADER_LENGTH;
     this.uncompressedSize = stateHeader.uncompressedSize;
     this.frameCount = stateHeader.frameCount;
     this.romChecksum = stateHeader.romChecksum;
@@ -232,7 +234,9 @@ export default class GoombaEmulatorSaveData {
 
     // It seems that the compressed and/or uncompressed size might be incorrect for goomba (rather than goomba color) files. The save editor just goes until the end of the file: https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L350
     const compressedDataOffset = MAGIC_LENGTH + STATE_HEADER_LENGTH;
-    this.rawArrayBuffer = lzoDecompress(goombaArrayBuffer.slice(compressedDataOffset/* , compressedDataOffset + this.compressedSize */), LARGEST_GB_SAVE_SIZE/* this.uncompressedSize */);
+    this.rawArrayBuffer = needsCleaning
+      ? goombaArrayBuffer.slice(GOOMBA_COLOR_AVAILABLE_SIZE, GOOMBA_COLOR_SRAM_SIZE) // Based on https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L308
+      : lzoDecompress(goombaArrayBuffer.slice(compressedDataOffset/* , compressedDataOffset + this.compressedSize */), LARGEST_GBC_SAVE_SIZE/* this.uncompressedSize */);
     this.goombaArrayBuffer = goombaArrayBuffer;
   }
 

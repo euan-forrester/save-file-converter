@@ -31,7 +31,7 @@ describe('Flash cart - Goomba emulator save format', () => {
     expect(goombaEmulatorSaveData.getRomChecksum()).to.equal(ZELDA_ROM_CHECKSUM);
     expect(goombaEmulatorSaveData.getFrameCount()).to.equal(0); // Dunno what this means
     expect(goombaEmulatorSaveData.getGameTitle()).to.equal('ZELDA');
-    expect(goombaEmulatorSaveData.getCompressedSize()).to.equal(196);
+    expect(goombaEmulatorSaveData.getCompressedSize()).to.equal(148);
     expect(goombaEmulatorSaveData.getUncompressedSize()).to.equal(rawArrayBuffer.byteLength);
   });
 
@@ -45,7 +45,7 @@ describe('Flash cart - Goomba emulator save format', () => {
     expect(goombaEmulatorSaveData.getRomChecksum()).to.equal(WARIO_ROM_CHECKSUM);
     expect(goombaEmulatorSaveData.getFrameCount()).to.equal(0); // Dunno what this means
     expect(goombaEmulatorSaveData.getGameTitle()).to.equal('WARIOLAND3');
-    expect(goombaEmulatorSaveData.getCompressedSize()).to.equal(5416);
+    expect(goombaEmulatorSaveData.getCompressedSize()).to.equal(5368);
     expect(goombaEmulatorSaveData.getUncompressedSize()).to.equal(rawArrayBuffer.byteLength);
   });
 
