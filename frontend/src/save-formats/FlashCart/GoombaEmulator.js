@@ -8,6 +8,7 @@ Based on the Goomba Save Manager, specifically:
 */
 
 import Util from '../../util/util';
+import PaddingUtil from '../../util/Padding';
 import lzo from '../../../lib/minlzo-js/lzo1x';
 
 const LITTLE_ENDIAN = true;
@@ -56,6 +57,20 @@ const LARGEST_GBC_SAVE_SIZE = 0x10000; // This is just used as a hint to the dec
 const GOOMBA_COLOR_AVAILABLE_SIZE = 0xE000; // Not sure why this is named this, but when a file is "unclean" then there's uncompressed data here: Value copied from https://github.com/libertyernie/goombasav/blob/master/goombasav.h#L29
 const GOOMBA_COLOR_SRAM_SIZE = 0x10000; // Value copied from https://github.com/libertyernie/goombasav/blob/master/goombasav.h#L28
 
+const GOOMBA_CONFIG_DATA_SIZE_OFFSET = 0;
+const GOOMBA_CONFIG_DATA_TYPE_OFFSET = 2;
+const GOOMBA_CONFIG_DATA_BORDER_COLOR_OFFSET = 4;
+const GOOMBA_CONFIG_DATA_PALETTE_BANK_OFFSET = 5;
+const GOOMBA_CONFIG_DATA_SRAM_ROM_CHECKSUM_OFFSET = 8;
+const GOOMBA_CONFIG_DATA_RESERVED_OFFSET = 16;
+const GOOMBA_CONFIG_DATA_RESERVED_LENGTH = 32;
+const GOOMBA_CONFIG_DATA_RESERVED_DATA = 'CFG';
+const GOOMBA_CONFIG_DATA_RESERVED_ENCODING = 'US-ASCII';
+const GOOMBA_CONFIG_DATA_LENGTH = GOOMBA_CONFIG_DATA_RESERVED_OFFSET + GOOMBA_CONFIG_DATA_RESERVED_LENGTH;
+
+const GOOMBA_CONFIG_DATA_DEFAULT_BORDER_COLOR = 0;
+const GOOMBA_CONFIG_DATA_DEFAULT_PALETTE_BANK = 0;
+
 function lzoDecompress(arrayBuffer, uncompressedSize) {
   const state = {
     inputBuffer: new Uint8Array(arrayBuffer),
@@ -73,6 +88,21 @@ function lzoDecompress(arrayBuffer, uncompressedSize) {
   throw new Error(`Encountered error ${returnVal} when trying to decompress LZO buffer`);
 }
 
+function lzoCompress(arrayBuffer) {
+  const state = {
+    inputBuffer: new Uint8Array(arrayBuffer),
+    outputBuffer: null,
+  };
+
+  const returnVal = lzo.compress(state);
+
+  if (returnVal === lzo.OK) {
+    return Util.bufferToArrayBuffer(state.outputBuffer);
+  }
+
+  throw new Error(`Encountered error ${returnVal} when trying to compress buffer with LZO`);
+}
+
 function readStateHeader(arrayBuffer) {
   const dataView = new DataView(arrayBuffer);
   const uint8Array = new Uint8Array(arrayBuffer);
@@ -85,6 +115,28 @@ function readStateHeader(arrayBuffer) {
     romChecksum: dataView.getUint32(ROM_CHECKSUM_OFFSET, LITTLE_ENDIAN),
     gameTitle: Util.readNullTerminatedString(uint8Array, GAME_TITLE_OFFSET, GAME_TITLE_ENCODING, GAME_TITLE_LENGTH),
   };
+}
+
+function createStateHeaderArrayBuffer(stateHeader) {
+  const arrayBuffer = new ArrayBuffer(STATE_HEADER_LENGTH);
+  const dataView = new DataView(arrayBuffer);
+  const uint8Array = new Uint8Array(arrayBuffer);
+
+  const textEncoder = new TextEncoder(GAME_TITLE_ENCODING);
+
+  uint8Array.fill(0);
+
+  dataView.setUint16(SIZE_OFFSET, stateHeader.size, LITTLE_ENDIAN);
+  dataView.setUint16(TYPE_OFFSET, stateHeader.type, LITTLE_ENDIAN);
+  dataView.setUint32(UNCOMPRESSED_SIZE_OFFSET, stateHeader.uncompressedSize, LITTLE_ENDIAN);
+  dataView.setUint32(FRAME_COUNT_OFFSET, stateHeader.frameCount, LITTLE_ENDIAN);
+  dataView.setUint32(ROM_CHECKSUM_OFFSET, stateHeader.romChecksum, LITTLE_ENDIAN);
+
+  const encodedGameTitle = textEncoder.encode(stateHeader.gameTitle).slice(0, GAME_TITLE_LENGTH - 1);
+
+  uint8Array.set(encodedGameTitle, GAME_TITLE_OFFSET);
+
+  return arrayBuffer;
 }
 
 // Taken from https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L155
@@ -154,13 +206,83 @@ function getSramRomChecksumFromConfigData(arrayBuffer) {
   throw new Error('No config data found in file');
 }
 
+function createMagicArrayBuffer(magic, length) {
+  const arrayBuffer = new ArrayBuffer(length);
+  const dataView = new DataView(arrayBuffer);
+
+  dataView.setUint32(0, magic, LITTLE_ENDIAN);
+
+  return arrayBuffer;
+}
+
+// Based on https://github.com/libertyernie/goombasav/blob/master/goombasav.h#L61
+function createEmptyGoombaConfigDataArrayBuffer() {
+  const arrayBuffer = new ArrayBuffer(GOOMBA_CONFIG_DATA_LENGTH);
+  const dataView = new DataView(arrayBuffer);
+  const uint8Array = new Uint8Array(arrayBuffer);
+
+  const textEncoder = new TextEncoder(GOOMBA_CONFIG_DATA_RESERVED_ENCODING);
+
+  uint8Array.fill(0);
+
+  dataView.setUint16(GOOMBA_CONFIG_DATA_SIZE_OFFSET, GOOMBA_CONFIG_DATA_LENGTH, LITTLE_ENDIAN);
+  dataView.setUint16(GOOMBA_CONFIG_DATA_TYPE_OFFSET, TYPE_CONFIG_DATA, LITTLE_ENDIAN);
+  dataView.setUint8(GOOMBA_CONFIG_DATA_BORDER_COLOR_OFFSET, GOOMBA_CONFIG_DATA_DEFAULT_BORDER_COLOR);
+  dataView.setUint8(GOOMBA_CONFIG_DATA_PALETTE_BANK_OFFSET, GOOMBA_CONFIG_DATA_DEFAULT_PALETTE_BANK);
+  dataView.setUint32(GOOMBA_CONFIG_DATA_SRAM_ROM_CHECKSUM_OFFSET, 0, LITTLE_ENDIAN); // Checksum here gets set to 0 so that the file is "clean"
+
+  const encodedReservedData = textEncoder.encode(GOOMBA_CONFIG_DATA_RESERVED_DATA).slice(0, GOOMBA_CONFIG_DATA_RESERVED_LENGTH - 1);
+
+  uint8Array.set(encodedReservedData, GOOMBA_CONFIG_DATA_RESERVED_LENGTH);
+
+  return arrayBuffer;
+}
+
+function createGoombaArrayBuffer(rawArrayBuffer, romInternalName, romChecksum) {
+  const magicArrayBuffer = createMagicArrayBuffer(GOOMBA_MAGIC, MAGIC_LENGTH);
+  const compressedSaveDataArrayBuffer = lzoCompress(rawArrayBuffer);
+
+  const stateHeader = {
+    size: compressedSaveDataArrayBuffer.byteLength + STATE_HEADER_LENGTH,
+    type: TYPE_SRAM_SAVE,
+    uncompressedSize: rawArrayBuffer.byteLength,
+    frameCount: 0,
+    romChecksum,
+    gameTitle: romInternalName,
+  };
+
+  const stateHeaderArrayBuffer = createStateHeaderArrayBuffer(stateHeader);
+
+  const configDataArrayBuffer = createEmptyGoombaConfigDataArrayBuffer();
+
+  const unpaddedGoombaArrayBuffer = Util.concatArrayBuffers([magicArrayBuffer, stateHeaderArrayBuffer, compressedSaveDataArrayBuffer, configDataArrayBuffer]);
+
+  const padding = {
+    count: Math.max(GOOMBA_COLOR_SRAM_SIZE - unpaddedGoombaArrayBuffer.byteLength, 0),
+    value: 0,
+  };
+
+  return PaddingUtil.addPaddingToEnd(unpaddedGoombaArrayBuffer, padding);
+}
+
 export default class GoombaEmulatorSaveData {
   static createFromGoombaData(goombaArrayBuffer) {
     return new GoombaEmulatorSaveData(goombaArrayBuffer);
   }
 
-  static createFromRawData(rawArrayBuffer) {
-    return new GoombaEmulatorSaveData(rawArrayBuffer, rawArrayBuffer);
+  static createFromRawData(rawArrayBuffer, gbRom) {
+    const romInternalName = gbRom.getInternalName();
+    const romChecksum = GoombaEmulatorSaveData.calculateRomChecksum(gbRom.getRomArrayBuffer());
+
+    return GoombaEmulatorSaveData.createFromRawDataInternal(rawArrayBuffer, romInternalName, romChecksum);
+  }
+
+  // This function split out so that we can call it from tests. We can't include a retail ROM
+  // with our tests (we need the entire ROM to calculate the checksum), so this allows us to fill in those values
+  static createFromRawDataInternal(rawArrayBuffer, romInternalName, romChecksum) {
+    const goombaArrayBuffer = createGoombaArrayBuffer(rawArrayBuffer, romInternalName, romChecksum);
+
+    return new GoombaEmulatorSaveData(goombaArrayBuffer);
   }
 
   // Taken from https://github.com/masterhou/goombacolor/blob/master/src/sram.c#L258

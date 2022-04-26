@@ -9,11 +9,15 @@ const TEST_RETAIL_ROMS = config.get().testFlashCartRetailGames; // We don't chec
 
 const DIR = './tests/unit/save-formats/data/flashcart/goombaemulator';
 
-const RAW_ZELDA_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (USA, Europe).sav`;
-const GOOMBA_ZELDA_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (USA, Europe).esv`;
+const RAW_ZELDA_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (USA, Europe)-from-goomba.sav`;
+const GOOMBA_ZELDA_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (USA, Europe)-from-goomba.esv`;
+
+const RAW_CART_ZELDA_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (USA, Europe)-from-cart.sav`;
+const GOOMBA_CART_ZELDA_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (USA, Europe)-from-cart.esv`;
 
 const ZELDA_ROM_FILENAME = `${DIR}/retail/Legend of Zelda, The - Link's Awakening (USA, Europe).gb`;
 const ZELDA_ROM_CHECKSUM = 0x377aa60f;
+const ZELDA_INTERNAL_NAME = 'ZELDA';
 
 const RAW_WARIO_FILENAME = `${DIR}/Wario Land 3.sav`;
 const GOOMBA_WARIO_FILENAME = `${DIR}/Wario Land 3.srm`;
@@ -30,7 +34,7 @@ describe('Flash cart - Goomba emulator save format', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(goombaEmulatorSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
     expect(goombaEmulatorSaveData.getRomChecksum()).to.equal(ZELDA_ROM_CHECKSUM);
     expect(goombaEmulatorSaveData.getFrameCount()).to.equal(0); // Dunno what this means
-    expect(goombaEmulatorSaveData.getGameTitle()).to.equal('ZELDA');
+    expect(goombaEmulatorSaveData.getGameTitle()).to.equal(ZELDA_INTERNAL_NAME);
     expect(goombaEmulatorSaveData.getCompressedSize()).to.equal(148);
     expect(goombaEmulatorSaveData.getUncompressedSize()).to.equal(rawArrayBuffer.byteLength);
   });
@@ -46,6 +50,20 @@ describe('Flash cart - Goomba emulator save format', () => {
     expect(goombaEmulatorSaveData.getFrameCount()).to.equal(0); // Dunno what this means
     expect(goombaEmulatorSaveData.getGameTitle()).to.equal('WARIOLAND3');
     expect(goombaEmulatorSaveData.getCompressedSize()).to.equal(5368);
+    expect(goombaEmulatorSaveData.getUncompressedSize()).to.equal(rawArrayBuffer.byteLength);
+  });
+
+  it('should convert a save from a cartridge to the Goomba save format', async () => {
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_CART_ZELDA_FILENAME);
+    const goombaArrayBuffer = await ArrayBufferUtil.readArrayBuffer(GOOMBA_CART_ZELDA_FILENAME);
+
+    const goombaEmulatorSaveData = GoombaEmulatorSaveData.createFromRawDataInternal(rawArrayBuffer, ZELDA_INTERNAL_NAME, ZELDA_ROM_CHECKSUM); // Use the 'internal' function for tests so that we can run the test without the retail ROM
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(goombaEmulatorSaveData.getGoombaArrayBuffer(), goombaArrayBuffer)).to.equal(true);
+    expect(goombaEmulatorSaveData.getRomChecksum()).to.equal(ZELDA_ROM_CHECKSUM);
+    expect(goombaEmulatorSaveData.getFrameCount()).to.equal(0); // Dunno what this means
+    expect(goombaEmulatorSaveData.getGameTitle()).to.equal('ZELDA');
+    expect(goombaEmulatorSaveData.getCompressedSize()).to.equal(1185);
     expect(goombaEmulatorSaveData.getUncompressedSize()).to.equal(rawArrayBuffer.byteLength);
   });
 
