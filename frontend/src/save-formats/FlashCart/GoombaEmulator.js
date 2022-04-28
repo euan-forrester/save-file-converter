@@ -266,7 +266,7 @@ function createGoombaArrayBuffer(rawArrayBuffer, romInternalName, romChecksum) {
 }
 
 export default class GoombaEmulatorSaveData {
-  static createFromGoombaData(goombaArrayBuffer) {
+  static createFromFlashCartData(goombaArrayBuffer) {
     return new GoombaEmulatorSaveData(goombaArrayBuffer);
   }
 

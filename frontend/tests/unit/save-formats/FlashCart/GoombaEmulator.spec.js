@@ -29,7 +29,7 @@ describe('Flash cart - Goomba emulator save format', () => {
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_ZELDA_FILENAME);
     const goombaArrayBuffer = await ArrayBufferUtil.readArrayBuffer(GOOMBA_ZELDA_FILENAME);
 
-    const goombaEmulatorSaveData = GoombaEmulatorSaveData.createFromGoombaData(goombaArrayBuffer);
+    const goombaEmulatorSaveData = GoombaEmulatorSaveData.createFromFlashCartData(goombaArrayBuffer);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(goombaEmulatorSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
     expect(goombaEmulatorSaveData.getRomChecksum()).to.equal(ZELDA_ROM_CHECKSUM);
@@ -43,7 +43,7 @@ describe('Flash cart - Goomba emulator save format', () => {
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_WARIO_FILENAME);
     const goombaArrayBuffer = await ArrayBufferUtil.readArrayBuffer(GOOMBA_WARIO_FILENAME);
 
-    const goombaEmulatorSaveData = GoombaEmulatorSaveData.createFromGoombaData(goombaArrayBuffer);
+    const goombaEmulatorSaveData = GoombaEmulatorSaveData.createFromFlashCartData(goombaArrayBuffer);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(goombaEmulatorSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
     expect(goombaEmulatorSaveData.getRomChecksum()).to.equal(WARIO_ROM_CHECKSUM);
