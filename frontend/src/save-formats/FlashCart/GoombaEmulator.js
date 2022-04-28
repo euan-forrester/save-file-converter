@@ -359,15 +359,15 @@ export default class GoombaEmulatorSaveData {
     this.rawArrayBuffer = needsCleaning
       ? goombaArrayBuffer.slice(GOOMBA_COLOR_AVAILABLE_SIZE, GOOMBA_COLOR_SRAM_SIZE) // Based on https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L308
       : lzoDecompress(goombaArrayBuffer.slice(compressedDataOffset/* , compressedDataOffset + this.compressedSize */), LARGEST_GBC_SAVE_SIZE/* this.uncompressedSize */);
-    this.goombaArrayBuffer = goombaArrayBuffer;
+    this.flashCartArrayBuffer = goombaArrayBuffer;
   }
 
   getRawArrayBuffer() {
     return this.rawArrayBuffer;
   }
 
-  getGoombaArrayBuffer() {
-    return this.goombaArrayBuffer;
+  getFlashCartArrayBuffer() {
+    return this.flashCartArrayBuffer;
   }
 
   getCompressedSize() {

@@ -59,7 +59,7 @@ describe('Flash cart - Goomba emulator save format', () => {
 
     const goombaEmulatorSaveData = GoombaEmulatorSaveData.createFromRawDataInternal(rawArrayBuffer, ZELDA_INTERNAL_NAME, ZELDA_ROM_CHECKSUM); // Use the 'internal' function for tests so that we can run the test without the retail ROM
 
-    expect(ArrayBufferUtil.arrayBuffersEqual(goombaEmulatorSaveData.getGoombaArrayBuffer(), goombaArrayBuffer)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(goombaEmulatorSaveData.getFlashCartArrayBuffer(), goombaArrayBuffer)).to.equal(true);
     expect(goombaEmulatorSaveData.getRomChecksum()).to.equal(ZELDA_ROM_CHECKSUM);
     expect(goombaEmulatorSaveData.getFrameCount()).to.equal(0); // Dunno what this means
     expect(goombaEmulatorSaveData.getGameTitle()).to.equal('ZELDA');
