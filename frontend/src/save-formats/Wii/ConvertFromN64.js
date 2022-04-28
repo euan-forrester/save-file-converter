@@ -19,6 +19,8 @@
 // - 128kB Flash RAM
 // - 96kB SRAM (one game only: Dezaemon 3D, which wasn't on Virtual Console and was Japan-only)
 
+import N64Util from '../../util/N64';
+
 const EEPROM_SIZES = [4 * 1024, 16 * 1024];
 const SRAM_SIZES_SRA = [32 * 1024];
 const SRAM_SIZES_FLA = [128 * 1024, 256 * 1024];
@@ -38,23 +40,9 @@ function convertSram(arrayBuffer) {
   }
 
   // Byte swap from big endian to little endian
-  const outputArrayBuffer = new ArrayBuffer(arrayBuffer.byteLength);
-  const inputDataView = new DataView(arrayBuffer);
-  const outputDataView = new DataView(outputArrayBuffer);
-
-  if ((inputDataView.byteLength % 4) !== 0) {
-    // Our check above should have already verified this, but adding it here as well
-    // for defensiveness in case something changes
-    throw new Error('N64 file size must be a multiple of 4 bytes');
-  }
-
-  for (let i = 0; i < inputDataView.byteLength / 4; i += 1) {
-    const n = inputDataView.getUint32(i * 4, false);
-    outputDataView.setUint32(i * 4, n, true);
-  }
 
   return {
-    saveData: outputArrayBuffer,
+    saveData: N64Util.endianSwap(arrayBuffer, 'bigToLittleEndian'),
     fileExtension,
   };
 }
