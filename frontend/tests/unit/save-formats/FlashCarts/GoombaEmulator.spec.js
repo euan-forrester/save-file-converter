@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import GoombaEmulatorSaveData from '@/save-formats/FlashCart/GoombaEmulator';
+import GoombaEmulatorSaveData from '@/save-formats/FlashCarts/GoombaEmulator';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 import Config from '#/config';
 
@@ -7,7 +7,7 @@ const config = Config.Create();
 
 const TEST_RETAIL_ROMS = config.get().testFlashCartRetailGames; // We don't check retail ROMs into the repo
 
-const DIR = './tests/unit/save-formats/data/flashcart/goombaemulator';
+const DIR = './tests/unit/save-formats/data/flashcarts/goombaemulator';
 
 const RAW_ZELDA_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (USA, Europe)-from-goomba.sav`;
 const GOOMBA_ZELDA_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (USA, Europe)-from-goomba.esv`;
