@@ -10,6 +10,7 @@ Based on the Goomba Save Manager, specifically:
 import Util from '../../util/util';
 import PaddingUtil from '../../util/Padding';
 import lzo from '../../../lib/minlzo-js/lzo1x';
+import GbRom from '../../rom-formats/gb';
 
 const LITTLE_ENDIAN = true;
 
@@ -283,6 +284,18 @@ export default class GoombaEmulatorSaveData {
     const goombaArrayBuffer = createGoombaArrayBuffer(rawArrayBuffer, romInternalName, romChecksum);
 
     return new GoombaEmulatorSaveData(goombaArrayBuffer);
+  }
+
+  static getFlashCartFileExtension() {
+    return 'esv';
+  }
+
+  static getRawFileExtension() {
+    return 'srm';
+  }
+
+  static requiresRomClass() {
+    return GbRom;
   }
 
   // Taken from https://github.com/masterhou/goombacolor/blob/master/src/sram.c#L258

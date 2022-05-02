@@ -13,6 +13,18 @@ export default class N64FlashCartSaveData {
     return new N64FlashCartSaveData(N64Util.endianSwap(rawArrayBuffer, 'littleToBigEndian'), rawArrayBuffer);
   }
 
+  static getFlashCartFileExtension() {
+    return null; // N64 saves have many possible extensions, and we just want to keep whatever the original extension was
+  }
+
+  static getRawFileExtension() {
+    return null; // N64 saves have many possible extensions, and we just want to keep whatever the original extension was
+  }
+
+  static requiresRomClass() {
+    return null;
+  }
+
   constructor(flashCartArrayBuffer, rawArrayBuffer) {
     this.flashCartArrayBuffer = flashCartArrayBuffer;
     this.rawArrayBuffer = rawArrayBuffer;

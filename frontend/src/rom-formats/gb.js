@@ -35,4 +35,11 @@ export default class GbRom {
   getIsGbc() {
     return this.isGbc;
   }
+
+  static getFileExtensions() {
+    return [
+      '.gb',
+      '.gbc',
+    ];
+  }
 }
