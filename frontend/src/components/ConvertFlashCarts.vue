@@ -181,23 +181,33 @@ export default {
     },
     readRomData(event) {
       this.romData = event.arrayBuffer;
-      // FIXME: What to do here?
+
+      this.updateFlashCartSaveData();
+    },
+    hasRequiredRomData() {
+      return (this.flashCartTypeClass !== null) && ((this.flashCartTypeClass.requiresRomClass() === null) || (this.romData !== null));
+    },
+    hasRequiredInputFileData() {
+      return (this.inputArrayBuffer !== null) && (this.inputFilename !== null) && (this.inputFileType !== null);
+    },
+    getOutputFilename(inputFilename, fileExtension) {
+      if (fileExtension !== null) {
+        return Util.changeFilenameExtension(inputFilename, fileExtension);
+      }
+
+      return inputFilename;
     },
     updateFlashCartSaveData() {
       this.errorMessage = null;
 
-      if ((this.flashCartTypeClass !== null) && (this.inputArrayBuffer !== null) && (this.inputFilename !== null) && (this.inputFileType !== null)) {
+      if ((this.flashCartTypeClass !== null) && this.hasRequiredRomData() && this.hasRequiredInputFileData()) {
         try {
           if (this.inputFileType === 'flashcart') {
             this.flashCartSaveData = this.flashCartTypeClass.createFromFlashCartData(this.inputArrayBuffer);
-            if (this.flashCartTypeClass.getRawFileExtension() !== null) {
-              this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.flashCartTypeClass.getRawFileExtension());
-            }
+            this.outputFilename = this.getOutputFilename(this.inputFilename, this.flashCartTypeClass.getRawFileExtension());
           } else {
-            this.flashCartSaveData = this.flashCartTypeClass.createFromRawData(this.inputArrayBuffer);
-            if (this.flashCartTypeClass.getFlashCartFileExtension() !== null) {
-              this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.flashCartTypeClass.getFlashCartFileExtension());
-            }
+            this.flashCartSaveData = this.flashCartTypeClass.createFromRawData(this.inputArrayBuffer, this.romData);
+            this.outputFilename = this.getOutputFilename(this.inputFilename, this.flashCartTypeClass.getFlashCartFileExtension());
           }
         } catch (e) {
           this.errorMessage = 'This file does not seem to be in the correct format';

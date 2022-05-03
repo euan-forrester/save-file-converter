@@ -271,7 +271,9 @@ export default class GoombaEmulatorSaveData {
     return new GoombaEmulatorSaveData(goombaArrayBuffer);
   }
 
-  static createFromRawData(rawArrayBuffer, gbRom) {
+  static createFromRawData(rawArrayBuffer, romArrayBuffer) {
+    const gbRom = new GbRom(romArrayBuffer);
+
     const romInternalName = gbRom.getInternalName();
     const romChecksum = GoombaEmulatorSaveData.calculateRomChecksum(gbRom.getRomArrayBuffer());
 
