@@ -7,7 +7,7 @@ const defaultConfig = {
 export default class Config {
   static Create() {
     try {
-      const localOverrides = require('./config.local.js'); // eslint-disable-line global-require, import/no-unresolved
+      const localOverrides = require('./config.local.js'); // eslint-disable-line global-require, import/no-unresolved, import/extensions
 
       return new Config({
         ...defaultConfig,
