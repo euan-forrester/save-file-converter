@@ -47,7 +47,7 @@ async function getModuleInstance() {
       }
 
       // Copied from https://stackoverflow.com/a/39914235
-      await new Promise((r) => setTimeout(r, 500)); // eslint-disable-line no-await-in-loop
+      await new Promise((r) => { setTimeout(r, 500); }); // eslint-disable-line no-await-in-loop
       iterations += 1;
     }
 
