@@ -9,7 +9,7 @@
 import ConvertGbaGameShark from '@/components/ConvertGbaGameShark.vue';
 
 export default {
-  name: 'GbaGameShark',
+  name: 'GbaGameSharkView',
   components: {
     ConvertGbaGameShark,
   },

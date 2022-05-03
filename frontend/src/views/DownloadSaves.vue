@@ -188,3 +188,10 @@
   min-height: 1em;
 }
 </style>
+
+<script>
+
+export default {
+  name: 'DownloadSavesView',
+};
+</script>

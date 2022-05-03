@@ -9,7 +9,7 @@
 import DecryptPsp from '@/components/DecryptPsp.vue';
 
 export default {
-  name: 'PspDecrypt',
+  name: 'PspDecryptView',
   components: {
     DecryptPsp,
   },

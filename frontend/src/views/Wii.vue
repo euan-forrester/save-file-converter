@@ -9,7 +9,7 @@
 import ConvertWii from '@/components/ConvertWii.vue';
 
 export default {
-  name: 'Wii',
+  name: 'WiiView',
   components: {
     ConvertWii,
   },

@@ -9,7 +9,7 @@
 import ConvertFlashCarts from '@/components/ConvertFlashCarts.vue';
 
 export default {
-  name: 'FlashCarts',
+  name: 'FlashCartsView',
   components: {
     ConvertFlashCarts,
   },

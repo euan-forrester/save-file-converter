@@ -9,7 +9,7 @@
 import ConvertPs1Psp from '@/components/ConvertPs1Psp.vue';
 
 export default {
-  name: 'Ps1Psp',
+  name: 'Ps1PspView',
   components: {
     ConvertPs1Psp,
   },

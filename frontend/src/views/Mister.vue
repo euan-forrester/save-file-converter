@@ -9,7 +9,7 @@
 import ConvertMister from '@/components/ConvertMister.vue';
 
 export default {
-  name: 'Mister',
+  name: 'MisterView',
   components: {
     ConvertMister,
   },
