@@ -200,7 +200,7 @@ export default {
     updateFlashCartSaveData() {
       this.errorMessage = null;
 
-      if ((this.flashCartTypeClass !== null) && this.hasRequiredRomData() && this.hasRequiredInputFileData()) {
+      if ((this.flashCartTypeClass !== null) && ((this.inputFileType === 'flashcart') || this.hasRequiredRomData()) && this.hasRequiredInputFileData()) {
         try {
           if (this.inputFileType === 'flashcart') {
             this.flashCartSaveData = this.flashCartTypeClass.createFromFlashCartData(this.inputArrayBuffer);
@@ -212,6 +212,7 @@ export default {
         } catch (e) {
           this.errorMessage = 'This file does not seem to be in the correct format';
           this.flashCartSaveData = null;
+          this.outputFilename = null;
         }
       } else {
         this.flashCartSaveData = null;
