@@ -1,6 +1,7 @@
 const defaultConfig = {
   testPspIsos: true,
   testPspRetailIsos: false, // We don't have these committed to the repo for obvious reasons, so we don't want the continuous deployment tests to test for them
+  testFlashCartRetailGames: false, // These are also not committed to the repo for obvious reasons
 };
 
 export default class Config {

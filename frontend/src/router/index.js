@@ -91,6 +91,11 @@ const routes = [
     component: () => import(/* webpackChunkName: "mister" */ '../views/Mister.vue'),
   },
   {
+    path: '/flash-carts',
+    name: 'Flash carts',
+    component: () => import(/* webpackChunkName: "flash-carts" */ '../views/FlashCarts.vue'),
+  },
+  {
     path: '/utilities',
     redirect: '/utilities/troubleshooting',
   },

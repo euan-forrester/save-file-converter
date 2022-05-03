@@ -41,7 +41,7 @@
         <b-link href="https://github.com/ShendoXT/memcardrex">MemcardRex</b-link>
       </b-col>
       <b-col cols=12 md=5 lg=5 xl=4>
-        Various PS1 formats. Requires Windows. <b-link href="https://github.com/ShendoXT/memcardrex/releases">Download{{'\xa0'}}here</b-link>
+        Various PS1 formats. Requires{{'\xa0'}}Windows. <b-link href="https://github.com/ShendoXT/memcardrex/releases">Download{{'\xa0'}}here</b-link>
       </b-col>
     </b-row>
     <div class="blank-line"/>
@@ -50,7 +50,7 @@
         <b-link href="https://github.com/hitomi2500/ss-save-parser">Sega Saturn save parser</b-link>
       </b-col>
       <b-col cols=12 md=5 lg=5 xl=4>
-        Various Saturn formats. Requires Windows. <b-link href="https://github.com/hitomi2500/ss-save-parser/releases">Download{{'\xa0'}}here</b-link>
+        Various Saturn formats. Requires{{'\xa0'}}Windows. <b-link href="https://github.com/hitomi2500/ss-save-parser/releases">Download{{'\xa0'}}here</b-link>
       </b-col>
     </b-row>
     <div class="blank-line"/>
@@ -69,6 +69,15 @@
       </b-col>
       <b-col cols=12 md=5 lg=5 xl=4>
         Pokémon Gold/Silver/Crystal save to 3DS Virtual Console
+      </b-col>
+    </b-row>
+    <div class="blank-line"/>
+    <b-row align-h="center">
+      <b-col cols=12 md=5 lg=5 xl=4>
+        <b-link href="https://github.com/libertyernie/goombasav">Goomba save manager</b-link>
+      </b-col>
+      <b-col cols=12 md=5 lg=5 xl=4>
+        GB/GBC games on various GBA flash carts. Requires{{'\xa0'}}Windows. <b-link href="https://github.com/libertyernie/goombasav/releases">Download{{'\xa0'}}here</b-link>
       </b-col>
     </b-row>
   </div>
