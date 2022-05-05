@@ -1,3 +1,4 @@
+const webpack = require('webpack')
 const path = require('path');
 const contentBase = path.resolve(__dirname);
 
@@ -20,7 +21,7 @@ module.exports = {
       acl: 'public-read',
       pwa: false,
       enableCloudfront: false,
-      pluginVersion: '3.0.0',
+      pluginVersion: '4.0.0-rc3',
       uploadConcurrency: 5,
     },
     s3DeployCleanup: {
@@ -34,16 +35,27 @@ module.exports = {
     },
   },
   configureWebpack: {
+    plugins: [
+      // So can use 'process.env.<blah>'' in browser code
+      // https://stackoverflow.com/a/72016474
+      new webpack.ProvidePlugin({
+        process: 'process/browser',
+      }),
+    ],
     resolve: {
       alias: {
         "#": path.join(__dirname, testsDir)
+      },
+      fallback: {
+        "fs": false,
+        "stream": false, // or require.resolve("stream-browserify"), and yarn install stream-browserify
       }
     },
     // Copied from https://github.com/emscripten-core/emscripten/issues/10114#issuecomment-569561505
     devServer: {
-      before(app) {
+      setupMiddlewares(middlewares, devServer) {
         // use proper mime-type for wasm files
-        app.get('*.wasm', function (req, res, next) {
+        devServer.app.get('*.wasm', function (req, res, next) {
           var options = {
             root: contentBase,
             dotfiles: 'deny',
@@ -57,6 +69,7 @@ module.exports = {
             }
           });
         });
+        return middlewares;
       }
     },
     module: {

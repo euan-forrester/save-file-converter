@@ -31,26 +31,30 @@
     "node-html-parser": "^4.0.0",
     "pako": "^2.0.3",
     "path": "^0.12.7",
+    "process": "^0.11.10",
     "vue": "^2.6.12",
-    "vue-cli-plugin-s3-deploy": "^3.0.0",
+    "vue-cli-plugin-s3-deploy": "~4.0.0-rc3",
     "vue-mq": "^1.0.1",
     "vue-router": "^3.2.0",
     "vuex": "^3.4.0"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.5.0",
-    "@vue/cli-plugin-eslint": "~4.5.0",
-    "@vue/cli-plugin-router": "~4.5.0",
-    "@vue/cli-plugin-unit-mocha": "~4.5.0",
-    "@vue/cli-plugin-vuex": "~4.5.0",
-    "@vue/cli-service": "~4.5.0",
-    "@vue/eslint-config-airbnb": "^5.0.2",
+    "@babel/core": "^7.12.16",
+    "@babel/eslint-parser": "^7.12.16",
+    "@vue/cli-plugin-babel": "~5.0.4",
+    "@vue/cli-plugin-eslint": "~5.0.4",
+    "@vue/cli-plugin-router": "~5.0.4",
+    "@vue/cli-plugin-unit-mocha": "~5.0.4",
+    "@vue/cli-plugin-vuex": "~5.0.4",
+    "@vue/cli-service": "~5.0.4",
+    "@vue/eslint-config-airbnb": "^6.0.0",
     "@vue/test-utils": "^1.0.3",
-    "babel-eslint": "^10.1.0",
     "chai": "^4.1.2",
-    "eslint": "^6.7.2",
-    "eslint-plugin-import": "^2.20.2",
-    "eslint-plugin-vue": "^6.2.2",
+    "eslint": "^7.32.0",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-vue": "^8.0.3",
+    "eslint-plugin-vuejs-accessibility": "^1.1.0",
+    "file-loader": "^6.2.0",
     "pkcs7": "^1.0.4",
     "seedrandom": "^3.0.5",
     "vue-cli-plugin-s3-deploy-cleanup": "^1.0.5",
@@ -68,7 +72,7 @@
       "@vue/airbnb"
     ],
     "parserOptions": {
-      "parser": "babel-eslint"
+      "parser": "@babel/eslint-parser"
     },
     "rules": {
       "max-len": [
