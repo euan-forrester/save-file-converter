@@ -36,8 +36,8 @@ module.exports = {
   },
   configureWebpack: {
     plugins: [
-      // So can use 'process.env.<blah>'' in browser code
-      // https://stackoverflow.com/a/72016474
+      // So can use 'process.env.<blah>' in browser code
+      // https://stackoverflow.com/a/72016474 (also has good suggestions for various fallbacks if needed below)
       new webpack.ProvidePlugin({
         process: 'process/browser',
       }),
@@ -51,35 +51,15 @@ module.exports = {
         "stream": false, // or require.resolve("stream-browserify"), and yarn install stream-browserify
       }
     },
-    // Copied from https://github.com/emscripten-core/emscripten/issues/10114#issuecomment-569561505
-    devServer: {
-      setupMiddlewares(middlewares, devServer) {
-        // use proper mime-type for wasm files
-        devServer.app.get('*.wasm', function (req, res, next) {
-          var options = {
-            root: contentBase,
-            dotfiles: 'deny',
-            headers: {
-              'Content-Type': 'application/wasm'
-            }
-          };
-          res.sendFile(req.url, options, function (err) {
-            if (err) {
-              next(err);
-            }
-          });
-        });
-        return middlewares;
-      }
-    },
     module: {
+      // WASM integration with webpack 5 based on: https://gist.github.com/surma/b2705b6cca29357ebea1c9e6e15684cc
       rules: [
         { 
           test: /\.wasm$/,
           type: 'javascript/auto',
           loader: 'file-loader',
           options: {
-            name: '[name]-[contenthash].[ext]',         
+            name: '[name]-[contenthash].[ext]',
           }        
         }
       ]
