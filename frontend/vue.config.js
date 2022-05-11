@@ -36,6 +36,12 @@ module.exports = {
   },
   configureWebpack: {
     plugins: [
+      // Work around for Buffer is undefined:
+      // https://github.com/webpack/changelog-v5/issues/10
+      // https://stackoverflow.com/a/68723223
+      new webpack.ProvidePlugin({
+        Buffer: ['buffer', 'Buffer'],
+      }),
       // So can use 'process.env.<blah>' in browser code
       // https://stackoverflow.com/a/72016474 (also has good suggestions for various fallbacks if needed below)
       new webpack.ProvidePlugin({
@@ -49,6 +55,7 @@ module.exports = {
       fallback: {
         "fs": false,
         "stream": false, // or require.resolve("stream-browserify"), and yarn install stream-browserify
+        "buffer": require.resolve("buffer"), // https://stackoverflow.com/a/68723223
       }
     },
     module: {
