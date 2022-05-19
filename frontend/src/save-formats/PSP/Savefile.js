@@ -1,20 +1,29 @@
 /* eslint-disable no-underscore-dangle */
 
 import createModule from '@/save-formats/PSP/psp-encryption/psp-encryption';
-import pspEncryptionWasm from './psp-encryption/psp-encryption.wasm';
+// import pspEncryptionWasm from './psp-encryption/psp-encryption.wasm';
 
 // const INCORRECT_FORMAT_ERROR_MESSAGE = 'This does not appear to be a PSP save file';
 
 async function getModuleInstance() {
-  // WASM integration with webpack 5 based on: https://gist.github.com/surma/b2705b6cca29357ebea1c9e6e15684cc
+  // We want to use this formulation when in tests to get the file from our local machine in the src/ dir
   const moduleOverrides = {
-    locateFile: (s) => {
-      if (s.endsWith('.wasm')) {
-        return pspEncryptionWasm;
-      }
-      return s;
-    },
+    locateFile: (s) => `src/save-formats/PSP/psp-encryption/${s}`,
   };
+
+  /*
+  if (window !== null) {
+    // WASM integration with webpack 5 based on: https://gist.github.com/surma/b2705b6cca29357ebea1c9e6e15684cc
+    moduleOverrides = {
+      locateFile: (s) => {
+        if (s.endsWith('.wasm')) {
+          return pspEncryptionWasm;
+        }
+        return s;
+      },
+    };
+  }
+  */
 
   return createModule(moduleOverrides);
 }
