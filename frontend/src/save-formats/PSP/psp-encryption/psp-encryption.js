@@ -1469,19 +1469,29 @@ function getBinary(file) {
 }
 
 function getBinaryPromise() {
+  console.log('Inside getBinaryPromise()');
+  console.log('\twasmBinary: ', wasmBinary);
+  console.log('\tENVIRONMENT_IS_WEB: ', ENVIRONMENT_IS_WEB);
+  console.log('\tENVIRONMENT_IS_WORKER: ', ENVIRONMENT_IS_WORKER);
  if (!wasmBinary && (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER)) {
+  console.log(`getBinaryPromise(): Inside first if. typeof fetch: ${typeof fetch}, isFileURI(wasmBinaryFile): ${isFileURI(wasmBinaryFile)}`);
   if (typeof fetch == "function" && !isFileURI(wasmBinaryFile)) {
+    console.log('getBinaryPromise(): Inside second if');
    return fetch(wasmBinaryFile, {
     credentials: "same-origin"
    }).then(function(response) {
     if (!response["ok"]) {
+      console.log('getBinaryPromise(): failure');
      throw "failed to load wasm binary file at '" + wasmBinaryFile + "'";
     }
+    console.log('getBinaryPromise(): success!');
     return response["arrayBuffer"]();
    }).catch(function() {
+    console.log('Inside catch, returning getBinary()')
     return getBinary(wasmBinaryFile);
    });
   } else {
+    console.log('getBinaryPromise(): inside else (do not expect to be here). readAsync: ', readAsync);
    if (readAsync) {
     return new Promise(function(resolve, reject) {
      readAsync(wasmBinaryFile, function(response) {
@@ -1491,6 +1501,7 @@ function getBinaryPromise() {
    }
   }
  }
+ console.log('getBinaryPromise(): at end of function (really do not expect to be here)');
  return Promise.resolve().then(function() {
   return getBinary(wasmBinaryFile);
  });
