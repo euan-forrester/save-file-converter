@@ -183,6 +183,8 @@ var ENVIRONMENT_IS_NODE = typeof process == "object" && typeof process.versions 
 
 var ENVIRONMENT_IS_SHELL = !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_NODE && !ENVIRONMENT_IS_WORKER;
 
+console.log(`Determining environment: web: ${ENVIRONMENT_IS_WEB}, worker: ${ENVIRONMENT_IS_WORKER}, node: ${ENVIRONMENT_IS_NODE}, shell: ${ENVIRONMENT_IS_SHELL}`);
+
 if (Module["ENVIRONMENT"]) {
  throw new Error("Module.ENVIRONMENT has been deprecated. To force the environment, use the ENVIRONMENT compile-time option (for example, -s ENVIRONMENT=web or -s ENVIRONMENT=node)");
 }
@@ -242,6 +244,8 @@ if (ENVIRONMENT_IS_NODE) {
  readAsync = ((filename, onload, onerror) => {
   requireNodeFS();
   filename = nodePath["normalize"](filename);
+  console.log('Inside readAsync(). fs: ', fs);
+  console.log('\tfilename: ', filename);
   fs.readFile(filename, function(err, data) {
    if (err) onerror(err); else onload(data.buffer);
   });
