@@ -184,6 +184,9 @@ var ENVIRONMENT_IS_NODE = typeof process == "object" && typeof process.versions 
 var ENVIRONMENT_IS_SHELL = !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_NODE && !ENVIRONMENT_IS_WORKER;
 
 console.log(`Determining environment: web: ${ENVIRONMENT_IS_WEB}, worker: ${ENVIRONMENT_IS_WORKER}, node: ${ENVIRONMENT_IS_NODE}, shell: ${ENVIRONMENT_IS_SHELL}`);
+console.log('\tprocess: ', process);
+console.log('\tprocess.versions: ', typeof process == "object" ? process.versions : 'null');
+console.log('\tprocess.versions.node: ', typeof process == "object" && typeof process.versions == "object" ? process.versions.node : 'null');
 
 if (Module["ENVIRONMENT"]) {
  throw new Error("Module.ENVIRONMENT has been deprecated. To force the environment, use the ENVIRONMENT compile-time option (for example, -s ENVIRONMENT=web or -s ENVIRONMENT=node)");

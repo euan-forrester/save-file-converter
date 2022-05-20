@@ -1,18 +1,26 @@
 /* eslint-disable no-underscore-dangle */
 
 import createModule from '@/save-formats/PSP/psp-encryption/psp-encryption';
-// import pspEncryptionWasm from './psp-encryption/psp-encryption.wasm';
+import pspEncryptionWasm from './psp-encryption/psp-encryption.wasm';
 
 // const INCORRECT_FORMAT_ERROR_MESSAGE = 'This does not appear to be a PSP save file';
 
 async function getModuleInstance() {
   // We want to use this formulation when in tests to get the file from our local machine in the src/ dir
-  const moduleOverrides = {
-    locateFile: (s) => `src/save-formats/PSP/psp-encryption/${s}`,
-  };
 
-  /*
-  if (window !== null) {
+  // Our tests run within jsdom
+  const isTest = typeof navigator === 'object' && (navigator.userAgent.includes('Node.js') || navigator.userAgent.includes('jsdom')); // https://github.com/jsdom/jsdom/issues/1537
+
+  console.log('************* Is currently in test: ', isTest);
+
+  let moduleOverrides = {};
+
+  if (isTest) {
+    process.versions.node = 'dummy'; // Hack to convince ENVIRONMENT_IS_NODE to be true in psp-encryption.js
+    moduleOverrides = {
+      locateFile: (s) => `src/save-formats/PSP/psp-encryption/${s}`,
+    };
+  } else {
     // WASM integration with webpack 5 based on: https://gist.github.com/surma/b2705b6cca29357ebea1c9e6e15684cc
     moduleOverrides = {
       locateFile: (s) => {
@@ -23,7 +31,6 @@ async function getModuleInstance() {
       },
     };
   }
-  */
 
   return createModule(moduleOverrides);
 }
