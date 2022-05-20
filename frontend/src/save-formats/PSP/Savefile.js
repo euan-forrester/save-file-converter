@@ -11,8 +11,6 @@ async function getModuleInstance() {
   // Our tests run within jsdom
   const isTest = typeof navigator === 'object' && (navigator.userAgent.includes('Node.js') || navigator.userAgent.includes('jsdom')); // https://github.com/jsdom/jsdom/issues/1537
 
-  console.log('************* Is currently in test: ', isTest);
-
   let moduleOverrides = {};
 
   if (isTest) {
