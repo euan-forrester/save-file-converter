@@ -8,7 +8,7 @@ import pspEncryptionWasm from './psp-encryption/psp-encryption.wasm';
 async function getModuleInstance() {
   // We want to use this formulation when in tests to get the file from our local machine in the src/ dir
 
-  // Our tests run within jsdom
+  // Our tests run within jsdom, which mimics a browser environment
   const isTest = typeof navigator === 'object' && (navigator.userAgent.includes('Node.js') || navigator.userAgent.includes('jsdom')); // https://github.com/jsdom/jsdom/issues/1537
 
   let moduleOverrides = {};
