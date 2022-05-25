@@ -54,7 +54,7 @@ module.exports = {
       },
       fallback: {
         "fs": false,
-        "stream": false, // or require.resolve("stream-browserify"), and yarn install stream-browserify
+        "stream": require.resolve("stream-browserify"), // https://github.com/crypto-browserify/cipher-base/issues/11
         "buffer": require.resolve("buffer"), // https://stackoverflow.com/a/68723223
       }
     },

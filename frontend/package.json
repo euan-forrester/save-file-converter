@@ -32,6 +32,7 @@
     "pako": "^2.0.3",
     "path": "^0.12.7",
     "process": "^0.11.10",
+    "stream-browserify": "^3.0.0",
     "vue": "^2.6.12",
     "vue-cli-plugin-s3-deploy": "~4.0.0-rc3",
     "vue-mq": "^1.0.1",
