@@ -1390,7 +1390,7 @@ export default {
           ps2: false,
         },
         {
-          index: 42,
+          index: 43,
           gtmClass: 'analogue-nt-mini',
           hardware: {
             name: 'Analogue Nt Mini',
