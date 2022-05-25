@@ -20,6 +20,7 @@ Instructions:
 - PS2 formats (check out https://gamefaqs.gamespot.com/ps2/536777-suikoden-iii/saves for a potential list)
 - GameCube formats (check out https://gamefaqs.gamespot.com/gamecube/533008-soulcalibur-ii/saves for a potential list)
 - Saturn formats
+  - Add ability to add/extract a single game's save to/from a RAM backup, similar to how PS1/N64 work
 - What are the 64kB `.srm` files for SNES etc on thetechgame.com? Want to extract a 'normal' `.srm` file from them
 - I need suggestions!
 
