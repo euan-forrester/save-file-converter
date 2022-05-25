@@ -1,5 +1,5 @@
 <template>
-  <b-collapse appear id="id" :value="display">
+  <b-collapse appear id="id" :visible="display">
   <b-list-group>
     <b-list-group-item :variant="fileNameVariant" class="d-flex justify-content-between align-items-center">
       <div>File name:</div><div>{{ fileName }}</div>
