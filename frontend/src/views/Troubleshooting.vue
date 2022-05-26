@@ -9,7 +9,7 @@
 import TroubleshootingUtils from '@/components/TroubleshootingUtils.vue';
 
 export default {
-  name: 'Troubleshooting',
+  name: 'TroubleshootingView',
   components: {
     TroubleshootingUtils,
   },

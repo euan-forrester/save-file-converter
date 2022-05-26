@@ -1,5 +1,5 @@
 <template>
-  <b-collapse appear id="id" v-model="display">
+  <b-collapse appear id="id" :visible="display">
   <b-list-group>
     <b-list-group-item :variant="fileNameVariant" class="d-flex justify-content-between align-items-center">
       <div>File name:</div><div>{{ fileName }}</div>
@@ -60,7 +60,7 @@ export default {
   },
   methods: {
     getFileSize(fileData) { return fileData ? fileData.byteLength : 0; },
-    getInitialPadding(fileData) { return fileData ? PaddingUtil.getPadValueAndCount(fileData).count : 0; },
+    getInitialPadding(fileData) { return fileData ? PaddingUtil.getPadFromStartValueAndCount(fileData).count : 0; },
     getRemainingSaveSize(fileData) { return this.getFileSize(fileData) - this.getInitialPadding(fileData); },
     getVariantForNumericalValue(getter) {
       if (!this.fileData || !this.otherFileData) {

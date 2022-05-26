@@ -9,7 +9,7 @@
 import ConvertN64Mempack from '@/components/ConvertN64Mempack.vue';
 
 export default {
-  name: 'N64Mempack',
+  name: 'N64MempackView',
   components: {
     ConvertN64Mempack,
   },

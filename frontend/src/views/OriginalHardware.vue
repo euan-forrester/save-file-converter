@@ -114,7 +114,7 @@ import {
 } from 'bootstrap-vue';
 
 export default {
-  name: 'OriginalHardware',
+  name: 'OriginalHardwareView',
   components: {
     BTable,
     BCard,

@@ -9,7 +9,7 @@
 import ConvertPs1DexDrive from '@/components/ConvertPs1DexDrive.vue';
 
 export default {
-  name: 'Ps1DexDrive',
+  name: 'Ps1DexDriveView',
   components: {
     ConvertPs1DexDrive,
   },

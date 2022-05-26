@@ -9,7 +9,7 @@
 import ConvertRetron5 from '@/components/ConvertRetron5.vue';
 
 export default {
-  name: 'Retron5',
+  name: 'Retron5View',
   components: {
     ConvertRetron5,
   },

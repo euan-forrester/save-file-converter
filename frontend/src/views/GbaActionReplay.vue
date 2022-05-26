@@ -9,7 +9,7 @@
 import ConvertGbaActionReplay from '@/components/ConvertGbaActionReplay.vue';
 
 export default {
-  name: 'GbaActionReplay',
+  name: 'GbaActionReplayView',
   components: {
     ConvertGbaActionReplay,
   },

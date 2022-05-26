@@ -9,7 +9,7 @@
 import ConvertPs1Ps3 from '@/components/ConvertPs1Ps3.vue';
 
 export default {
-  name: 'Ps1Ps3',
+  name: 'Ps1Ps3View',
   components: {
     ConvertPs1Ps3,
   },

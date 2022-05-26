@@ -1,5 +1,5 @@
 <template>
-  <b-collapse appear v-model="display">
+  <b-collapse appear :visible="display">
     <b-alert variant="info" :show="this.files.length === 0">
       No saves found in file
     </b-alert>

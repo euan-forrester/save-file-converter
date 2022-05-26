@@ -47,7 +47,8 @@ describe('PS1 - PSP save format', () => {
 
     expect(() => PspSaveData.createFromPspData(pspArrayBuffer)).to.throw(
       // Passing in a specific instance of an Error triggers a comparison of the references: https://github.com/chaijs/chai/issues/430
-      Error, 'Save appears to be corrupted: expected signature 0000000000000000000000000000000000000000 but calculated signature 93a06a162ae1808643027aeb2c95d80bbee92a39',
+      Error,
+      'Save appears to be corrupted: expected signature 0000000000000000000000000000000000000000 but calculated signature 93a06a162ae1808643027aeb2c95d80bbee92a39',
     );
   });
 
