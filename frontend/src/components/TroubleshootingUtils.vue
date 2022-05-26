@@ -156,7 +156,7 @@ export default {
       return this.testSaveData
       && this.brokenSaveData
       && (this.testSaveDataFilename === this.brokenSaveDataFilename)
-      && PaddingUtil.fileSizeAndPaddingIsSame(this.testSaveData, this.brokenSaveData);
+      && PaddingUtil.fileSizeAndPaddingFromStartIsSame(this.testSaveData, this.brokenSaveData);
     },
   },
   components: {
