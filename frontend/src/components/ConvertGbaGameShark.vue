@@ -182,7 +182,7 @@ export default {
           const date = dayjs().format('DD/MM/YYYY hh:mm:ss a');
           const notes = 'Created with savefileconverter.com';
           this.gameSharkSaveData = GameSharkSaveData.createFromEmulatorData(this.emulatorSaveData, title, date, notes, this.romData);
-          this.outputFilename = this.changeFilenameExtension(this.emulatorSaveDataFilename, 'sps');
+          this.outputFilename = Util.changeFilenameExtension(this.emulatorSaveDataFilename, 'sps');
           this.outputFilesize = this.gameSharkSaveData.getRawSaveData().byteLength;
         } catch (e) {
           this.errorMessage = e.message;
