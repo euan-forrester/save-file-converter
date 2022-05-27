@@ -3,6 +3,7 @@ Swaps the endianness of N64 save data
 */
 
 import N64Util from '../../util/N64';
+import SaveFilesUtil from '../../util/SaveFiles';
 
 export default class N64FlashCartSaveData {
   static createFromFlashCartData(flashCartArrayBuffer) {
@@ -11,6 +12,12 @@ export default class N64FlashCartSaveData {
 
   static createFromRawData(rawArrayBuffer) {
     return new N64FlashCartSaveData(N64Util.endianSwap(rawArrayBuffer, 'littleToBigEndian'), rawArrayBuffer);
+  }
+
+  static createWithNewSize(n64FlashCartSaveData, newSize) {
+    const newRawSaveData = SaveFilesUtil.resizeRawSave(n64FlashCartSaveData.getRawArrayBuffer(), newSize);
+
+    return N64FlashCartSaveData.createFromRawData(newRawSaveData);
   }
 
   static getFlashCartFileExtension() {
@@ -23,6 +30,10 @@ export default class N64FlashCartSaveData {
 
   static requiresRomClass() {
     return null;
+  }
+
+  static adjustOutputSizesPlatform() {
+    return 'n64'; // Apparently N64 Everdrives will ignore a save that's the wrong size, and just overwrite it
   }
 
   constructor(flashCartArrayBuffer, rawArrayBuffer) {

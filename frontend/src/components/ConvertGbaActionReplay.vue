@@ -21,7 +21,7 @@
           </div>
           <div v-else>
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
-            <output-filesize v-model="outputFilesize" id="gameshark-filesize" platform="gba"/>
+            <output-filesize v-model="outputFilesize" id="action-replay-filesize" platform="gba"/>
           </div>
         </b-col>
         <b-col sm=12 md=2 lg=2 xl=2 align-self="start">
@@ -42,7 +42,7 @@
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'">
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
-            <output-filesize v-model="outputFilesize" id="gameshark-filesize" platform="gba"/>
+            <output-filesize v-model="outputFilesize" id="action-replay-filesize" platform="gba"/>
           </div>
           <div v-else>
             <input-file

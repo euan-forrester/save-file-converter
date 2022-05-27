@@ -300,6 +300,10 @@ export default class GoombaEmulatorSaveData {
     return GbRom;
   }
 
+  static adjustOutputSizesPlatform() {
+    return null;
+  }
+
   // Taken from https://github.com/masterhou/goombacolor/blob/master/src/sram.c#L258
   //
   // Note that this only looks (sporadically) at the first 16kB of the file

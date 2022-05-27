@@ -26,6 +26,9 @@
           </div>
           <div v-else>
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
+            <div v-if="(this.flashCartTypeClass !== null) && (this.flashCartTypeClass.adjustOutputSizesPlatform() !== null)">
+              <output-filesize v-model="outputFilesize" id="output-filesize" :platform="this.flashCartTypeClass.adjustOutputSizesPlatform()"/>
+            </div>
           </div>
         </b-col>
         <b-col sm=12 md=2 lg=2 xl=2 align-self="start">
@@ -109,6 +112,7 @@ import { saveAs } from 'file-saver';
 import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
+import OutputFilesize from './OutputFilesize.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import FlashCartType from './FlashCartType.vue';
 
@@ -125,6 +129,7 @@ export default {
       flashCartTypeClass: null,
       errorMessage: null,
       outputFilename: null,
+      outputFilesize: null,
       conversionDirection: 'convertToEmulator',
       inputArrayBuffer: null,
       inputFilename: null,
@@ -135,6 +140,7 @@ export default {
     ConversionDirection,
     InputFile,
     OutputFilename,
+    OutputFilesize,
     FlashCartType,
   },
   methods: {
@@ -146,6 +152,7 @@ export default {
       this.flashCartTypeClass = null;
       this.errorMessage = null;
       this.outputFilename = null;
+      this.outputFilesize = null;
       this.inputArrayBuffer = null;
       this.inputFilename = null;
       this.inputFileType = null;
@@ -209,6 +216,7 @@ export default {
             this.flashCartSaveData = this.flashCartTypeClass.createFromRawData(this.inputArrayBuffer, this.romData);
             this.outputFilename = this.getOutputFilename(this.inputFilename, this.flashCartTypeClass.getFlashCartFileExtension());
           }
+          this.outputFilesize = this.flashCartSaveData.getRawArrayBuffer().byteLength;
         } catch (e) {
           this.errorMessage = 'This file does not seem to be in the correct format';
           this.flashCartSaveData = null;
@@ -234,6 +242,10 @@ export default {
       this.updateFlashCartSaveData();
     },
     convertFile() {
+      if (this.flashCartSaveData.getRawArrayBuffer().byteLength !== this.outputFilesize) {
+        this.flashCartSaveData = this.flashCartTypeClass.createWithNewSize(this.flashCartSaveData, this.outputFilesize);
+      }
+
       const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.flashCartSaveData.getRawArrayBuffer() : this.flashCartSaveData.getFlashCartArrayBuffer();
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
