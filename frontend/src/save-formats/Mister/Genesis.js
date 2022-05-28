@@ -51,6 +51,15 @@ export default class MisterGenesisSaveData {
     // it seems to be more correct to always remove it
     unpaddedMisterArrayBuffer = PaddingUtil.removePaddingFromEnd(misterArrayBuffer, padding.count);
 
+    // Hacky check for EEPROM saves that shouldn't be byte expanded
+    // Wonder Boy in Monster World's save is 128 btes. 512 bytes is the smallest SRAM save I've seen (Final Fantasy Legend on Gameboy)
+    // This hack may well not work on other Genesis EEPROM games: I have no idea how big their saves are, and looking at the list
+    // here https://github.com/euan-forrester/save-file-converter/blob/main/frontend/src/save-formats/Wii/ConvertFromSega.js
+    // there are lots of sports games that may need a bunch of space.
+    if (unpaddedMisterArrayBuffer.byteLength < 512) {
+      return new MisterGenesisSaveData(unpaddedMisterArrayBuffer, unpaddedMisterArrayBuffer);
+    }
+
     // Now that the padding is gone, we can proceed
 
     const rawArrayBuffer = new ArrayBuffer(unpaddedMisterArrayBuffer.byteLength * 2);

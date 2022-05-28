@@ -68,4 +68,15 @@ describe('MiSTer - Genesis save format', () => {
 
     expect(ArrayBufferUtil.arrayBuffersEqual(misterGenesisSaveData.getMisterArrayBuffer(), misterArrayBuffer)).to.equal(true);
   });
+
+  it('should convert a mister EEPROM Genesis save back to raw without byte expanding', async () => {
+    // The EEPROM saves are not byte expanded
+
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_EEPROM_FILENAME);
+    const misterArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MISTER_EEPROM_FILENAME);
+
+    const misterGenesisSaveData = MisterGenesisSaveData.createFromMisterData(misterArrayBuffer);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(misterGenesisSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
+  });
 });
