@@ -71,7 +71,7 @@ export default {
     65536,
   ],
   genesis: [
-    128,
+    128, // Wonder Boy in Monster World (uses EEPROM to save)
     256,
     512,
     1024,
