@@ -99,7 +99,7 @@ export default class MisterGenesisSaveData {
         return new MisterGenesisSaveData(rawArrayBuffer, padArrayBuffer(rawArrayBuffer));
       }
 
-      misterDataView.setUint8(i, currByte);
+      misterDataView.setUint8(i, nextByte);
     }
 
     return new MisterGenesisSaveData(rawArrayBuffer, padArrayBuffer(misterArrayBuffer));
