@@ -70,10 +70,18 @@ export default class MisterGenesisSaveData {
     const rawDataView = new DataView(rawArrayBuffer);
 
     for (let i = 0; i < misterArrayBuffer.byteLength; i += 1) {
-      const currByte = rawDataView.getUint16(i * 2);
+      // There are 3 types of Genesis saves that we need to disambiguate:
+      //   1. Saves where each alternating byte is 0. These come from emulators (?), and represent what happens when you read an 8 bit value through a 16 bit bus
+      //   2. Saves where each pair of bytes is the same. These come from the Retrode (and others?), and are a different representation of what happens when you read an 8 bit value through a 16 but bus
+      //   3. Saves with no such pattern. These are EEPROM saves, which don't have either kind of byte expansion
+
+      const currByte = rawDataView.getUint8(i * 2);
+      const nextByte = rawDataView.getUint8((i * 2) + 1);
+
+      const currByte16 = rawDataView.getUint16(i * 2, LITTLE_ENDIAN);
 
       // This may happen, for example, when using a Genesis EEPROM save. The Genesis EEPROM saves
-      // don't have this strange byte expansion to work in an emulator that the SRAM and FRAM saves
+      // don't have either kind of strange byte expansion to work in an emulator that the SRAM and FRAM saves
       // for the Genesis do. And so it works as-is on a MiSTer.
       //
       // But, the user may not know that, and try to convert their save when trying to use it
@@ -85,7 +93,7 @@ export default class MisterGenesisSaveData {
       //
       // This only applies to a really small list of games, so whichever tactic we choose here
       // won't have much of an impact (hopefully!)
-      if (currByte > 0xFF) {
+      if ((currByte !== nextByte) && (currByte16 > 0xFF)) {
         return new MisterGenesisSaveData(rawArrayBuffer, padArrayBuffer(rawArrayBuffer));
       }
 
