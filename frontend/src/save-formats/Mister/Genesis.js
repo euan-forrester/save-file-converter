@@ -33,6 +33,10 @@ export default class MisterGenesisSaveData {
     return 'srm';
   }
 
+  static adjustOutputSizesPlatform() {
+    return 'genesis';
+  }
+
   static createFromMisterData(misterArrayBuffer) {
     // First, we need to unpad the mister save. Otherwise we will byte-expand all the 0xFFs at the end
     // which will result in a crazy file

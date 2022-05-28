@@ -28,6 +28,10 @@ export default class MisterSmsSaveData {
     return 'sav';
   }
 
+  static adjustOutputSizesPlatform() {
+    return 'sms';
+  }
+
   static createFromMisterData(misterArrayBuffer) {
     // Just copy it straight over, because we don't know what size to truncate to: not all NES saves are 8kB
     return new MisterSmsSaveData(misterArrayBuffer, misterArrayBuffer);

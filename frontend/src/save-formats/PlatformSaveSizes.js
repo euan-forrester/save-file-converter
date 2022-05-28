@@ -1,9 +1,23 @@
 // All values are in bytes
-// Got guaranteed to be correct: may have missing values!
+// Not guaranteed to be correct: may have missing/estra values! Most of this is guesses
 
 export default {
-  gba: [
+  nes: [
     512,
+    1024,
+    2048,
+    4096,
+    8192,
+    16384,
+    32768, // The usual max size of files that the MiSTer NES core will generate
+    65536,
+    131072, // The MiSTer NES core will sometimes generate files this big, so maybe some games require them?
+  ],
+  snes: [
+    512,
+    1024,
+    2048,
+    4096,
     8192,
     16384,
     32768,
@@ -17,5 +31,53 @@ export default {
     32768,
     131072,
     786432, // Dezaemon 3D
+  ],
+  gb: [
+    512,
+    1024,
+    2048,
+    4096,
+    8192,
+    16384,
+    32768,
+    65536,
+  ],
+  gba: [
+    512,
+    8192,
+    16384,
+    32768,
+    65536,
+    131072,
+  ],
+  gamegear: [
+    512,
+    1024,
+    2048,
+    4096,
+    8192,
+    16384,
+    32768,
+    65536,
+  ],
+  sms: [
+    512,
+    1024,
+    2048,
+    4096,
+    8192,
+    16384,
+    32768,
+    65536,
+  ],
+  genesis: [
+    512,
+    1024,
+    2048,
+    4096,
+    8192,
+    16384,
+    32768,
+    65536, // Genesis files on the MiSTer are all padded out to be 64k, so maybe that's the max size?
   ],
 };

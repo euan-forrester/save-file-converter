@@ -11,6 +11,10 @@ export default class MisterGameboySaveData {
     return 'srm';
   }
 
+  static adjustOutputSizesPlatform() {
+    return 'gb';
+  }
+
   static createFromMisterData(misterArrayBuffer) {
     return new MisterGameboySaveData(misterArrayBuffer, misterArrayBuffer);
   }

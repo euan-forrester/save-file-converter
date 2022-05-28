@@ -46,10 +46,10 @@ export default {
       return `${kilobytesString}kB (${size} bytes)`;
     },
   },
-  data() {
-    return {
-      options: [{ value: null, text: 'Output file size', disabled: true }].concat(PlatformSaveSizes[this.platform].map((s) => ({ value: s, text: this.getDropdownText(s) }))),
-    };
+  computed: {
+    options() {
+      return [{ value: null, text: 'Output file size', disabled: true }].concat(PlatformSaveSizes[this.platform].map((s) => ({ value: s, text: this.getDropdownText(s) })));
+    },
   },
 };
 </script>
