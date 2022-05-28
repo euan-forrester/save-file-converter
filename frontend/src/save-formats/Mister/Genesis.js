@@ -45,9 +45,11 @@ export default class MisterGenesisSaveData {
 
     const padding = PaddingUtil.getPadFromEndValueAndCount(misterArrayBuffer);
 
-    if (padding.value === MISTER_PADDING_VALUE) {
-      unpaddedMisterArrayBuffer = PaddingUtil.removePaddingFromEnd(misterArrayBuffer, padding.count);
-    }
+    // The Genesis MiSTer core can actually output files with either padding value.
+    // I guess if it gets a file padded with 0x00 then it just maintains that?
+    // So althugh it's tempting to only remove padding here if it's the MISTER_PADDING_VALUE
+    // it seems to be more correct to always remove it
+    unpaddedMisterArrayBuffer = PaddingUtil.removePaddingFromEnd(misterArrayBuffer, padding.count);
 
     // Now that the padding is gone, we can proceed
 
