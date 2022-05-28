@@ -13,6 +13,9 @@ const MISTER_RETRODE_FILENAME = `${DIR}/Phantasy_Star_IV_USA-from-retrode-to-mis
 const RAW_ZERO_PADDED_FILENAME = `${DIR}/Phantasy_Star_IV_USA-from-mister-zero-padded-to-raw.srm`;
 const MISTER_ZERO_PADDED_FILENAME = `${DIR}/Phantasy_Star_IV_USA-from-mister-zero-padded.sav`;
 
+const RAW_EEPROM_FILENAME = `${DIR}/Wonder Boy in Monster World raw.srm`;
+const MISTER_EEPROM_FILENAME = `${DIR}/Wonder Boy in Monster World mister.sav`;
+
 describe('MiSTer - Genesis save format', () => {
   it('should convert a raw Genesis save to the MiSTer format', async () => {
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_PHANTASY_STAR_2_FILENAME);
@@ -53,5 +56,16 @@ describe('MiSTer - Genesis save format', () => {
     const misterGenesisSaveData = MisterGenesisSaveData.createFromMisterData(misterArrayBuffer);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(misterGenesisSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a raw EEPROM Genesis save to the MiSTer format', async () => {
+    // The EEPROM saves are not byte expanded
+
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_EEPROM_FILENAME);
+    const misterArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MISTER_EEPROM_FILENAME);
+
+    const misterGenesisSaveData = MisterGenesisSaveData.createFromRawData(rawArrayBuffer);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(misterGenesisSaveData.getMisterArrayBuffer(), misterArrayBuffer)).to.equal(true);
   });
 });
