@@ -209,6 +209,7 @@ export default {
       return this.pspDataArrayBuffer && this.gamekeyArrayBuffer && this.outputFilename && this.paramSfoArrayBuffer;
     },
     convertFile() {
+      this.errorMessage = null;
       if (this.conversionDirection === 'convertToEmulator') {
         // Decrypting
         try {
@@ -233,8 +234,8 @@ export default {
 
           saveAs(outputBlobParamSfo, 'PARAM.SFO'); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
         } catch (e) {
-          this.errorMessage = 'Encountered an error trying to encrypt file. Please double-check that you supplied an unencrypted PSP save file,'
-          + ' the correct PARAM.SFO file, and a 16 byte game key file';
+          this.errorMessage = 'Encountered an error trying to encrypt file. Please double-check that you entered an output filename that matches the original file '
+          + ' on your PSP, and that supplied an unencrypted PSP save file, the correct PARAM.SFO file, and a 16 byte game key file';
         }
       }
     },

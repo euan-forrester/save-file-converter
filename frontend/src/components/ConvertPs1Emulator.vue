@@ -58,7 +58,7 @@
             />
             <file-list
               :display="this.memcardSaveData !== null"
-              :files="this.memcardSaveData ? this.memcardSaveData.getSaveFiles() : []"
+              :files="this.getFileListNames()"
               :enabled="false"
             />
           </div>
