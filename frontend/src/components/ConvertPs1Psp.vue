@@ -69,7 +69,7 @@
             />
             <file-list
               :display="this.pspSaveData !== null"
-              :files="this.pspSaveData ? this.pspSaveData.getSaveFiles() : []"
+              :files="this.getFileListNames()"
               :enabled="false"
             />
           </div>
