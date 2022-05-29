@@ -42,7 +42,25 @@ export default {
   },
   methods: {
     getDropdownText(size) {
-      const kilobytesString = size < 1024 ? (size / 1024).toFixed(1) : (size / 1024).toFixed(0);
+      let kilobytesString = null;
+
+      switch (size) {
+        case 128: {
+          kilobytesString = '0.1';
+          break;
+        }
+
+        case 256: {
+          kilobytesString = '0.25';
+          break;
+        }
+
+        default: {
+          kilobytesString = size < 1024 ? (size / 1024).toFixed(1) : (size / 1024).toFixed(0);
+          break;
+        }
+      }
+
       return `${kilobytesString}kB (${size} bytes)`;
     },
   },
