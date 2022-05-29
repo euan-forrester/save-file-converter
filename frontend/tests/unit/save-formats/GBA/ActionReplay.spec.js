@@ -4,8 +4,8 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 const DIR = './tests/unit/save-formats/data/gba/action-replay';
 
-const ACTIONREPLAY_FILENAME = `${DIR}/final-fantasy-tactics-advance.10238.xps`;
-const RAW_FILENAME = `${DIR}/final-fantasy-tactics-advance.10238.srm`;
+const ACTIONREPLAY_FILENAME = `${DIR}/the-legend-of-zelda-the-minish-cap.11439.xps`;
+const RAW_FILENAME = `${DIR}/the-legend-of-zelda-the-minish-cap.11439.srm`;
 
 describe('Action Replay save format', () => {
   it('should convert an Action Replay file to a raw file', async () => {

@@ -17,6 +17,10 @@ export default class MisterGameboyAdvanceSaveData {
     return 'srm';
   }
 
+  static adjustOutputSizesPlatform() {
+    return 'gba';
+  }
+
   static createFromMisterData(misterArrayBuffer) {
     return new MisterGameboyAdvanceSaveData(misterArrayBuffer, misterArrayBuffer);
   }

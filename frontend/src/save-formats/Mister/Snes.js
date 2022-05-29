@@ -11,6 +11,10 @@ export default class MisterSnesSaveData {
     return 'srm';
   }
 
+  static adjustOutputSizesPlatform() {
+    return 'snes';
+  }
+
   static createFromMisterData(misterArrayBuffer) {
     return new MisterSnesSaveData(misterArrayBuffer, misterArrayBuffer);
   }

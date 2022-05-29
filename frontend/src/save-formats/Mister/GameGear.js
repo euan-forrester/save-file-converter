@@ -15,6 +15,10 @@ export default class MisterGameGearSaveData {
     return 'srm';
   }
 
+  static adjustOutputSizesPlatform() {
+    return 'gamegear';
+  }
+
   static createFromMisterData(misterArrayBuffer) {
     return new MisterGameGearSaveData(misterArrayBuffer, misterArrayBuffer);
   }

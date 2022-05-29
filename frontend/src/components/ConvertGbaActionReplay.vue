@@ -2,7 +2,7 @@
   <div>
     <b-container>
       <b-row no-gutters align-h="center" align-v="start">
-        <b-col sm=12 md=5 align-self="center">
+        <b-col sm=12 md=5 align-self="start">
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
               <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })">
@@ -21,6 +21,7 @@
           </div>
           <div v-else>
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
+            <output-filesize v-model="outputFilesize" id="action-replay-filesize" platform="gba"/>
           </div>
         </b-col>
         <b-col sm=12 md=2 lg=2 xl=2 align-self="start">
@@ -41,6 +42,7 @@
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'">
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
+            <output-filesize v-model="outputFilesize" id="action-replay-filesize" platform="gba"/>
           </div>
           <div v-else>
             <input-file
@@ -95,6 +97,7 @@ import { saveAs } from 'file-saver';
 import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
+import OutputFilesize from './OutputFilesize.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import ActionReplaySaveData from '../save-formats/GBA/ActionReplay';
 
@@ -105,6 +108,7 @@ export default {
       actionReplaySaveData: null,
       errorMessage: null,
       outputFilename: null,
+      outputFilesize: null,
       conversionDirection: 'convertToEmulator',
     };
   },
@@ -112,6 +116,7 @@ export default {
     ConversionDirection,
     InputFile,
     OutputFilename,
+    OutputFilesize,
   },
   methods: {
     changeConversionDirection(newDirection) {
@@ -119,12 +124,14 @@ export default {
       this.actionReplaySaveData = null;
       this.errorMessage = null;
       this.outputFilename = null;
+      this.outputFilesize = null;
     },
     readActionReplaySaveData(event) {
       this.errorMessage = null;
       try {
         this.actionReplaySaveData = ActionReplaySaveData.createFromActionReplayData(event.arrayBuffer);
         this.outputFilename = Util.changeFilenameExtension(event.filename, 'srm');
+        this.outputFilesize = this.actionReplaySaveData.getRawSaveData().byteLength;
       } catch (e) {
         this.errorMessage = e.message;
         this.actionReplaySaveData = null;
@@ -135,12 +142,17 @@ export default {
       try {
         this.actionReplaySaveData = ActionReplaySaveData.createFromEmulatorData(event.arrayBuffer);
         this.outputFilename = Util.changeFilenameExtension(event.filename, 'xps');
+        this.outputFilesize = this.actionReplaySaveData.getRawSaveData().byteLength;
       } catch (e) {
         this.errorMessage = e.message;
         this.actionReplaySaveData = null;
       }
     },
     convertFile() {
+      if (this.actionReplaySaveData.getRawSaveData().byteLength !== this.outputFilesize) {
+        this.actionReplaySaveData = ActionReplaySaveData.createWithNewSize(this.actionReplaySaveData, this.outputFilesize);
+      }
+
       const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.actionReplaySaveData.getRawSaveData() : this.actionReplaySaveData.getArrayBuffer();
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });

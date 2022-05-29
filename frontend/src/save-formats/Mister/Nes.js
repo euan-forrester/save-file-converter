@@ -34,6 +34,10 @@ export default class MisterNesSaveData {
     return 'srm';
   }
 
+  static adjustOutputSizesPlatform() {
+    return 'nes';
+  }
+
   static createFromMisterData(misterArrayBuffer) {
     // Just copy it straight over, because we don't know what size to truncate to: not all NES saves are 8kB
     return new MisterNesSaveData(misterArrayBuffer, misterArrayBuffer);

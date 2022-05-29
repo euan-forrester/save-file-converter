@@ -46,6 +46,9 @@
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'">
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
+            <div v-if="(this.misterPlatformClass !== null) && (this.misterPlatformClass.adjustOutputSizesPlatform() !== null)">
+              <output-filesize v-model="outputFilesize" id="output-filesize" :platform="this.misterPlatformClass.adjustOutputSizesPlatform()"/>
+            </div>
           </div>
           <div v-else>
             <input-file
@@ -95,8 +98,10 @@
 <script>
 import { saveAs } from 'file-saver';
 import Util from '../util/util';
+import SaveFilesUtil from '../util/SaveFiles';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
+import OutputFilesize from './OutputFilesize.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import MisterPlatform from './MisterPlatform.vue';
 
@@ -120,6 +125,7 @@ export default {
       misterPlatformClass: null,
       errorMessage: null,
       outputFilename: null,
+      outputFilesize: null,
       conversionDirection: 'convertToEmulator',
       inputArrayBuffer: null,
       inputFilename: null,
@@ -130,6 +136,7 @@ export default {
     ConversionDirection,
     InputFile,
     OutputFilename,
+    OutputFilesize,
     MisterPlatform,
   },
   methods: {
@@ -140,6 +147,7 @@ export default {
       this.misterPlatformClass = null;
       this.errorMessage = null;
       this.outputFilename = null;
+      this.outputFilesize = null;
       this.inputArrayBuffer = null;
       this.inputFilename = null;
       this.inputFileType = null;
@@ -210,6 +218,7 @@ export default {
     },
     updateMisterSaveData() {
       this.errorMessage = null;
+      this.outputFilesize = null;
 
       if ((this.misterPlatformClass !== null) && (this.inputArrayBuffer !== null) && (this.inputFilename !== null) && (this.inputFileType !== null)) {
         try {
@@ -220,6 +229,7 @@ export default {
             this.misterSaveData = this.misterPlatformClass.createFromRawData(this.inputArrayBuffer);
             this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.misterPlatformClass.getMisterFileExtension());
           }
+          this.outputFilesize = this.misterSaveData.getRawArrayBuffer().byteLength;
         } catch (e) {
           this.errorMessage = 'This file does not seem to be in the correct format';
           this.misterSaveData = null;
@@ -227,6 +237,7 @@ export default {
       } else {
         this.misterSaveData = null;
         this.outputFilename = null;
+        this.outputFilesize = null;
       }
     },
     readMisterSaveData(event) {
@@ -244,6 +255,12 @@ export default {
       this.updateMisterSaveData();
     },
     convertFile() {
+      if (this.misterSaveData.getRawArrayBuffer().byteLength !== this.outputFilesize) {
+        const newRawSaveData = SaveFilesUtil.resizeRawSave(this.misterSaveData.getRawArrayBuffer(), this.outputFilesize);
+
+        this.misterSaveData = this.misterPlatformClass.createFromRawData(newRawSaveData);
+      }
+
       const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.misterSaveData.getRawArrayBuffer() : this.misterSaveData.getMisterArrayBuffer();
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });

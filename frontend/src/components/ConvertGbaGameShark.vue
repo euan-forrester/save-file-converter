@@ -22,7 +22,7 @@
           </div>
           <div v-else class="inputs-row">
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="true"/>
-            <output-filesize v-model="outputFilesize" id="gameshark-filesize"/>
+            <output-filesize v-model="outputFilesize" id="gameshark-filesize" platform="gba"/>
           </div>
         </b-col>
         <b-col sm=12 md=2 lg=2 xl=2 align-self="start">
@@ -43,7 +43,7 @@
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'" class="inputs-row">
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="true"/>
-            <output-filesize v-model="outputFilesize" id="raw-filesize"/>
+            <output-filesize v-model="outputFilesize" id="raw-filesize" platform="gba"/>
           </div>
           <div v-else class="inputs-row">
             <input-file
@@ -182,7 +182,7 @@ export default {
           const date = dayjs().format('DD/MM/YYYY hh:mm:ss a');
           const notes = 'Created with savefileconverter.com';
           this.gameSharkSaveData = GameSharkSaveData.createFromEmulatorData(this.emulatorSaveData, title, date, notes, this.romData);
-          this.outputFilename = this.changeFilenameExtension(this.emulatorSaveDataFilename, 'sps');
+          this.outputFilename = Util.changeFilenameExtension(this.emulatorSaveDataFilename, 'sps');
           this.outputFilesize = this.gameSharkSaveData.getRawSaveData().byteLength;
         } catch (e) {
           this.errorMessage = e.message;

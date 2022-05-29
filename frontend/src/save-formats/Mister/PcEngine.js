@@ -29,6 +29,10 @@ export default class MisterPcEngineSaveData {
     return 'sav';
   }
 
+  static adjustOutputSizesPlatform() {
+    return null; // Not sure if anything writes out BRAM that's larger/smaller than the real one
+  }
+
   static createFromMisterData(misterArrayBuffer) {
     verifyPcEngineData(misterArrayBuffer);
     return new MisterPcEngineSaveData(misterArrayBuffer, misterArrayBuffer);

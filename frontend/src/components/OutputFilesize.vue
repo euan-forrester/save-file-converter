@@ -8,8 +8,8 @@
           :options="options"
         />
         <help-button
-          popover-text="Some save files found on the Internet are not the correct size for their corresponding game and so may not work on a real cartridge or with a particular emulator.
-          Try creating a test save with your cartridge or emulator to find what size it expects, then adjust the value here if necessary."
+          popover-text="Some cartridges, flash carts, or emulators may not accept saves of a particular size for a particular game.
+          Try creating a test save with your cartridge, flash cart, or emulator to find what size it expects, then adjust the value here if necessary."
           :id="this.id"
           class="help-button"
         />
@@ -28,28 +28,46 @@
 
 <script>
 import HelpButton from './HelpButton.vue';
+import PlatformSaveSizes from '../save-formats/PlatformSaveSizes';
 
 export default {
   name: 'OutputFilesize',
   props: [
     'value',
     'id',
+    'platform',
   ],
   components: {
     HelpButton,
   },
-  data() {
-    return {
-      options: [
-        { value: null, text: 'Output file size', disabled: true },
-        { value: 512, text: '0.5kB (512 bytes)' },
-        { value: 8192, text: '8kB (8192 bytes)' },
-        { value: 16384, text: '16kB (16384 bytes)' },
-        { value: 32768, text: '32kB (32768 bytes)' },
-        { value: 65536, text: '64kB (65536 bytes)' },
-        { value: 131072, text: '128kB (131072 bytes)' },
-      ],
-    };
+  methods: {
+    getDropdownText(size) {
+      let kilobytesString = null;
+
+      switch (size) {
+        case 128: {
+          kilobytesString = '0.1';
+          break;
+        }
+
+        case 256: {
+          kilobytesString = '0.25';
+          break;
+        }
+
+        default: {
+          kilobytesString = size < 1024 ? (size / 1024).toFixed(1) : (size / 1024).toFixed(0);
+          break;
+        }
+      }
+
+      return `${kilobytesString}kB (${size} bytes)`;
+    },
+  },
+  computed: {
+    options() {
+      return [{ value: null, text: 'Output file size', disabled: true }].concat(PlatformSaveSizes[this.platform].map((s) => ({ value: s, text: this.getDropdownText(s) })));
+    },
   },
 };
 </script>

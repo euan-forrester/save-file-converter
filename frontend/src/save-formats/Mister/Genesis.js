@@ -33,6 +33,10 @@ export default class MisterGenesisSaveData {
     return 'srm';
   }
 
+  static adjustOutputSizesPlatform() {
+    return 'genesis';
+  }
+
   static createFromMisterData(misterArrayBuffer) {
     // First, we need to unpad the mister save. Otherwise we will byte-expand all the 0xFFs at the end
     // which will result in a crazy file
@@ -41,8 +45,19 @@ export default class MisterGenesisSaveData {
 
     const padding = PaddingUtil.getPadFromEndValueAndCount(misterArrayBuffer);
 
-    if (padding.value === MISTER_PADDING_VALUE) {
-      unpaddedMisterArrayBuffer = PaddingUtil.removePaddingFromEnd(misterArrayBuffer, padding.count);
+    // The Genesis MiSTer core can actually output files with either padding value.
+    // I guess if it gets a file padded with 0x00 then it just maintains that?
+    // So althugh it's tempting to only remove padding here if it's the MISTER_PADDING_VALUE
+    // it seems to be more correct to always remove it
+    unpaddedMisterArrayBuffer = PaddingUtil.removePaddingFromEnd(misterArrayBuffer, padding.count);
+
+    // Hacky check for EEPROM saves that shouldn't be byte expanded
+    // Wonder Boy in Monster World's save is 128 btes. 512 bytes is the smallest SRAM save I've seen (Final Fantasy Legend on Gameboy)
+    // This hack may well not work on other Genesis EEPROM games: I have no idea how big their saves are, and looking at the list
+    // here https://github.com/euan-forrester/save-file-converter/blob/main/frontend/src/save-formats/Wii/ConvertFromSega.js
+    // there are lots of sports games that may need a bunch of space.
+    if (unpaddedMisterArrayBuffer.byteLength < 512) {
+      return new MisterGenesisSaveData(unpaddedMisterArrayBuffer, unpaddedMisterArrayBuffer);
     }
 
     // Now that the padding is gone, we can proceed
@@ -66,10 +81,18 @@ export default class MisterGenesisSaveData {
     const rawDataView = new DataView(rawArrayBuffer);
 
     for (let i = 0; i < misterArrayBuffer.byteLength; i += 1) {
-      const currByte = rawDataView.getUint16(i * 2);
+      // There are 3 types of Genesis saves that we need to disambiguate:
+      //   1. Saves where each alternating byte is 0. These come from emulators (?), and represent what happens when you read an 8 bit value through a 16 bit bus
+      //   2. Saves where each pair of bytes is the same. These come from the Retrode (and others?), and are a different representation of what happens when you read an 8 bit value through a 16 but bus
+      //   3. Saves with no such pattern. These are EEPROM saves, which don't have either kind of byte expansion
+
+      const currByte = rawDataView.getUint8(i * 2);
+      const nextByte = rawDataView.getUint8((i * 2) + 1);
+
+      const currByte16 = rawDataView.getUint16(i * 2, LITTLE_ENDIAN);
 
       // This may happen, for example, when using a Genesis EEPROM save. The Genesis EEPROM saves
-      // don't have this strange byte expansion to work in an emulator that the SRAM and FRAM saves
+      // don't have either kind of strange byte expansion to work in an emulator that the SRAM and FRAM saves
       // for the Genesis do. And so it works as-is on a MiSTer.
       //
       // But, the user may not know that, and try to convert their save when trying to use it
@@ -81,11 +104,11 @@ export default class MisterGenesisSaveData {
       //
       // This only applies to a really small list of games, so whichever tactic we choose here
       // won't have much of an impact (hopefully!)
-      if (currByte > 0xFF) {
+      if ((currByte !== nextByte) && (currByte16 > 0xFF)) {
         return new MisterGenesisSaveData(rawArrayBuffer, padArrayBuffer(rawArrayBuffer));
       }
 
-      misterDataView.setUint8(i, currByte);
+      misterDataView.setUint8(i, nextByte);
     }
 
     return new MisterGenesisSaveData(rawArrayBuffer, padArrayBuffer(misterArrayBuffer));
