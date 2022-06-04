@@ -1,0 +1,1 @@
+// const SMSADVANCE_MAGIC = 0x57A731dC; // SMS Advance save

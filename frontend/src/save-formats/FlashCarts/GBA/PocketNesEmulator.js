@@ -1,0 +1,1 @@
+// const POCKETNES_MAGIC = 0x57A731D7; // Pocket NES save

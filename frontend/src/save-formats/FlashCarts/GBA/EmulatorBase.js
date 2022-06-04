@@ -7,16 +7,13 @@ Based on the Goomba Save Manager, specifically:
 - Criteria for "cleaning" the data first: https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L330
 */
 
-import Util from '../../util/util';
-import PaddingUtil from '../../util/Padding';
-import lzo from '../../../lib/minlzo-js/lzo1x';
-import GbRom from '../../rom-formats/gb';
+import Util from '../../../util/util';
+import PaddingUtil from '../../../util/Padding';
+import lzo from '../../../../lib/minlzo-js/lzo1x';
+import GbRom from '../../../rom-formats/gb';
 
 const LITTLE_ENDIAN = true;
 
-const GOOMBA_MAGIC = 0x57A731D8; // Goomba (GB/GBC) save
-// const POCKETNES_MAGIC = 0x57A731D7; // Pocket NES save
-// const SMSADVANCE_MAGIC = 0x57A731dC; // SMS Advance save
 const MAGIC_OFFSET = 0; // Offset relative to the start of the file
 const MAGIC_LENGTH = 4;
 
@@ -239,8 +236,8 @@ function createEmptyGoombaConfigDataArrayBuffer() {
   return arrayBuffer;
 }
 
-function createGoombaArrayBuffer(rawArrayBuffer, romInternalName, romChecksum) {
-  const magicArrayBuffer = createMagicArrayBuffer(GOOMBA_MAGIC, MAGIC_LENGTH);
+function createGoombaArrayBuffer(rawArrayBuffer, romInternalName, romChecksum, magic) {
+  const magicArrayBuffer = createMagicArrayBuffer(magic, MAGIC_LENGTH);
   const compressedSaveDataArrayBuffer = lzoCompress(rawArrayBuffer);
 
   const stateHeader = {
@@ -266,26 +263,22 @@ function createGoombaArrayBuffer(rawArrayBuffer, romInternalName, romChecksum) {
   return PaddingUtil.addPaddingToEnd(unpaddedGoombaArrayBuffer, padding);
 }
 
-export default class GoombaEmulatorSaveData {
-  static createFromFlashCartData(goombaArrayBuffer) {
-    return new GoombaEmulatorSaveData(goombaArrayBuffer);
-  }
-
-  static createFromRawData(rawArrayBuffer, romArrayBuffer) {
+export default class EmulatorBaseSaveData {
+  static createFromRawData(rawArrayBuffer, romArrayBuffer, clazz) {
     const gbRom = new GbRom(romArrayBuffer);
 
     const romInternalName = gbRom.getInternalName();
-    const romChecksum = GoombaEmulatorSaveData.calculateRomChecksum(gbRom.getRomArrayBuffer());
+    const romChecksum = EmulatorBaseSaveData.calculateRomChecksum(gbRom.getRomArrayBuffer());
 
-    return GoombaEmulatorSaveData.createFromRawDataInternal(rawArrayBuffer, romInternalName, romChecksum);
+    return EmulatorBaseSaveData.createFromRawDataInternal(rawArrayBuffer, romInternalName, romChecksum, clazz);
   }
 
   // This function split out so that we can call it from tests. We can't include a retail ROM
   // with our tests (we need the entire ROM to calculate the checksum), so this allows us to fill in those values
-  static createFromRawDataInternal(rawArrayBuffer, romInternalName, romChecksum) {
-    const goombaArrayBuffer = createGoombaArrayBuffer(rawArrayBuffer, romInternalName, romChecksum);
+  static createFromRawDataInternal(rawArrayBuffer, romInternalName, romChecksum, clazz) {
+    const goombaArrayBuffer = createGoombaArrayBuffer(rawArrayBuffer, romInternalName, romChecksum, clazz.getMagic());
 
-    return new GoombaEmulatorSaveData(goombaArrayBuffer);
+    return new clazz(goombaArrayBuffer); // eslint-disable-line new-cap
   }
 
   static getFlashCartFileExtension() {
@@ -334,9 +327,10 @@ export default class GoombaEmulatorSaveData {
     const goombaDataView = new DataView(goombaArrayBuffer);
 
     const magic = goombaDataView.getUint32(MAGIC_OFFSET, LITTLE_ENDIAN);
+    const expectedMagic = this.constructor.getMagic();
 
-    if (magic !== GOOMBA_MAGIC) {
-      throw new Error(`File appears to be corrupted: expected 0x${GOOMBA_MAGIC.toString(16)} but found 0x${magic.toString(16)}`);
+    if (magic !== expectedMagic) {
+      throw new Error(`File appears to be corrupted: expected 0x${expectedMagic.toString(16)} but found 0x${magic.toString(16)}`);
     }
 
     const stateHeader = readStateHeader(goombaArrayBuffer.slice(MAGIC_LENGTH, MAGIC_LENGTH + STATE_HEADER_LENGTH));
