@@ -47,8 +47,7 @@ const STATE_HEADER_LENGTH = GAME_TITLE_OFFSET + GAME_TITLE_LENGTH;
 const GOOMBA_AND_POCKET_NES_CONFIG_DATA_SIZE = 0x30;
 const SMS_ADVANCE_CONFIG_DATA_SIZE = 0x34;
 
-const GOOMBA_AND_POCKET_NES_CONFIG_DATA_SRAM_CHECKSUM_OFFSET = 12;
-const SMS_ADVANCE_CONFIG_DATA_SRAM_OFFSET = 16;
+const SMS_ADVANCE_CONFIG_DATA_SRAM_OFFSET = 12;
 
 const LARGEST_GBC_SAVE_SIZE = 0x10000; // This is just used as a hint to the decompression algorithm so it can allocate memory. Value copied from https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L349
 
@@ -182,7 +181,7 @@ function getSramRomChecksumFromConfigData(arrayBuffer) {
   while (stateHeaderIsPlausible(stateHeader)) {
     if (stateHeader.type === TYPE_CONFIG_DATA) {
       if (stateHeader.size === GOOMBA_AND_POCKET_NES_CONFIG_DATA_SIZE) {
-        return dataView.getUint32(currentByte + GOOMBA_AND_POCKET_NES_CONFIG_DATA_SRAM_CHECKSUM_OFFSET, LITTLE_ENDIAN);
+        return dataView.getUint32(currentByte + GOOMBA_CONFIG_DATA_SRAM_ROM_CHECKSUM_OFFSET, LITTLE_ENDIAN);
       }
 
       if (stateHeader.size === SMS_ADVANCE_CONFIG_DATA_SIZE) {
