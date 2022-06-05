@@ -44,29 +44,10 @@ const FILE_TYPE_NAMES = {
 
 const STATE_HEADER_LENGTH = GAME_TITLE_OFFSET + GAME_TITLE_LENGTH;
 
-const GOOMBA_AND_POCKET_NES_CONFIG_DATA_SIZE = 0x30;
-const SMS_ADVANCE_CONFIG_DATA_SIZE = 0x34;
-
-const SMS_ADVANCE_CONFIG_DATA_SRAM_OFFSET = 12;
-
 const LARGEST_GBC_SAVE_SIZE = 0x10000; // This is just used as a hint to the decompression algorithm so it can allocate memory. Value copied from https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L349
 
 const GOOMBA_COLOR_AVAILABLE_SIZE = 0xE000; // Not sure why this is named this, but when a file is "unclean" then there's uncompressed data here: Value copied from https://github.com/libertyernie/goombasav/blob/master/goombasav.h#L29
 const GOOMBA_COLOR_SRAM_SIZE = 0x10000; // Value copied from https://github.com/libertyernie/goombasav/blob/master/goombasav.h#L28
-
-const GOOMBA_CONFIG_DATA_SIZE_OFFSET = 0;
-const GOOMBA_CONFIG_DATA_TYPE_OFFSET = 2;
-const GOOMBA_CONFIG_DATA_BORDER_COLOR_OFFSET = 4;
-const GOOMBA_CONFIG_DATA_PALETTE_BANK_OFFSET = 5;
-const GOOMBA_CONFIG_DATA_SRAM_ROM_CHECKSUM_OFFSET = 8;
-const GOOMBA_CONFIG_DATA_RESERVED_OFFSET = 16;
-const GOOMBA_CONFIG_DATA_RESERVED_LENGTH = 32;
-const GOOMBA_CONFIG_DATA_RESERVED_DATA = 'CFG';
-const GOOMBA_CONFIG_DATA_RESERVED_ENCODING = 'US-ASCII';
-const GOOMBA_CONFIG_DATA_LENGTH = GOOMBA_CONFIG_DATA_RESERVED_OFFSET + GOOMBA_CONFIG_DATA_RESERVED_LENGTH;
-
-const GOOMBA_CONFIG_DATA_DEFAULT_BORDER_COLOR = 0;
-const GOOMBA_CONFIG_DATA_DEFAULT_PALETTE_BANK = 0;
 
 function lzoDecompress(arrayBuffer, uncompressedSize) {
   const state = {
@@ -161,48 +142,6 @@ function stateHeaderIsPlausible(stateHeader) {
   return true;
 }
 
-// Taken from https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L249
-//
-// This is descrived as "checksum of rom using SRAM e000-ffff"
-// here https://github.com/libertyernie/goombasav/blob/master/goombasav.h#L80
-//
-// So it's a checksum of the ROM, but from a portion of the SRAM towards the end?
-function getSramRomChecksumFromConfigData(arrayBuffer) {
-  const dataView = new DataView(arrayBuffer);
-
-  let currentByte = MAGIC_LENGTH;
-
-  if (arrayBuffer.byteLength < (MAGIC_LENGTH + STATE_HEADER_LENGTH)) {
-    throw new Error('File is too short to contain a state header');
-  }
-
-  let stateHeader = readStateHeader(arrayBuffer.slice(currentByte, currentByte + STATE_HEADER_LENGTH));
-
-  while (stateHeaderIsPlausible(stateHeader)) {
-    if (stateHeader.type === TYPE_CONFIG_DATA) {
-      if (stateHeader.size === GOOMBA_AND_POCKET_NES_CONFIG_DATA_SIZE) {
-        return dataView.getUint32(currentByte + GOOMBA_CONFIG_DATA_SRAM_ROM_CHECKSUM_OFFSET, LITTLE_ENDIAN);
-      }
-
-      if (stateHeader.size === SMS_ADVANCE_CONFIG_DATA_SIZE) {
-        return dataView.getUint32(currentByte + SMS_ADVANCE_CONFIG_DATA_SRAM_OFFSET, LITTLE_ENDIAN);
-      }
-
-      throw new Error(`Unrecognized config data type: size of ${stateHeader.size} is unknown`);
-    }
-
-    currentByte += stateHeader.size;
-
-    if ((currentByte + STATE_HEADER_LENGTH) > arrayBuffer.byteLength) {
-      break;
-    }
-
-    stateHeader = readStateHeader(arrayBuffer.slice(currentByte, currentByte + STATE_HEADER_LENGTH));
-  }
-
-  throw new Error('No config data found in file');
-}
-
 function createMagicArrayBuffer(magic, length) {
   const arrayBuffer = new ArrayBuffer(length);
   const dataView = new DataView(arrayBuffer);
@@ -212,31 +151,8 @@ function createMagicArrayBuffer(magic, length) {
   return arrayBuffer;
 }
 
-// Based on https://github.com/libertyernie/goombasav/blob/master/goombasav.h#L61
-function createEmptyGoombaConfigDataArrayBuffer() {
-  const arrayBuffer = new ArrayBuffer(GOOMBA_CONFIG_DATA_LENGTH);
-  const dataView = new DataView(arrayBuffer);
-  const uint8Array = new Uint8Array(arrayBuffer);
-
-  const textEncoder = new TextEncoder(GOOMBA_CONFIG_DATA_RESERVED_ENCODING);
-
-  uint8Array.fill(0);
-
-  dataView.setUint16(GOOMBA_CONFIG_DATA_SIZE_OFFSET, GOOMBA_CONFIG_DATA_LENGTH, LITTLE_ENDIAN);
-  dataView.setUint16(GOOMBA_CONFIG_DATA_TYPE_OFFSET, TYPE_CONFIG_DATA, LITTLE_ENDIAN);
-  dataView.setUint8(GOOMBA_CONFIG_DATA_BORDER_COLOR_OFFSET, GOOMBA_CONFIG_DATA_DEFAULT_BORDER_COLOR);
-  dataView.setUint8(GOOMBA_CONFIG_DATA_PALETTE_BANK_OFFSET, GOOMBA_CONFIG_DATA_DEFAULT_PALETTE_BANK);
-  dataView.setUint32(GOOMBA_CONFIG_DATA_SRAM_ROM_CHECKSUM_OFFSET, 0, LITTLE_ENDIAN); // Checksum here gets set to 0 so that the file is "clean"
-
-  const encodedReservedData = textEncoder.encode(GOOMBA_CONFIG_DATA_RESERVED_DATA).slice(0, GOOMBA_CONFIG_DATA_RESERVED_LENGTH - 1);
-
-  uint8Array.set(encodedReservedData, GOOMBA_CONFIG_DATA_RESERVED_LENGTH);
-
-  return arrayBuffer;
-}
-
-function createGoombaArrayBuffer(rawArrayBuffer, romInternalName, romChecksum, magic) {
-  const magicArrayBuffer = createMagicArrayBuffer(magic, MAGIC_LENGTH);
+function createEmulatorArrayBuffer(rawArrayBuffer, romInternalName, romChecksum, clazz) {
+  const magicArrayBuffer = createMagicArrayBuffer(clazz.getMagic(), MAGIC_LENGTH);
   const compressedSaveDataArrayBuffer = lzoCompress(rawArrayBuffer);
 
   const stateHeader = {
@@ -250,7 +166,7 @@ function createGoombaArrayBuffer(rawArrayBuffer, romInternalName, romChecksum, m
 
   const stateHeaderArrayBuffer = createStateHeaderArrayBuffer(stateHeader);
 
-  const configDataArrayBuffer = createEmptyGoombaConfigDataArrayBuffer();
+  const configDataArrayBuffer = clazz.createEmptyConfigDataArrayBuffer();
 
   const unpaddedGoombaArrayBuffer = Util.concatArrayBuffers([magicArrayBuffer, stateHeaderArrayBuffer, compressedSaveDataArrayBuffer, configDataArrayBuffer]);
 
@@ -263,6 +179,10 @@ function createGoombaArrayBuffer(rawArrayBuffer, romInternalName, romChecksum, m
 }
 
 export default class EmulatorBaseSaveData {
+  static LITTLE_ENDIAN = LITTLE_ENDIAN;
+
+  static TYPE_CONFIG_DATA = TYPE_CONFIG_DATA;
+
   static createFromRawData(rawArrayBuffer, romArrayBuffer, clazz) {
     const gbRom = new GbRom(romArrayBuffer);
 
@@ -275,7 +195,7 @@ export default class EmulatorBaseSaveData {
   // This function split out so that we can call it from tests. We can't include a retail ROM
   // with our tests (we need the entire ROM to calculate the checksum), so this allows us to fill in those values
   static createFromRawDataInternal(rawArrayBuffer, romInternalName, romChecksum, clazz) {
-    const goombaArrayBuffer = createGoombaArrayBuffer(rawArrayBuffer, romInternalName, romChecksum, clazz.getMagic());
+    const goombaArrayBuffer = createEmulatorArrayBuffer(rawArrayBuffer, romInternalName, romChecksum, clazz);
 
     return new clazz(goombaArrayBuffer); // eslint-disable-line new-cap
   }
@@ -345,7 +265,7 @@ export default class EmulatorBaseSaveData {
     // And that uncompressed size is incorrectly stored in goomba (but not goomba color) files:
     // https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L405
 
-    const sramRomChecksum = getSramRomChecksumFromConfigData(goombaArrayBuffer);
+    const sramRomChecksum = this.getSramRomChecksumFromConfigData(goombaArrayBuffer);
 
     let needsCleaning = false;
 
@@ -372,6 +292,42 @@ export default class EmulatorBaseSaveData {
       ? goombaArrayBuffer.slice(GOOMBA_COLOR_AVAILABLE_SIZE, GOOMBA_COLOR_SRAM_SIZE) // Based on https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L308
       : lzoDecompress(goombaArrayBuffer.slice(compressedDataOffset/* , compressedDataOffset + this.compressedSize */), LARGEST_GBC_SAVE_SIZE/* this.uncompressedSize */);
     this.flashCartArrayBuffer = goombaArrayBuffer;
+  }
+
+  // Taken from https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L249
+  //
+  // This is descrived as "checksum of rom using SRAM e000-ffff"
+  // here https://github.com/libertyernie/goombasav/blob/master/goombasav.h#L80
+  //
+  // So it's a checksum of the ROM, but from a portion of the SRAM towards the end?
+  getSramRomChecksumFromConfigData(arrayBuffer) {
+    let currentByte = MAGIC_LENGTH;
+
+    if (arrayBuffer.byteLength < (MAGIC_LENGTH + STATE_HEADER_LENGTH)) {
+      throw new Error('File is too short to contain a state header');
+    }
+
+    let stateHeader = readStateHeader(arrayBuffer.slice(currentByte, currentByte + STATE_HEADER_LENGTH));
+
+    while (stateHeaderIsPlausible(stateHeader)) {
+      if (stateHeader.type === TYPE_CONFIG_DATA) {
+        if (stateHeader.size !== this.constructor.getConfigDataLength()) {
+          throw new Error(`Unrecognized config data type: size of ${stateHeader.size} is unknown`);
+        }
+
+        return this.constructor.getPlatformSramRomChecksumFromConfigData(arrayBuffer, currentByte);
+      }
+
+      currentByte += stateHeader.size;
+
+      if ((currentByte + STATE_HEADER_LENGTH) > arrayBuffer.byteLength) {
+        break;
+      }
+
+      stateHeader = readStateHeader(arrayBuffer.slice(currentByte, currentByte + STATE_HEADER_LENGTH));
+    }
+
+    throw new Error('No config data found in file');
   }
 
   getRawArrayBuffer() {
