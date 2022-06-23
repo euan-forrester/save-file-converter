@@ -168,14 +168,14 @@ function createEmulatorArrayBuffer(rawArrayBuffer, romInternalName, romChecksum,
 
   const configDataArrayBuffer = clazz.createEmptyConfigDataArrayBuffer();
 
-  const unpaddedGoombaArrayBuffer = Util.concatArrayBuffers([magicArrayBuffer, stateHeaderArrayBuffer, compressedSaveDataArrayBuffer, configDataArrayBuffer]);
+  const unpaddedEmulatorArrayBuffer = Util.concatArrayBuffers([magicArrayBuffer, stateHeaderArrayBuffer, compressedSaveDataArrayBuffer, configDataArrayBuffer]);
 
   const padding = {
-    count: Math.max(GOOMBA_COLOR_SRAM_SIZE - unpaddedGoombaArrayBuffer.byteLength, 0),
+    count: Math.max(GOOMBA_COLOR_SRAM_SIZE - unpaddedEmulatorArrayBuffer.byteLength, 0),
     value: 0,
   };
 
-  return PaddingUtil.addPaddingToEnd(unpaddedGoombaArrayBuffer, padding);
+  return PaddingUtil.addPaddingToEnd(unpaddedEmulatorArrayBuffer, padding);
 }
 
 export default class EmulatorBaseSaveData {
@@ -195,9 +195,9 @@ export default class EmulatorBaseSaveData {
   // This function split out so that we can call it from tests. We can't include a retail ROM
   // with our tests (we need the entire ROM to calculate the checksum), so this allows us to fill in those values
   static createFromRawDataInternal(rawArrayBuffer, romInternalName, romChecksum, clazz) {
-    const goombaArrayBuffer = createEmulatorArrayBuffer(rawArrayBuffer, romInternalName, romChecksum, clazz);
+    const emulatorArrayBuffer = createEmulatorArrayBuffer(rawArrayBuffer, romInternalName, romChecksum, clazz);
 
-    return new clazz(goombaArrayBuffer); // eslint-disable-line new-cap
+    return new clazz(emulatorArrayBuffer); // eslint-disable-line new-cap
   }
 
   static getFlashCartFileExtension() {
@@ -216,17 +216,17 @@ export default class EmulatorBaseSaveData {
     return null;
   }
 
-  constructor(goombaArrayBuffer) {
-    const goombaDataView = new DataView(goombaArrayBuffer);
+  constructor(emulatorArrayBuffer) {
+    const emulatorDataView = new DataView(emulatorArrayBuffer);
 
-    const magic = goombaDataView.getUint32(MAGIC_OFFSET, LITTLE_ENDIAN);
+    const magic = emulatorDataView.getUint32(MAGIC_OFFSET, LITTLE_ENDIAN);
     const expectedMagic = this.constructor.getMagic();
 
     if (magic !== expectedMagic) {
       throw new Error(`File appears to be corrupted: expected 0x${expectedMagic.toString(16)} but found 0x${magic.toString(16)}`);
     }
 
-    const stateHeader = readStateHeader(goombaArrayBuffer.slice(MAGIC_LENGTH, MAGIC_LENGTH + STATE_HEADER_LENGTH));
+    const stateHeader = readStateHeader(emulatorArrayBuffer.slice(MAGIC_LENGTH, MAGIC_LENGTH + STATE_HEADER_LENGTH));
 
     if (stateHeader.type !== TYPE_SRAM_SAVE) {
       throw new Error(`File appears to be ${FILE_TYPE_NAMES[stateHeader.type]} instead of ${FILE_TYPE_NAMES[TYPE_SRAM_SAVE]}`);
@@ -239,7 +239,7 @@ export default class EmulatorBaseSaveData {
     // And that uncompressed size is incorrectly stored in goomba (but not goomba color) files:
     // https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L405
 
-    const sramRomChecksum = this.getSramRomChecksumFromConfigData(goombaArrayBuffer);
+    const sramRomChecksum = this.getSramRomChecksumFromConfigData(emulatorArrayBuffer);
 
     let needsCleaning = false;
 
@@ -263,9 +263,9 @@ export default class EmulatorBaseSaveData {
     // It seems that the compressed and/or uncompressed size might be incorrect for goomba (rather than goomba color) files. The save editor just goes until the end of the file: https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L350
     const compressedDataOffset = MAGIC_LENGTH + STATE_HEADER_LENGTH;
     this.rawArrayBuffer = needsCleaning
-      ? goombaArrayBuffer.slice(GOOMBA_COLOR_AVAILABLE_SIZE, GOOMBA_COLOR_SRAM_SIZE) // Based on https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L308
-      : lzoDecompress(goombaArrayBuffer.slice(compressedDataOffset/* , compressedDataOffset + this.compressedSize */), LARGEST_GBC_SAVE_SIZE/* this.uncompressedSize */);
-    this.flashCartArrayBuffer = goombaArrayBuffer;
+      ? emulatorArrayBuffer.slice(GOOMBA_COLOR_AVAILABLE_SIZE, GOOMBA_COLOR_SRAM_SIZE) // Based on https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L308
+      : lzoDecompress(emulatorArrayBuffer.slice(compressedDataOffset/* , compressedDataOffset + this.compressedSize */), LARGEST_GBC_SAVE_SIZE/* this.uncompressedSize */);
+    this.flashCartArrayBuffer = emulatorArrayBuffer;
   }
 
   // Taken from https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L249
