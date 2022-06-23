@@ -1,3 +1,5 @@
+// Find it at https://github.com/Dwedit/goombacolor/releases
+
 import EmulatorBase from './EmulatorBase';
 
 const GOOMBA_MAGIC = 0x57A731D8; // Goomba (GB/GBC) save

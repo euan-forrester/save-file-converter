@@ -36,10 +36,10 @@ const GAME_TITLE_LENGTH = 32;
 const GAME_TITLE_ENCODING = 'US-ASCII';
 
 const FILE_TYPE_NAMES = {
-  TYPE_SAVE_STATE: 'Save state',
-  TYPE_SRAM_SAVE: 'SRAM save',
-  TYPE_CONFIG_DATA: 'Config data',
-  TYPE_PALETTE: 'Palette',
+  0: 'Save state', // TYPE_SAVE_STATE
+  1: 'SRAM save', // TYPE_SRAM_SAVE
+  2: 'Config data', // TYPE_CONFIG_DATA
+  5: 'Palette', // TYPE_PALETTE
 };
 
 const STATE_HEADER_LENGTH = GAME_TITLE_OFFSET + GAME_TITLE_LENGTH;
@@ -187,7 +187,7 @@ export default class EmulatorBaseSaveData {
     const gbRom = new GbRom(romArrayBuffer);
 
     const romInternalName = gbRom.getInternalName();
-    const romChecksum = EmulatorBaseSaveData.calculateRomChecksum(gbRom.getRomArrayBuffer());
+    const romChecksum = clazz.calculateRomChecksum(gbRom.getRomArrayBuffer());
 
     return EmulatorBaseSaveData.createFromRawDataInternal(rawArrayBuffer, romInternalName, romChecksum, clazz);
   }
@@ -214,32 +214,6 @@ export default class EmulatorBaseSaveData {
 
   static adjustOutputSizesPlatform() {
     return null;
-  }
-
-  // Taken from https://github.com/masterhou/goombacolor/blob/master/src/sram.c#L258
-  //
-  // Note that this only looks (sporadically) at the first 16kB of the file
-  static calculateRomChecksum(romArrayBuffer) {
-    let sum = 0;
-    let currentByte = 0;
-    const totalBytes = romArrayBuffer.byteLength;
-
-    const romUint8Array = new Uint8Array(romArrayBuffer);
-    const lastByte = romUint8Array[totalBytes - 1];
-
-    for (let i = 0; i < 128; i += 1) {
-      if (currentByte < totalBytes) {
-        sum += (romUint8Array[currentByte] | (romUint8Array[currentByte + 1] << 8) | (romUint8Array[currentByte + 2] << 16) | (romUint8Array[currentByte + 3] << 24));
-      } else {
-        sum += (lastByte | (lastByte << 8) | (lastByte << 16) | (lastByte << 24));
-      }
-
-      sum >>>= 0; // Convert to unsigned: https://stackoverflow.com/a/1822769
-
-      currentByte += 128;
-    }
-
-    return sum;
   }
 
   constructor(goombaArrayBuffer) {
@@ -328,6 +302,32 @@ export default class EmulatorBaseSaveData {
     }
 
     throw new Error('No config data found in file');
+  }
+
+  // Taken from https://github.com/masterhou/goombacolor/blob/master/src/sram.c#L258
+  //
+  // Note that this only looks (sporadically) at the first 16kB of the file
+  static calculateRomChecksum(romArrayBuffer) {
+    let sum = 0;
+    let currentByte = 0;
+    const totalBytes = romArrayBuffer.byteLength;
+
+    const romUint8Array = new Uint8Array(romArrayBuffer);
+    const lastByte = romUint8Array[totalBytes - 1];
+
+    for (let i = 0; i < 128; i += 1) {
+      if (currentByte < totalBytes) {
+        sum += (romUint8Array[currentByte] | (romUint8Array[currentByte + 1] << 8) | (romUint8Array[currentByte + 2] << 16) | (romUint8Array[currentByte + 3] << 24));
+      } else {
+        sum += (lastByte | (lastByte << 8) | (lastByte << 16) | (lastByte << 24));
+      }
+
+      sum >>>= 0; // Convert to unsigned: https://stackoverflow.com/a/1822769
+
+      currentByte += 128;
+    }
+
+    return sum;
   }
 
   getRawArrayBuffer() {

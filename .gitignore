@@ -4,4 +4,5 @@
 /frontend/tests/unit/rom-formats/data/psp/retail/*
 /frontend/tests/unit/rom-formats/data/psp/make-iso/*
 /frontend/tests/unit/save-formats/data/flashcarts/goombaemulator/retail/*
+/frontend/tests/unit/save-formats/data/flashcarts/pocketnesemulator/retail/*
 /frontend/tests/config.local.js
