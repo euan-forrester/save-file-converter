@@ -256,9 +256,7 @@ export default class EmulatorBaseSaveData {
       throw new Error(`File appears to be corrupted: expected 0x${expectedMagic.toString(16)} but found 0x${magic.toString(16)}`);
     }
 
-    const compressedDataStateHeaderInfo = findStateHeaderOfType(emulatorArrayBuffer, TYPE_SRAM_SAVE);
-
-    const { stateHeader } = compressedDataStateHeaderInfo;
+    const { stateHeader, offset } = findStateHeaderOfType(emulatorArrayBuffer, TYPE_SRAM_SAVE);
 
     // The save editor makes the case that compressed size is the size stored in the file minus the header:
     // https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L348
@@ -289,7 +287,7 @@ export default class EmulatorBaseSaveData {
     this.gameTitle = stateHeader.gameTitle;
 
     // It seems that the compressed and/or uncompressed size might be incorrect for goomba (rather than goomba color) files. The save editor just goes until the end of the file: https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L350
-    const compressedDataOffset = compressedDataStateHeaderInfo.offset + STATE_HEADER_LENGTH;
+    const compressedDataOffset = offset + STATE_HEADER_LENGTH;
     this.rawArrayBuffer = needsCleaning
       ? emulatorArrayBuffer.slice(GOOMBA_COLOR_AVAILABLE_SIZE, GOOMBA_COLOR_SRAM_SIZE) // Based on https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L308
       : lzoDecompress(emulatorArrayBuffer.slice(compressedDataOffset/* , compressedDataOffset + this.compressedSize */), LARGEST_GBC_SAVE_SIZE/* this.uncompressedSize */);
