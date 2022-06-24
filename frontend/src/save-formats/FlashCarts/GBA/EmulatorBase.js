@@ -168,7 +168,7 @@ function createEmulatorArrayBuffer(rawArrayBuffer, romInternalName, romChecksum,
 
   const configDataArrayBuffer = clazz.createEmptyConfigDataArrayBuffer();
 
-  const unpaddedEmulatorArrayBuffer = Util.concatArrayBuffers([magicArrayBuffer, stateHeaderArrayBuffer, compressedSaveDataArrayBuffer, configDataArrayBuffer]);
+  const unpaddedEmulatorArrayBuffer = clazz.concatEmulatorArrayBuffer(magicArrayBuffer, stateHeaderArrayBuffer, compressedSaveDataArrayBuffer, configDataArrayBuffer);
 
   const padding = {
     count: Math.max(GOOMBA_COLOR_SRAM_SIZE - unpaddedEmulatorArrayBuffer.byteLength, 0),

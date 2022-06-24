@@ -2,6 +2,7 @@
 
 import EmulatorBase from './EmulatorBase';
 import NesRom from '../../../rom-formats/nes';
+import Util from '../../../util/util';
 
 const POCKETNES_MAGIC = 0x57A731D7; // Pocket NES save
 
@@ -81,5 +82,11 @@ export default class PocketNesEmulatorSaveData extends EmulatorBase {
     const nesRom = new NesRom(romArrayBuffer);
 
     return super.calculateRomChecksum(nesRom.getRomArrayBufferWithoutHeader());
+  }
+
+  static concatEmulatorArrayBuffer(magicArrayBuffer, stateHeaderArrayBuffer, compressedSaveDataArrayBuffer, configDataArrayBuffer) {
+    // From the test files I've made, PocketNES appears to put the portions of the file in a different order than Goomba(Color),
+    // despite this not being reflected in GoombaSaveManager.
+    return Util.concatArrayBuffers([magicArrayBuffer, configDataArrayBuffer, stateHeaderArrayBuffer, compressedSaveDataArrayBuffer]);
   }
 }

@@ -1,6 +1,7 @@
 // Find it at https://github.com/Dwedit/goombacolor/releases
 
 import EmulatorBase from './EmulatorBase';
+import Util from '../../../util/util';
 
 const GOOMBA_MAGIC = 0x57A731D8; // Goomba (GB/GBC) save
 
@@ -66,5 +67,9 @@ export default class GoombaEmulatorSaveData extends EmulatorBase {
     const dataView = new DataView(arrayBuffer);
 
     return dataView.getUint32(currentByte + GOOMBA_CONFIG_DATA_SRAM_ROM_CHECKSUM_OFFSET, super.LITTLE_ENDIAN);
+  }
+
+  static concatEmulatorArrayBuffer(magicArrayBuffer, stateHeaderArrayBuffer, compressedSaveDataArrayBuffer, configDataArrayBuffer) {
+    return Util.concatArrayBuffers([magicArrayBuffer, stateHeaderArrayBuffer, compressedSaveDataArrayBuffer, configDataArrayBuffer]);
   }
 }
