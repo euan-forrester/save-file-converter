@@ -35,7 +35,7 @@ const GAME_TITLE_OFFSET = 16;
 const GAME_TITLE_LENGTH = 32;
 const GAME_TITLE_ENCODING = 'US-ASCII';
 
-const FILE_TYPE_NAMES = {
+const STATE_HEADER_TYPE_NAMES = {
   0: 'Save state', // TYPE_SAVE_STATE
   1: 'SRAM save', // TYPE_SRAM_SAVE
   2: 'Config data', // TYPE_CONFIG_DATA
@@ -178,6 +178,36 @@ function createEmulatorArrayBuffer(rawArrayBuffer, romInternalName, romChecksum,
   return PaddingUtil.addPaddingToEnd(unpaddedEmulatorArrayBuffer, padding);
 }
 
+// Based on https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L249
+function findStateHeaderOfType(arrayBuffer, stateHeaderType) {
+  let currentByte = MAGIC_LENGTH;
+
+  if (arrayBuffer.byteLength < (MAGIC_LENGTH + STATE_HEADER_LENGTH)) {
+    throw new Error('File is too short to contain a state header');
+  }
+
+  let stateHeader = readStateHeader(arrayBuffer.slice(currentByte, currentByte + STATE_HEADER_LENGTH));
+
+  while (stateHeaderIsPlausible(stateHeader)) {
+    if (stateHeader.type === stateHeaderType) {
+      return {
+        stateHeader,
+        offset: currentByte,
+      };
+    }
+
+    currentByte += stateHeader.size;
+
+    if ((currentByte + STATE_HEADER_LENGTH) > arrayBuffer.byteLength) {
+      break;
+    }
+
+    stateHeader = readStateHeader(arrayBuffer.slice(currentByte, currentByte + STATE_HEADER_LENGTH));
+  }
+
+  throw new Error(`No state header of type ${STATE_HEADER_TYPE_NAMES[stateHeaderType]} found in file`);
+}
+
 export default class EmulatorBaseSaveData {
   static LITTLE_ENDIAN = LITTLE_ENDIAN;
 
@@ -226,11 +256,9 @@ export default class EmulatorBaseSaveData {
       throw new Error(`File appears to be corrupted: expected 0x${expectedMagic.toString(16)} but found 0x${magic.toString(16)}`);
     }
 
-    const stateHeader = readStateHeader(emulatorArrayBuffer.slice(MAGIC_LENGTH, MAGIC_LENGTH + STATE_HEADER_LENGTH));
+    const compressedDataStateHeaderInfo = findStateHeaderOfType(emulatorArrayBuffer, TYPE_SRAM_SAVE);
 
-    if (stateHeader.type !== TYPE_SRAM_SAVE) {
-      throw new Error(`File appears to be ${FILE_TYPE_NAMES[stateHeader.type]} instead of ${FILE_TYPE_NAMES[TYPE_SRAM_SAVE]}`);
-    }
+    const { stateHeader } = compressedDataStateHeaderInfo;
 
     // The save editor makes the case that compressed size is the size stored in the file minus the header:
     // https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L348
@@ -261,16 +289,14 @@ export default class EmulatorBaseSaveData {
     this.gameTitle = stateHeader.gameTitle;
 
     // It seems that the compressed and/or uncompressed size might be incorrect for goomba (rather than goomba color) files. The save editor just goes until the end of the file: https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L350
-    const compressedDataOffset = MAGIC_LENGTH + STATE_HEADER_LENGTH;
+    const compressedDataOffset = compressedDataStateHeaderInfo.offset + STATE_HEADER_LENGTH;
     this.rawArrayBuffer = needsCleaning
       ? emulatorArrayBuffer.slice(GOOMBA_COLOR_AVAILABLE_SIZE, GOOMBA_COLOR_SRAM_SIZE) // Based on https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L308
       : lzoDecompress(emulatorArrayBuffer.slice(compressedDataOffset/* , compressedDataOffset + this.compressedSize */), LARGEST_GBC_SAVE_SIZE/* this.uncompressedSize */);
     this.flashCartArrayBuffer = emulatorArrayBuffer;
   }
 
-  // Taken from https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L249
-  //
-  // This is descrived as "checksum of rom using SRAM e000-ffff"
+  // This is described as "checksum of rom using SRAM e000-ffff"
   // here https://github.com/libertyernie/goombasav/blob/master/goombasav.h#L80
   //
   // So it's a checksum of the ROM, but from a portion of the SRAM towards the end?

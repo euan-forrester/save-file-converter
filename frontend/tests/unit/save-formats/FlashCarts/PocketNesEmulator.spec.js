@@ -9,7 +9,7 @@ const TEST_RETAIL_ROMS = config.get().testFlashCartRetailGames; // We don't chec
 
 const DIR = './tests/unit/save-formats/data/flashcarts/pocketnesemulator';
 
-// const RAW_ZELDA_FILENAME = `${DIR}/Zelda II - The Adventure of Link (USA)-from-pocketnes.sav`;
+const RAW_POCKETNES_ZELDA_FILENAME = `${DIR}/Zelda II - The Adventure of Link (USA)-from-pocketnes.sav`;
 const POCKETNES_ZELDA_FILENAME = `${DIR}/Zelda II - The Adventure of Link (USA)-from-pocketnes.esv`;
 
 /*
@@ -19,28 +19,25 @@ const GOOMBA_CART_ZELDA_FILENAME = `${DIR}/Zelda II - The Adventure of Link (USA
 
 const ZELDA_ROM_FILENAME = `${DIR}/retail/Zelda II - The Adventure of Link (USA).nes`;
 const ZELDA_ROM_CHECKSUM = 0x4665B580; // 0x7CFF3E31; <- commented one calculated by algorithm for GB ROMs
-const ZELDA_INTERNAL_NAME = 'ZELDA';
 
 // Differences:
 //
 // - Config data and state header are in opposite order: need to search for each one, I guess
-// - ROM checksum is different
 // - ROM internal name is "SAVE"
-// - What happens with a NES 2.0 headered ROM? checksum & internal name
 
 describe('Flash cart - PocketNES emulator save format', () => {
   it('should convert a PocketNES emulator save made with an EZ Flash ODE to raw format', async () => {
-    // const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_ZELDA_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_POCKETNES_ZELDA_FILENAME);
     const pocketNesArrayBuffer = await ArrayBufferUtil.readArrayBuffer(POCKETNES_ZELDA_FILENAME);
 
     const pocketNesEmulatorSaveData = PocketNesEmulatorSaveData.createFromFlashCartData(pocketNesArrayBuffer);
 
-    // expect(ArrayBufferUtil.arrayBuffersEqual(pocketNesEmulatorSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(pocketNesEmulatorSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
     expect(pocketNesEmulatorSaveData.getRomChecksum()).to.equal(ZELDA_ROM_CHECKSUM);
     expect(pocketNesEmulatorSaveData.getFrameCount()).to.equal(0); // Dunno what this means
-    expect(pocketNesEmulatorSaveData.getGameTitle()).to.equal(ZELDA_INTERNAL_NAME);
-    expect(pocketNesEmulatorSaveData.getCompressedSize()).to.equal(148);
-    // expect(pocketNesEmulatorSaveData.getUncompressedSize()).to.equal(rawArrayBuffer.byteLength);
+    expect(pocketNesEmulatorSaveData.getGameTitle()).to.equal(PocketNesEmulatorSaveData.GAME_TITLE);
+    expect(pocketNesEmulatorSaveData.getCompressedSize()).to.equal(3500);
+    expect(pocketNesEmulatorSaveData.getUncompressedSize()).to.equal(rawArrayBuffer.byteLength);
   });
 
   /*

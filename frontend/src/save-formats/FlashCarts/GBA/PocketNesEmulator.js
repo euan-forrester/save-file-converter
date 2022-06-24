@@ -17,7 +17,11 @@ const POCKETNES_CONFIG_DATA_LENGTH = POCKETNES_CONFIG_DATA_RESERVED_OFFSET + POC
 
 const POCKETNES_CONFIG_DATA_DEFAULT_DISPLAY_TYPE = 0;
 
+const GAME_TITLE = 'SAVE'; // No game title is listed in an NES ROM, so everything is just called this
+
 export default class PocketNesEmulatorSaveData extends EmulatorBase {
+  static GAME_TITLE = GAME_TITLE;
+
   static getMagic() {
     return POCKETNES_MAGIC;
   }
@@ -30,8 +34,8 @@ export default class PocketNesEmulatorSaveData extends EmulatorBase {
     return super.createFromRawData(rawArrayBuffer, romArrayBuffer, PocketNesEmulatorSaveData);
   }
 
-  static createFromRawDataInternal(rawArrayBuffer, romInternalName, romChecksum) {
-    return super.createFromRawDataInternal(rawArrayBuffer, romInternalName, romChecksum, PocketNesEmulatorSaveData);
+  static createFromRawDataInternal(rawArrayBuffer, romChecksum) {
+    return super.createFromRawDataInternal(rawArrayBuffer, GAME_TITLE, romChecksum, PocketNesEmulatorSaveData);
   }
 
   static createFromFlashCartData(pocketNesArrayBuffer) {
