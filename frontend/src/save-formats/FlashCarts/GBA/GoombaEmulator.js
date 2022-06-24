@@ -2,6 +2,7 @@
 
 import EmulatorBase from './EmulatorBase';
 import Util from '../../../util/util';
+import GbRom from '../../../rom-formats/gb';
 
 const GOOMBA_MAGIC = 0x57A731D8; // Goomba (GB/GBC) save
 
@@ -29,7 +30,12 @@ export default class GoombaEmulatorSaveData extends EmulatorBase {
   }
 
   static createFromRawData(rawArrayBuffer, romArrayBuffer) {
-    return super.createFromRawData(rawArrayBuffer, romArrayBuffer, GoombaEmulatorSaveData);
+    const gbRom = new GbRom(romArrayBuffer);
+
+    const romInternalName = gbRom.getInternalName();
+    const romChecksum = GoombaEmulatorSaveData.calculateRomChecksum(gbRom.getRomArrayBuffer());
+
+    return super.createFromRawDataInternal(rawArrayBuffer, romInternalName, romChecksum, GoombaEmulatorSaveData);
   }
 
   static createFromRawDataInternal(rawArrayBuffer, romInternalName, romChecksum) {
@@ -38,6 +44,10 @@ export default class GoombaEmulatorSaveData extends EmulatorBase {
 
   static createFromFlashCartData(goombaArrayBuffer) {
     return new GoombaEmulatorSaveData(goombaArrayBuffer);
+  }
+
+  static requiresRomClass() {
+    return GbRom;
   }
 
   // Based on https://github.com/libertyernie/goombasav/blob/master/goombasav.h#L61

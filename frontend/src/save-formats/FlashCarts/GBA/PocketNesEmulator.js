@@ -32,15 +32,21 @@ export default class PocketNesEmulatorSaveData extends EmulatorBase {
   }
 
   static createFromRawData(rawArrayBuffer, romArrayBuffer) {
-    return super.createFromRawData(rawArrayBuffer, romArrayBuffer, PocketNesEmulatorSaveData);
+    const romChecksum = PocketNesEmulatorSaveData.calculateRomChecksum(romArrayBuffer);
+
+    return super.createFromRawDataInternal(rawArrayBuffer, GAME_TITLE, romChecksum, PocketNesEmulatorSaveData);
   }
 
-  static createFromRawDataInternal(rawArrayBuffer, romChecksum) {
+  static createFromRawDataInternal(rawArrayBuffer, romChecksum) { // es-lint-disable  no-dupe-class-members (bug in eslint?)
     return super.createFromRawDataInternal(rawArrayBuffer, GAME_TITLE, romChecksum, PocketNesEmulatorSaveData);
   }
 
   static createFromFlashCartData(pocketNesArrayBuffer) {
     return new PocketNesEmulatorSaveData(pocketNesArrayBuffer);
+  }
+
+  static requiresRomClass() {
+    return NesRom;
   }
 
   // Based on https://github.com/libertyernie/POCKETNESsav/blob/master/POCKETNESsav.h#L73

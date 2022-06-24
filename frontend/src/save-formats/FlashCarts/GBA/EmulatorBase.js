@@ -10,7 +10,6 @@ Based on the Goomba Save Manager, specifically:
 import Util from '../../../util/util';
 import PaddingUtil from '../../../util/Padding';
 import lzo from '../../../../lib/minlzo-js/lzo1x';
-import GbRom from '../../../rom-formats/gb';
 
 const LITTLE_ENDIAN = true;
 
@@ -213,15 +212,6 @@ export default class EmulatorBaseSaveData {
 
   static TYPE_CONFIG_DATA = TYPE_CONFIG_DATA;
 
-  static createFromRawData(rawArrayBuffer, romArrayBuffer, clazz) {
-    const gbRom = new GbRom(romArrayBuffer);
-
-    const romInternalName = gbRom.getInternalName();
-    const romChecksum = clazz.calculateRomChecksum(gbRom.getRomArrayBuffer());
-
-    return EmulatorBaseSaveData.createFromRawDataInternal(rawArrayBuffer, romInternalName, romChecksum, clazz);
-  }
-
   // This function split out so that we can call it from tests. We can't include a retail ROM
   // with our tests (we need the entire ROM to calculate the checksum), so this allows us to fill in those values
   static createFromRawDataInternal(rawArrayBuffer, romInternalName, romChecksum, clazz) {
@@ -236,10 +226,6 @@ export default class EmulatorBaseSaveData {
 
   static getRawFileExtension() {
     return 'srm';
-  }
-
-  static requiresRomClass() {
-    return GbRom;
   }
 
   static adjustOutputSizesPlatform() {
