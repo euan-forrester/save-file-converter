@@ -301,33 +301,13 @@ export default class EmulatorBaseSaveData {
   //
   // So it's a checksum of the ROM, but from a portion of the SRAM towards the end?
   getSramRomChecksumFromConfigData(arrayBuffer) {
-    let currentByte = MAGIC_LENGTH;
+    const { stateHeader, offset } = findStateHeaderOfType(arrayBuffer, TYPE_CONFIG_DATA);
 
-    if (arrayBuffer.byteLength < (MAGIC_LENGTH + STATE_HEADER_LENGTH)) {
-      throw new Error('File is too short to contain a state header');
+    if (stateHeader.size !== this.constructor.getConfigDataLength()) {
+      throw new Error(`Unrecognized config data type: size of ${stateHeader.size} is unknown`);
     }
 
-    let stateHeader = readStateHeader(arrayBuffer.slice(currentByte, currentByte + STATE_HEADER_LENGTH));
-
-    while (stateHeaderIsPlausible(stateHeader)) {
-      if (stateHeader.type === TYPE_CONFIG_DATA) {
-        if (stateHeader.size !== this.constructor.getConfigDataLength()) {
-          throw new Error(`Unrecognized config data type: size of ${stateHeader.size} is unknown`);
-        }
-
-        return this.constructor.getPlatformSramRomChecksumFromConfigData(arrayBuffer, currentByte);
-      }
-
-      currentByte += stateHeader.size;
-
-      if ((currentByte + STATE_HEADER_LENGTH) > arrayBuffer.byteLength) {
-        break;
-      }
-
-      stateHeader = readStateHeader(arrayBuffer.slice(currentByte, currentByte + STATE_HEADER_LENGTH));
-    }
-
-    throw new Error('No config data found in file');
+    return this.constructor.getPlatformSramRomChecksumFromConfigData(arrayBuffer, offset);
   }
 
   // Taken from https://github.com/masterhou/goombacolor/blob/master/src/sram.c#L258
