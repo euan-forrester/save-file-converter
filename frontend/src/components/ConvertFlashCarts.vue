@@ -116,7 +116,8 @@ import OutputFilesize from './OutputFilesize.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import FlashCartType from './FlashCartType.vue';
 
-import GoombaEmulatorSaveData from '../save-formats/FlashCarts/GoombaEmulator';
+import GoombaEmulatorSaveData from '../save-formats/FlashCarts/GBA/GoombaEmulator';
+import PocketNesEmulatorSaveData from '../save-formats/FlashCarts/GBA/PocketNesEmulator';
 import N64FlashCartSaveData from '../save-formats/FlashCarts/N64';
 
 export default {
@@ -167,6 +168,11 @@ export default {
         switch (this.flashCartType) {
           case 'FlashCart-GoombaEmulator': {
             this.flashCartTypeClass = GoombaEmulatorSaveData;
+            break;
+          }
+
+          case 'FlashCart-PocketNesEmulator': {
+            this.flashCartTypeClass = PocketNesEmulatorSaveData;
             break;
           }
 

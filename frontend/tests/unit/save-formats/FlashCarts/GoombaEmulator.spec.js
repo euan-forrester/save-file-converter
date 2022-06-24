@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import GoombaEmulatorSaveData from '@/save-formats/FlashCarts/GoombaEmulator';
+import GoombaEmulatorSaveData from '@/save-formats/FlashCarts/GBA/GoombaEmulator';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 import Config from '#/config';
 

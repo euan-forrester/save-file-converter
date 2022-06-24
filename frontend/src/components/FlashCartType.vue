@@ -54,6 +54,7 @@ export default {
       options: [
         { value: null, text: 'Choose platform', disabled: true },
         { value: 'FlashCart-GoombaEmulator', text: 'GB/GBC on GBA (Goomba emulator)' },
+        { value: 'FlashCart-PocketNesEmulator', text: 'NES on GBA (PocketNES emulator)' },
         { value: 'FlashCart-N64', text: 'Nintendo 64' },
       ],
     };
