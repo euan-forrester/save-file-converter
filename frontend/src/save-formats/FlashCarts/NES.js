@@ -16,7 +16,7 @@ export default class NesFlashCartSaveData {
   }
 
   static getFlashCartFileExtension() {
-    return null; // NES saves have many possible extensions, and we just want to keep whatever the original extension was
+    return 'srm';
   }
 
   static getRawFileExtension() {
