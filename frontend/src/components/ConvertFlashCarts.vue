@@ -118,6 +118,10 @@ import FlashCartType from './FlashCartType.vue';
 
 import GoombaEmulatorSaveData from '../save-formats/FlashCarts/GBA/GoombaEmulator';
 import PocketNesEmulatorSaveData from '../save-formats/FlashCarts/GBA/PocketNesEmulator';
+import NesFlashCartSaveData from '../save-formats/FlashCarts/NES';
+import SnesFlashCartSaveData from '../save-formats/FlashCarts/SNES';
+import GbFlashCartSaveData from '../save-formats/FlashCarts/GB';
+import GbaFlashCartSaveData from '../save-formats/FlashCarts/GBA/GBA';
 import N64FlashCartSaveData from '../save-formats/FlashCarts/N64';
 
 export default {
@@ -173,6 +177,26 @@ export default {
 
           case 'FlashCart-PocketNesEmulator': {
             this.flashCartTypeClass = PocketNesEmulatorSaveData;
+            break;
+          }
+
+          case 'FlashCart-NES': {
+            this.flashCartTypeClass = NesFlashCartSaveData;
+            break;
+          }
+
+          case 'FlashCart-SNES': {
+            this.flashCartTypeClass = SnesFlashCartSaveData;
+            break;
+          }
+
+          case 'FlashCart-GB': {
+            this.flashCartTypeClass = GbFlashCartSaveData;
+            break;
+          }
+
+          case 'FlashCart-GBA': {
+            this.flashCartTypeClass = GbaFlashCartSaveData;
             break;
           }
 
