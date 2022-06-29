@@ -47,7 +47,7 @@ export default class GenesisUtil {
     return true;
   }
 
-  // fillByte can either be the valye you want put into upper byte of each word,
+  // fillByte can either be the value you want put into upper byte of each word,
   // or it can be 'repeat'
   static byteExpand(inputArrayBuffer, fillByte) {
     const outputArrayBuffer = new ArrayBuffer(inputArrayBuffer.byteLength * 2);
