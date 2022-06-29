@@ -10,6 +10,9 @@ const MISTER_PHANTASY_STAR_2_FILENAME = `${DIR}/phantasy-star-ii.18168-mister.sa
 const RAW_RETRODE_FILENAME = `${DIR}/Phantasy_Star_IV_USA-from-retrode.srm`;
 const MISTER_RETRODE_FILENAME = `${DIR}/Phantasy_Star_IV_USA-from-retrode-to-mister.sav`;
 
+const RAW_MEGA_SD_FILENAME = `${DIR}/Phantasy Star II (USA, Europe) (Rev A)-from-mega-sd.srm`;
+const MISTER_MEGA_SD_FILENAME = `${DIR}/Phantasy Star II (USA, Europe) (Rev A)-from-mega-sd.sav`;
+
 const RAW_ZERO_PADDED_FILENAME = `${DIR}/Phantasy_Star_IV_USA-from-mister-zero-padded-to-raw.srm`;
 const MISTER_ZERO_PADDED_FILENAME = `${DIR}/Phantasy_Star_IV_USA-from-mister-zero-padded.sav`;
 
@@ -40,6 +43,17 @@ describe('MiSTer - Genesis save format', () => {
 
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_RETRODE_FILENAME);
     const misterArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MISTER_RETRODE_FILENAME);
+
+    const misterGenesisSaveData = MisterGenesisSaveData.createFromRawData(rawArrayBuffer);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(misterGenesisSaveData.getMisterArrayBuffer(), misterArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a raw Genesis save from a Mega SD to the MiSTer format', async () => {
+    // The Mega SD byte expands by inserting a 0xFF byte
+
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_MEGA_SD_FILENAME);
+    const misterArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MISTER_MEGA_SD_FILENAME);
 
     const misterGenesisSaveData = MisterGenesisSaveData.createFromRawData(rawArrayBuffer);
 
