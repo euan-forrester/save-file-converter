@@ -59,6 +59,9 @@ export default {
         { value: 'FlashCart-GBA', text: 'Gameboy Advance' },
         { value: 'FlashCart-GoombaEmulator', text: 'GB/GBC on GBA (Goomba emulator)' },
         { value: 'FlashCart-PocketNesEmulator', text: 'NES on GBA (PocketNES emulator)' },
+        { value: 'FlashCart-GenesisEverdrive', text: 'Genesis (Everdrive)' },
+        { value: 'FlashCart-NESGenesisEverdrive', text: 'NES on Genesis (Everdrive)' },
+        { value: 'FlashCart-SMSGenesisEverdrive', text: 'SMS on Genesis (Everdrive)' },
         { value: 'FlashCart-N64', text: 'Nintendo 64' },
       ],
     };
