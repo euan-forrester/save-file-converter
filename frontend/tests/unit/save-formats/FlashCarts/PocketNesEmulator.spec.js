@@ -16,7 +16,7 @@ const RAW_CART_ZELDA_FILENAME = `${DIR}/Zelda II - The Adventure of Link (USA)-f
 const POCKETNES_CART_ZELDA_FILENAME = `${DIR}/Zelda II - The Adventure of Link (USA)-from-cart.esv`;
 
 const ZELDA_ROM_FILENAME = `${DIR}/retail/Zelda II - The Adventure of Link (USA).nes`;
-const ZELDA_ROM_CHECKSUM = 0x4665B580; // 0x7CFF3E31; <- commented one calculated by algorithm for GB ROMs
+const ZELDA_ROM_CHECKSUM = 0x4665B580;
 
 describe('Flash cart - PocketNES emulator save format', () => {
   it('should convert a PocketNES emulator save made with an EZ Flash ODE to raw format', async () => {

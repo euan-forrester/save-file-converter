@@ -1,1 +1,1 @@
-// const SMSADVANCE_MAGIC = 0x57A731dC; // SMS Advance save
+const SMSADVANCE_MAGIC = 0x57A731DC; // SMS Advance save
