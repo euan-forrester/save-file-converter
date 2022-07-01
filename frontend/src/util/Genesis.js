@@ -1,5 +1,7 @@
 /* eslint-disable no-bitwise */
 
+import PaddingUtil from './Padding';
+
 const LITTLE_ENDIAN = false;
 
 // Genesis raw files can come in various flavours.
@@ -21,6 +23,8 @@ const LITTLE_ENDIAN = false;
 // seem to be smaller.
 
 const SMALLEST_SRAM_SAVE = 512; // Seen in Final Fantasy Legend on Gameboy
+
+const FILL_BYTE_REPEAT = 'repeat';
 
 export default class GenesisUtil {
   static isEepromSave(inputArrayBuffer) {
@@ -55,7 +59,7 @@ export default class GenesisUtil {
     const inputDataView = new DataView(inputArrayBuffer);
     const outputDataView = new DataView(outputArrayBuffer);
 
-    const repeatByte = (fillByte === 'repeat');
+    const repeatByte = (fillByte === FILL_BYTE_REPEAT);
 
     for (let i = 0; i < inputDataView.byteLength; i += 1) {
       const inputByte = inputDataView.getUint8(i);
@@ -79,6 +83,34 @@ export default class GenesisUtil {
       const currByte = inputDataView.getUint8((i * 2) + 1);
 
       outputDataView.setUint8(i, currByte);
+    }
+
+    return outputArrayBuffer;
+  }
+
+  static changeFillByte(inputArrayBuffer, fillByte) {
+    if (GenesisUtil.isEepromSave(inputArrayBuffer)) {
+      return inputArrayBuffer;
+    }
+
+    const padding = PaddingUtil.getPadFromEndValueAndCount(inputArrayBuffer);
+
+    const needToChangePadding = (fillByte !== FILL_BYTE_REPEAT) && (padding.value !== fillByte); // Check if padding was 0xFF and we're trying to fill with 0x00, or vice versa
+
+    const unpaddedInputArrayBuffer = PaddingUtil.removePaddingFromEnd(inputArrayBuffer, padding.count);
+
+    let byteCollapsedArrayBuffer = unpaddedInputArrayBuffer;
+
+    if (GenesisUtil.isByteExpanded(unpaddedInputArrayBuffer)) {
+      byteCollapsedArrayBuffer = GenesisUtil.byteCollapse(unpaddedInputArrayBuffer);
+    }
+
+    let outputArrayBuffer = GenesisUtil.byteExpand(byteCollapsedArrayBuffer, fillByte);
+
+    if (needToChangePadding) {
+      outputArrayBuffer = PaddingUtil.addPaddingToEnd(outputArrayBuffer, { value: fillByte, count: padding.count });
+    } else {
+      outputArrayBuffer = PaddingUtil.addPaddingToEnd(outputArrayBuffer, { value: padding.value, count: padding.count }); // Put the padding back
     }
 
     return outputArrayBuffer;
