@@ -20,12 +20,13 @@
 // The Genesis and Master System output is slightly different: just whether it's written out as
 // shorts or bytes
 
+import GenesisUtil from '../../util/Genesis';
+
 const MAGIC = 'VCSD';
 const SRAM = 'SRAM';
 const COMPOUND_DATA = 'compound data'.concat(String.fromCharCode(0, 0, 0));
 const CHARSET = 'US-ASCII';
 const LITTLE_ENDIAN = true; // Little endian file inside a big endian file (the original Wii file written to an SD card)
-const GENESIS_LITTLE_ENDIAN = false; // Big endian file inside a little endian file inside a big endian file :)
 
 // I don't see a better way of determining whether a Genesis game has SRAM/EEPROM/FRAM saving than by
 // just having a hardcoded list of game IDs. The Genesis save files all say "SRAM" in them.
@@ -196,19 +197,10 @@ export default (arrayBuffer, platformType, gameId) => {
 
   // Then figure out what to do based on the save type
 
-  let saveData = null;
+  let saveData = arrayBuffer.slice(currentByte, currentByte + saveSize);
 
   if ((saveType === 'SRAM') || (saveType === 'FRAM')) {
-    saveData = new ArrayBuffer(saveSize * 2);
-
-    const saveDataView = new DataView(saveData);
-
-    for (let i = 0; i < saveSize; i += 1) {
-      const n = dataView.getUint8(i + currentByte);
-      saveDataView.setUint16(i * 2, n, GENESIS_LITTLE_ENDIAN);
-    }
-  } else {
-    saveData = arrayBuffer.slice(currentByte, currentByte + saveSize);
+    saveData = GenesisUtil.byteExpand(saveData, 0x00);
   }
 
   return {
