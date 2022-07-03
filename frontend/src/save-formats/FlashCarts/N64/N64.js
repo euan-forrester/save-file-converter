@@ -2,8 +2,8 @@
 Swaps the endianness of N64 save data
 */
 
-import N64Util from '../../util/N64';
-import SaveFilesUtil from '../../util/SaveFiles';
+import N64Util from '../../../util/N64';
+import SaveFilesUtil from '../../../util/SaveFiles';
 
 export default class N64FlashCartSaveData {
   static createFromFlashCartData(flashCartArrayBuffer) {
