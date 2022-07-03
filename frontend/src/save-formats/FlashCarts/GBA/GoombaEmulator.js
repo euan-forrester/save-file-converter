@@ -33,7 +33,7 @@ export default class GoombaEmulatorSaveData extends EmulatorBase {
     const gbRom = new GbRom(romArrayBuffer);
 
     const romInternalName = gbRom.getInternalName();
-    const romChecksum = GoombaEmulatorSaveData.calculateRomChecksum(gbRom.getRomArrayBuffer());
+    const romChecksum = super.calculateRomChecksum(gbRom.getRomArrayBuffer());
 
     return super.createFromRawDataInternal(rawArrayBuffer, romInternalName, romChecksum, GoombaEmulatorSaveData);
   }

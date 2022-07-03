@@ -33,7 +33,7 @@ describe('Flash cart - Goomba emulator save format', () => {
 
     expect(ArrayBufferUtil.arrayBuffersEqual(goombaEmulatorSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
     expect(goombaEmulatorSaveData.getRomChecksum()).to.equal(ZELDA_ROM_CHECKSUM);
-    expect(goombaEmulatorSaveData.getFrameCount()).to.equal(0); // Dunno what this means
+    expect(goombaEmulatorSaveData.getFrameCount()).to.equal(0); // Number of ingame frames that has passed doesn't seem to be set in Goomba
     expect(goombaEmulatorSaveData.getGameTitle()).to.equal(ZELDA_INTERNAL_NAME);
     expect(goombaEmulatorSaveData.getCompressedSize()).to.equal(148);
     expect(goombaEmulatorSaveData.getUncompressedSize()).to.equal(rawArrayBuffer.byteLength);
@@ -47,7 +47,7 @@ describe('Flash cart - Goomba emulator save format', () => {
 
     expect(ArrayBufferUtil.arrayBuffersEqual(goombaEmulatorSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
     expect(goombaEmulatorSaveData.getRomChecksum()).to.equal(WARIO_ROM_CHECKSUM);
-    expect(goombaEmulatorSaveData.getFrameCount()).to.equal(0); // Dunno what this means
+    expect(goombaEmulatorSaveData.getFrameCount()).to.equal(0); // Number of ingame frames that has passed doesn't seem to be set in Goomba
     expect(goombaEmulatorSaveData.getGameTitle()).to.equal('WARIOLAND3');
     expect(goombaEmulatorSaveData.getCompressedSize()).to.equal(5368);
     expect(goombaEmulatorSaveData.getUncompressedSize()).to.equal(rawArrayBuffer.byteLength);
@@ -61,7 +61,7 @@ describe('Flash cart - Goomba emulator save format', () => {
 
     expect(ArrayBufferUtil.arrayBuffersEqual(goombaEmulatorSaveData.getFlashCartArrayBuffer(), goombaArrayBuffer)).to.equal(true);
     expect(goombaEmulatorSaveData.getRomChecksum()).to.equal(ZELDA_ROM_CHECKSUM);
-    expect(goombaEmulatorSaveData.getFrameCount()).to.equal(0); // Dunno what this means
+    expect(goombaEmulatorSaveData.getFrameCount()).to.equal(0); // Number of ingame frames that has passed doesn't seem to be set in Goomba
     expect(goombaEmulatorSaveData.getGameTitle()).to.equal('ZELDA');
     expect(goombaEmulatorSaveData.getCompressedSize()).to.equal(1185);
     expect(goombaEmulatorSaveData.getUncompressedSize()).to.equal(rawArrayBuffer.byteLength);

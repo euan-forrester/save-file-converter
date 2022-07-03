@@ -27,7 +27,7 @@ describe('Flash cart - PocketNES emulator save format', () => {
 
     expect(ArrayBufferUtil.arrayBuffersEqual(pocketNesEmulatorSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
     expect(pocketNesEmulatorSaveData.getRomChecksum()).to.equal(ZELDA_ROM_CHECKSUM);
-    expect(pocketNesEmulatorSaveData.getFrameCount()).to.equal(0); // Dunno what this means
+    expect(pocketNesEmulatorSaveData.getFrameCount()).to.equal(0); // Number of ingame frames that has passed doesn't seem to be set in PocketNES
     expect(pocketNesEmulatorSaveData.getGameTitle()).to.equal(PocketNesEmulatorSaveData.GAME_TITLE);
     expect(pocketNesEmulatorSaveData.getCompressedSize()).to.equal(3500);
     expect(pocketNesEmulatorSaveData.getUncompressedSize()).to.equal(rawArrayBuffer.byteLength);
@@ -41,7 +41,7 @@ describe('Flash cart - PocketNES emulator save format', () => {
 
     expect(ArrayBufferUtil.arrayBuffersEqual(pocketNesEmulatorSaveData.getFlashCartArrayBuffer(), pocketNesArrayBuffer)).to.equal(true);
     expect(pocketNesEmulatorSaveData.getRomChecksum()).to.equal(ZELDA_ROM_CHECKSUM);
-    expect(pocketNesEmulatorSaveData.getFrameCount()).to.equal(0); // Dunno what this means
+    expect(pocketNesEmulatorSaveData.getFrameCount()).to.equal(0); // Number of ingame frames that has passed doesn't seem to be set in PocketNES
     expect(pocketNesEmulatorSaveData.getGameTitle()).to.equal(PocketNesEmulatorSaveData.GAME_TITLE);
     expect(pocketNesEmulatorSaveData.getCompressedSize()).to.equal(3960);
     expect(pocketNesEmulatorSaveData.getUncompressedSize()).to.equal(rawArrayBuffer.byteLength);

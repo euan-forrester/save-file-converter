@@ -27,7 +27,7 @@ const TYPE_CONFIG_DATA = 2;
 const TYPE_PALETTE = 5;
 
 const UNCOMPRESSED_SIZE_OFFSET = 4;
-const FRAME_COUNT_OFFSET = 8;
+const FRAME_COUNT_OFFSET = 8; // Number of ingame frames that have passed since the game was started. Seems to only be set in SMSAdvance
 const ROM_CHECKSUM_OFFSET = 12;
 
 const GAME_TITLE_OFFSET = 16;
@@ -274,9 +274,13 @@ export default class EmulatorBaseSaveData {
 
     // It seems that the compressed and/or uncompressed size might be incorrect for goomba (rather than goomba color) files. The save editor just goes until the end of the file: https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L350
     const compressedDataOffset = offset + STATE_HEADER_LENGTH;
-    this.rawArrayBuffer = needsCleaning
-      ? emulatorArrayBuffer.slice(GOOMBA_COLOR_AVAILABLE_SIZE, GOOMBA_COLOR_SRAM_SIZE) // Based on https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L308
-      : lzoDecompress(emulatorArrayBuffer.slice(compressedDataOffset/* , compressedDataOffset + this.compressedSize */), LARGEST_GBC_SAVE_SIZE/* this.uncompressedSize */);
+
+    if (needsCleaning) {
+      this.rawArrayBuffer = emulatorArrayBuffer.slice(GOOMBA_COLOR_AVAILABLE_SIZE, GOOMBA_COLOR_SRAM_SIZE); // Based on https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L308
+    } else {
+      this.rawArrayBuffer = lzoDecompress(emulatorArrayBuffer.slice(compressedDataOffset/* , compressedDataOffset + this.compressedSize */), LARGEST_GBC_SAVE_SIZE/* this.uncompressedSize */);
+    }
+
     this.flashCartArrayBuffer = emulatorArrayBuffer;
   }
 
@@ -318,6 +322,10 @@ export default class EmulatorBaseSaveData {
     }
 
     return sum;
+  }
+
+  static saveDataIsCompressed() {
+    return true;
   }
 
   getRawArrayBuffer() {
