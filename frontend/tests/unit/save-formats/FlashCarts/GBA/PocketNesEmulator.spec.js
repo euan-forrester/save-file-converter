@@ -7,7 +7,7 @@ const config = Config.Create();
 
 const TEST_RETAIL_ROMS = config.get().testFlashCartRetailGames; // We don't check retail ROMs into the repo
 
-const DIR = './tests/unit/save-formats/data/flashcarts/pocketnesemulator';
+const DIR = './tests/unit/save-formats/data/flashcarts/gba/pocketnesemulator';
 
 const RAW_POCKETNES_ZELDA_FILENAME = `${DIR}/Zelda II - The Adventure of Link (USA)-from-pocketnes.sav`;
 const POCKETNES_ZELDA_FILENAME = `${DIR}/Zelda II - The Adventure of Link (USA)-from-pocketnes.esv`;
@@ -18,7 +18,7 @@ const POCKETNES_CART_ZELDA_FILENAME = `${DIR}/Zelda II - The Adventure of Link (
 const ZELDA_ROM_FILENAME = `${DIR}/retail/Zelda II - The Adventure of Link (USA).nes`;
 const ZELDA_ROM_CHECKSUM = 0x4665B580;
 
-describe('Flash cart - PocketNES emulator save format', () => {
+describe('Flash cart - GBA - PocketNES emulator save format', () => {
   it('should convert a PocketNES emulator save made with an EZ Flash ODE to raw format', async () => {
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_POCKETNES_ZELDA_FILENAME);
     const pocketNesArrayBuffer = await ArrayBufferUtil.readArrayBuffer(POCKETNES_ZELDA_FILENAME);
