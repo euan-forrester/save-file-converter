@@ -118,6 +118,7 @@ import FlashCartType from './FlashCartType.vue';
 
 import GoombaEmulatorSaveData from '../save-formats/FlashCarts/GBA/GoombaEmulator';
 import PocketNesEmulatorSaveData from '../save-formats/FlashCarts/GBA/PocketNesEmulator';
+import SmsAdvanceEmulatorSaveData from '../save-formats/FlashCarts/GBA/SmsAdvanceEmulator';
 import NesFlashCartSaveData from '../save-formats/FlashCarts/NES';
 import SnesFlashCartSaveData from '../save-formats/FlashCarts/SNES';
 import GenesisMegaEverdriveProGenesisFlashCartSaveData from '../save-formats/FlashCarts/Genesis/MegaEverdrivePro/Genesis';
@@ -180,6 +181,11 @@ export default {
 
           case 'FlashCart-PocketNesEmulator': {
             this.flashCartTypeClass = PocketNesEmulatorSaveData;
+            break;
+          }
+
+          case 'FlashCart-SMSAdvanceEmulator': {
+            this.flashCartTypeClass = SmsAdvanceEmulatorSaveData;
             break;
           }
 

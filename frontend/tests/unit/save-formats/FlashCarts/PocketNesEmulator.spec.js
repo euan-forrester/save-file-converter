@@ -16,7 +16,7 @@ const RAW_CART_ZELDA_FILENAME = `${DIR}/Zelda II - The Adventure of Link (USA)-f
 const POCKETNES_CART_ZELDA_FILENAME = `${DIR}/Zelda II - The Adventure of Link (USA)-from-cart.esv`;
 
 const ZELDA_ROM_FILENAME = `${DIR}/retail/Zelda II - The Adventure of Link (USA).nes`;
-const ZELDA_ROM_CHECKSUM = 0x4665B580; // 0x7CFF3E31; <- commented one calculated by algorithm for GB ROMs
+const ZELDA_ROM_CHECKSUM = 0x4665B580;
 
 describe('Flash cart - PocketNES emulator save format', () => {
   it('should convert a PocketNES emulator save made with an EZ Flash ODE to raw format', async () => {
@@ -27,7 +27,7 @@ describe('Flash cart - PocketNES emulator save format', () => {
 
     expect(ArrayBufferUtil.arrayBuffersEqual(pocketNesEmulatorSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
     expect(pocketNesEmulatorSaveData.getRomChecksum()).to.equal(ZELDA_ROM_CHECKSUM);
-    expect(pocketNesEmulatorSaveData.getFrameCount()).to.equal(0); // Dunno what this means
+    expect(pocketNesEmulatorSaveData.getFrameCount()).to.equal(0); // Number of ingame frames that has passed doesn't seem to be set in PocketNES
     expect(pocketNesEmulatorSaveData.getGameTitle()).to.equal(PocketNesEmulatorSaveData.GAME_TITLE);
     expect(pocketNesEmulatorSaveData.getCompressedSize()).to.equal(3500);
     expect(pocketNesEmulatorSaveData.getUncompressedSize()).to.equal(rawArrayBuffer.byteLength);
@@ -41,7 +41,7 @@ describe('Flash cart - PocketNES emulator save format', () => {
 
     expect(ArrayBufferUtil.arrayBuffersEqual(pocketNesEmulatorSaveData.getFlashCartArrayBuffer(), pocketNesArrayBuffer)).to.equal(true);
     expect(pocketNesEmulatorSaveData.getRomChecksum()).to.equal(ZELDA_ROM_CHECKSUM);
-    expect(pocketNesEmulatorSaveData.getFrameCount()).to.equal(0); // Dunno what this means
+    expect(pocketNesEmulatorSaveData.getFrameCount()).to.equal(0); // Number of ingame frames that has passed doesn't seem to be set in PocketNES
     expect(pocketNesEmulatorSaveData.getGameTitle()).to.equal(PocketNesEmulatorSaveData.GAME_TITLE);
     expect(pocketNesEmulatorSaveData.getCompressedSize()).to.equal(3960);
     expect(pocketNesEmulatorSaveData.getUncompressedSize()).to.equal(rawArrayBuffer.byteLength);
