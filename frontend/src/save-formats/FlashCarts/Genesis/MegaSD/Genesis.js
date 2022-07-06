@@ -19,49 +19,67 @@ const MAGIC_ENCODING = 'US-ASCII';
 // const MEGA_SD_FILL_BYTE = 0xFF; // "Old style" Mega SD files are byte expanded with a fill byte of 0xFF
 const RAW_FILL_BYTE = 0x00;
 
+// FIXME:
+// - Pad files out to a minimum size
+// - Check that it's the same minimum for eeprom files
+// - See if tehre's actual data past 64 bytes in everdrive eeprom files
+// - Remove padding when convert to raw
+
+function isNewStyleSave(flashCartArrayBuffer) {
+  try { // eslint-disable-line import/no-named-as-default, import/no-named-as-default-member
+    Util.checkMagic(flashCartArrayBuffer, MAGIC_OFFSET, MAGIC, MAGIC_ENCODING);
+
+    return ((flashCartArrayBuffer.byteLength > MAGIC.length) && MathUtil.isPowerOf2(flashCartArrayBuffer.byteLength - MAGIC.length));
+  } catch (e) {
+    return false;
+  }
+}
+
+function isOldStyleSave(flashCartArrayBuffer) {
+  return (GenesisUtil.isByteExpanded(flashCartArrayBuffer) && MathUtil.isPowerOf2(flashCartArrayBuffer.byteLength));
+}
+
+function isRawSave(rawArrayBuffer) {
+  return (GenesisUtil.isByteExpanded(rawArrayBuffer) && MathUtil.isPowerOf2(rawArrayBuffer.byteLength));
+}
+
+function convertFromOldStyleToRaw(flashCartArrayBuffer) {
+  return GenesisUtil.changeFillByte(flashCartArrayBuffer, RAW_FILL_BYTE);
+}
+
+function convertFromNewStyleToRaw(flashCartArrayBuffer) {
+  return GenesisUtil.byteExpand(flashCartArrayBuffer.slice(MAGIC.length), RAW_FILL_BYTE);
+}
+
+function convertFromRawToNewStyle(rawArrayBuffer) {
+  // Remember that we may be given data in the Retrode style, with repeated bytes, or in the
+  // Mega Everdrive Pro/emulator-style file (filled with 0x00 instead)
+
+  const textEncoder = new TextEncoder(MAGIC_ENCODING);
+  const magicArrayBuffer = Util.bufferToArrayBuffer(textEncoder.encode(MAGIC));
+
+  return Util.concatArrayBuffers([magicArrayBuffer, GenesisUtil.byteCollapse(rawArrayBuffer)]);
+}
+
 export default class GenesisMegaSdGenesisFlashCartSaveData {
   static createFromFlashCartData(flashCartArrayBuffer) {
-    try { // eslint-disable-line import/no-named-as-default, import/no-named-as-default-member
-      Util.checkMagic(flashCartArrayBuffer, MAGIC_OFFSET, MAGIC, MAGIC_ENCODING);
-    } catch (e) {
-      // No magic at the start of the file, so check if we're a save in the "old style"
-
-      if (GenesisUtil.isByteExpanded(flashCartArrayBuffer) && MathUtil.isPowerOf2(flashCartArrayBuffer.byteLength)) {
-        // Here we know we're being passed a file that's byte-expanded with 0xFF
-
-        const rawArrayBuffer = GenesisUtil.changeFillByte(flashCartArrayBuffer, RAW_FILL_BYTE);
-
-        return new GenesisMegaSdGenesisFlashCartSaveData(flashCartArrayBuffer, rawArrayBuffer);
-      }
-
-      throw new Error('This does not appear to be a Mega SD Genesis save file');
+    if (isNewStyleSave(flashCartArrayBuffer)) {
+      return new GenesisMegaSdGenesisFlashCartSaveData(flashCartArrayBuffer, convertFromNewStyleToRaw(flashCartArrayBuffer));
     }
 
-    // Here we know we have the correct magic at the start of the file, so check that everything else looks good
-    // (We maybe should put this code in the try block above for clarity, but then we need a better except handler to
-    // catch a specific error with the magic otherwise any typo here or unexpected data would result in us going to the except block)
-
-    if ((flashCartArrayBuffer.byteLength > MAGIC.length) && MathUtil.isPowerOf2(flashCartArrayBuffer.byteLength - MAGIC.length)) {
-      return new GenesisMegaSdGenesisFlashCartSaveData(flashCartArrayBuffer, GenesisUtil.byteExpand(flashCartArrayBuffer.slice(MAGIC.length), RAW_FILL_BYTE));
+    if (isOldStyleSave(flashCartArrayBuffer)) {
+      return new GenesisMegaSdGenesisFlashCartSaveData(flashCartArrayBuffer, convertFromOldStyleToRaw(flashCartArrayBuffer));
     }
 
     throw new Error('This does not appear to be a Mega SD Genesis save file');
   }
 
   static createFromRawData(rawArrayBuffer) {
-    // Remember that we may be given data in the Retrode style, with repeated bytes, or in the
-    // Mega Everdrive Pro/emulator-style file (filled with 0x00 instead)
-
-    if (!GenesisUtil.isByteExpanded(rawArrayBuffer) || !MathUtil.isPowerOf2(rawArrayBuffer.byteLength)) {
-      throw new Error('This does not appear to be a raw Genesis save file');
+    if (isRawSave(rawArrayBuffer)) {
+      return new GenesisMegaSdGenesisFlashCartSaveData(convertFromRawToNewStyle(rawArrayBuffer), rawArrayBuffer);
     }
 
-    const textEncoder = new TextEncoder(MAGIC_ENCODING);
-    const magicArrayBuffer = Util.bufferToArrayBuffer(textEncoder.encode(MAGIC));
-
-    const flashCartArrayBuffer = Util.concatArrayBuffers([magicArrayBuffer, GenesisUtil.byteCollapse(rawArrayBuffer)]);
-
-    return new GenesisMegaSdGenesisFlashCartSaveData(flashCartArrayBuffer, rawArrayBuffer);
+    throw new Error('This does not appear to be a raw Genesis save file');
   }
 
   static createWithNewSize(flashCartSaveData, newSize) {
