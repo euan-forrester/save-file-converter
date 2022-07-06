@@ -138,6 +138,10 @@ export default class PaddingUtil {
     return newArrayBuffer;
   }
 
+  static padAtEndToMinimumSize(arrayBuffer, paddingValue, minimumPaddingCount) {
+    return PaddingUtil.addPaddingToEnd(arrayBuffer, { value: paddingValue, count: Math.max(minimumPaddingCount - arrayBuffer.byteLength, 0) });
+  }
+
   static countPaddingFromStart(arrayBuffer, padValue) {
     const uint8Array = new Uint8Array(arrayBuffer);
     let count = 0;

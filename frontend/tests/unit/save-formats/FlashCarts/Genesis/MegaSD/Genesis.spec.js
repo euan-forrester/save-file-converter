@@ -10,31 +10,13 @@ const DIR = './tests/unit/save-formats/data/flashcarts/genesis';
 const MEGA_SD_NEW_SRAM_FILENAME = `${DIR}/megasd/Phantasy Star II (USA, Europe) (Rev A)-new-style.SRM`;
 const MEGA_SD_RAW_NEW_SRAM_FILENAME = `${DIR}/megasd/Phantasy Star II (USA, Europe) (Rev A)-new-style-raw.srm`;
 
+const MEGA_SD_NEW_EEPROM_FILENAME = `${DIR}/megasd/Wonder Boy in Monster World (USA, Europe)-new-style.SRM`;
+const MEGA_SD_RAW_NEW_EEPROM_FILENAME = `${DIR}/megasd/Wonder Boy in Monster World (USA, Europe)-new-style-raw.srm`;
+
 const MEGA_SD_OLD_SRAM_FILENAME = `${DIR}/megasd/Phantasy Star II (USA, Europe) (Rev A)-old-style.srm`;
 const MEGA_SD_RAW_OLD_SRAM_FILENAME = `${DIR}/megasd/Phantasy Star II (USA, Europe) (Rev A)-old-style-raw.srm`;
 
 describe('Flash cart - Genesis - Mega SD - Genesis', () => {
-  /*
-  it('should convert a Mega SD SMS save to raw format', async () => {
-    const flashCartArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEGA_EVERDRIVE_PRO_SMS_FILENAME);
-
-    const flashCartSaveData = GenesisMegaEverdriveProSmsFlashCartSaveData.createFromFlashCartData(flashCartArrayBuffer);
-
-    expect(ArrayBufferUtil.arrayBuffersEqual(flashCartSaveData.getFlashCartArrayBuffer(), flashCartSaveData.getRawArrayBuffer())).to.equal(true);
-  });
-  */
-
-  /*
-  it('should convert a raw SRAM save to Mega SD format', async () => {
-    const flashCartArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEGA_SD_SRAM_FILENAME)
-    // const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEGA_SD_RAW_SRAM_FILENAME);
-
-    const flashCartSaveData = GenesisMegaSdGenesisFlashCartSaveData.createFromRawData(rawArrayBuffer);
-
-    expect(ArrayBufferUtil.arrayBuffersEqual(flashCartSaveData.getFlashCartArrayBuffer(), flashCartSaveData.getRawArrayBuffer())).to.equal(true);
-  });
-  */
-
   it('should convert a Mega SD SRAM save in the new style to raw format', async () => {
     const flashCartArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEGA_SD_NEW_SRAM_FILENAME);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEGA_SD_RAW_NEW_SRAM_FILENAME);
@@ -60,5 +42,23 @@ describe('Flash cart - Genesis - Mega SD - Genesis', () => {
     const flashCartSaveData = GenesisMegaSdGenesisFlashCartSaveData.createFromFlashCartData(flashCartArrayBuffer);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(flashCartSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a Mega SD EEPROM save in the new style to raw format', async () => {
+    const flashCartArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEGA_SD_NEW_EEPROM_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEGA_SD_RAW_NEW_EEPROM_FILENAME);
+
+    const flashCartSaveData = GenesisMegaSdGenesisFlashCartSaveData.createFromFlashCartData(flashCartArrayBuffer);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(flashCartSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a raw EEPROM save to the new style', async () => {
+    const flashCartArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEGA_SD_NEW_EEPROM_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEGA_SD_RAW_NEW_EEPROM_FILENAME);
+
+    const flashCartSaveData = GenesisMegaSdGenesisFlashCartSaveData.createFromRawData(rawArrayBuffer);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(flashCartSaveData.getFlashCartArrayBuffer(), flashCartArrayBuffer)).to.equal(true);
   });
 });

@@ -10,20 +10,26 @@
 import SaveFilesUtil from '../../../../util/SaveFiles';
 import GenesisUtil from '../../../../util/Genesis';
 import MathUtil from '../../../../util/Math';
+import PaddingUtil from '../../../../util/Padding';
 import Util from '../../../../util/util';
 
 const MAGIC = 'BUP2';
 const MAGIC_OFFSET = 0;
 const MAGIC_ENCODING = 'US-ASCII';
 
-// const MEGA_SD_FILL_BYTE = 0xFF; // "Old style" Mega SD files are byte expanded with a fill byte of 0xFF
+const MEGA_SD_NEW_STYLE_PADDED_SIZE = 32768; // Both SRAM and EEPROM saves appear to always be padded out to this size
+
+// const MEGA_SD_OLD_STYLE_FILL_BYTE = 0xFF; // "Old style" Mega SD files are byte expanded with a fill byte of 0xFF
 const RAW_FILL_BYTE = 0x00;
 
+const MEGA_SD_NEW_STYLE_PADDING_BYTE = 0xFF; // Half of the new style files I was given were padding with 0xff and the other half were 0x00. The eeprom save was padded with 0xff so I'm going with that one
+
+const RAW_EEPROM_MIN_SIZE = 128; // Most EEPROM files we see (Wii VC, Everdrive) are this size for Wonder Boy in Monster World, even though the Mega SD only writes out 64 bytes (and GenesisPlus loads that fine)
+
 // FIXME:
-// - Pad files out to a minimum size
-// - Check that it's the same minimum for eeprom files
-// - See if tehre's actual data past 64 bytes in everdrive eeprom files
+// - Pad files out to a minimum size when converting to mega sd
 // - Remove padding when convert to raw
+// - Check if we can find an EEPROM save in the old style. If not, what will we guess here?
 
 function isNewStyleSave(flashCartArrayBuffer) {
   try { // eslint-disable-line import/no-named-as-default, import/no-named-as-default-member
@@ -40,7 +46,7 @@ function isOldStyleSave(flashCartArrayBuffer) {
 }
 
 function isRawSave(rawArrayBuffer) {
-  return (GenesisUtil.isByteExpanded(rawArrayBuffer) && MathUtil.isPowerOf2(rawArrayBuffer.byteLength));
+  return ((GenesisUtil.isEepromSave(rawArrayBuffer) || GenesisUtil.isByteExpanded(rawArrayBuffer)) && MathUtil.isPowerOf2(rawArrayBuffer.byteLength));
 }
 
 function convertFromOldStyleToRaw(flashCartArrayBuffer) {
@@ -48,7 +54,17 @@ function convertFromOldStyleToRaw(flashCartArrayBuffer) {
 }
 
 function convertFromNewStyleToRaw(flashCartArrayBuffer) {
-  return GenesisUtil.byteExpand(flashCartArrayBuffer.slice(MAGIC.length), RAW_FILL_BYTE);
+  // First, check if we're an EEPROM save. These have the magic on the front, and are padded out.
+
+  const collapsedArrayBuffer = flashCartArrayBuffer.slice(MAGIC.length);
+  const padding = PaddingUtil.getPadFromEndValueAndCount(collapsedArrayBuffer);
+  const collapsedUnpaddedArrayBuffer = PaddingUtil.removePaddingFromEnd(collapsedArrayBuffer, padding.count);
+
+  if (GenesisUtil.isEepromSave(collapsedUnpaddedArrayBuffer)) {
+    return PaddingUtil.padAtEndToMinimumSize(collapsedUnpaddedArrayBuffer, RAW_FILL_BYTE, RAW_EEPROM_MIN_SIZE); // EEPROM saves don't get byte expanded
+  }
+
+  return GenesisUtil.byteExpand(collapsedArrayBuffer, RAW_FILL_BYTE);
 }
 
 function convertFromRawToNewStyle(rawArrayBuffer) {
@@ -57,6 +73,13 @@ function convertFromRawToNewStyle(rawArrayBuffer) {
 
   const textEncoder = new TextEncoder(MAGIC_ENCODING);
   const magicArrayBuffer = Util.bufferToArrayBuffer(textEncoder.encode(MAGIC));
+
+  const padding = PaddingUtil.getPadFromEndValueAndCount(rawArrayBuffer);
+  const unpaddedArrayBuffer = PaddingUtil.removePaddingFromEnd(rawArrayBuffer, padding.count);
+
+  if (GenesisUtil.isEepromSave(unpaddedArrayBuffer)) {
+    return Util.concatArrayBuffers([magicArrayBuffer, PaddingUtil.padAtEndToMinimumSize(unpaddedArrayBuffer, MEGA_SD_NEW_STYLE_PADDING_BYTE, MEGA_SD_NEW_STYLE_PADDED_SIZE)]);
+  }
 
   return Util.concatArrayBuffers([magicArrayBuffer, GenesisUtil.byteCollapse(rawArrayBuffer)]);
 }
