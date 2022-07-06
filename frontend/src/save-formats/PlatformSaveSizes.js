@@ -71,7 +71,8 @@ export default {
     65536,
   ],
   genesis: [
-    128, // Wonder Boy in Monster World (uses EEPROM to save)
+    64, // On the Mega SD, Wonder Boy in Monster World only uses this much data (although it's padded out to be much larger)
+    128, // Wonder Boy in Monster World (uses EEPROM to save). Files created by the GenesisPlus emulator and Mega Everdrive Pro are this big
     256,
     512,
     1024,
@@ -81,6 +82,6 @@ export default {
     16384,
     32768,
     65536, // Genesis files on the MiSTer are all padded out to be 64k, so maybe that's the max size?
-    131072, // But if we byte-expand thagt largest file inappropriately we end up with sometyhing this big, and we shouldn't show blank in the output size dropdown
+    131072, // But if we byte-expand that largest file inappropriately we end up with sometyhing this big, and we shouldn't show blank in the output size dropdown
   ],
 };
