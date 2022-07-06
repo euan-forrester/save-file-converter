@@ -126,7 +126,7 @@ import GenesisMegaEverdriveProNesFlashCartSaveData from '../save-formats/FlashCa
 import GenesisMegaEverdriveProSmsFlashCartSaveData from '../save-formats/FlashCarts/Genesis/MegaEverdrivePro/SMS';
 import GbFlashCartSaveData from '../save-formats/FlashCarts/GB';
 import GbaFlashCartSaveData from '../save-formats/FlashCarts/GBA/GBA';
-import N64FlashCartSaveData from '../save-formats/FlashCarts/N64';
+import N64FlashCartSaveData from '../save-formats/FlashCarts/N64/N64';
 
 export default {
   name: 'ConvertFlashCarts',

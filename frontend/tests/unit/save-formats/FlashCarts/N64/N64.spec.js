@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import N64FlashCartSaveData from '@/save-formats/FlashCarts/N64';
+import N64FlashCartSaveData from '@/save-formats/FlashCarts/N64/N64';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 const DIR = './tests/unit/save-formats/data/flashcarts/n64';

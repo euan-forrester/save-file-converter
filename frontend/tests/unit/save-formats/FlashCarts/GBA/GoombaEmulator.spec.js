@@ -7,7 +7,7 @@ const config = Config.Create();
 
 const TEST_RETAIL_ROMS = config.get().testFlashCartRetailGames; // We don't check retail ROMs into the repo
 
-const DIR = './tests/unit/save-formats/data/flashcarts/goombaemulator';
+const DIR = './tests/unit/save-formats/data/flashcarts/gba/goombaemulator';
 
 const RAW_ZELDA_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (USA, Europe)-from-goomba.sav`;
 const GOOMBA_ZELDA_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (USA, Europe)-from-goomba.esv`;
@@ -24,7 +24,7 @@ const GOOMBA_WARIO_FILENAME = `${DIR}/Wario Land 3.srm`;
 
 const WARIO_ROM_CHECKSUM = 0xb2380b51;
 
-describe('Flash cart - Goomba emulator save format', () => {
+describe('Flash cart - GBA - Goomba emulator save format', () => {
   it('should convert a Goomba emulator save made with an EZ Flash ODE to raw format', async () => {
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_ZELDA_FILENAME);
     const goombaArrayBuffer = await ArrayBufferUtil.readArrayBuffer(GOOMBA_ZELDA_FILENAME);
