@@ -18,7 +18,7 @@ export default class GenesisMegaSdSmsFlashCartSaveData {
       return new GenesisMegaSdSmsFlashCartSaveData(flashCartArrayBuffer, flashCartArrayBuffer.slice(MAGIC.length));
     }
 
-    throw new Error('This does not appear to be a Sega Master System save');
+    throw new Error('This does not appear to be a Mega SD Sega Master System save file');
   }
 
   static createFromRawData(rawArrayBuffer) {
