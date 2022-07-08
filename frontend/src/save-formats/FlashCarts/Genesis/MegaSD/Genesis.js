@@ -27,9 +27,14 @@ const MEGA_SD_NEW_STYLE_PADDING_BYTE = 0xFF; // Half of the new style files I wa
 const RAW_EEPROM_MIN_SIZE = 128; // Most EEPROM files we see (Wii VC, Everdrive) are this size for Wonder Boy in Monster World, even though the Mega SD only writes out 64 bytes (and GenesisPlus loads that fine)
 
 // FIXME:
-// - Pad files out to a minimum size when converting to mega sd
 // - Remove padding when convert to raw
 // - Check if we can find an EEPROM save in the old style. If not, what will we guess here?
+
+// I'm worried about removing padding then checking the file size to see if eeprom because some games
+// if saved early might not have much data, and so we might get an incorrect result.
+
+// This goes for converting from raw
+// And maybe we should check for padding value == 0xff when removing padding from new style
 
 function isNewStyleSave(flashCartArrayBuffer) {
   try { // eslint-disable-line import/no-named-as-default, import/no-named-as-default-member
@@ -75,13 +80,13 @@ function convertFromRawToNewStyle(rawArrayBuffer) {
   const magicArrayBuffer = Util.bufferToArrayBuffer(textEncoder.encode(MAGIC));
 
   const padding = PaddingUtil.getPadFromEndValueAndCount(rawArrayBuffer);
-  const unpaddedArrayBuffer = PaddingUtil.removePaddingFromEnd(rawArrayBuffer, padding.count);
+  let unpaddedArrayBuffer = PaddingUtil.removePaddingFromEnd(rawArrayBuffer, padding.count);
 
-  if (GenesisUtil.isEepromSave(unpaddedArrayBuffer)) {
-    return Util.concatArrayBuffers([magicArrayBuffer, PaddingUtil.padAtEndToMinimumSize(unpaddedArrayBuffer, MEGA_SD_NEW_STYLE_PADDING_BYTE, MEGA_SD_NEW_STYLE_PADDED_SIZE)]);
+  if (!GenesisUtil.isEepromSave(unpaddedArrayBuffer)) {
+    unpaddedArrayBuffer = GenesisUtil.byteCollapse(rawArrayBuffer);
   }
 
-  return Util.concatArrayBuffers([magicArrayBuffer, GenesisUtil.byteCollapse(rawArrayBuffer)]);
+  return Util.concatArrayBuffers([magicArrayBuffer, PaddingUtil.padAtEndToMinimumSize(unpaddedArrayBuffer, MEGA_SD_NEW_STYLE_PADDING_BYTE, MEGA_SD_NEW_STYLE_PADDED_SIZE)]);
 }
 
 export default class GenesisMegaSdGenesisFlashCartSaveData {
