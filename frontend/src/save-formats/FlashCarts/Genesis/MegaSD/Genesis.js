@@ -27,7 +27,6 @@ const MEGA_SD_NEW_STYLE_PADDING_BYTE = 0xFF; // Half of the new style files I wa
 const RAW_EEPROM_MIN_SIZE = 128; // Most EEPROM files we see (Wii VC, Everdrive) are this size for Wonder Boy in Monster World, even though the Mega SD only writes out 64 bytes (and GenesisPlus loads that fine)
 
 // FIXME:
-// - Remove padding when convert to raw
 // - Check if we can find an EEPROM save in the old style. If not, what will we guess here?
 
 // I'm worried about removing padding then checking the file size to see if eeprom because some games
@@ -55,7 +54,10 @@ function isRawSave(rawArrayBuffer) {
 }
 
 function convertFromOldStyleToRaw(flashCartArrayBuffer) {
-  return GenesisUtil.changeFillByte(flashCartArrayBuffer, RAW_FILL_BYTE);
+  const padding = PaddingUtil.getPadFromEndValueAndCount(flashCartArrayBuffer);
+  const unpaddedArrayBuffer = PaddingUtil.removePaddingFromEnd(flashCartArrayBuffer, padding.count);
+
+  return GenesisUtil.changeFillByte(unpaddedArrayBuffer, RAW_FILL_BYTE);
 }
 
 function convertFromNewStyleToRaw(flashCartArrayBuffer) {
