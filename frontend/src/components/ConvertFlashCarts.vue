@@ -124,6 +124,8 @@ import SnesFlashCartSaveData from '../save-formats/FlashCarts/SNES';
 import GenesisMegaEverdriveProGenesisFlashCartSaveData from '../save-formats/FlashCarts/Genesis/MegaEverdrivePro/Genesis';
 import GenesisMegaEverdriveProNesFlashCartSaveData from '../save-formats/FlashCarts/Genesis/MegaEverdrivePro/NES';
 import GenesisMegaEverdriveProSmsFlashCartSaveData from '../save-formats/FlashCarts/Genesis/MegaEverdrivePro/SMS';
+import GenesisMegaSdGenesisFlashCartSaveData from '../save-formats/FlashCarts/Genesis/MegaSD/Genesis';
+import GenesisMegaSdSmsFlashCartSaveData from '../save-formats/FlashCarts/Genesis/MegaSD/SMS';
 import GbFlashCartSaveData from '../save-formats/FlashCarts/GB';
 import GbaFlashCartSaveData from '../save-formats/FlashCarts/GBA/GBA';
 import N64FlashCartSaveData from '../save-formats/FlashCarts/N64/N64';
@@ -211,6 +213,16 @@ export default {
 
           case 'FlashCart-SMSGenesisEverdrive': {
             this.flashCartTypeClass = GenesisMegaEverdriveProSmsFlashCartSaveData;
+            break;
+          }
+
+          case 'FlashCart-GenesisMegaSD': {
+            this.flashCartTypeClass = GenesisMegaSdGenesisFlashCartSaveData;
+            break;
+          }
+
+          case 'FlashCart-SMSGenesisMegaSD': {
+            this.flashCartTypeClass = GenesisMegaSdSmsFlashCartSaveData;
             break;
           }
 
