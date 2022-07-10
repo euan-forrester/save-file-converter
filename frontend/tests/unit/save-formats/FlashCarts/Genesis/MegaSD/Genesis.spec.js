@@ -22,10 +22,12 @@ const MEGA_SD_RAW_NEW_EEPROM_FILENAME = `${DIR}/Wonder Boy in Monster World (USA
 const MEGA_SD_NEW_FRAM_FILENAME = `${DIR}/Sonic the Hedgehog 3 (USA)-new-style.SRM`;
 const MEGA_SD_RAW_NEW_FRAM_FILENAME = `${DIR}/Sonic the Hedgehog 3 (USA)-new-style-raw.sav`;
 
+const EMULATOR_FRAM_FILENAME = `${DIR}/emulator/Sonic The Hedgehog 3 (USA).sav`; // For some reason, the GenesisPlus emulator writes out a 64kB file
+
 const MEGA_SD_OLD_SRAM_FILENAME = `${DIR}/Phantasy Star II (USA, Europe) (Rev A)-old-style.srm`;
 const MEGA_SD_RAW_OLD_SRAM_FILENAME = `${DIR}/Phantasy Star II (USA, Europe) (Rev A)-old-style-raw.sav`;
 
-const EMULATOR_FRAM_FILENAME = `${DIR}/emulator/Sonic The Hedgehog 3 (USA).sav`; // For some reason, the GenesisPlus emulator writes out a 64kB file
+const MEGA_SD_OLD_EEPROM_FILENAME = `${DIR}/Wonder Boy in Monster World (USA, Europe)-old-style.srm`;
 
 describe('Flash cart - Genesis - Mega SD - Genesis', () => {
   it('should convert a Mega SD SRAM save in the new style padded with 0x00 to raw format', async () => {
@@ -144,5 +146,13 @@ describe('Flash cart - Genesis - Mega SD - Genesis', () => {
     const flashCartSaveData = GenesisMegaSdGenesisFlashCartSaveData.createFromFlashCartData(flashCartArrayBuffer);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(flashCartSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a Mega SD EEPROM save in the old style to raw format', async () => {
+    const flashCartArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEGA_SD_OLD_EEPROM_FILENAME);
+
+    const flashCartSaveData = GenesisMegaSdGenesisFlashCartSaveData.createFromFlashCartData(flashCartArrayBuffer);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(flashCartSaveData.getRawArrayBuffer(), flashCartArrayBuffer)).to.equal(true);
   });
 });

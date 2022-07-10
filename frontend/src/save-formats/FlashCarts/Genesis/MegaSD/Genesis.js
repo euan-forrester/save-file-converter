@@ -48,7 +48,9 @@ function isNewStyleSave(flashCartArrayBuffer) {
 }
 
 function isOldStyleSave(flashCartArrayBuffer) {
-  return (GenesisUtil.isByteExpanded(flashCartArrayBuffer) && MathUtil.isPowerOf2(flashCartArrayBuffer.byteLength));
+  // FIXME: The EEPROM part is a complete guess: we don't know how an EEPROM save in the "old sty;e" looks, since there weren't any in our set of sample files.
+  // See also convertFromOldStyleToRaw()
+  return ((GenesisUtil.isEepromSave(flashCartArrayBuffer) || GenesisUtil.isByteExpanded(flashCartArrayBuffer)) && MathUtil.isPowerOf2(flashCartArrayBuffer.byteLength));
 }
 
 function isRawSave(rawArrayBuffer) {
@@ -56,6 +58,12 @@ function isRawSave(rawArrayBuffer) {
 }
 
 function convertFromOldStyleToRaw(flashCartArrayBuffer) {
+  // FIXME: This is a complete guess: we don't know how an EEPROM save in the "old sty;e" looks, since there weren't any in our set of sample files.
+  // See also isOldStyleSave()
+  if (GenesisUtil.isEepromSave(flashCartArrayBuffer)) {
+    return PaddingUtil.padAtEndToMinimumSize(flashCartArrayBuffer, RAW_FILL_BYTE, RAW_EEPROM_MIN_SIZE); // EEPROM saves don't get byte expanded
+  }
+
   const padding = PaddingUtil.getPadFromEndValueAndCount(flashCartArrayBuffer);
   const unpaddedArrayBuffer = PaddingUtil.removePaddingFromEnd(flashCartArrayBuffer, padding.count);
 
