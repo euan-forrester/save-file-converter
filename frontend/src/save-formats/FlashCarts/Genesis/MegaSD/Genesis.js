@@ -22,7 +22,8 @@ const MEGA_SD_NEW_STYLE_PADDED_SIZE = 32768; // Both SRAM and EEPROM saves appea
 // const MEGA_SD_OLD_STYLE_FILL_BYTE = 0xFF; // "Old style" Mega SD files are byte expanded with a fill byte of 0xFF
 const RAW_FILL_BYTE = 0x00;
 
-const MEGA_SD_NEW_STYLE_PADDING_BYTE = 0xFF; // Half of the new style files I was given were padding with 0xff and the other half were 0x00. The eeprom save was padded with 0xff so I'm going with that one
+const MEGA_SD_NEW_STYLE_PADDING_BYTE_SRAM = 0x00; // 3/4 of the new style files I was given were padded with 0x00 but one was 0xFF
+const MEGA_SD_NEW_STYLE_PADDING_BYTE_EEPROM = 0xFF; // The example new style eeprom save was padded with 0xFF
 
 const RAW_EEPROM_MIN_SIZE = 128; // Most EEPROM files we see (Wii VC, Everdrive) are this size for Wonder Boy in Monster World, even though the Mega SD only writes out 64 bytes (and GenesisPlus loads that fine)
 const RAW_SRAM_MIN_SIZE = 16384; // 8kB, byte expanded
@@ -87,11 +88,14 @@ function convertFromRawToNewStyle(rawArrayBuffer) {
   const padding = PaddingUtil.getPadFromEndValueAndCount(rawArrayBuffer);
   let unpaddedArrayBuffer = PaddingUtil.removePaddingFromEnd(rawArrayBuffer, padding.count);
 
+  let paddingByte = MEGA_SD_NEW_STYLE_PADDING_BYTE_EEPROM;
+
   if (!GenesisUtil.isEepromSave(unpaddedArrayBuffer)) {
     unpaddedArrayBuffer = GenesisUtil.byteCollapse(rawArrayBuffer);
+    paddingByte = MEGA_SD_NEW_STYLE_PADDING_BYTE_SRAM;
   }
 
-  return Util.concatArrayBuffers([magicArrayBuffer, PaddingUtil.padAtEndToMinimumSize(unpaddedArrayBuffer, MEGA_SD_NEW_STYLE_PADDING_BYTE, MEGA_SD_NEW_STYLE_PADDED_SIZE)]);
+  return Util.concatArrayBuffers([magicArrayBuffer, PaddingUtil.padAtEndToMinimumSize(unpaddedArrayBuffer, paddingByte, MEGA_SD_NEW_STYLE_PADDED_SIZE)]);
 }
 
 export default class GenesisMegaSdGenesisFlashCartSaveData {
