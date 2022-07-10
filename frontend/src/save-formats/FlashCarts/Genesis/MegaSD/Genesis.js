@@ -28,14 +28,8 @@ const MEGA_SD_NEW_STYLE_PADDING_BYTE_EEPROM = 0xFF; // The example new style eep
 const RAW_EEPROM_MIN_SIZE = 128; // Most EEPROM files we see (Wii VC, Everdrive) are this size for Wonder Boy in Monster World, even though the Mega SD only writes out 64 bytes (and GenesisPlus loads that fine)
 const RAW_SRAM_MIN_SIZE = 16384; // 8kB, byte expanded
 
-// FIXME:
-// - Check if we can find an EEPROM save in the old style. If not, what will we guess here?
-
-// I'm worried about removing padding then checking the file size to see if eeprom because some games
-// if saved early might not have much data, and so we might get an incorrect result.
-
-// This goes for converting from raw
-// And maybe we should check for padding value == 0xff when removing padding from new style
+// When converting from raw, I'm concerned about removing padding then checking the resulting file size
+// to see if it's an EEPROM save because ome games if saved early might not have much data, and so we might get an incorrect result.
 
 function isNewStyleSave(flashCartArrayBuffer) {
   try { // eslint-disable-line import/no-named-as-default, import/no-named-as-default-member
