@@ -63,6 +63,8 @@ export default {
         { value: 'FlashCart-GenesisEverdrive', text: 'Genesis (Everdrive)' },
         { value: 'FlashCart-NESGenesisEverdrive', text: 'NES on Genesis (Everdrive)' },
         { value: 'FlashCart-SMSGenesisEverdrive', text: 'SMS on Genesis (Everdrive)' },
+        { value: 'FlashCart-GenesisMegaSD', text: 'Genesis (Mega SD)' },
+        { value: 'FlashCart-SMSGenesisMegaSD', text: 'SMS on Genesis (Mega SD)' },
         { value: 'FlashCart-N64', text: 'Nintendo 64' },
       ],
     };
