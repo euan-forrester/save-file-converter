@@ -6,7 +6,7 @@ import GenesisMegaaSdSmsFlashCartSaveData from '@/save-formats/FlashCarts/Genesi
 const DIR = './tests/unit/save-formats/data/flashcarts/genesis';
 
 const MEGA_SD_FILENAME = `${DIR}/megasd/Phantasy Star (USA, Europe) (Rev 1).SRM`;
-const RAW_FILENAME = `${DIR}/megasd/Phantasy Star (USA, Europe) (Rev 1)-raw.srm`;
+const RAW_FILENAME = `${DIR}/megasd/Phantasy Star (USA, Europe) (Rev 1)-raw.sav`;
 
 describe('Flash cart - Genesis - Mega SD - SMS', () => {
   it('should convert a raw SMS save to Mega SD format', async () => {
