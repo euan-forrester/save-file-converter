@@ -99,6 +99,8 @@ function convertFromRawToNewStyle(rawArrayBuffer) {
 }
 
 export default class GenesisMegaSdGenesisFlashCartSaveData {
+  static NEW_STYLE_MAGIC = MAGIC;
+
   static createFromFlashCartData(flashCartArrayBuffer) {
     if (isNewStyleSave(flashCartArrayBuffer)) {
       return new GenesisMegaSdGenesisFlashCartSaveData(flashCartArrayBuffer, convertFromNewStyleToRaw(flashCartArrayBuffer));
