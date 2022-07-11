@@ -32,13 +32,13 @@ const RAW_SRAM_MIN_SIZE = 16384; // 8kB, byte expanded
 // to see if it's an EEPROM save because ome games if saved early might not have much data, and so we might get an incorrect result.
 
 function isNewStyleSave(flashCartArrayBuffer) {
-  try { // eslint-disable-line import/no-named-as-default, import/no-named-as-default-member
+  try {
     Util.checkMagic(flashCartArrayBuffer, MAGIC_OFFSET, MAGIC, MAGIC_ENCODING);
-
-    return ((flashCartArrayBuffer.byteLength > MAGIC.length) && MathUtil.isPowerOf2(flashCartArrayBuffer.byteLength - MAGIC.length));
   } catch (e) {
     return false;
   }
+
+  return ((flashCartArrayBuffer.byteLength > MAGIC.length) && MathUtil.isPowerOf2(flashCartArrayBuffer.byteLength - MAGIC.length));
 }
 
 function isOldStyleSave(flashCartArrayBuffer) {
