@@ -1,10 +1,7 @@
 <template>
     <div>
     <b-row no-gutters align-h="start" align-v="center">
-      <b-col cols=4 class="text-left text-label">
-        Flash cart type:
-      </b-col>
-      <b-col cols=7 sm=8>
+      <b-col cols=11 sm=12>
         <div>
           <b-form-select
             v-model="flashCartType"
@@ -21,10 +18,7 @@
       </b-col>
     </b-row>
     <b-row no-gutters align-h="start" align-v="center">
-     <b-col cols=4 class="text-left text-label">
-        Game type:
-      </b-col>
-      <b-col cols=7 sm=8>
+      <b-col cols=11 sm=12>
         <div>
           <b-form-select
             v-model="platformType"
@@ -93,45 +87,45 @@ export default {
       platformType: null,
       flashCartTypes: [
         { value: null, text: 'Choose flash cart type', disabled: true },
-        { value: 'NES', text: 'NES' },
-        { value: 'SNES', text: 'SNES' },
-        { value: 'GB', text: 'Gameboy/Gameboy Color' },
-        { value: 'GBA', text: 'Gameboy Advance' },
-        { value: 'GenesisEverdrive', text: 'Genesis (Everdrive)' },
-        { value: 'GenesisMegaSD', text: 'Genesis (Mega SD)' },
-        { value: 'N64', text: 'Nintendo 64' },
+        { value: 'NES', text: 'NES cart' },
+        { value: 'SNES', text: 'SNES cart' },
+        { value: 'GB', text: 'Gameboy/Gameboy Color cart' },
+        { value: 'GBA', text: 'Gameboy Advance cart' },
+        { value: 'GenesisEverdrive', text: 'Genesis cart (Everdrive)' },
+        { value: 'GenesisMegaSD', text: 'Genesis cart (Mega SD)' },
+        { value: 'N64', text: 'Nintendo 64 cart' },
       ],
 
       platformTypes: {
         NES: [
-          { value: 'FlashCart-NES', text: 'NES' },
+          { value: 'FlashCart-NES', text: 'NES game' },
         ],
         SNES: [
-          { value: 'FlashCart-SNES', text: 'SNES' },
+          { value: 'FlashCart-SNES', text: 'SNES game' },
         ],
         GB: [
-          { value: 'FlashCart-GB', text: 'Gameboy/Gameboy Color' },
+          { value: 'FlashCart-GB', text: 'Gameboy/Gameboy Color game' },
         ],
         GBA: [
           { value: null, text: 'Choose game type', disabled: true },
-          { value: 'FlashCart-GBA', text: 'Gameboy Advance' },
-          { value: 'FlashCart-GoombaEmulator', text: 'GB/GBC (Goomba emulator)' },
-          { value: 'FlashCart-PocketNesEmulator', text: 'NES (PocketNES emulator)' },
-          { value: 'FlashCart-SMSAdvanceEmulator', text: 'SMS (SMSAdvance emulator)' },
+          { value: 'FlashCart-GBA', text: 'Gameboy Advance game' },
+          { value: 'FlashCart-GoombaEmulator', text: 'GB/GBC game (Goomba emulator)' },
+          { value: 'FlashCart-PocketNesEmulator', text: 'NES game (PocketNES emulator)' },
+          { value: 'FlashCart-SMSAdvanceEmulator', text: 'SMS game (SMSAdvance emulator)' },
         ],
         GenesisEverdrive: [
           { value: null, text: 'Choose game type', disabled: true },
-          { value: 'FlashCart-GenesisEverdrive', text: 'Genesis' },
-          { value: 'FlashCart-NESGenesisEverdrive', text: 'NES' },
-          { value: 'FlashCart-SMSGenesisEverdrive', text: 'SMS' },
+          { value: 'FlashCart-GenesisEverdrive', text: 'Genesis game' },
+          { value: 'FlashCart-NESGenesisEverdrive', text: 'NES game' },
+          { value: 'FlashCart-SMSGenesisEverdrive', text: 'SMS game' },
         ],
         GenesisMegaSD: [
           { value: null, text: 'Choose game type', disabled: true },
-          { value: 'FlashCart-GenesisMegaSD', text: 'Genesis' },
-          { value: 'FlashCart-SMSGenesisMegaSD', text: 'SMS' },
+          { value: 'FlashCart-GenesisMegaSD', text: 'Genesis game' },
+          { value: 'FlashCart-SMSGenesisMegaSD', text: 'SMS game' },
         ],
         N64: [
-          { value: 'FlashCart-N64', text: 'Nintendo 64' },
+          { value: 'FlashCart-N64', text: 'Nintendo 64 game' },
         ],
       },
     };
