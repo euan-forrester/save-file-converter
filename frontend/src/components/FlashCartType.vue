@@ -1,7 +1,10 @@
 <template>
     <div>
     <b-row no-gutters align-h="start" align-v="center">
-      <b-col cols=11 sm=12>
+      <b-col cols=4 class="text-left text-label">
+        Flash cart type:
+      </b-col>
+      <b-col cols=7 sm=8>
         <div>
           <b-form-select
             v-model="flashCartType"
@@ -18,7 +21,10 @@
       </b-col>
     </b-row>
     <b-row no-gutters align-h="start" align-v="center">
-      <b-col cols=11 sm=12>
+     <b-col cols=4 class="text-left text-label">
+        Game type:
+      </b-col>
+      <b-col cols=7 sm=8>
         <div>
           <b-form-select
             v-model="platformType"
@@ -42,6 +48,10 @@
     position: absolute;
     right: -1.2em;
     top: 0em;
+  }
+
+  .text-label {
+    padding-left: 0.75em;
   }
 </style>
 
