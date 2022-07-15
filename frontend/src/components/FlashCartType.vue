@@ -17,23 +17,25 @@
         </div>
       </b-col>
     </b-row>
-    <b-row no-gutters align-h="start" align-v="center">
-      <b-col cols=11 sm=12>
-        <div>
-          <b-form-select
-            v-model="platformType"
-            v-on:input="$emit('input', $event)"
-            :options="this.platformTypes[this.flashCartType]"
-            :disabled="disabled"
-          />
-          <help-button
-            popover-text="Select the type of game that the save is for."
-            :id="`${this.id}-platform-type`"
-            class="help-button"
-          />
-        </div>
-      </b-col>
-    </b-row>
+    <div v-if="(this.flashCartType !== null) && (this.platformTypes[this.flashCartType].length > 1)">
+      <b-row no-gutters align-h="start" align-v="center">
+        <b-col cols=11 sm=12>
+          <div>
+            <b-form-select
+              v-model="platformType"
+              v-on:input="$emit('input', $event)"
+              :options="this.platformTypes[this.flashCartType]"
+              :disabled="disabled"
+            />
+            <help-button
+              popover-text="Select the type of game that the save is for."
+              :id="`${this.id}-platform-type`"
+              class="help-button"
+            />
+          </div>
+        </b-col>
+      </b-row>
+    </div>
   </div>
 </template>
 
@@ -73,6 +75,7 @@ export default {
       if (this.flashCartType !== null) {
         if (this.platformTypes[this.flashCartType].length === 1) {
           this.platformType = this.platformTypes[this.flashCartType][0].value;
+          this.$emit('input', this.platformType); // The second dropdown is invisible, so no events will be emitted from it because nothing will be selected
         } else {
           this.platformType = null; // If > 1 item in the list, then display the "Choose game type" option
         }
