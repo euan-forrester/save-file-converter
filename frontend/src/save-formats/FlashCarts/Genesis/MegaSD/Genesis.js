@@ -142,7 +142,7 @@ export default class GenesisMegaSdGenesisFlashCartSaveData {
   }
 
   static adjustOutputSizesPlatform() {
-    return 'genesis';
+    return null; // We pad out our files, so this doesn't make much sense here
   }
 
   constructor(flashCartArrayBuffer, rawArrayBuffer) {
