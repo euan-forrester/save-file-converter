@@ -6,14 +6,6 @@ Web-based tool to convert save files from retro game consoles to different forma
 
 Production instance found at https://savefileconverter.com
 
-Instructions:
-1. Find the file you want to convert 
-2. Choose which kind of file it is from the top of the window
-3. Click the arrow for which way you want to do the conversion
-4. Choose the file to convert
-5. Change the output filename if necessary
-6. Click Convert!
-
 ## Upcoming features
 
 - Be able to autodetect the format of a given save file (note that raw files need their size checked, unrecognized size means invalid file)
@@ -23,6 +15,12 @@ Instructions:
   - Add ability to add/extract a single game's save to/from a RAM backup, similar to how PS1/N64 work
 - What are the 64kB `.srm` files for SNES etc on thetechgame.com? Want to extract a 'normal' `.srm` file from them
 - I need suggestions!
+
+## Donations
+
+Everything on this site is free and open source with no advertising. If you find the site helpful and want to donate you can here:
+
+[![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/donate/?hosted_button_id=DHDERHCQVLGPJ)
 
 ## Usecases for further thought
 - Automatically add/remove header added by some flash carts (e.g. EZ Flash) given an example file
