@@ -14,6 +14,18 @@
     </div>
     <br/>
     <div>
+      Everything on this site is free and open source with no advertising. If you find the site helpful and want to donate you can here:
+    </div>
+    <br/>
+    <div>
+      <form action="https://www.paypal.com/donate" method="post" target="_top">
+        <input type="hidden" name="hosted_button_id" value="DHDERHCQVLGPJ" />
+        <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="Donate with PayPal" alt="Donate with PayPal button" />
+        <img alt="" border="0" src="https://www.paypal.com/en_CA/i/scr/pixel.gif" width="1" height="1" />
+      </form>
+    </div>
+    <br/>
+    <div>
       Questions/comments/suggestions? savefileconverter{{'\xa0'}}(at){{'\xa0'}}gmail{{'\xa0'}}(dot){{'\xa0'}}com
     </div>
   </div>
