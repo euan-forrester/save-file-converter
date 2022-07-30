@@ -14,7 +14,7 @@ const MEGA_SD_RAW_NEW_SRAM_PADDED_00_2_FILENAME = `${DIR}/Sword of Vermilion (US
 
 const MEGA_SD_NEW_SRAM_PADDED_FF_3_FILENAME = `${DIR}/Phantasy Star IV (USA)-new-style.SRM`;
 const MEGA_SD_RAW_NEW_SRAM_PADDED_FF_3_FILENAME = `${DIR}/Phantasy Star IV (USA)-new-style-raw.sav`;
-const MEGA_SD_NEW_SRAM_PADDED_00_3_FILENAME = `${DIR}/Phantasy Star IV (USA)-new-style-converted-back.SRM`;
+const MEGA_SD_NEW_SRAM_PADDED_00_3_FILENAME = `${DIR}/Phantasy Star IV (USA)-new-style-converted-back.SRM`; // This is tested as working on a Mega SD. Not sure why it originally output a differently-padded file
 
 const MEGA_SD_NEW_EEPROM_FILENAME = `${DIR}/Wonder Boy in Monster World (USA, Europe)-new-style.SRM`;
 const MEGA_SD_RAW_NEW_EEPROM_FILENAME = `${DIR}/Wonder Boy in Monster World (USA, Europe)-new-style-raw.sav`;

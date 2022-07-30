@@ -22,7 +22,8 @@ const LITTLE_ENDIAN = false;
 // My working theory on identifying EEPROM saves vs a non-byte-expanded SRAM save is that EEPROM saves
 // seem to be smaller.
 
-const SMALLEST_SRAM_SAVE = 512; // Seen in Final Fantasy Legend on Gameboy
+const SMALLEST_GENESIS_SRAM_SAVE = 512; // Final Fantasy Legend on Gameboy is 512B and is SRAM, but I'm not aware of any Genesis SRAM games that small
+const BIGGEST_32X_EEPROM_SAVE = 512; // Knuckles Chaotix on 32X is 512B. NBA TE on 32X appears to be at least 256B.
 
 const FILL_BYTE_REPEAT = 'repeat';
 
@@ -33,7 +34,19 @@ export default class GenesisUtil {
     // This hack may well not work on other Genesis EEPROM games: I have no idea how big their saves are, and looking at the list
     // here https://github.com/euan-forrester/save-file-converter/blob/main/frontend/src/save-formats/Wii/ConvertFromSega.js
     // there are lots of sports games that may need a bunch of space.
-    return (inputArrayBuffer.byteLength < SMALLEST_SRAM_SAVE);
+    return (inputArrayBuffer.byteLength < SMALLEST_GENESIS_SRAM_SAVE);
+  }
+
+  static is32xEepromSave(inputArrayBuffer) {
+    // The biggest 32X EEPROM save I've seen is 512 Bytes (Knuckles Chaotix).
+    // Unfortunately, some SRAM save files without much data in them may get unpadded to be smaller than 512 bytes
+    // (e.g. our example Sonic 3 save), which can lead to false positives here.
+    //
+    // So, I split out this function into Genesis and 32X variants to at least limit the potential for false positives to just 32X SRAM saves
+    // (and the 32X is way less popular)
+
+    console.log(`*** Checking is buffer of length ${inputArrayBuffer.byteLength} is a 32X eeprom save. Biggest eeprom save is ${BIGGEST_32X_EEPROM_SAVE} bytes`);
+    return (inputArrayBuffer.byteLength <= BIGGEST_32X_EEPROM_SAVE);
   }
 
   static isByteExpanded(inputArrayBuffer) {
