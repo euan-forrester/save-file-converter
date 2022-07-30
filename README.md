@@ -4,7 +4,7 @@ Web-based tool to convert save files from retro game consoles to different forma
 
 ![Save file conversion](https://github.com/euan-forrester/save-file-converter/raw/main/images/main-window.png "Save file conversion")
 
-Production instance found at https://savefileconverter.com
+Available at https://savefileconverter.com
 
 ## Upcoming features
 
@@ -15,6 +15,12 @@ Production instance found at https://savefileconverter.com
   - Add ability to add/extract a single game's save to/from a RAM backup, similar to how PS1/N64 work
 - What are the 64kB `.srm` files for SNES etc on thetechgame.com? Want to extract a 'normal' `.srm` file from them
 - I need suggestions!
+
+## Contact
+
+If you have questions, need help, or have comments or suggestions, please hop on Discord: https://discord.gg/wtJ7xUKKTR
+
+Or email savefileconverter (at) gmail (dot) com
 
 ## Donations
 
