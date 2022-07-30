@@ -124,78 +124,33 @@ Everything on this site is free and open source with no advertising. If you find
 
 Some platforms (e.g. some MiSTer cores) append RTC data to the end of a save file. The above link describes a common format for RTC data.
 
-## Deployment instructions
+## Offline use
 
-### Backend setup: AWS and terraform
+Occassionally there's a need to use the tool offline, such as when you'll be without an Internet connection for an extended period. There's 2 methods to achieve this:
 
-First we need to create the infrastructure that the system will run on
+### Method 1: Build it locally (for people comfortable with the command line and development tools)
 
-#### Install packages
-
-```
-brew install terraform
-```
-
-#### Create an AWS account
-
-Go to https://aws.amazon.com/ and click on "Create an AWS Account"
-
-Then create an IAM user within that account. This user will need to have various permissions to create different kinds of infrastructure.
-
-Copy the file `terraform/aws_credentials.example` to `terraform/aws_credentials`
-- Copy the new user's AWS key and secret key into the new file you just created.
-
-#### Run terraform
-
-Note that this will create infrastructure within your AWS account and could result in billing charges from AWS
-
-Note: Run terraform with the environment variable `TF_LOG=1` to help debug permissions issues.
-
-For convenience we will create a symlink to our `terraform.tfvars` file. You can also import these variables from the command line when you run terraform if you prefer.
-
-In your `terraform.tfvars` file, fill in the various parts. If you choose to create a domain, do so manually in the AWS console then put the domain name and Route 53 Zone ID created by Route 53 into this file.
+You may need to modify some of these steps depending on your development environment, but this should give you the general idea.
 
 ```
-cd terraform/dev
-ln -s ../terraform.tfvars terraform.tfvars
-terraform init
-terraform plan
-terraform apply
-```
-### Frontend setup
-
-#### Install packages
-
-```
-cd ../../frontend
 brew install yarn
+brew install git
+git clone git@github.com:euan-forrester/save-file-converter.git
+cd save-file-converter/frontend
 yarn install
+yarn serve
 ```
 
-#### Optional project dashboard
+Then open http://localhost:8080/ in your browser.
 
-```
-yarn global add @vue/cli
-vue ui
-```
+Note that you'll have to keep the command line window open with `yarn serve` running for as long as you want to access the site.
 
-Then go to: http://localhost:8000/dashboard
+## Method 2: Use a website saving tool
 
-#### Deploy the frontend
+You can't just right click on the page and select Save As... because the site is divided internally into many different files, and that will only download some of them.
 
-Edit the bucket names in `frontend/vue.config.js` and `frontend/.env.production` to be the website s3 bucket(s) created by terraform if necessary. Similarly for the CloudFront IDs.
+Google `website saving tool` or something similar to find an up-to-date list of such tools.
 
-```
-yarn build --mode development
-yarn deploy --mode development
-```
-and for production:
-```
-yarn build --mode production
-yarn deploy --mode production
-yarn deploy:cleanup --mode production
-```
+## Internet archive
 
-Go into S3 to get the domain for your bucket. 
-
-Point your browser there and enjoy!
+If you need to, you can also access the site via the Internet archive here: https://web.archive.org/web/https://savefileconverter.com/
