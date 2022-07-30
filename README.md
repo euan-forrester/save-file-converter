@@ -145,7 +145,7 @@ Then open http://localhost:8080/ in your browser.
 
 Note that you'll have to keep the command line window open with `yarn serve` running for as long as you want to access the site.
 
-## Method 2: Use a website saving tool
+### Method 2: Use a website saving tool
 
 You can't just right click on the page and select Save As... because the site is divided internally into many different files, and that will only download some of them.
 
