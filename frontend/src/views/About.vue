@@ -25,7 +25,9 @@
     </div>
     <br/>
     <div>
-      Questions/comments/suggestions? savefileconverter{{'\xa0'}}(at){{'\xa0'}}gmail{{'\xa0'}}(dot){{'\xa0'}}com
+      Questions/need help/comments/suggestions?
+      <br>
+      <b-link href="https://discord.gg/wtJ7xUKKTR">https://discord.gg/wtJ7xUKKTR</b-link> or savefileconverter{{'\xa0'}}(at){{'\xa0'}}gmail{{'\xa0'}}(dot){{'\xa0'}}com
     </div>
   </div>
 </template>

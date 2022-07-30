@@ -73,7 +73,7 @@
         </div>
       </template>
       <template #table-caption>
-        <p class="contact-info">Anything missing? Found a mistake? Product discontinued? Contact savefileconverter (at) gmail (dot) com</p>
+        <p class="contact-info">Anything missing? Found a mistake? Product discontinued? Visit <b-link href="https://discord.gg/wtJ7xUKKTR">https://discord.gg/wtJ7xUKKTR</b-link> or email savefileconverter (at) gmail (dot) com</p>
       </template>
     </b-table>
   </div>
