@@ -150,13 +150,13 @@ Install `homebrew`: https://docs.brew.sh/Installation
 brew install yarn
 brew install git
 ```
-Then proceed to the [Common](https://github.com/euan-forrester/save-file-converter/edit/main/README.md#common) section
+Then proceed to the [Common](https://github.com/euan-forrester/save-file-converter#common) section
 
 #### Windows
 
 Find an equivalent package manager to `homebrew`, and use it to install `git` and `yarn`
 
-Then proceed to the [Common](https://github.com/euan-forrester/save-file-converter/edit/main/README.md#common) section
+Then proceed to the [Common](https://github.com/euan-forrester/save-file-converter#common) section
 
 #### Common
 
