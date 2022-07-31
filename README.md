@@ -69,6 +69,8 @@ Everything on this site is free and open source with no advertising. If you find
   - (writing) https://github.com/Plombo/segher-wii-tools/blob/master/twintig.c
   - https://github.com/Plombo/vcromclaim
   - https://github.com/JanErikGunnar/vcromclaim
+- Wii U Virtual Console:
+  - https://github.com/mstan/SaveAIO
 - PSP save file decryption/encryption (note that some files require a per-game key):
   - https://www.psdevwiki.com/ps3/PSP_Savedata
   - https://github.com/BrianBTB/SED-PC (PC application that decrypts/encrypts saves)
@@ -109,6 +111,7 @@ Everything on this site is free and open source with no advertising. If you find
   - SNES games: https://github.com/manuGMG/3ds-snes-sc
   - The tool above apparently works on some WiiU VC games as well: https://gbatemp.net/threads/release-3ds-snes-save-converter.574927/
   - Pokemon saves: https://sav2vc.fm1337.com/
+  - https://github.com/mstan/SaveAIO
 - Sega Saturn
   - https://github.com/hitomi2500/ss-save-parser
 - Gamecube
@@ -120,6 +123,7 @@ Everything on this site is free and open source with no advertising. If you find
     - https://www.reddit.com/r/everdrive/comments/qcgus7/using_a_gba_x5_goomba_sram_save_file_on_a_gbc_x7/****
   - N64 Everdrive
     - https://github.com/ssokolow/saveswap
+    - GB/C emulator: https://github.com/lambertjamesd/gb64/blob/master/src/save.c
 
 ## GBA save file size difficulty
 - https://zork.net/~st/jottings/GBA_saves.html
