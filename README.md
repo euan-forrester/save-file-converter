@@ -142,9 +142,25 @@ Occassionally there's a need to use the tool offline, such as when you'll be wit
 
 You may need to modify some of these steps depending on your development environment, but this should give you the general idea.
 
+#### MacOS
+
+Install `homebrew`: https://docs.brew.sh/Installation
+
 ```
 brew install yarn
 brew install git
+```
+Then proceed to the [Common](https://github.com/euan-forrester/save-file-converter/edit/main/README.md#common) section
+
+#### Windows
+
+Find an equivalent package manager to `homebrew`, and use it to install `git` and `yarn`
+
+Then proceed to the [Common](https://github.com/euan-forrester/save-file-converter/edit/main/README.md#common) section
+
+#### Common
+
+```
 git clone git@github.com:euan-forrester/save-file-converter.git
 cd save-file-converter/frontend
 yarn install
