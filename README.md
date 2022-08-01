@@ -142,9 +142,9 @@ Occassionally there's a need to use the tool offline, such as when you'll be wit
 
 You may need to modify some of these steps depending on your development environment, but this should give you the general idea.
 
-#### MacOS
+#### MacOS/Linux
 
-Install `homebrew`: https://docs.brew.sh/Installation
+Install `homebrew`: https://brew.sh/
 
 ```
 brew install yarn
