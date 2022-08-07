@@ -154,7 +154,7 @@ Then proceed to the [Common](https://github.com/euan-forrester/save-file-convert
 
 #### Windows
 
-Find an equivalent package manager to `homebrew`, and use it to install `git` and `yarn`
+Find an equivalent package manager to `homebrew`, and use it to install `git` and `yarn` (or install them and their dependencies manually: `git`: https://github.com/git-guides/install-git, `yarn`: https://yarnpkg.com/getting-started/install)
 
 Then proceed to the [Common](https://github.com/euan-forrester/save-file-converter#common) section
 
