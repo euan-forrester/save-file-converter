@@ -38,6 +38,7 @@ Everything on this site is free and open source with no advertising. If you find
 - (PS1) Beetle HW incompatible with DuckStation
 - (Saturn) SSF incompatible with Mednafen/Beetle Saturn
 - (N64) Mupen64Plus Next files incompatible with Wii64
+- (32X) Picodrive has its own save format (somewhere around here? https://github.com/notaz/picodrive/blob/1d366b1ad9362fd463c42979c8a687dfc7f46c46/platform/common/emu.c#L873)
 
 ## Save file formats
 
