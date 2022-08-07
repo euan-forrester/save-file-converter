@@ -38,20 +38,20 @@ function isNewStyleSave(flashCartArrayBuffer) {
   return ((flashCartArrayBuffer.byteLength > MAGIC.length) && MathUtil.isPowerOf2(flashCartArrayBuffer.byteLength - MAGIC.length));
 }
 
-function isOldStyleSave(flashCartArrayBuffer, platformInfo) {
+function isOldStyleSave(flashCartArrayBuffer) {
   // FIXME: The EEPROM part is a complete guess: we don't know how an EEPROM save in the "old sty;e" looks, since there weren't any in our set of sample files.
   // See also convertFromOldStyleToRaw()
-  return ((platformInfo.isEepromSave(flashCartArrayBuffer) || GenesisUtil.isByteExpanded(flashCartArrayBuffer)) && MathUtil.isPowerOf2(flashCartArrayBuffer.byteLength));
+  return ((GenesisUtil.isEepromSave(flashCartArrayBuffer) || GenesisUtil.isByteExpanded(flashCartArrayBuffer)) && MathUtil.isPowerOf2(flashCartArrayBuffer.byteLength));
 }
 
-function isRawSave(rawArrayBuffer, platformInfo) {
-  return ((platformInfo.isEepromSave(rawArrayBuffer) || GenesisUtil.isByteExpanded(rawArrayBuffer)) && MathUtil.isPowerOf2(rawArrayBuffer.byteLength));
+function isRawSave(rawArrayBuffer) {
+  return ((GenesisUtil.isEepromSave(rawArrayBuffer) || GenesisUtil.isByteExpanded(rawArrayBuffer)) && MathUtil.isPowerOf2(rawArrayBuffer.byteLength));
 }
 
-function convertFromOldStyleToRaw(flashCartArrayBuffer, platformInfo) {
+function convertFromOldStyleToRaw(flashCartArrayBuffer) {
   // FIXME: This is a complete guess: we don't know how an EEPROM save in the "old sty;e" looks, since there weren't any in our set of sample files.
   // See also isOldStyleSave()
-  if (platformInfo.isEepromSave(flashCartArrayBuffer)) {
+  if (GenesisUtil.isEepromSave(flashCartArrayBuffer)) {
     return PaddingUtil.padAtEndToMinimumSize(flashCartArrayBuffer, RAW_FILL_BYTE, RAW_EEPROM_MIN_SIZE); // EEPROM saves don't get byte expanded
   }
 
@@ -61,7 +61,7 @@ function convertFromOldStyleToRaw(flashCartArrayBuffer, platformInfo) {
   return GenesisUtil.changeFillByte(unpaddedArrayBuffer, RAW_FILL_BYTE);
 }
 
-function convertFromNewStyleToRaw(flashCartArrayBuffer, platformInfo) {
+function convertFromNewStyleToRaw(flashCartArrayBuffer) {
   // First, check if we're an EEPROM save. These have the magic on the front, and are padded out.
 
   // For whatever reason, we've observed files in the new style padded with both 0xFF and 0x00.
@@ -70,14 +70,10 @@ function convertFromNewStyleToRaw(flashCartArrayBuffer, platformInfo) {
   const padding = PaddingUtil.getPadFromEndValueAndCount(collapsedArrayBuffer);
   const collapsedUnpaddedArrayBuffer = PaddingUtil.removePaddingFromEnd(collapsedArrayBuffer, padding.count);
 
-  console.log(`****************************** unpadded array buffer is ${collapsedUnpaddedArrayBuffer.byteLength} bytes`);
-
-  if (platformInfo.isEepromSave(collapsedUnpaddedArrayBuffer)) {
-    console.log('It IS an eeprom save');
+  if (GenesisUtil.isEepromSave(collapsedUnpaddedArrayBuffer)) {
     return PaddingUtil.padAtEndToMinimumSize(collapsedUnpaddedArrayBuffer, RAW_FILL_BYTE, RAW_EEPROM_MIN_SIZE); // EEPROM saves don't get byte expanded
   }
 
-  console.log('It is NOT an eeprom save');
   return PaddingUtil.padAtEndToMinimumSize(GenesisUtil.byteExpand(collapsedUnpaddedArrayBuffer, RAW_FILL_BYTE), RAW_FILL_BYTE, RAW_SRAM_MIN_SIZE);
 }
 
@@ -93,7 +89,7 @@ function convertFromRawToNewStyle(rawArrayBuffer, platformInfo) {
 
   let paddingByte = platformInfo.padding.eeprom;
 
-  if (!platformInfo.isEepromSave(unpaddedArrayBuffer)) {
+  if (!GenesisUtil.isEepromSave(unpaddedArrayBuffer)) {
     unpaddedArrayBuffer = GenesisUtil.byteCollapse(rawArrayBuffer);
     paddingByte = platformInfo.padding.sram;
   }
@@ -112,13 +108,13 @@ export default class GenesisMegaSdGenesisFlashCartSaveData {
     return convertFromRawToNewStyle(rawArrayBuffer, paddingByteSram, paddingByteEeprom);
   }
 
-  static createFromFlashCartData(flashCartArrayBuffer, platformInfo) {
-    if (isNewStyleSave(flashCartArrayBuffer, platformInfo)) {
-      return new GenesisMegaSdGenesisFlashCartSaveData(flashCartArrayBuffer, convertFromNewStyleToRaw(flashCartArrayBuffer, platformInfo));
+  static createFromFlashCartData(flashCartArrayBuffer) {
+    if (isNewStyleSave(flashCartArrayBuffer)) {
+      return new GenesisMegaSdGenesisFlashCartSaveData(flashCartArrayBuffer, convertFromNewStyleToRaw(flashCartArrayBuffer));
     }
 
-    if (isOldStyleSave(flashCartArrayBuffer, platformInfo)) {
-      return new GenesisMegaSdGenesisFlashCartSaveData(flashCartArrayBuffer, convertFromOldStyleToRaw(flashCartArrayBuffer, platformInfo));
+    if (isOldStyleSave(flashCartArrayBuffer)) {
+      return new GenesisMegaSdGenesisFlashCartSaveData(flashCartArrayBuffer, convertFromOldStyleToRaw(flashCartArrayBuffer));
     }
 
     throw new Error('This does not appear to be a Mega SD Genesis save file');

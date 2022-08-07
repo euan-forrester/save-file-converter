@@ -1,5 +1,4 @@
 import GenesisBase from './GenesisBase';
-import GenesisUtil from '../../../../util/Genesis';
 
 const MEGA_SD_NEW_STYLE_PADDING_BYTE_SRAM = 0x00; // 3/4 of the new style files I was given were padded with 0x00 but one was 0xFF
 const MEGA_SD_NEW_STYLE_PADDING_BYTE_EEPROM = 0xFF; // The example new style eeprom save was padded with 0xFF
@@ -9,7 +8,6 @@ const PLATFORM_INFO = {
     sram: MEGA_SD_NEW_STYLE_PADDING_BYTE_SRAM,
     eeprom: MEGA_SD_NEW_STYLE_PADDING_BYTE_EEPROM,
   },
-  isEepromSave: GenesisUtil.isEepromSave,
 };
 
 export default class GenesisMegaSdGenesisFlashCartSaveData extends GenesisBase {
@@ -18,7 +16,7 @@ export default class GenesisMegaSdGenesisFlashCartSaveData extends GenesisBase {
   }
 
   static createFromFlashCartData(flashCartArrayBuffer) {
-    return super.createFromFlashCartData(flashCartArrayBuffer, PLATFORM_INFO);
+    return super.createFromFlashCartData(flashCartArrayBuffer);
   }
 
   static createWithNewSize(flashCartSaveData, newSize) {
