@@ -22,7 +22,7 @@ const LITTLE_ENDIAN = false;
 // My working theory on identifying EEPROM saves vs a non-byte-expanded SRAM save is that EEPROM saves
 // seem to be smaller.
 
-const SMALLEST_SRAM_SAVE = 512; // Seen in Final Fantasy Legend on Gameboy
+const SMALLEST_SRAM_SAVE = 512; // Final Fantasy Legend on Gameboy is 512B and is SRAM, but I'm not aware of any Genesis SRAM games that small
 
 const FILL_BYTE_REPEAT = 'repeat';
 

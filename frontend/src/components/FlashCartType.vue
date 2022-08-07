@@ -121,11 +121,13 @@ export default {
           { value: 'FlashCart-GenesisEverdrive', text: 'Genesis game' },
           { value: 'FlashCart-NESGenesisEverdrive', text: 'NES game' },
           { value: 'FlashCart-SMSGenesisEverdrive', text: 'SMS game' },
+          { value: 'FlashCart-32XGenesisEverdrive', text: '32X game' },
         ],
         GenesisMegaSD: [
           { value: null, text: 'Choose game type', disabled: true },
           { value: 'FlashCart-GenesisMegaSD', text: 'Genesis game' },
           { value: 'FlashCart-SMSGenesisMegaSD', text: 'SMS game' },
+          { value: 'FlashCart-32XGenesisMegaSD', text: '32X game' },
         ],
         N64: [
           { value: 'FlashCart-N64', text: 'Nintendo 64 game' },
