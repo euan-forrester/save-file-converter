@@ -11,6 +11,7 @@ const MEGA_SD_RAW_NEW_SRAM_FILENAME = `${DIR}/36 Great Holes Starring Fred Coupl
 const MEGA_SD_NEW_FRAM_FILENAME = `${DIR}/Knuckles' Chaotix (Japan, USA) (En).SRM`;
 const MEGA_SD_RAW_NEW_FRAM_FILENAME = `${DIR}/Knuckles' Chaotix (Japan, USA) (En)-raw.sav`;
 
+// FIXME: We need an example of an EEPROM game here to verify it works. For example, NBA Jam TE (vanilla ROM, without any SRAM hacks)
 /*
 const MEGA_SD_NEW_EEPROM_FILENAME = `${DIR}/Wonder Boy in Monster World (USA, Europe)-new-style.SRM`;
 const MEGA_SD_RAW_NEW_EEPROM_FILENAME = `${DIR}/Wonder Boy in Monster World (USA, Europe)-new-style-raw.sav`;
