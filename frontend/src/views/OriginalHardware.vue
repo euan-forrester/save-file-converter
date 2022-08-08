@@ -139,8 +139,8 @@ export default {
       const aBoolean = (aType === 'boolean') || (aType === 'string');
       const bBoolean = (bType === 'boolean') || (bType === 'string');
 
-      const aValue = aBoolean && a;
-      const bValue = bBoolean && b;
+      const aValue = aBoolean && !!a;
+      const bValue = bBoolean && !!b;
 
       if (aBoolean && bBoolean) {
         if (aValue === bValue) {
