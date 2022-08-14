@@ -24,9 +24,7 @@ export default class MisterSegaCdSaveData {
   }
 
   static createFromMisterData(misterArrayBuffer) {
-    console.log(`******************************** Input file size is ${misterArrayBuffer.byteLength} Found save size: ${SegaCdUtil.getSize(misterArrayBuffer)}`);
-
-    return new MisterSegaCdSaveData(misterArrayBuffer, misterArrayBuffer);
+    return new MisterSegaCdSaveData(SegaCdUtil.truncateToActualSize(misterArrayBuffer), misterArrayBuffer);
   }
 
   static createFromRawData(rawArrayBuffer) {

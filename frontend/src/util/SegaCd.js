@@ -20,7 +20,7 @@ const BRAM_FORMAT_FIXED_OFFSET = 0x20; // The offset within BRAM_FORMAT where th
 // const BRAM_SIZE_OFFSETS_2 = [ 0x11, 0x13, 0x15, 0x17 ];
 
 export default class SegaCdUtil {
-  static getSize(inputArrayBuffer) {
+  static getActualSize(inputArrayBuffer) {
     // We can have files that are padded out at the end, despite having the signature earlier in the file. Such a file
     // can only store data up until its signature, making that its 'true' size.
     //
@@ -38,5 +38,9 @@ export default class SegaCdUtil {
     }
 
     return PlatformSaveSizes.segacd[sizeIndex];
+  }
+
+  static truncateToActualSize(inputArrayBuffer) {
+    return inputArrayBuffer.slice(0, SegaCdUtil.getActualSize(inputArrayBuffer));
   }
 }
