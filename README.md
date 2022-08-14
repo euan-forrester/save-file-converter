@@ -125,6 +125,13 @@ Everything on this site is free and open source with no advertising. If you find
   - N64 Everdrive
     - https://github.com/ssokolow/saveswap
     - GB/C emulator: https://github.com/lambertjamesd/gb64/blob/master/src/save.c
+- Sega CD:
+  - Sega operating manuals
+    - Standards that games were to use when interfacing with backup RAM: https://segaretro.org/images/6/6e/Sega-CD_Software_Standards.pdf
+    - BIOS calls that games were to use to access backup RAM: https://segaretro.org/images/4/44/MCDBios.pdf
+  - https://segaretro.org/CD_BackUp_RAM_Cart
+  - https://github.com/ekeeke/Genesis-Plus-GX/issues/449
+  - savesplitter tool here: https://krikzz.com/pub/support/mega-everdrive/pro-series/
 
 ## GBA save file size difficulty
 - https://zork.net/~st/jottings/GBA_saves.html
