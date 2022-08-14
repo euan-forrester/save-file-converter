@@ -31,6 +31,12 @@ export default class MisterSegaCdSaveData {
     return new MisterSegaCdSaveData(rawArrayBuffer, rawArrayBuffer);
   }
 
+  static createWithNewSize(misterSegaCdSaveData, newSize) {
+    const newRawSaveData = SegaCdUtil.resize(misterSegaCdSaveData.getRawArrayBuffer(), newSize);
+
+    return MisterSegaCdSaveData.createFromRawData(newRawSaveData);
+  }
+
   // This constructor creates a new object from a binary representation of a MiSTer save data file
   constructor(rawArrayBuffer, misterArrayBuffer) {
     this.rawArrayBuffer = rawArrayBuffer;
