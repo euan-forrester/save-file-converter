@@ -56,27 +56,50 @@ export default class SegaCdUtil {
 
     const inputArrayBufferActualSize = SegaCdUtil.truncateToActualSize(inputArrayBuffer);
 
+    if (newSize === inputArrayBufferActualSize.byteLength) {
+      return inputArrayBufferActualSize;
+    }
+
+    // We need to change the size
+
+    // Begin by dividing up the file into its components
+
+    const footerOffset = inputArrayBufferActualSize.byteLength - FOOTER_LENGTH - BRAM_FORMAT.length;
+    const bramFormatOffset = footerOffset + FOOTER_LENGTH;
+    const initialData = inputArrayBufferActualSize.slice(0, footerOffset);
+    const footerData = inputArrayBufferActualSize.slice(footerOffset, footerOffset + FOOTER_LENGTH);
+    const bramFormat = inputArrayBufferActualSize.slice(bramFormatOffset);
+
+    // Now change the bytes in bramFormat to reflect the new size
+    // From https://github.com/ekeeke/Genesis-Plus-GX/blob/master/sdl/sdl1/main.c#L824
+
+    const bramFormatUint8Array = new Uint8Array(bramFormat);
+
+    BRAM_SIZE_OFFSETS_1.forEach((offset) => { bramFormatUint8Array[offset] = (((newSize / 64) - 3) >> 8); });
+    BRAM_SIZE_OFFSETS_2.forEach((offset) => { bramFormatUint8Array[offset] = (((newSize / 64) - 3) & 0xFF); });
+
     if (newSize > inputArrayBufferActualSize.byteLength) {
-      // Splice in a blank block just before the footer and BRAM_FORMAT
-      const footerOffset = inputArrayBufferActualSize.byteLength - FOOTER_LENGTH - BRAM_FORMAT.length;
-      const bramFormatOffset = footerOffset + FOOTER_LENGTH;
-      const initialData = inputArrayBufferActualSize.slice(0, footerOffset);
-      const footerData = inputArrayBufferActualSize.slice(footerOffset, footerOffset + FOOTER_LENGTH);
-      const bramFormat = inputArrayBufferActualSize.slice(bramFormatOffset);
-
+      // Make the file bigger by splicing in a blank block just before the footer and BRAM_FORMAT
       const blankArrayBuffer = Util.getFilledArrayBuffer(newSize - inputArrayBufferActualSize.byteLength, 0x00);
-
-      // Now change the bytes in bramFormat to reflect the new size
-      // From https://github.com/ekeeke/Genesis-Plus-GX/blob/master/sdl/sdl1/main.c#L824
-
-      const bramFormatUint8Array = new Uint8Array(bramFormat);
-
-      BRAM_SIZE_OFFSETS_1.forEach((offset) => { bramFormatUint8Array[offset] = (((newSize / 64) - 3) >> 8); });
-      BRAM_SIZE_OFFSETS_2.forEach((offset) => { bramFormatUint8Array[offset] = (((newSize / 64) - 3) & 0xFF); });
 
       return Util.concatArrayBuffers([initialData, blankArrayBuffer, footerData, bramFormat]);
     }
 
-    return inputArrayBufferActualSize; // FIXME: Need to resize downward
+    // Make the file smaller by removing the last portion of initialData
+
+    const numBytesToRemove = inputArrayBufferActualSize.byteLength - newSize;
+    const initialDataSmallerLength = initialData.byteLength - numBytesToRemove;
+
+    const initialDataSmaller = initialData.slice(0, initialDataSmallerLength);
+
+    // Throw an error if the removed portion contains any data
+
+    const dataRemoved = initialData.slice(initialDataSmallerLength);
+    const dataRemovedUint8Array = new Uint8Array(dataRemoved); // Could use a bigger data type to require less iterations, but then need to check if the length here is a multiple of that datatype
+    dataRemovedUint8Array.forEach((byte) => { if (byte !== 0x00) throw new Error(`Cannot resize file down to ${newSize} bytes because it owuld remove a portion that contains game data`); });
+
+    // All good, so put the file back together
+
+    return Util.concatArrayBuffers([initialDataSmaller, footerData, bramFormat]);
   }
 }
