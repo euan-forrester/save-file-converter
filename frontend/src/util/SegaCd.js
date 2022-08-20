@@ -24,7 +24,16 @@ const FOOTER_LENGTH = 0x40; // There appears to be another footer before the BRA
 const BRAM_SIZE_OFFSETS_1 = [0x10, 0x12, 0x14, 0x16];
 const BRAM_SIZE_OFFSETS_2 = [0x11, 0x13, 0x15, 0x17];
 
+function fillInNewSize(bramFormat, newSize) {
+  const bramFormatUint8Array = new Uint8Array(bramFormat);
+
+  BRAM_SIZE_OFFSETS_1.forEach((offset) => { bramFormatUint8Array[offset] = (((newSize / 64) - 3) >> 8); });
+  BRAM_SIZE_OFFSETS_2.forEach((offset) => { bramFormatUint8Array[offset] = (((newSize / 64) - 3) & 0xFF); });
+}
+
 export default class SegaCdUtil {
+  static INTERNAL_SAVE_SIZE = 8192; // Regardless of platform (mister/flash cart/emulator/etc the internal save size is always the same: it was 8kB in the original hardware. Although only one size of RAM cart was manufactured, many sizes are theoretically possible and so different platforms choose different ones)
+
   static getActualSize(inputArrayBuffer) {
     // We can have files that are padded out at the end, despite having the signature earlier in the file. Such a file
     // can only store data up until its signature, making that its 'true' size.
@@ -45,8 +54,32 @@ export default class SegaCdUtil {
     return PlatformSaveSizes.segacd[sizeIndex];
   }
 
+  static isCorrectlyFormatted(inputArrayBuffer) {
+    try {
+      SegaCdUtil.getActualSize(inputArrayBuffer);
+    } catch (e) {
+      return false;
+    }
+
+    return true;
+  }
+
   static truncateToActualSize(inputArrayBuffer) {
     return inputArrayBuffer.slice(0, SegaCdUtil.getActualSize(inputArrayBuffer));
+  }
+
+  static makeEmptySave(size) {
+    // An empty save buffer is all 0's with the BRAM_FORMAT at the end and the file size correctly encoded:
+    // https://github.com/ekeeke/Genesis-Plus-GX/issues/449
+    const initialData = Util.getFilledArrayBuffer(size - BRAM_FORMAT.length, 0x00);
+    const bramFormat = new ArrayBuffer(BRAM_FORMAT.length);
+    const bramFormatUint8Array = new Uint8Array(bramFormat);
+
+    BRAM_FORMAT.forEach((byte, index) => { bramFormatUint8Array[index] = byte; });
+
+    fillInNewSize(bramFormat, size);
+
+    return Util.concatArrayBuffers([initialData, bramFormat]);
   }
 
   static resize(inputArrayBuffer, newSize) {
@@ -73,10 +106,7 @@ export default class SegaCdUtil {
     // Now change the bytes in bramFormat to reflect the new size
     // From https://github.com/ekeeke/Genesis-Plus-GX/blob/master/sdl/sdl1/main.c#L824
 
-    const bramFormatUint8Array = new Uint8Array(bramFormat);
-
-    BRAM_SIZE_OFFSETS_1.forEach((offset) => { bramFormatUint8Array[offset] = (((newSize / 64) - 3) >> 8); });
-    BRAM_SIZE_OFFSETS_2.forEach((offset) => { bramFormatUint8Array[offset] = (((newSize / 64) - 3) & 0xFF); });
+    fillInNewSize(bramFormat, newSize);
 
     if (newSize > inputArrayBufferActualSize.byteLength) {
       // Make the file bigger by splicing in a blank block just before the footer and BRAM_FORMAT
