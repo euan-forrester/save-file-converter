@@ -28,7 +28,15 @@ export default class MisterSegaCdSaveData {
   }
 
   static adjustOutputSizesPlatform() {
-    return null; // Output size is always either 8kB or 8kB+215kB
+    return 'segacd';
+  }
+
+  static createWithNewSize(misterSaveData, newSize) {
+    // Just leave the mister data alone: it can't load anything other than the original 512kB ram cart size.
+    // But other platforms/emulators may need a different ram cart size
+    const newRawRamCartArrayBuffer = SegaCdUtil.resize(misterSaveData.rawRamCartSaveArrayBuffer, newSize);
+
+    return new MisterSegaCdSaveData(misterSaveData.rawInternalSaveArrayBuffer, newRawRamCartArrayBuffer, misterSaveData.misterArrayBuffer);
   }
 
   static createFromMisterData(misterArrayBuffer) {
@@ -102,7 +110,20 @@ export default class MisterSegaCdSaveData {
     this.misterArrayBuffer = misterArrayBuffer;
   }
 
-  getRawArrayBuffer(index = MisterSegaCdSaveData.INTERNAL_SAVE_INDEX) {
+  getRawArrayBuffer(index) {
+    if (index === undefined) {
+      return [
+        {
+          arrayBuffer: this.rawInternalSaveArrayBuffer,
+          fileSuffix: ` - internal.${MisterSegaCdSaveData.getRawFileExtension()}`,
+        },
+        {
+          arrayBuffer: this.rawRamCartSaveArrayBuffer,
+          fileSuffix: ` - cart.${MisterSegaCdSaveData.getRawFileExtension()}`,
+        },
+      ];
+    }
+
     switch (index) {
       case MisterSegaCdSaveData.INTERNAL_SAVE_INDEX:
         return this.rawInternalSaveArrayBuffer;
@@ -115,8 +136,9 @@ export default class MisterSegaCdSaveData {
     }
   }
 
-  changeRawSaveSize(newSize) {
-    this.rawRamCartSaveArrayBuffer = SegaCdUtil.resize(this.rawRamCartSaveArrayBuffer, newSize);
+  getRawSaveSize() {
+    // The internal save size can't be changed, but the ram cart one can
+    return this.rawRamCartSaveArrayBuffer.byteLength;
   }
 
   getMisterArrayBuffer() {

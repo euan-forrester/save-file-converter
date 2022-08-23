@@ -2,6 +2,8 @@
 The MiSTer saves SNES data as just the raw data of the correct size: no transformation or padding required
 */
 
+import SaveFilesUtil from '../../util/SaveFiles';
+
 export default class MisterSnesSaveData {
   static getMisterFileExtension() {
     return 'sav';
@@ -13,6 +15,12 @@ export default class MisterSnesSaveData {
 
   static adjustOutputSizesPlatform() {
     return 'snes';
+  }
+
+  static createWithNewSize(misterSaveData, newSize) {
+    const newRawSaveData = SaveFilesUtil.resizeRawSave(misterSaveData.getRawArrayBuffer(), newSize);
+
+    return MisterSnesSaveData.createFromRawData(newRawSaveData);
   }
 
   static createFromMisterData(misterArrayBuffer) {
@@ -27,6 +35,10 @@ export default class MisterSnesSaveData {
   constructor(rawArrayBuffer, misterArrayBuffer) {
     this.rawArrayBuffer = rawArrayBuffer;
     this.misterArrayBuffer = misterArrayBuffer;
+  }
+
+  getRawSaveSize() {
+    return this.rawArrayBuffer.byteLength;
   }
 
   getRawArrayBuffer() {

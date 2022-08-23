@@ -28,8 +28,9 @@ const EMPTY_MISTER_RAM_CART_SAVE = SegaCdUtil.makeEmptySave(MisterSegaCdSaveData
 
 describe('MiSTer - Sega CD save format', () => {
   it('should create an empty MiSTer file when given no raw files', async () => {
-    const misterSegaCdSaveData = MisterSegaCdSaveData.createFromRawData({ });
     const misterArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MISTER_EMPTY_FILENAME);
+
+    const misterSegaCdSaveData = MisterSegaCdSaveData.createFromRawData({ });
 
     expect(ArrayBufferUtil.arrayBuffersEqual(misterSegaCdSaveData.getMisterArrayBuffer(), misterArrayBuffer)).to.equal(true);
   });
@@ -87,9 +88,9 @@ describe('MiSTer - Sega CD save format', () => {
 
     const misterSegaCdSaveData = MisterSegaCdSaveData.createFromMisterData(misterArrayBuffer);
 
-    misterSegaCdSaveData.changeRawSaveSize(EMULATOR_RAM_CART_SIZE);
+    const resizedMisterSegaCdSaveData = MisterSegaCdSaveData.createWithNewSize(misterSegaCdSaveData, EMULATOR_RAM_CART_SIZE);
 
-    expect(ArrayBufferUtil.arrayBuffersEqual(misterSegaCdSaveData.getRawArrayBuffer(MisterSegaCdSaveData.INTERNAL_SAVE_INDEX), emulatorInternalArrayBuffer)).to.equal(true);
-    expect(ArrayBufferUtil.arrayBuffersEqual(misterSegaCdSaveData.getRawArrayBuffer(MisterSegaCdSaveData.RAM_CART_SAVE_INDEX), emulatorRamCartArrayBuffer)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(resizedMisterSegaCdSaveData.getRawArrayBuffer(MisterSegaCdSaveData.INTERNAL_SAVE_INDEX), emulatorInternalArrayBuffer)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(resizedMisterSegaCdSaveData.getRawArrayBuffer(MisterSegaCdSaveData.RAM_CART_SAVE_INDEX), emulatorRamCartArrayBuffer)).to.equal(true);
   });
 });

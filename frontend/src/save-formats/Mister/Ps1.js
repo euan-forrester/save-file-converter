@@ -17,6 +17,10 @@ export default class MisterPs1SaveData {
     return null; // File size is always one memory card
   }
 
+  static createWithNewSize(misterSaveData) {
+    return misterSaveData;
+  }
+
   static createFromMisterData(misterArrayBuffer) {
     const ps1MemcardSaveData = Ps1MemcardSaveData.createFromPs1MemcardData(misterArrayBuffer); // Parse the data so we can display an error if it's not in the correct format
 
@@ -33,6 +37,10 @@ export default class MisterPs1SaveData {
   constructor(rawArrayBuffer, misterArrayBuffer) {
     this.rawArrayBuffer = rawArrayBuffer;
     this.misterArrayBuffer = misterArrayBuffer;
+  }
+
+  getRawSaveSize() {
+    return this.rawArrayBuffer.byteLength;
   }
 
   getRawArrayBuffer() {

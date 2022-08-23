@@ -98,7 +98,6 @@
 <script>
 import { saveAs } from 'file-saver';
 import Util from '../util/util';
-import SaveFilesUtil from '../util/SaveFiles';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import OutputFilesize from './OutputFilesize.vue';
@@ -112,6 +111,7 @@ import MisterGameboyAdvanceSaveData from '../save-formats/Mister/GameboyAdvance'
 import MisterGameGearSaveData from '../save-formats/Mister/GameGear';
 import MisterSmsSaveData from '../save-formats/Mister/Sms';
 import MisterGenesisSaveData from '../save-formats/Mister/Genesis';
+import MisterSegaCdSaveData from '../save-formats/Mister/SegaCd';
 import MisterPcEngineSaveData from '../save-formats/Mister/PcEngine';
 import MisterPs1SaveData from '../save-formats/Mister/Ps1';
 import MisterWonderSwanSaveData from '../save-formats/Mister/WonderSwan';
@@ -190,6 +190,11 @@ export default {
             break;
           }
 
+          case 'Mister-MCD': {
+            this.misterPlatformClass = MisterSegaCdSaveData;
+            break;
+          }
+
           case 'Mister-PCE': {
             this.misterPlatformClass = MisterPcEngineSaveData;
             break;
@@ -229,7 +234,7 @@ export default {
             this.misterSaveData = this.misterPlatformClass.createFromRawData(this.inputArrayBuffer);
             this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.misterPlatformClass.getMisterFileExtension());
           }
-          this.outputFilesize = this.misterSaveData.getRawArrayBuffer().byteLength;
+          this.outputFilesize = this.misterSaveData.getRawSaveSize();
         } catch (e) {
           this.errorMessage = 'This file does not seem to be in the correct format';
           this.misterSaveData = null;
@@ -255,17 +260,27 @@ export default {
       this.updateMisterSaveData();
     },
     convertFile() {
-      if (this.misterSaveData.getRawArrayBuffer().byteLength !== this.outputFilesize) {
-        const newRawSaveData = SaveFilesUtil.resizeRawSave(this.misterSaveData.getRawArrayBuffer(), this.outputFilesize);
-
-        this.misterSaveData = this.misterPlatformClass.createFromRawData(newRawSaveData);
+      if (this.misterSaveData.getRawSaveSize() !== this.outputFilesize) {
+        this.misterSaveData = this.misterPlatformClass.createWithNewSize(this.misterSaveData, this.outputFilesize);
       }
 
-      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.misterSaveData.getRawArrayBuffer() : this.misterSaveData.getMisterArrayBuffer();
+      const output = (this.conversionDirection === 'convertToEmulator') ? this.misterSaveData.getRawArrayBuffer() : this.misterSaveData.getMisterArrayBuffer();
 
-      const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
+      // In the case of the Sega CD raw format, we have 2 files and so we get back an array which also contains info about how to name the files
 
-      saveAs(outputBlob, this.outputFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
+      if (Array.isArray(output)) {
+        output.forEach((fileInfo) => {
+          const outputBlob = new Blob([fileInfo.arrayBuffer], { type: 'application/octet-stream' });
+
+          saveAs(outputBlob, `${Util.removeFilenameExtension(this.outputFilename)}${fileInfo.fileSuffix}`);
+        });
+      } else {
+        // Otherwise we just get back an ArrayBuffer
+
+        const outputBlob = new Blob([output], { type: 'application/octet-stream' });
+
+        saveAs(outputBlob, this.outputFilename);
+      }
     },
   },
 };

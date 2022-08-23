@@ -33,6 +33,10 @@ export default class MisterPcEngineSaveData {
     return null; // Not sure if anything writes out BRAM that's larger/smaller than the real one
   }
 
+  static createWithNewSize(misterSaveData) {
+    return misterSaveData;
+  }
+
   static createFromMisterData(misterArrayBuffer) {
     verifyPcEngineData(misterArrayBuffer);
     return new MisterPcEngineSaveData(misterArrayBuffer, misterArrayBuffer);
@@ -47,6 +51,10 @@ export default class MisterPcEngineSaveData {
   constructor(rawArrayBuffer, misterArrayBuffer) {
     this.rawArrayBuffer = rawArrayBuffer;
     this.misterArrayBuffer = misterArrayBuffer;
+  }
+
+  getRawSaveSize() {
+    return this.rawArrayBuffer.byteLength;
   }
 
   getRawArrayBuffer() {

@@ -126,7 +126,9 @@ export default class SegaCdUtil {
 
     const dataRemoved = initialData.slice(initialDataSmallerLength);
     const dataRemovedUint8Array = new Uint8Array(dataRemoved); // Could use a bigger data type to require less iterations, but then need to check if the length here is a multiple of that datatype
-    dataRemovedUint8Array.forEach((byte) => { if (byte !== 0x00) throw new Error(`Cannot resize file down to ${newSize} bytes because it owuld remove a portion that contains game data`); });
+    dataRemovedUint8Array.forEach((byte) => {
+      if ((byte !== 0x00) && (byte !== 0xFF)) throw new Error(`Cannot resize file down to ${newSize} bytes because it owuld remove a portion that contains game data`);
+    });
 
     // All good, so put the file back together
 
