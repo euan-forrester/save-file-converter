@@ -67,8 +67,8 @@ describe('MiSTer - Sega CD save format', () => {
 
     const misterSegaCdSaveData = MisterSegaCdSaveData.createFromMisterData(misterArrayBuffer);
 
-    expect(ArrayBufferUtil.arrayBuffersEqual(misterSegaCdSaveData.getRawArrayBuffer(MisterSegaCdSaveData.INTERNAL_SAVE_INDEX), misterArrayBuffer)).to.equal(true);
-    expect(ArrayBufferUtil.arrayBuffersEqual(misterSegaCdSaveData.getRawArrayBuffer(MisterSegaCdSaveData.RAM_CART_SAVE_INDEX), EMPTY_MISTER_RAM_CART_SAVE)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(misterSegaCdSaveData.getRawArrayBuffer(MisterSegaCdSaveData.INTERNAL_MEMORY), misterArrayBuffer)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(misterSegaCdSaveData.getRawArrayBuffer(MisterSegaCdSaveData.RAM_CART), EMPTY_MISTER_RAM_CART_SAVE)).to.equal(true);
   });
 
   it('should convert a MiSTer internal RAM save which has been padded out to raw format', async () => {
@@ -77,8 +77,8 @@ describe('MiSTer - Sega CD save format', () => {
 
     const misterSegaCdSaveData = MisterSegaCdSaveData.createFromMisterData(misterArrayBuffer);
 
-    expect(ArrayBufferUtil.arrayBuffersEqual(misterSegaCdSaveData.getRawArrayBuffer(MisterSegaCdSaveData.INTERNAL_SAVE_INDEX), rawArrayBuffer)).to.equal(true);
-    expect(ArrayBufferUtil.arrayBuffersEqual(misterSegaCdSaveData.getRawArrayBuffer(MisterSegaCdSaveData.RAM_CART_SAVE_INDEX), EMPTY_MISTER_RAM_CART_SAVE)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(misterSegaCdSaveData.getRawArrayBuffer(MisterSegaCdSaveData.INTERNAL_MEMORY), rawArrayBuffer)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(misterSegaCdSaveData.getRawArrayBuffer(MisterSegaCdSaveData.RAM_CART), EMPTY_MISTER_RAM_CART_SAVE)).to.equal(true);
   });
 
   it('should parse a MiSTer combined save and convert to emulator files', async () => {
@@ -90,7 +90,7 @@ describe('MiSTer - Sega CD save format', () => {
 
     const resizedMisterSegaCdSaveData = MisterSegaCdSaveData.createWithNewSize(misterSegaCdSaveData, EMULATOR_RAM_CART_SIZE);
 
-    expect(ArrayBufferUtil.arrayBuffersEqual(resizedMisterSegaCdSaveData.getRawArrayBuffer(MisterSegaCdSaveData.INTERNAL_SAVE_INDEX), emulatorInternalArrayBuffer)).to.equal(true);
-    expect(ArrayBufferUtil.arrayBuffersEqual(resizedMisterSegaCdSaveData.getRawArrayBuffer(MisterSegaCdSaveData.RAM_CART_SAVE_INDEX), emulatorRamCartArrayBuffer)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(resizedMisterSegaCdSaveData.getRawArrayBuffer(MisterSegaCdSaveData.INTERNAL_MEMORY), emulatorInternalArrayBuffer)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(resizedMisterSegaCdSaveData.getRawArrayBuffer(MisterSegaCdSaveData.RAM_CART), emulatorRamCartArrayBuffer)).to.equal(true);
   });
 });

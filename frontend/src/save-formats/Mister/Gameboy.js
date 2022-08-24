@@ -13,6 +13,10 @@ export default class MisterGameboySaveData {
     return 'srm';
   }
 
+  static getNumRawFiles() {
+    return 1;
+  }
+
   static adjustOutputSizesPlatform() {
     return 'gb';
   }

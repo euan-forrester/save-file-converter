@@ -29,6 +29,10 @@ export default class MisterSmsSaveData {
     return 'sav';
   }
 
+  static getNumRawFiles() {
+    return 1;
+  }
+
   static adjustOutputSizesPlatform() {
     return 'sms';
   }

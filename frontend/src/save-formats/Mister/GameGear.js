@@ -17,6 +17,10 @@ export default class MisterGameGearSaveData {
     return 'srm';
   }
 
+  static getNumRawFiles() {
+    return 1;
+  }
+
   static adjustOutputSizesPlatform() {
     return 'gamegear';
   }

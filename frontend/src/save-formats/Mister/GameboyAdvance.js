@@ -19,6 +19,10 @@ export default class MisterGameboyAdvanceSaveData {
     return 'srm';
   }
 
+  static getNumRawFiles() {
+    return 1;
+  }
+
   static adjustOutputSizesPlatform() {
     return 'gba';
   }

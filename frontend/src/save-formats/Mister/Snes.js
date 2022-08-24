@@ -13,6 +13,10 @@ export default class MisterSnesSaveData {
     return 'srm';
   }
 
+  static getNumRawFiles() {
+    return 1;
+  }
+
   static adjustOutputSizesPlatform() {
     return 'snes';
   }

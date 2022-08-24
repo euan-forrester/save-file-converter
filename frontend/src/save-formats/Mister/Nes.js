@@ -35,6 +35,10 @@ export default class MisterNesSaveData {
     return 'srm';
   }
 
+  static getNumRawFiles() {
+    return 1;
+  }
+
   static adjustOutputSizesPlatform() {
     return 'nes';
   }

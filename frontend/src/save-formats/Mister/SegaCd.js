@@ -13,9 +13,9 @@ import SegaCdUtil from '../../util/SegaCd';
 import Util from '../../util/util';
 
 export default class MisterSegaCdSaveData {
-  static INTERNAL_SAVE_INDEX = 0;
+  static INTERNAL_MEMORY = 'internal-memory';
 
-  static RAM_CART_SAVE_INDEX = 1;
+  static RAM_CART = 'ram-cart';
 
   static RAM_CART_SIZE = 524288;
 
@@ -23,8 +23,21 @@ export default class MisterSegaCdSaveData {
     return 'sav';
   }
 
-  static getRawFileExtension() {
-    return 'brm';
+  static getRawFileExtension(index = MisterSegaCdSaveData.INTERNAL_MEMORY) {
+    switch (index) {
+      case MisterSegaCdSaveData.INTERNAL_MEMORY:
+        return ' - internal.brm';
+
+      case MisterSegaCdSaveData.RAM_CART:
+        return ' - ram cart.brm';
+
+      default:
+        throw new Error(`Unknown index: ${index}`);
+    }
+  }
+
+  static getNumRawFiles() {
+    return 2;
   }
 
   static adjustOutputSizesPlatform() {
@@ -110,25 +123,12 @@ export default class MisterSegaCdSaveData {
     this.misterArrayBuffer = misterArrayBuffer;
   }
 
-  getRawArrayBuffer(index) {
-    if (index === undefined) {
-      return [
-        {
-          arrayBuffer: this.rawInternalSaveArrayBuffer,
-          fileSuffix: ` - internal.${MisterSegaCdSaveData.getRawFileExtension()}`,
-        },
-        {
-          arrayBuffer: this.rawRamCartSaveArrayBuffer,
-          fileSuffix: ` - cart.${MisterSegaCdSaveData.getRawFileExtension()}`,
-        },
-      ];
-    }
-
+  getRawArrayBuffer(index = MisterSegaCdSaveData.INTERNAL_MEMORY) {
     switch (index) {
-      case MisterSegaCdSaveData.INTERNAL_SAVE_INDEX:
+      case MisterSegaCdSaveData.INTERNAL_MEMORY:
         return this.rawInternalSaveArrayBuffer;
 
-      case MisterSegaCdSaveData.RAM_CART_SAVE_INDEX:
+      case MisterSegaCdSaveData.RAM_CART:
         return this.rawRamCartSaveArrayBuffer;
 
       default:

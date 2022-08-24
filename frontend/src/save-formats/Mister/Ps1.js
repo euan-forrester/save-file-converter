@@ -13,6 +13,10 @@ export default class MisterPs1SaveData {
     return 'mcr';
   }
 
+  static getNumRawFiles() {
+    return 1;
+  }
+
   static adjustOutputSizesPlatform() {
     return null; // File size is always one memory card
   }

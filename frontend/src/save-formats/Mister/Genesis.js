@@ -33,6 +33,10 @@ export default class MisterGenesisSaveData {
     return 'srm';
   }
 
+  static getNumRawFiles() {
+    return 1;
+  }
+
   static adjustOutputSizesPlatform() {
     return 'genesis';
   }
