@@ -13,10 +13,6 @@ export default class MisterGameboySaveData {
     return 'srm';
   }
 
-  static getNumRawFiles() {
-    return 1;
-  }
-
   static adjustOutputSizesPlatform() {
     return 'gb';
   }
@@ -39,10 +35,6 @@ export default class MisterGameboySaveData {
   constructor(rawArrayBuffer, misterArrayBuffer) {
     this.rawArrayBuffer = rawArrayBuffer;
     this.misterArrayBuffer = misterArrayBuffer;
-  }
-
-  getRawSaveSize() {
-    return this.rawArrayBuffer.byteLength;
   }
 
   getRawArrayBuffer() {

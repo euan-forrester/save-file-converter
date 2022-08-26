@@ -19,10 +19,6 @@ export default class MisterGameboyAdvanceSaveData {
     return 'srm';
   }
 
-  static getNumRawFiles() {
-    return 1;
-  }
-
   static adjustOutputSizesPlatform() {
     return 'gba';
   }
@@ -45,10 +41,6 @@ export default class MisterGameboyAdvanceSaveData {
   constructor(rawArrayBuffer, misterArrayBuffer) {
     this.rawArrayBuffer = rawArrayBuffer;
     this.misterArrayBuffer = misterArrayBuffer;
-  }
-
-  getRawSaveSize() {
-    return this.rawArrayBuffer.byteLength;
   }
 
   getRawArrayBuffer() {

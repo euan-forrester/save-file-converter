@@ -13,10 +13,6 @@ export default class MisterSnesSaveData {
     return 'srm';
   }
 
-  static getNumRawFiles() {
-    return 1;
-  }
-
   static adjustOutputSizesPlatform() {
     return 'snes';
   }
@@ -39,10 +35,6 @@ export default class MisterSnesSaveData {
   constructor(rawArrayBuffer, misterArrayBuffer) {
     this.rawArrayBuffer = rawArrayBuffer;
     this.misterArrayBuffer = misterArrayBuffer;
-  }
-
-  getRawSaveSize() {
-    return this.rawArrayBuffer.byteLength;
   }
 
   getRawArrayBuffer() {

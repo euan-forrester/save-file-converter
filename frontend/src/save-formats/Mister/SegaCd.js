@@ -23,21 +23,8 @@ export default class MisterSegaCdSaveData {
     return 'sav';
   }
 
-  static getRawFileExtension(index = MisterSegaCdSaveData.INTERNAL_MEMORY) {
-    switch (index) {
-      case MisterSegaCdSaveData.INTERNAL_MEMORY:
-        return ' - internal.brm';
-
-      case MisterSegaCdSaveData.RAM_CART:
-        return ' - ram cart.brm';
-
-      default:
-        throw new Error(`Unknown index: ${index}`);
-    }
-  }
-
-  static getNumRawFiles() {
-    return 2;
+  static getRawFileExtension() {
+    return 'brm';
   }
 
   static adjustOutputSizesPlatform() {
@@ -134,11 +121,6 @@ export default class MisterSegaCdSaveData {
       default:
         throw new Error(`Unknown index: ${index}`);
     }
-  }
-
-  getRawSaveSize() {
-    // The internal save size can't be changed, but the ram cart one can
-    return this.rawRamCartSaveArrayBuffer.byteLength;
   }
 
   getMisterArrayBuffer() {

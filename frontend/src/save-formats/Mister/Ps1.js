@@ -13,10 +13,6 @@ export default class MisterPs1SaveData {
     return 'mcr';
   }
 
-  static getNumRawFiles() {
-    return 1;
-  }
-
   static adjustOutputSizesPlatform() {
     return null; // File size is always one memory card
   }
@@ -41,10 +37,6 @@ export default class MisterPs1SaveData {
   constructor(rawArrayBuffer, misterArrayBuffer) {
     this.rawArrayBuffer = rawArrayBuffer;
     this.misterArrayBuffer = misterArrayBuffer;
-  }
-
-  getRawSaveSize() {
-    return this.rawArrayBuffer.byteLength;
   }
 
   getRawArrayBuffer() {

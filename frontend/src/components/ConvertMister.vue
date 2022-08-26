@@ -61,13 +61,13 @@
               <input-file
                 @load="readEmulatorSaveData($event, 'rawInternalSaveArrayBuffer')"
                 :errorMessage="this.errorMessage"
-                placeholderText="Choose an internal save file to convert"
+                placeholderText="Choose an internal memory save file to convert"
                 :leaveRoomForHelpIcon="false"
               />
               <input-file
                 @load="readEmulatorSaveData($event, 'rawRamCartSaveArrayBuffer')"
                 :errorMessage="this.errorMessage"
-                placeholderText="Choose a RAM cart save file to convert"
+                placeholderText="Choose a RAM cartridge save file to convert"
                 :leaveRoomForHelpIcon="false"
               />
             </div>
@@ -153,6 +153,7 @@ export default {
       inputArrayBuffer: null,
       inputFilename: null,
       inputFileType: null,
+      inputSegaCd: {},
       segaCdSaveType: 'internal-memory',
     };
   },
@@ -194,6 +195,7 @@ export default {
       this.inputArrayBuffer = null;
       this.inputFilename = null;
       this.inputFileType = null;
+      this.inputSegaCd = {};
       this.segaCdSaveType = 'internal-memory';
     },
     changeSegaCdSaveType(newSaveType) {
@@ -203,11 +205,11 @@ export default {
       }
     },
     getSegaCdRawFileName() {
-      return `${Util.removeFilenameExtension(this.inputFilename)}${this.misterPlatformClass.getRawFileExtension(this.segaCdSaveType)}`;
+      const filenameSuffix = (this.segaCdSaveType === 'internal-memory') ? ' - internal memory' : ' - ram cartridge';
+
+      return `${Util.removeFilenameExtension(this.inputFilename)}${filenameSuffix}.${this.misterPlatformClass.getRawFileExtension()}`;
     },
     misterPlatformChanged() {
-      const prevMisterPlatformClass = this.misterPlatformClass;
-
       if (this.misterPlatform !== null) {
         switch (this.misterPlatform) {
           case 'Mister-NES': {
@@ -276,13 +278,12 @@ export default {
 
       // We use different input boxes in the UI depending on whether there are 1 or 2 raw files to read,
       // and so we want to wipe out any input file info that may be lurking internally when we switch to showing a different input box
-      if ((prevMisterPlatformClass !== null) && (this.misterPlatformClass !== null) && (this.conversionDirection !== 'convertToEmulator')) {
-        if (prevMisterPlatformClass.getNumRawFiles() !== this.misterPlatformClass.getNumRawFiles()) {
-          this.inputFileType = null;
-          this.inputArrayBuffer = null;
-          this.inputFilename = null;
-          this.segaCdSaveType = null;
-        }
+      if (this.isSegaCd && (this.conversionDirection !== 'convertToEmulator')) {
+        this.inputFileType = null;
+        this.inputArrayBuffer = null;
+        this.inputFilename = null;
+        this.inputSegaCd = {};
+        this.segaCdSaveType = 'internal-memory';
       }
 
       this.updateMisterSaveData();
@@ -301,10 +302,19 @@ export default {
               this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.misterPlatformClass.getRawFileExtension());
             }
           } else {
-            this.misterSaveData = this.misterPlatformClass.createFromRawData(this.inputArrayBuffer);
+            if (this.isSegaCd) {
+              this.misterSaveData = this.misterPlatformClass.createFromRawData(this.inputSegaCd); // It can take up to 2 input array buffers to create this data
+            } else {
+              this.misterSaveData = this.misterPlatformClass.createFromRawData(this.inputArrayBuffer);
+            }
             this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.misterPlatformClass.getMisterFileExtension());
           }
-          this.outputFilesize = this.misterSaveData.getRawSaveSize();
+          if (this.isSegaCd) {
+            // The internal memory save buffer size can't be changed; only the RAM cart size
+            this.outputFilesize = this.misterSaveData.getRawArrayBuffer(MisterSegaCdSaveData.RAM_CART).byteLength;
+          } else {
+            this.outputFilesize = this.misterSaveData.getRawArrayBuffer().byteLength;
+          }
         } catch (e) {
           this.errorMessage = 'This file does not seem to be in the correct format';
           this.misterSaveData = null;
@@ -320,18 +330,33 @@ export default {
       this.inputFileType = 'mister';
       this.inputArrayBuffer = event.arrayBuffer;
       this.inputFilename = event.filename;
+      this.inputSegaCd = {};
 
       this.updateMisterSaveData();
     },
-    readEmulatorSaveData(event) {
+    readEmulatorSaveData(event, inputSegaCdType = null) {
       this.inputFileType = 'raw';
       this.inputArrayBuffer = event.arrayBuffer;
       this.inputFilename = event.filename;
 
+      if (inputSegaCdType !== null) {
+        this.inputSegaCd[inputSegaCdType] = event.arrayBuffer;
+      } else {
+        this.inputSegaCd = {};
+      }
+
       this.updateMisterSaveData();
     },
     convertFile() {
-      if (this.misterSaveData.getRawSaveSize() !== this.outputFilesize) {
+      let needsResize = false;
+
+      if (this.isSegaCd) {
+        needsResize = this.misterSaveData.getRawArrayBuffer(MisterSegaCdSaveData.RAM_CART).byteLength !== this.outputFilesize;
+      } else {
+        needsResize = this.misterSaveData.getRawArrayBuffer().byteLength !== this.outputFilesize;
+      }
+
+      if (needsResize) {
         this.misterSaveData = this.misterPlatformClass.createWithNewSize(this.misterSaveData, this.outputFilesize);
       }
 
