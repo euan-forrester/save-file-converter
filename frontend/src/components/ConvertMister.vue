@@ -63,12 +63,14 @@
                 :errorMessage="this.errorMessage"
                 placeholderText="Choose an internal memory save file to convert"
                 :leaveRoomForHelpIcon="false"
+                ref="inputFileSegaCdInternalMemory"
               />
               <input-file
                 @load="readEmulatorSaveData($event, 'rawRamCartSaveArrayBuffer')"
                 :errorMessage="this.errorMessage"
                 placeholderText="Choose a RAM cartridge save file to convert"
                 :leaveRoomForHelpIcon="false"
+                ref="inputFileSegaCdRamCart"
               />
             </div>
             <div v-else>
@@ -77,6 +79,7 @@
                 :errorMessage="this.errorMessage"
                 placeholderText="Choose a file to convert"
                 :leaveRoomForHelpIcon="false"
+                ref="inputFileEmulator"
               />
             </div>
             <mister-platform
@@ -145,6 +148,7 @@ export default {
     return {
       misterSaveData: null,
       misterPlatform: null,
+      misterPlatformPrevious: null,
       misterPlatformClass: null,
       errorMessage: null,
       outputFilename: null,
@@ -167,7 +171,7 @@ export default {
   },
   computed: {
     isSegaCd: {
-      get() { return (this.misterPlatform !== null) && (this.misterPlatform === 'Mister-MCD'); },
+      get() { return (this.misterPlatform === 'Mister-MCD'); },
     },
     displayOutputFileSize: {
       get() {
@@ -188,6 +192,7 @@ export default {
       this.conversionDirection = newDirection;
       this.misterSaveData = null;
       this.misterPlatform = null;
+      this.misterPlatformPrevious = null;
       this.misterPlatformClass = null;
       this.errorMessage = null;
       this.outputFilename = null;
@@ -278,13 +283,33 @@ export default {
 
       // We use different input boxes in the UI depending on whether there are 1 or 2 raw files to read,
       // and so we want to wipe out any input file info that may be lurking internally when we switch to showing a different input box
-      if (this.isSegaCd && (this.conversionDirection !== 'convertToEmulator')) {
+      // because it's not clear which box we would assign that to
+      //
+      // Additionally, there's a browser optimization/bug where when we swap out a different file input that's
+      // in the same location as a previous one, then the contents of the file box in the DOM carry over to the new box
+      // even though it's a different element. So, we call reset() here
+
+      const currentlySegaCd = this.isSegaCd;
+      const previouslySegaCd = (this.misterPlatformPrevious === 'Mister-MCD');
+
+      if ((currentlySegaCd !== previouslySegaCd) && (this.conversionDirection !== 'convertToEmulator')) {
         this.inputFileType = null;
         this.inputArrayBuffer = null;
         this.inputFilename = null;
         this.inputSegaCd = {};
-        this.segaCdSaveType = 'internal-memory';
+        // The refs become undefined when the components are removed using a v-if
+        if (this.$refs.inputFileSegaCdInternalMemory) {
+          this.$refs.inputFileSegaCdInternalMemory.reset();
+        }
+        if (this.$refs.inputFileSegaCdRamCart) {
+          this.$refs.inputFileSegaCdRamCart.reset();
+        }
+        if (this.$refs.inputFileEmulator) {
+          this.$refs.inputFileEmulator.reset();
+        }
       }
+
+      this.misterPlatformPrevious = this.misterPlatform;
 
       this.updateMisterSaveData();
     },
