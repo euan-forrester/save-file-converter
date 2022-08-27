@@ -29,6 +29,7 @@ Everything on this site is free and open source with no advertising. If you find
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/donate/?hosted_button_id=DHDERHCQVLGPJ)
 
 ## Usecases for further thought
+
 - Automatically add/remove header added by some flash carts (e.g. EZ Flash) given an example file
 - Be able to change the size of a raw GBA save to help move between emulators
 
@@ -39,6 +40,14 @@ Everything on this site is free and open source with no advertising. If you find
 - (Saturn) SSF incompatible with Mednafen/Beetle Saturn
 - (N64) Mupen64Plus Next files incompatible with Wii64
 - (32X) Picodrive has its own save format (somewhere around here? https://github.com/notaz/picodrive/blob/1d366b1ad9362fd463c42979c8a687dfc7f46c46/platform/common/emu.c#L873)
+
+## Other feature ideas
+
+- Convert to Wii VC
+- Convert to/from Wii U VC
+- Convert to/from 3DS VC
+- Split/recombine Sega CD save files
+- Split/recombine GBA emulator save files (Goomba/PocketNES/SmsAdvance)
 
 ## Save file formats
 
