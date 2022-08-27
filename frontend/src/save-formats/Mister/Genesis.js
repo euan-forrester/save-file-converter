@@ -6,6 +6,7 @@ Based on https://github.com/superg/srmtools
 
 import PaddingUtil from '../../util/Padding';
 import GenesisUtil from '../../util/Genesis';
+import SaveFilesUtil from '../../util/SaveFiles';
 
 // Genesis files on the mister are padded out to 64k with 0xFFs.
 // The core is apparently pretty lenient on reading unpadded files, but we'll still be friendly and pad ours out.
@@ -34,6 +35,12 @@ export default class MisterGenesisSaveData {
 
   static adjustOutputSizesPlatform() {
     return 'genesis';
+  }
+
+  static createWithNewSize(misterSaveData, newSize) {
+    const newRawSaveData = SaveFilesUtil.resizeRawSave(misterSaveData.getRawArrayBuffer(), newSize);
+
+    return MisterGenesisSaveData.createFromRawData(newRawSaveData);
   }
 
   static createFromMisterData(misterArrayBuffer) {

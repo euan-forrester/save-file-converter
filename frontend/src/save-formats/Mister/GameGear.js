@@ -6,6 +6,8 @@ A list of Game Gear games that support saving can be found here:
 https://segaretro.org/Battery_backup#Game_Gear
 */
 
+import SaveFilesUtil from '../../util/SaveFiles';
+
 export default class MisterGameGearSaveData {
   static getMisterFileExtension() {
     return 'sav';
@@ -17,6 +19,12 @@ export default class MisterGameGearSaveData {
 
   static adjustOutputSizesPlatform() {
     return 'gamegear';
+  }
+
+  static createWithNewSize(misterSaveData, newSize) {
+    const newRawSaveData = SaveFilesUtil.resizeRawSave(misterSaveData.getRawArrayBuffer(), newSize);
+
+    return MisterGameGearSaveData.createFromRawData(newRawSaveData);
   }
 
   static createFromMisterData(misterArrayBuffer) {

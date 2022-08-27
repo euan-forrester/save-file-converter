@@ -6,6 +6,7 @@
     :placeholder="this.placeholderText"
     :accept="this.acceptExtension"
     :multiple="this.allowMultipleFiles"
+    ref="bFormFile"
   />
 </template>
 
@@ -36,6 +37,9 @@ export default {
     },
   },
   methods: {
+    reset() {
+      this.$refs.bFormFile.reset();
+    },
     // FileReader has a bit of a nonstandard interface, so wrap it in a Promise
     // https://stackoverflow.com/a/46568146
     makeReadFilePromise(file) {

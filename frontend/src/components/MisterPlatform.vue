@@ -62,18 +62,16 @@ export default {
         { value: 'Mister-GG', text: 'Game Gear' },
         { value: 'Mister-SMS', text: 'Sega Master System' },
         { value: 'Mister-MD', text: 'Sega Genesis/Mega Drive' },
-        /* Commented out differently because we may put it back when we get more information
-        { value: 'Mister-MCD', text: 'Sega CD/Mega CD', disabled: true }, // The MiSTer file created was too big. It contained a similar footer to the file created by the emulator, but could not be loaded in the emulator. Unsure what to do here: can the middle just be cut out?
-        */
-        // { value: 'Mister-32X', text: 'Sega 32X', disabled: true }, // Currently no core for this, might be created after the Saturn one
-        // { value: 'Mister-SAT', text: 'Sega Saturn', disabled: true }, // Core is currently in development
+        { value: 'Mister-MCD', text: 'Sega CD/Mega CD' },
+        // { value: 'Mister-32X', text: 'Sega 32X', disabled: true }, // Core currently does not support saving: https://github.com/MiSTer-devel/S32X_MiSTer
+        // { value: 'Mister-SAT', text: 'Sega Saturn', disabled: true }, // Core is currently in development: https://github.com/srg320/Saturn_MiSTer
         // { value: 'Mister-DC', text: 'Dreamcast', disabled: true }, // MiSTer hardware not powerful enough
         { value: 'Mister-PCE', text: 'Turbografx-16/PC Engine' },
         { value: 'Mister-PS1', text: 'PlayStation 1' },
         // { value: 'Mister-PS2', text: 'PlayStation 2', disabled: true }, // MiSTer hardware not powerful enough
         { value: 'Mister-WS', text: 'WonderSwan/WonderSwan Color' },
-        // { value: 'Mister-AJ', text: 'Jaguar', disabled: true }, // Core is in early stages, saving may not be supported yet
-        // { value: 'Mister-AL', text: 'Lynx', disabled: true }, // No commercial releases for Lynx with saving. A few homebrews do, but saving not implmented on the MiSTer core
+        // { value: 'Mister-AJ', text: 'Jaguar', disabled: true }, // Core is in early stages, saving may not be supported yet: https://github.com/Kitrinx/Jaguar_MiSTer (?)
+        // { value: 'Mister-AL', text: 'Lynx', disabled: true }, // No commercial releases for Lynx with saving. A few homebrews do, but saving not implmented on the MiSTer core: https://github.com/MiSTer-devel/AtariLynx_MiSTer
       ],
     };
   },

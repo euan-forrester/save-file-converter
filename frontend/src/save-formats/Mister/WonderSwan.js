@@ -40,6 +40,10 @@ export default class MisterWonderSwanSaveData {
     return null; // No way to write WonderSwan games to real carts that I'm aware of, so prob no need to be picky about sizes?
   }
 
+  static createWithNewSize(misterSaveData) {
+    return misterSaveData;
+  }
+
   static createFromMisterData(misterArrayBuffer) {
     return new MisterWonderSwanSaveData(removeRealtimeClockData(misterArrayBuffer), misterArrayBuffer);
   }

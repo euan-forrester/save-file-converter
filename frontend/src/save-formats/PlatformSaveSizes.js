@@ -84,4 +84,15 @@ export default {
     65536, // Genesis files on the MiSTer are all padded out to be 64k, so maybe that's the max size?
     131072, // But if we byte-expand that largest file inappropriately we end up with sometyhing this big, and we shouldn't show blank in the output size dropdown
   ],
+  segacd: [
+    // From https://segaretro.org/CD_BackUp_RAM_Cart
+    // The internal backup RAM is fixed at 8kB, the external (cart) backup RAM can be any size
+    8192,
+    16384,
+    32768,
+    65536,
+    131072,
+    262144,
+    524288,
+  ],
 };

@@ -8,6 +8,7 @@
             :placeholderText="this.placeholderText"
             :acceptExtension="this.acceptExtension"
             :allowMultipleFiles="this.allowMultipleFiles"
+            ref="fileReader"
           />
           <help-button
             v-if="this.helpText !== null"
@@ -67,6 +68,11 @@ export default {
     allowMultipleFiles: {
       type: Boolean,
       default: false,
+    },
+  },
+  methods: {
+    reset() {
+      this.$refs.fileReader.reset();
     },
   },
   data() {

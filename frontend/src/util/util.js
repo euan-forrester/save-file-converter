@@ -103,12 +103,16 @@ export default class Util {
     return outputArrayBuffer;
   }
 
-  static fillArrayBuffer(arrayBuffer, fillValue) {
-    const outputArrayBuffer = new ArrayBuffer(arrayBuffer.byteLength);
+  static getFilledArrayBuffer(length, fillValue) {
+    const outputArrayBuffer = new ArrayBuffer(length);
     const outputArray = new Uint8Array(outputArrayBuffer);
 
     outputArray.fill(fillValue);
 
     return outputArrayBuffer;
+  }
+
+  static fillArrayBuffer(arrayBuffer, fillValue) {
+    return Util.getFilledArrayBuffer(arrayBuffer.byteLength, fillValue);
   }
 }

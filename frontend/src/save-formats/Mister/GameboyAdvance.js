@@ -8,6 +8,8 @@ are minor and cosmetic: https://github.com/MiSTer-devel/GBA_MiSTer
 So I'm just going to assume that no transformation is needed for GBA files until I hear otherwise.
 */
 
+import SaveFilesUtil from '../../util/SaveFiles';
+
 export default class MisterGameboyAdvanceSaveData {
   static getMisterFileExtension() {
     return 'sav';
@@ -19,6 +21,12 @@ export default class MisterGameboyAdvanceSaveData {
 
   static adjustOutputSizesPlatform() {
     return 'gba';
+  }
+
+  static createWithNewSize(misterSaveData, newSize) {
+    const newRawSaveData = SaveFilesUtil.resizeRawSave(misterSaveData.getRawArrayBuffer(), newSize);
+
+    return MisterGameboyAdvanceSaveData.createFromRawData(newRawSaveData);
   }
 
   static createFromMisterData(misterArrayBuffer) {

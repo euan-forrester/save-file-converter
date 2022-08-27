@@ -2,6 +2,8 @@
 The MiSTer saves GB/GBC data as just the raw data of the correct size: no transformation or padding required
 */
 
+import SaveFilesUtil from '../../util/SaveFiles';
+
 export default class MisterGameboySaveData {
   static getMisterFileExtension() {
     return 'sav';
@@ -13,6 +15,12 @@ export default class MisterGameboySaveData {
 
   static adjustOutputSizesPlatform() {
     return 'gb';
+  }
+
+  static createWithNewSize(misterSaveData, newSize) {
+    const newRawSaveData = SaveFilesUtil.resizeRawSave(misterSaveData.getRawArrayBuffer(), newSize);
+
+    return MisterGameboySaveData.createFromRawData(newRawSaveData);
   }
 
   static createFromMisterData(misterArrayBuffer) {

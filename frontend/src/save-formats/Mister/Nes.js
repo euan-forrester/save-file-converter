@@ -12,6 +12,7 @@ There are some games that will cause the MiSTer core to make a larger (e.g. 128k
 */
 
 import PaddingUtil from '../../util/Padding';
+import SaveFilesUtil from '../../util/SaveFiles';
 
 const MISTER_MINIMUM_FILE_SIZE = 32768;
 const MISTER_PADDING_VALUE = 0x00; // Not sure what to choose for padding, given that actual MiSTer files are filled with garbage data
@@ -36,6 +37,12 @@ export default class MisterNesSaveData {
 
   static adjustOutputSizesPlatform() {
     return 'nes';
+  }
+
+  static createWithNewSize(misterSaveData, newSize) {
+    const newRawSaveData = SaveFilesUtil.resizeRawSave(misterSaveData.getRawArrayBuffer(), newSize);
+
+    return MisterNesSaveData.createFromRawData(newRawSaveData);
   }
 
   static createFromMisterData(misterArrayBuffer) {

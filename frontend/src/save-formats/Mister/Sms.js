@@ -6,6 +6,7 @@ contain saved data so I can't be sure.
 */
 
 import PaddingUtil from '../../util/Padding';
+import SaveFilesUtil from '../../util/SaveFiles';
 
 const MISTER_MINIMUM_FILE_SIZE = 32768;
 const MISTER_PADDING_VALUE = 0x00;
@@ -30,6 +31,12 @@ export default class MisterSmsSaveData {
 
   static adjustOutputSizesPlatform() {
     return 'sms';
+  }
+
+  static createWithNewSize(misterSaveData, newSize) {
+    const newRawSaveData = SaveFilesUtil.resizeRawSave(misterSaveData.getRawArrayBuffer(), newSize);
+
+    return MisterSmsSaveData.createFromRawData(newRawSaveData);
   }
 
   static createFromMisterData(misterArrayBuffer) {
