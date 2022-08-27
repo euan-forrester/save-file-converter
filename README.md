@@ -139,7 +139,13 @@ Some platforms (e.g. some MiSTer cores) append RTC data to the end of a save fil
 
 Occassionally there's a need to use the tool offline, such as when you'll be without an Internet connection for an extended period. There's 2 methods to achieve this:
 
-### Method 1: Build it locally (for people comfortable with the command line and development tools)
+### Method 1: Use a website saving tool
+
+You can't just right click on the page and select Save As... because the site is divided internally into many different files, and that will only download some of them.
+
+Google `website saving tool` or something similar to find an up-to-date list of such tools.
+
+### Method 2: Build it locally (for people comfortable with the command line and development tools)
 
 You may need to modify some of these steps depending on your development environment, but this should give you the general idea.
 
@@ -171,12 +177,6 @@ yarn serve
 Then open http://localhost:8080/ in your browser.
 
 Note that you'll have to keep the command line window open with `yarn serve` running for as long as you want to access the site.
-
-### Method 2: Use a website saving tool
-
-You can't just right click on the page and select Save As... because the site is divided internally into many different files, and that will only download some of them.
-
-Google `website saving tool` or something similar to find an up-to-date list of such tools.
 
 ## Internet archive
 
