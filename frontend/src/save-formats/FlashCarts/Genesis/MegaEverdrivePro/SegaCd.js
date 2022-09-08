@@ -1,18 +1,75 @@
 import SegaCdUtil from '../../../../util/SegaCd';
 
 export default class GenesisMegaEverdriveProSegaCdFlashCartSaveData {
-  static createFromFlashCartData(flashCartArrayBuffer) {
-    return new GenesisMegaEverdriveProSegaCdFlashCartSaveData(flashCartArrayBuffer, flashCartArrayBuffer);
+  static INTERNAL_MEMORY = 'internal-memory';
+
+  static RAM_CART = 'ram-cart';
+
+  static FLASH_CART_RAM_CART_SIZE = 262144; // The Mega Everdrive Pro produces RAM cart files of this size
+
+  static EMULATOR_RAM_CART_SIZE = 524288; // The emulators I've seen produce a RAM cart file of this size (note that the output size is changeable by the user)
+
+  static createFromFlashCartData({ flashCartInternalSaveArrayBuffer = null, flashCartRamCartSaveArrayBuffer = null }) {
+    let truncatedFlashCartInternalSaveBuffer = SegaCdUtil.makeEmptySave(SegaCdUtil.INTERNAL_SAVE_SIZE);
+    let truncatedFlashCartRamCartSaveArrayBuffer = SegaCdUtil.makeEmptySave(SegaCdUtil.EMULATOR_RAM_CART_SIZE);
+    let rawRamCartSaveArrayBuffer = SegaCdUtil.makeEmptySave(SegaCdUtil.FLASH_CART_RAM_CART_SIZE);
+
+    if (flashCartInternalSaveArrayBuffer !== null) {
+      truncatedFlashCartInternalSaveBuffer = SegaCdUtil.truncateToActualSize(flashCartInternalSaveArrayBuffer);
+
+      if (truncatedFlashCartInternalSaveBuffer.byteLength !== SegaCdUtil.INTERNAL_SAVE_SIZE) {
+        throw new Error(`Internal save RAM is not the correct size. Must be ${SegaCdUtil.INTERNAL_SAVE_SIZE} bytes`);
+      }
+    }
+
+    if (flashCartRamCartSaveArrayBuffer !== null) {
+      truncatedFlashCartRamCartSaveArrayBuffer = SegaCdUtil.truncateToActualSize(flashCartRamCartSaveArrayBuffer);
+      rawRamCartSaveArrayBuffer = SegaCdUtil.resize(truncatedFlashCartRamCartSaveArrayBuffer, GenesisMegaEverdriveProSegaCdFlashCartSaveData.EMULATOR_RAM_CART_SIZE);
+    }
+
+    return new GenesisMegaEverdriveProSegaCdFlashCartSaveData(
+      truncatedFlashCartInternalSaveBuffer,
+      flashCartRamCartSaveArrayBuffer,
+      truncatedFlashCartInternalSaveBuffer,
+      rawRamCartSaveArrayBuffer,
+    );
   }
 
-  static createFromRawData(rawArrayBuffer) {
-    return new GenesisMegaEverdriveProSegaCdFlashCartSaveData(rawArrayBuffer, rawArrayBuffer);
+  static createFromRawData({ rawInternalSaveArrayBuffer = null, rawRamCartSaveArrayBuffer = null }) {
+    let truncatedRawInternalSaveBuffer = SegaCdUtil.makeEmptySave(SegaCdUtil.INTERNAL_SAVE_SIZE);
+    let truncatedRawRamCartSaveArrayBuffer = SegaCdUtil.makeEmptySave(SegaCdUtil.EMULATOR_RAM_CART_SIZE);
+    let flashCartRamCartSaveArrayBuffer = SegaCdUtil.makeEmptySave(SegaCdUtil.FLASH_CART_RAM_CART_SIZE);
+
+    if (rawInternalSaveArrayBuffer !== null) {
+      truncatedRawInternalSaveBuffer = SegaCdUtil.truncateToActualSize(rawInternalSaveArrayBuffer);
+
+      if (truncatedRawInternalSaveBuffer.byteLength !== SegaCdUtil.INTERNAL_SAVE_SIZE) {
+        throw new Error(`Internal save RAM is not the correct size. Must be ${SegaCdUtil.INTERNAL_SAVE_SIZE} bytes`);
+      }
+    }
+
+    if (rawRamCartSaveArrayBuffer !== null) {
+      truncatedRawRamCartSaveArrayBuffer = SegaCdUtil.truncateToActualSize(rawRamCartSaveArrayBuffer);
+      flashCartRamCartSaveArrayBuffer = SegaCdUtil.resize(truncatedRawRamCartSaveArrayBuffer, GenesisMegaEverdriveProSegaCdFlashCartSaveData.FLASH_CART_RAM_CART_SIZE);
+    }
+
+    return new GenesisMegaEverdriveProSegaCdFlashCartSaveData(
+      truncatedRawInternalSaveBuffer,
+      flashCartRamCartSaveArrayBuffer,
+      truncatedRawInternalSaveBuffer,
+      truncatedRawRamCartSaveArrayBuffer,
+    );
   }
 
   static createWithNewSize(flashCartSaveData, newSize) {
-    const newRawSaveData = SegaCdUtil.resize(flashCartSaveData.getRawArrayBuffer(), newSize);
+    const newRawRamCartArrayBuffer = SegaCdUtil.resize(flashCartSaveData.rawRamCartSaveArrayBuffer, newSize);
 
-    return GenesisMegaEverdriveProSegaCdFlashCartSaveData.createFromRawData(newRawSaveData);
+    return new GenesisMegaEverdriveProSegaCdFlashCartSaveData(
+      flashCartSaveData.flashCartInternalSaveArrayBuffer,
+      flashCartSaveData.flashCartRamCartSaveArrayBuffer,
+      flashCartSaveData.rawInternalSaveArrayBuffer,
+      newRawRamCartArrayBuffer,
+    );
   }
 
   static getFlashCartFileExtension() {
@@ -20,7 +77,7 @@ export default class GenesisMegaEverdriveProSegaCdFlashCartSaveData {
   }
 
   static getRawFileExtension() {
-    return null; // NES saves have many possible extensions, and we just want to keep whatever the original extension was
+    return null; // Some emulators call these saves .brm, but not sure how widespread that is
   }
 
   static requiresRomClass() {
@@ -31,16 +88,36 @@ export default class GenesisMegaEverdriveProSegaCdFlashCartSaveData {
     return 'segacd';
   }
 
-  constructor(flashCartArrayBuffer, rawArrayBuffer) {
-    this.flashCartArrayBuffer = flashCartArrayBuffer;
-    this.rawArrayBuffer = rawArrayBuffer;
+  constructor(flashCartInternalSaveArrayBuffer, flashCartRamCartSaveArrayBuffer, rawInternalSaveArrayBuffer, rawRamCartSaveArrayBuffer) {
+    this.flashCartInternalSaveArrayBuffer = flashCartInternalSaveArrayBuffer;
+    this.flashCartRamCartSaveArrayBuffer = flashCartRamCartSaveArrayBuffer;
+    this.rawInternalSaveArrayBuffer = rawInternalSaveArrayBuffer;
+    this.rawRamCartSaveArrayBuffer = rawRamCartSaveArrayBuffer;
   }
 
-  getRawArrayBuffer() {
-    return this.rawArrayBuffer;
+  getRawArrayBuffer(index = GenesisMegaEverdriveProSegaCdFlashCartSaveData.INTERNAL_MEMORY) {
+    switch (index) {
+      case GenesisMegaEverdriveProSegaCdFlashCartSaveData.INTERNAL_MEMORY:
+        return this.rawInternalSaveArrayBuffer;
+
+      case GenesisMegaEverdriveProSegaCdFlashCartSaveData.RAM_CART:
+        return this.rawRamCartSaveArrayBuffer;
+
+      default:
+        throw new Error(`Unknown index: ${index}`);
+    }
   }
 
-  getFlashCartArrayBuffer() {
-    return this.flashCartArrayBuffer;
+  getFlashCartArrayBuffer(index = GenesisMegaEverdriveProSegaCdFlashCartSaveData.INTERNAL_MEMORY) {
+    switch (index) {
+      case GenesisMegaEverdriveProSegaCdFlashCartSaveData.INTERNAL_MEMORY:
+        return this.flashCartInternalSaveArrayBuffer;
+
+      case GenesisMegaEverdriveProSegaCdFlashCartSaveData.RAM_CART:
+        return this.flashCartRamCartSaveArrayBuffer;
+
+      default:
+        throw new Error(`Unknown index: ${index}`);
+    }
   }
 }

@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
+import SegaCdUtil from '@/util/SegaCd';
 
 import GenesisMegaEverdriveProSegaCdFlashCartSaveData from '@/save-formats/FlashCarts/Genesis/MegaEverdrivePro/SegaCd';
 
@@ -10,6 +11,9 @@ const CONVERTED_TO_RAW_RAM_CART_FILENAME = `${DIR}/Popful Mail (USA) (RE) cd-car
 
 const EMULATOR_RAM_CART_FILENAME = `${DIR}/Popful Mail (USA) (RE)-from-emulator cart.brm`;
 const CONVERTED_TO_MEGA_EVERDRIVE_PRO_RAM_CART_FILENAME = `${DIR}/Popful Mail (USA) (RE)-from-emulator-to-med cd-cart.srm`;
+
+const EMPTY_INTERNAL_MEMORY_SAVE = SegaCdUtil.makeEmptySave(SegaCdUtil.INTERNAL_SAVE_SIZE);
+// const EMPTY_FLASH_CART_RAM_CART_SAVE = SegaCdUtil.makeEmptySave(MisterSegaCdSaveData.RAM_CART_SIZE);
 
 describe('Flash cart - Genesis - Mega Everdrive Pro - Sega CD', () => {
   /*
@@ -22,25 +26,23 @@ describe('Flash cart - Genesis - Mega Everdrive Pro - Sega CD', () => {
   });
   */
 
-  it('should resize a Mega Everdrive Pro RAM cart save to emulator format', async () => {
-    const flashCartArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEGA_EVERDRIVE_PRO_RAM_CART_FILENAME);
-    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(CONVERTED_TO_RAW_RAM_CART_FILENAME);
+  it('should convert a Mega Everdrive Pro RAM cart save to emulator format', async () => {
+    const flashCartRamCartSaveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEGA_EVERDRIVE_PRO_RAM_CART_FILENAME);
+    const rawRamCartArrayBuffer = await ArrayBufferUtil.readArrayBuffer(CONVERTED_TO_RAW_RAM_CART_FILENAME);
 
-    const flashCartSaveData = GenesisMegaEverdriveProSegaCdFlashCartSaveData.createFromFlashCartData(flashCartArrayBuffer);
+    const flashCartSaveData = GenesisMegaEverdriveProSegaCdFlashCartSaveData.createFromFlashCartData({ flashCartRamCartSaveArrayBuffer });
 
-    const largerFlashCartSegaCdSaveData = GenesisMegaEverdriveProSegaCdFlashCartSaveData.createWithNewSize(flashCartSaveData, 524288);
-
-    expect(ArrayBufferUtil.arrayBuffersEqual(largerFlashCartSegaCdSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(flashCartSaveData.getRawArrayBuffer(GenesisMegaEverdriveProSegaCdFlashCartSaveData.INTERNAL_MEMORY), EMPTY_INTERNAL_MEMORY_SAVE)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(flashCartSaveData.getRawArrayBuffer(GenesisMegaEverdriveProSegaCdFlashCartSaveData.RAM_CART), rawRamCartArrayBuffer)).to.equal(true);
   });
 
-  it('should resize an emulator RAM cart save to Mega Everdrive Pro format', async () => {
+  it('should convert an emulator RAM cart save to Mega Everdrive Pro format', async () => {
     const flashCartArrayBuffer = await ArrayBufferUtil.readArrayBuffer(CONVERTED_TO_MEGA_EVERDRIVE_PRO_RAM_CART_FILENAME);
-    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_RAM_CART_FILENAME);
+    const rawRamCartSaveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_RAM_CART_FILENAME);
 
-    const flashCartSaveData = GenesisMegaEverdriveProSegaCdFlashCartSaveData.createFromRawData(rawArrayBuffer);
+    const flashCartSaveData = GenesisMegaEverdriveProSegaCdFlashCartSaveData.createFromRawData({ rawRamCartSaveArrayBuffer });
 
-    const smallerFlashCartSegaCdSaveData = GenesisMegaEverdriveProSegaCdFlashCartSaveData.createWithNewSize(flashCartSaveData, 262144);
-
-    expect(ArrayBufferUtil.arrayBuffersEqual(smallerFlashCartSegaCdSaveData.getFlashCartArrayBuffer(), flashCartArrayBuffer)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(flashCartSaveData.getFlashCartArrayBuffer(GenesisMegaEverdriveProSegaCdFlashCartSaveData.INTERNAL_MEMORY), EMPTY_INTERNAL_MEMORY_SAVE)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(flashCartSaveData.getFlashCartArrayBuffer(GenesisMegaEverdriveProSegaCdFlashCartSaveData.RAM_CART), flashCartArrayBuffer)).to.equal(true);
   });
 });

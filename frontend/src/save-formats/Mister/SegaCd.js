@@ -17,7 +17,7 @@ export default class MisterSegaCdSaveData {
 
   static RAM_CART = 'ram-cart';
 
-  static RAM_CART_SIZE = 524288;
+  static RAM_CART_SIZE = 524288; // Both the Mister and the emulators I've seen produce RAM cart files of this size
 
   static getMisterFileExtension() {
     return 'sav';
