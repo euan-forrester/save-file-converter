@@ -86,7 +86,8 @@ export default class Neon64EmulatorSaveData {
   static createWithNewSize(neon64EmulatorSaveData, newSize) {
     const newRawSaveData = SaveFilesUtil.resizeRawSave(neon64EmulatorSaveData.getRawArrayBuffer(), newSize);
 
-    return Neon64EmulatorSaveData.createFromRawData(newRawSaveData);
+    // Don't call createFromRawData() with the resized raw data, because we'll get an error saying Neon can only do 8kB saves. Bypass it instead.
+    return new Neon64EmulatorSaveData(neon64EmulatorSaveData.getFlashCartArrayBuffer(), newRawSaveData);
   }
 
   static getFlashCartFileExtension() {
