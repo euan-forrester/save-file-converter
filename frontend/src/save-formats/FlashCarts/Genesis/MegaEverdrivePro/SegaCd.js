@@ -11,8 +11,8 @@ export default class GenesisMegaEverdriveProSegaCdFlashCartSaveData {
 
   static createFromFlashCartData({ flashCartInternalSaveArrayBuffer = null, flashCartRamCartSaveArrayBuffer = null }) {
     let truncatedFlashCartInternalSaveBuffer = SegaCdUtil.makeEmptySave(SegaCdUtil.INTERNAL_SAVE_SIZE);
-    let truncatedFlashCartRamCartSaveArrayBuffer = SegaCdUtil.makeEmptySave(SegaCdUtil.EMULATOR_RAM_CART_SIZE);
-    let rawRamCartSaveArrayBuffer = SegaCdUtil.makeEmptySave(SegaCdUtil.FLASH_CART_RAM_CART_SIZE);
+    let truncatedFlashCartRamCartSaveArrayBuffer = SegaCdUtil.makeEmptySave(GenesisMegaEverdriveProSegaCdFlashCartSaveData.FLASH_CART_RAM_CART_SIZE);
+    let rawRamCartSaveArrayBuffer = SegaCdUtil.makeEmptySave(GenesisMegaEverdriveProSegaCdFlashCartSaveData.EMULATOR_RAM_CART_SIZE);
 
     if (flashCartInternalSaveArrayBuffer !== null) {
       truncatedFlashCartInternalSaveBuffer = SegaCdUtil.truncateToActualSize(flashCartInternalSaveArrayBuffer);
@@ -29,7 +29,7 @@ export default class GenesisMegaEverdriveProSegaCdFlashCartSaveData {
 
     return new GenesisMegaEverdriveProSegaCdFlashCartSaveData(
       truncatedFlashCartInternalSaveBuffer,
-      flashCartRamCartSaveArrayBuffer,
+      truncatedFlashCartRamCartSaveArrayBuffer,
       truncatedFlashCartInternalSaveBuffer,
       rawRamCartSaveArrayBuffer,
     );
@@ -37,8 +37,8 @@ export default class GenesisMegaEverdriveProSegaCdFlashCartSaveData {
 
   static createFromRawData({ rawInternalSaveArrayBuffer = null, rawRamCartSaveArrayBuffer = null }) {
     let truncatedRawInternalSaveBuffer = SegaCdUtil.makeEmptySave(SegaCdUtil.INTERNAL_SAVE_SIZE);
-    let truncatedRawRamCartSaveArrayBuffer = SegaCdUtil.makeEmptySave(SegaCdUtil.EMULATOR_RAM_CART_SIZE);
-    let flashCartRamCartSaveArrayBuffer = SegaCdUtil.makeEmptySave(SegaCdUtil.FLASH_CART_RAM_CART_SIZE);
+    let truncatedRawRamCartSaveArrayBuffer = SegaCdUtil.makeEmptySave(GenesisMegaEverdriveProSegaCdFlashCartSaveData.EMULATOR_RAM_CART_SIZE);
+    let flashCartRamCartSaveArrayBuffer = SegaCdUtil.makeEmptySave(GenesisMegaEverdriveProSegaCdFlashCartSaveData.FLASH_CART_RAM_CART_SIZE);
 
     if (rawInternalSaveArrayBuffer !== null) {
       truncatedRawInternalSaveBuffer = SegaCdUtil.truncateToActualSize(rawInternalSaveArrayBuffer);
