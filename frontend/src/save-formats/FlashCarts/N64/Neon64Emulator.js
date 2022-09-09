@@ -103,7 +103,7 @@ export default class Neon64EmulatorSaveData {
   }
 
   static adjustOutputSizesPlatform() {
-    return 'nes';
+    return null; // Neon64 only works with 8kB saves, and if we get a save of another size we can't adjust it
   }
 
   constructor(flashCartArrayBuffer, rawArrayBuffer) {
