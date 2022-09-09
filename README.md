@@ -134,7 +134,9 @@ Everything on this site is free and open source with no advertising. If you find
   - N64 Everdrive
     - https://github.com/ssokolow/saveswap
     - GB/C emulator: https://github.com/lambertjamesd/gb64/blob/master/src/save.c
-    - NES emulator: https://github.com/hcs64/neon64v2/issues/20
+    - NES emulator:
+      - https://github.com/hcs64/neon64v2/issues/20
+      - http://themanbehindcurtain.blogspot.com/
 - Sega CD:
   - Sega operating manuals
     - Standards that games were to use when interfacing with backup RAM: https://segaretro.org/images/6/6e/Sega-CD_Software_Standards.pdf
