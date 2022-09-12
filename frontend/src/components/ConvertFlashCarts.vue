@@ -126,6 +126,7 @@
 import { saveAs } from 'file-saver';
 import Util from '../util/util';
 import SegaCdUtil from '../util/SegaCd';
+
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import OutputFilesize from './OutputFilesize.vue';
@@ -166,7 +167,6 @@ export default {
       inputArrayBuffer: null,
       inputFilename: null,
       inputFileType: null,
-      inputSegaCd: {},
       segaCdSaveType: 'internal-memory',
     };
   },
@@ -211,7 +211,6 @@ export default {
       this.inputArrayBuffer = null;
       this.inputFilename = null;
       this.inputFileType = null;
-      this.inputSegaCd = {};
       this.segaCdSaveType = 'internal-memory';
     },
     getFileExtensionsString(romFormatClass) {
@@ -316,6 +315,7 @@ export default {
         this.flashCartTypeClass = null;
       }
 
+      this.segaCdSaveType = this.getDefaultSegaCdSaveType();
       this.updateFlashCartSaveData();
     },
     changeSegaCdSaveType(newSaveType) {
@@ -325,6 +325,7 @@ export default {
     },
     readRomData(event) {
       this.romData = event.arrayBuffer;
+      this.segaCdSaveType = this.getDefaultSegaCdSaveType();
 
       this.updateFlashCartSaveData();
     },
@@ -360,7 +361,7 @@ export default {
         return this.flashCartTypeClass.getFlashCartFileName(this.segaCdSaveType);
       }
 
-      return this.getOutputFilename(this.inputFilename, this.flashCartTypeClass.getRawFileExtension());
+      return this.getOutputFilename(this.inputFilename, this.flashCartTypeClass.getFlashCartFileExtension());
     },
     getRawFilename() {
       if (this.isSegaCd) {
@@ -369,7 +370,7 @@ export default {
         return `${Util.removeFilenameExtension(this.inputFilename)}${filenameSuffix}.${this.flashCartTypeClass.getRawFileExtension()}`;
       }
 
-      return this.getOutputFilename(this.inputFilename, this.flashCartTypeClass.getFlashCartFileExtension());
+      return this.getOutputFilename(this.inputFilename, this.flashCartTypeClass.getRawFileExtension());
     },
     getDefaultOutputFilesize() {
       if (this.isSegaCd) {
@@ -390,6 +391,15 @@ export default {
 
       return this.flashCartSaveData.getRawArrayBuffer().byteLength;
     },
+    getDefaultSegaCdSaveType() {
+      if (this.isSegaCd) {
+        if ((this.inputArrayBuffer !== null) && (this.inputArrayBuffer.byteLength > SegaCdUtil.INTERNAL_SAVE_SIZE)) {
+          return 'ram-cart';
+        }
+      }
+
+      return 'internal-memory';
+    },
     updateFlashCartSaveData() {
       this.errorMessage = null;
 
@@ -407,6 +417,7 @@ export default {
           this.errorMessage = 'This file does not seem to be in the correct format';
           this.flashCartSaveData = null;
           this.outputFilename = null;
+          this.segaCdSaveType = 'internal-memory';
         }
       } else {
         this.flashCartSaveData = null;
@@ -417,6 +428,7 @@ export default {
       this.inputFileType = 'flashcart';
       this.inputArrayBuffer = event.arrayBuffer;
       this.inputFilename = event.filename;
+      this.segaCdSaveType = this.getDefaultSegaCdSaveType();
 
       this.updateFlashCartSaveData();
     },
@@ -424,6 +436,7 @@ export default {
       this.inputFileType = 'raw';
       this.inputArrayBuffer = event.arrayBuffer;
       this.inputFilename = event.filename;
+      this.segaCdSaveType = this.getDefaultSegaCdSaveType();
 
       this.updateFlashCartSaveData();
     },
