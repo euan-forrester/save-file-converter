@@ -11,7 +11,7 @@ export default {
     16384,
     32768, // The usual max size of files that the MiSTer NES core will generate
     65536,
-    131072, // The MiSTer NES core will sometimes generate files this big, so maybe some games require them?
+    131072, // The MiSTer NES core and N64 Everdrive NES core will sometimes generate files this big, so maybe some games require them?
   ],
   snes: [
     512,

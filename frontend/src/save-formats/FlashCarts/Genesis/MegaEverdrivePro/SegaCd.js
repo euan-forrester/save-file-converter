@@ -73,11 +73,24 @@ export default class GenesisMegaEverdriveProSegaCdFlashCartSaveData {
   }
 
   static getFlashCartFileExtension() {
-    return 'srm';
+    return null; // See getFlashCartFileName()
+  }
+
+  static getFlashCartFileName(index = GenesisMegaEverdriveProSegaCdFlashCartSaveData.INTERNAL_MEMORY) {
+    switch (index) {
+      case GenesisMegaEverdriveProSegaCdFlashCartSaveData.INTERNAL_MEMORY:
+        return 'cd-bram.brm';
+
+      case GenesisMegaEverdriveProSegaCdFlashCartSaveData.RAM_CART:
+        return 'cd-cart.srm';
+
+      default:
+        throw new Error(`Unknown index: ${index}`);
+    }
   }
 
   static getRawFileExtension() {
-    return null; // Some emulators call these saves .brm, but not sure how widespread that is
+    return 'brm';
   }
 
   static requiresRomClass() {
@@ -86,6 +99,14 @@ export default class GenesisMegaEverdriveProSegaCdFlashCartSaveData {
 
   static adjustOutputSizesPlatform() {
     return 'segacd';
+  }
+
+  static getRawDefaultRamCartSize() {
+    return GenesisMegaEverdriveProSegaCdFlashCartSaveData.EMULATOR_RAM_CART_SIZE;
+  }
+
+  static getFlashCartDefaultRamCartSize() {
+    return GenesisMegaEverdriveProSegaCdFlashCartSaveData.FLASH_CART_RAM_CART_SIZE;
   }
 
   constructor(flashCartInternalSaveArrayBuffer, flashCartRamCartSaveArrayBuffer, rawInternalSaveArrayBuffer, rawRamCartSaveArrayBuffer) {
