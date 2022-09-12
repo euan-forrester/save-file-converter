@@ -119,9 +119,10 @@ export default {
         GenesisEverdrive: [
           { value: null, text: 'Choose game type', disabled: true },
           { value: 'FlashCart-GenesisEverdrive', text: 'Genesis game' },
-          { value: 'FlashCart-NESGenesisEverdrive', text: 'NES game' },
+          { value: 'FlashCart-SegaCDGenesisEverdrive', text: 'Sega CD game' },
           { value: 'FlashCart-SMSGenesisEverdrive', text: 'SMS game' },
           { value: 'FlashCart-32XGenesisEverdrive', text: '32X game' },
+          { value: 'FlashCart-NESGenesisEverdrive', text: 'NES game' },
         ],
         GenesisMegaSD: [
           { value: null, text: 'Choose game type', disabled: true },
