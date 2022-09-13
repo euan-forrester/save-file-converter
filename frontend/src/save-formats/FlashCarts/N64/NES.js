@@ -12,26 +12,32 @@ import Util from '../../../util/util';
 const PADDED_SIZE = 131072;
 const PADDING_VALUE = 0xAA;
 
+function padArrayBuffer(arrayBuffer, paddedSize) {
+  if (arrayBuffer.byteLength <= paddedSize) {
+    const paddingArrayBuffer = Util.getFilledArrayBuffer(paddedSize - arrayBuffer.byteLength, PADDING_VALUE);
+
+    return Util.concatArrayBuffers([arrayBuffer, paddingArrayBuffer]);
+  }
+
+  return arrayBuffer;
+}
+
 export default class N64NesFlashCartSaveData {
   static createFromFlashCartData(flashCartArrayBuffer) {
-    return new N64NesFlashCartSaveData(flashCartArrayBuffer, flashCartArrayBuffer);
+    return new N64NesFlashCartSaveData(flashCartArrayBuffer, flashCartArrayBuffer, flashCartArrayBuffer);
   }
 
   static createFromRawData(rawArrayBuffer) {
-    if (rawArrayBuffer.byteLength <= PADDED_SIZE) {
-      const paddingArrayBuffer = Util.getFilledArrayBuffer(PADDED_SIZE - rawArrayBuffer.byteLength, PADDING_VALUE);
-      const flashCartArrayBuffer = Util.concatArrayBuffers([rawArrayBuffer, paddingArrayBuffer]);
+    const flashCartArrayBuffer = padArrayBuffer(rawArrayBuffer, PADDED_SIZE);
 
-      return new N64NesFlashCartSaveData(flashCartArrayBuffer, flashCartArrayBuffer); // Pass the new array buffer as both raw and flash cart, because in the UI we want the size to show up as 128kB to prevent confusion and that size is read from the raw array buffer
-    }
-
-    return N64NesFlashCartSaveData(rawArrayBuffer, rawArrayBuffer);
+    return new N64NesFlashCartSaveData(flashCartArrayBuffer, flashCartArrayBuffer, rawArrayBuffer); // Pass the new array buffer as both raw and flash cart, because in the UI we want the size to show up as 128kB to prevent confusion and that size is read from the raw array buffer
   }
 
   static createWithNewSize(flashCartSaveData, newSize) {
-    const newRawSaveData = SaveFilesUtil.resizeRawSave(flashCartSaveData.getRawArrayBuffer(), newSize);
+    const newFlashCartArrayBuffer = SaveFilesUtil.resizeRawSave(flashCartSaveData.getOriginalRawArrayBuffer(), newSize, PADDING_VALUE);
+    const newRawSaveData = SaveFilesUtil.resizeRawSave(flashCartSaveData.getOriginalRawArrayBuffer(), newSize);
 
-    return N64NesFlashCartSaveData.createFromRawData(newRawSaveData);
+    return new N64NesFlashCartSaveData(newFlashCartArrayBuffer, newRawSaveData, flashCartSaveData.getOriginalRawArrayBuffer());
   }
 
   static getFlashCartFileExtension() {
@@ -50,13 +56,18 @@ export default class N64NesFlashCartSaveData {
     return 'nes';
   }
 
-  constructor(flashCartArrayBuffer, rawArrayBuffer) {
+  constructor(flashCartArrayBuffer, rawArrayBuffer, originalRawArrayBuffer) {
     this.flashCartArrayBuffer = flashCartArrayBuffer;
     this.rawArrayBuffer = rawArrayBuffer;
+    this.originalRawArrayBuffer = originalRawArrayBuffer;
   }
 
   getRawArrayBuffer() {
     return this.rawArrayBuffer;
+  }
+
+  getOriginalRawArrayBuffer() {
+    return this.originalRawArrayBuffer;
   }
 
   getFlashCartArrayBuffer() {
