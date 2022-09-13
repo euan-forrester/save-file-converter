@@ -150,6 +150,7 @@ import GenesisMegaSd32xFlashCartSaveData from '../save-formats/FlashCarts/Genesi
 import GbFlashCartSaveData from '../save-formats/FlashCarts/GB';
 import GbaFlashCartSaveData from '../save-formats/FlashCarts/GBA/GBA';
 import N64FlashCartSaveData from '../save-formats/FlashCarts/N64/N64';
+import N64NesFlashCartSaveData from '../save-formats/FlashCarts/N64/NES';
 import Neon64EmulatorSaveData from '../save-formats/FlashCarts/N64/Neon64Emulator';
 
 export default {
@@ -298,6 +299,11 @@ export default {
 
           case 'FlashCart-N64': {
             this.flashCartTypeClass = N64FlashCartSaveData;
+            break;
+          }
+
+          case 'FlashCart-NESN64': {
+            this.flashCartTypeClass = N64NesFlashCartSaveData;
             break;
           }
 

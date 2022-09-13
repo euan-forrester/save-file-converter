@@ -1,5 +1,5 @@
 export default class SaveFilesUtil {
-  static resizeRawSave(arrayBuffer, newSize) {
+  static resizeRawSave(arrayBuffer, newSize, fillValue = 0) {
     let newArrayBuffer = arrayBuffer;
 
     if (newSize < arrayBuffer.byteLength) {
@@ -10,7 +10,7 @@ export default class SaveFilesUtil {
       const newArray = new Uint8Array(newArrayBuffer);
       const oldArray = new Uint8Array(arrayBuffer);
 
-      newArray.fill(0); // Redundant but let's be explicit
+      newArray.fill(fillValue);
       newArray.set(oldArray, 0);
     }
 
