@@ -3,8 +3,7 @@
     <div id="nav">
       <b-row>
         <b-col class="nav-row">
-          <router-link to="/retron-5">Retron{{'\xa0'}}5 / RetroFreak</router-link> |
-          <router-link to="/retron-5/erase-save">Erase{{'\xa0'}}save from cartridge</router-link>
+          <router-link to="/retron-5">Retron{{'\xa0'}}5 / RetroFreak</router-link>
         </b-col>
       </b-row>
       <b-row>
