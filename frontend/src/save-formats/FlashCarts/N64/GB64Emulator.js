@@ -137,7 +137,7 @@ export default class Gb64EmulatorSaveData {
   }
 
   static requiresRomClass() {
-    return null;
+    return GbRom;
   }
 
   static adjustOutputSizesPlatform() {
