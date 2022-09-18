@@ -21,7 +21,10 @@ struct GameboySettings
     52: u32 compressedSize;
 };
 
-Offset 128: Beginning of compressed data
+Offset 128: Beginning of data compressed with zlib
+
+When uncompressed, this data is a concatenation of various things the emulator needs, and begins with SRAM data. The length of the SRAM
+data is determined from the ROM
 
 enum StoredInfoType
 {
@@ -31,13 +34,12 @@ enum StoredInfoType
     StoredInfoTypeSettings,
     StoredInfoTypeNone,
 };
-
-Then there's data compressed with zlib
 */
 
 import pako from 'pako';
 import Util from '../../../util/util';
 import SaveFilesUtil from '../../../util/SaveFiles';
+import GbRom from '../../../rom-formats/gb';
 
 const LITTLE_ENDIAN = false;
 
@@ -54,16 +56,22 @@ const COMPRESSED_DATA_OFFSET = 0x80;
 const DESIRED_VERSION = 2;
 
 const STORED_INFO_TYPE_ALL = 0;
-// const STORED_INFO_TYPE_SETTINGS_RAM = 1;
+// const STORED_INFO_TYPE_SETTINGS_RAM = 1; // The emulator returns immediately after reading the SRAM data if the stored info type is one of these: https://github.com/lambertjamesd/gb64/blob/master/src/save.c#L588
 // const STORED_INFO_TYPE_RAM = 2;
-// const STORED_INFO_TYPE_SETTINGS = 3;
+const STORED_INFO_TYPE_SETTINGS = 3;
 const STORED_INFO_TYPE_NONE = 4;
 
-const SRAM_OFFSET = 0;
-const SRAM_LENGTH = 8192; // Need to calculate this from the ROM, but hardcode for now
+const UNCOMPRESSED_DATA_SRAM_OFFSET = 0;
+const MIN_SRAM_SIZE = 8192;
 
 export default class Gb64EmulatorSaveData {
-  static createFromFlashCartData(flashCartArrayBuffer) {
+  static createFromFlashCartData(flashCartArrayBuffer, romArrayBuffer) {
+    const gbRom = new GbRom(romArrayBuffer);
+
+    return Gb64EmulatorSaveData.createFromFlashCartDataInternal(flashCartArrayBuffer, gbRom.getSramSize());
+  }
+
+  static createFromFlashCartDataInternal(flashCartArrayBuffer, sramSize) {
     // Based on https://github.com/lambertjamesd/gb64/blob/master/src/save.c#L492
 
     Util.checkMagic(flashCartArrayBuffer, MAGIC_OFFSET, MAGIC, MAGIC_ENCODING);
@@ -83,12 +91,28 @@ export default class Gb64EmulatorSaveData {
       throw new Error(`Unrecognized stored info type: ${this.storedInfoType}`);
     }
 
+    if ((this.storedInfoType === STORED_INFO_TYPE_SETTINGS) || (this.storedInfoType === STORED_INFO_TYPE_NONE)) {
+      throw new Error('This file does not contain save data');
+    }
+
+    // FIXME: Need to handle versions 1 & 2: compressedSize is set to 0 in those cases
+
     console.log(`Found version: ${this.version}, flags: 0x${this.flags.toString(16)}, storedInfoType: ${this.storedInfoType}, compressed size: ${this.compressedSize} bytes`);
 
     const compressedData = flashCartArrayBuffer.slice(COMPRESSED_DATA_OFFSET, COMPRESSED_DATA_OFFSET + this.compressedSize);
     const uncompressedData = pako.inflate(compressedData);
 
-    const rawArrayBuffer = uncompressedData.slice(SRAM_OFFSET, SRAM_OFFSET + SRAM_LENGTH);
+    // The emulator appears to incorrectly obtain the SRAM size from the ROM:
+    // https://github.com/lambertjamesd/gb64/blob/master/src/save.c#L443
+    // https://github.com/lambertjamesd/gb64/blob/dde5833ec53dda6ec642d591b9985422eecba923/src/rom.c#L206
+    //
+    // Effectively, this appears to ensure a minimum size of 8kB, even if the ROM specifies 2kB or 0kB.
+    // Notice also that the weird MBC2 cartridge type is also covered by this: it was a value of 0 in the header but has 2kB of onboard RAM.
+    // It's not tested for specifically by the emulator, but happens to succeed by making a minimum value of 8kB.
+
+    const sramLength = Math.max(sramSize, MIN_SRAM_SIZE);
+
+    const rawArrayBuffer = uncompressedData.slice(UNCOMPRESSED_DATA_SRAM_OFFSET, UNCOMPRESSED_DATA_SRAM_OFFSET + sramLength);
 
     return new Gb64EmulatorSaveData(flashCartArrayBuffer, rawArrayBuffer);
   }

@@ -15,6 +15,8 @@ describe('GB/GBC ROM format', () => {
 
     expect(gbRom.getInternalName()).to.equal('ZELDA');
     expect(gbRom.getIsGbc()).to.equal(false);
+    expect(gbRom.getCartridgeType()).to.equal(0x3);
+    expect(gbRom.getSramSize()).to.equal(8192);
   });
 
   it('should parse a GBC ROM', async () => {
@@ -24,5 +26,7 @@ describe('GB/GBC ROM format', () => {
 
     expect(gbRom.getInternalName()).to.equal('WARIOLAND3');
     expect(gbRom.getIsGbc()).to.equal(true);
+    expect(gbRom.getCartridgeType()).to.equal(0x1B);
+    expect(gbRom.getSramSize()).to.equal(32768);
   });
 });
