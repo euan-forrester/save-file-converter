@@ -43,6 +43,13 @@ export default class Util {
     return Util.bufferToArrayBuffer(Buffer.concat(bufferList));
   }
 
+  static setMagic(arrayBuffer, offset, magic, magicEncoding) {
+    const textEncoder = new TextEncoder(magicEncoding);
+    const magicArrayBuffer = Util.bufferToArrayBuffer(textEncoder.encode(magic));
+
+    return Util.setArrayBufferPortion(arrayBuffer, magicArrayBuffer, offset, 0, magicArrayBuffer.byteLength);
+  }
+
   // Check magic that's provided by a nice, human-readable string
   static checkMagic(arrayBuffer, offset, magic, magicEncoding) {
     const magicTextDecoder = new TextDecoder(magicEncoding);
