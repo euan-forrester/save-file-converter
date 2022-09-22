@@ -414,6 +414,7 @@ function checkIndexes(inodeArrayBuffer, noteTableKeys) {
 
     if (nextPage === INODE_TABLE_ENTRY_STOP) {
       found.stops.push(currentPage);
+      found.keys.push(currentPage);
     } else if (nextPage === INODE_TABLE_ENTRY_EMPTY) {
       found.empty.push(currentPage);
     } else if ((nextPage >= FIRST_SAVE_DATA_PAGE) && (nextPage < NUM_PAGES)) {
@@ -436,7 +437,7 @@ function checkIndexes(inodeArrayBuffer, noteTableKeys) {
   const startKeysFound = found.keys.filter((x) => !found.values.includes(x));
 
   if ((noteTableKeys.length !== startKeysFound.length) || (noteTableKeys.length !== found.stops.length)) {
-    throw new Error(`Found ${noteTableKeys.length} starting keys in the note table, but found ${startKeysFound.length} starting keys and ${found.stops.length} stop leys in inode table`);
+    throw new Error(`Found ${noteTableKeys.length} starting keys in the note table, but found ${startKeysFound.length} starting keys and ${found.stops.length} stop keys in inode table`);
   }
 
   startKeysFound.forEach((x) => {
@@ -460,7 +461,7 @@ function checkIndexes(inodeArrayBuffer, noteTableKeys) {
     }
 
     noteIndexes[startingPage] = indexes;
-    found.parsed.push(...indexes.slice(1)); // We didn't 'find' the starting index, so remove it from here because we use this to check our integrity below
+    found.parsed.push(...indexes);
   });
 
   // Check that we parsed and found the same number of keys
