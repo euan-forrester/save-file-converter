@@ -14,7 +14,7 @@ import ConvertFromN64 from './ConvertFromN64';
 import ConvertFromSega from './ConvertFromSega';
 import ConvertFromPcEngine from './ConvertFromPcEngine';
 
-export default (arrayBuffer, platformType, gameId) => {
+export default (arrayBuffer, fileName, platformType, gameId) => {
   let output = null;
 
   switch (platformType) {
@@ -35,7 +35,7 @@ export default (arrayBuffer, platformType, gameId) => {
       break;
 
     case 'VC-N64':
-      output = ConvertFromN64(arrayBuffer);
+      output = ConvertFromN64(arrayBuffer, fileName);
       break;
 
     case 'VC-C64': // A few of these games offered saving, usually of high scores. Impossible Mission II (PAL regions) offered saving the game. I couldn't find any Wii VC save files online to test with

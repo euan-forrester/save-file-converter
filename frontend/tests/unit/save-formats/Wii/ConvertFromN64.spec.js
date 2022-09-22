@@ -36,12 +36,19 @@ const FLASHRAM_128KB_CART_RAW_FILENAME = `${DIR}/paper-mario.17225-raw.fla`;
 const FLASHRAM_128KB_CART_BUT_BIG_FILE_EXTRACTED_FILENAME = `${DIR}/the-legend-of-zelda-majoras-mask.19354-extracted.bin`;
 const FLASHRAM_128KB_CART_BUT_BIG_FILE_RAW_FILENAME = `${DIR}/the-legend-of-zelda-majoras-mask.19354-raw.fla`;
 
+// RAM_NMFE
+const RAM_NMFE_EXTRACTED_FILENAME = `${DIR}/mario-golf.23681-extracted.bin`;
+const RAW_RAM_NFME_EXTRACTED_FILENAME = `${DIR}/mario-golf.23681-raw.sra`;
+
+const REGULAR_INTERNAL_FILENAME = 'savedata.bin';
+const RAM_NMFE_INTERNAL_FILENAME = 'RAM_NMFE';
+
 describe('Convert from the Wii N64 formats', () => {
   it('should convert a 0.5kB EEPROM game correctly', async () => {
     const extractedData = await ArrayBufferUtil.readArrayBuffer(EEPROM_05KB_EXTRACTED_FILENAME);
     const expectedRawData = await ArrayBufferUtil.readArrayBuffer(EEPROM_05KB_RAW_FILENAME);
 
-    const convertedData = ConvertFromN64(extractedData);
+    const convertedData = ConvertFromN64(extractedData, REGULAR_INTERNAL_FILENAME);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(convertedData.saveData, expectedRawData)).to.equal(true);
     expect(convertedData.fileExtension).to.equal('eep');
@@ -51,7 +58,7 @@ describe('Convert from the Wii N64 formats', () => {
     const extractedData = await ArrayBufferUtil.readArrayBuffer(EEPROM_2KB_EXTRACTED_FILENAME);
     const expectedRawData = await ArrayBufferUtil.readArrayBuffer(EEPROM_2KB_RAW_FILENAME);
 
-    const convertedData = ConvertFromN64(extractedData);
+    const convertedData = ConvertFromN64(extractedData, REGULAR_INTERNAL_FILENAME);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(convertedData.saveData, expectedRawData)).to.equal(true);
     expect(convertedData.fileExtension).to.equal('eep');
@@ -61,7 +68,7 @@ describe('Convert from the Wii N64 formats', () => {
     const extractedData = await ArrayBufferUtil.readArrayBuffer(SRAM_32KB_CART_EXTRACTED_FILENAME);
     const expectedRawData = await ArrayBufferUtil.readArrayBuffer(SRAM_32KB_CART_RAW_FILENAME);
 
-    const convertedData = ConvertFromN64(extractedData);
+    const convertedData = ConvertFromN64(extractedData, REGULAR_INTERNAL_FILENAME);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(convertedData.saveData, expectedRawData)).to.equal(true);
     expect(convertedData.fileExtension).to.equal('sra');
@@ -71,7 +78,7 @@ describe('Convert from the Wii N64 formats', () => {
     const extractedData = await ArrayBufferUtil.readArrayBuffer(SRAM_32KB_CONTROLLER_PAK_EXTRACTED_FILENAME);
     const expectedRawData = await ArrayBufferUtil.readArrayBuffer(SRAM_32KB_CONTROLLER_PAK_RAW_FILENAME);
 
-    const convertedData = ConvertFromN64(extractedData);
+    const convertedData = ConvertFromN64(extractedData, REGULAR_INTERNAL_FILENAME);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(convertedData.saveData, expectedRawData)).to.equal(true);
     expect(convertedData.fileExtension).to.equal('eep');
@@ -81,7 +88,7 @@ describe('Convert from the Wii N64 formats', () => {
     const extractedData = await ArrayBufferUtil.readArrayBuffer(FLASHRAM_128KB_CART_EXTRACTED_FILENAME);
     const expectedRawData = await ArrayBufferUtil.readArrayBuffer(FLASHRAM_128KB_CART_RAW_FILENAME);
 
-    const convertedData = ConvertFromN64(extractedData);
+    const convertedData = ConvertFromN64(extractedData, REGULAR_INTERNAL_FILENAME);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(convertedData.saveData, expectedRawData)).to.equal(true);
     expect(convertedData.fileExtension).to.equal('fla');
@@ -91,9 +98,19 @@ describe('Convert from the Wii N64 formats', () => {
     const extractedData = await ArrayBufferUtil.readArrayBuffer(FLASHRAM_128KB_CART_BUT_BIG_FILE_EXTRACTED_FILENAME);
     const expectedRawData = await ArrayBufferUtil.readArrayBuffer(FLASHRAM_128KB_CART_BUT_BIG_FILE_RAW_FILENAME);
 
-    const convertedData = ConvertFromN64(extractedData);
+    const convertedData = ConvertFromN64(extractedData, REGULAR_INTERNAL_FILENAME);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(convertedData.saveData, expectedRawData)).to.equal(true);
     expect(convertedData.fileExtension).to.equal('fla');
+  });
+
+  it('should convert a 32kB SRAM game with an internal filename of RAM_NMFE correctly', async () => {
+    const extractedData = await ArrayBufferUtil.readArrayBuffer(RAM_NMFE_EXTRACTED_FILENAME);
+    const expectedRawData = await ArrayBufferUtil.readArrayBuffer(RAW_RAM_NFME_EXTRACTED_FILENAME);
+
+    const convertedData = ConvertFromN64(extractedData, RAM_NMFE_INTERNAL_FILENAME);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(convertedData.saveData, expectedRawData)).to.equal(true);
+    expect(convertedData.fileExtension).to.equal('sra');
   });
 });
