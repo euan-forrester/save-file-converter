@@ -41,6 +41,10 @@ const RAW_FOUR_FILES_NOTE_2_FILENAME = `${DIR}/banjo-kazooie.1141-2`;
 const RAW_FOUR_FILES_NOTE_3_FILENAME = `${DIR}/banjo-kazooie.1141-3`;
 const RAW_FOUR_FILES_NOTE_4_FILENAME = `${DIR}/banjo-kazooie.1141-4`;
 
+const DEXDRIVE_SINGLE_PAGE_FILENAME = `${DIR}/ecw-hardcore-revolution.1000.n64`;
+const RAW_SINGLE_PAGE_FILENAME = `${DIR}/ecw-hardcore-revolution.1000.mpk`;
+const RAW_SINGLE_PAGE_NOTE_1_FILENAME = `${DIR}/ecw-hardcore-revolution.1000-1`;
+
 describe('N64 - DexDrive save format', () => {
   before(() => {
     seedrandom('Happy day = when I realized collectathons were no longer a genre', { global: true }); // Overwrite Math.random() so that it's predictable
@@ -306,5 +310,27 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[3].region).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_REGION_CODE);
     expect(dexDriveSaveData.getSaveFiles()[3].media).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_MEDIA_CODE);
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[3].rawData, rawNote4ArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a file with a save consisting of just 1 page', async () => {
+    const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_SINGLE_PAGE_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_SINGLE_PAGE_FILENAME);
+    const rawNoteArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_SINGLE_PAGE_NOTE_1_FILENAME);
+
+    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getMempack().getArrayBuffer(), rawArrayBuffer)).to.equal(true);
+
+    expect(dexDriveSaveData.getSaveFiles().length).to.equal(1);
+
+    expect(dexDriveSaveData.getSaveFiles()[0].startingPage).to.equal(5);
+    expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(1);
+    expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('ECW');
+    expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('All Hidden Wrestlers and Cheats Unlocked');
+    expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NWIE');
+    expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('51');
+    expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal('E');
+    expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal('N');
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNoteArrayBuffer)).to.equal(true);
   });
 });
