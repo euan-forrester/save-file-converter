@@ -58,7 +58,7 @@
       </b-row>
       <b-row>
         <b-col>
-          <router-link to="/about">About{{'\xa0'}}/{{'\xa0'}}Contact{{'\xa0'}}/{{'\xa0'}}Donate</router-link>
+          <router-link to="/about">Discord{{'\xa0'}}/{{'\xa0'}}Contact{{'\xa0'}}/{{'\xa0'}}Donate</router-link>
         </b-col>
       </b-row>
       <hr/>
