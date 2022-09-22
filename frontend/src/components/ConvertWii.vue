@@ -208,7 +208,7 @@ export default {
       this.platformErrorMessage = null;
       if ((this.wiiSaveData !== null) && (this.outputPlatform !== null)) {
         try {
-          const convertedSaveData = ConvertFromPlatform(this.wiiSaveData.getFiles()[0].data, this.outputPlatform, this.wiiSaveData.getGameId()); // Potentially there are more files within the file the user gave us. But, what do we name them if we're going to upload them? Maybe just punt on this and only upload the first one and see if there's ever an example where this is a problem
+          const convertedSaveData = ConvertFromPlatform(this.wiiSaveData.getFiles()[0].data, this.wiiSaveData.getFiles()[0].name, this.outputPlatform, this.wiiSaveData.getGameId()); // Potentially there are more files within the file the user gave us. But, what do we name them if we're going to upload them? Maybe just punt on this and only upload the first one and see if there's ever an example where this is a problem
 
           this.outputSaveData = convertedSaveData.saveData;
           this.outputFilename = Util.changeFilenameExtension(this.inputFilename, convertedSaveData.fileExtension);

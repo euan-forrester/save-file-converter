@@ -13,6 +13,9 @@ const RAW_GENESIS_EEPROM_FILENAME = `${DIR}/wonder-boy-in-monster-world-extracte
 const WII_GENESIS_FRAM_FILENAME = `${DIR}/sonic-the-hedgehog-3.18899.bin`;
 const RAW_GENESIS_FRAM_FILENAME = `${DIR}/sonic-the-hedgehog-3.18899-extracted.bin`;
 
+const WII_MARIO_GOLF_FILENAME = `${DIR}/mario-golf.23691.bin`;
+const RAW_MARIO_GOLF_FILENAME = `${DIR}/mario-golf.23681-extracted.bin`;
+
 describe('Wii save format', () => {
   it('should decrypt and parse a sample save file', async () => {
     const wiiArrayBuffer = await ArrayBufferUtil.readArrayBuffer(WII_FILENAME);
@@ -88,6 +91,30 @@ describe('Wii save format', () => {
     expect(file.data.byteLength).to.equal(file.size);
 
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GENESIS_FRAM_FILENAME);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(file.data, rawArrayBuffer)).to.equal(true);
+  });
+
+  it('should decrypt and parse a Mario Golf save file', async () => {
+    const wiiArrayBuffer = await ArrayBufferUtil.readArrayBuffer(WII_MARIO_GOLF_FILENAME);
+    const wiiSaveData = new WiiSaveData(wiiArrayBuffer);
+
+    expect(wiiSaveData.getGameTitle()).to.equal('Mario Golf');
+    expect(wiiSaveData.getGameSubtitle()).to.equal(' ');
+    expect(wiiSaveData.getGameId()).to.equal('NAUE');
+    expect(wiiSaveData.getNumberOfFiles()).to.equal(1);
+    expect(wiiSaveData.getSizeOfFiles()).to.equal(49280);
+    expect(wiiSaveData.getTotalSize()).to.equal(50240);
+
+    const fileList = wiiSaveData.getFiles();
+
+    const file = fileList[0];
+
+    expect(file.size).to.equal(49152);
+    expect(file.name).to.equal('RAM_NMFE');
+    expect(file.data.byteLength).to.equal(file.size);
+
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_MARIO_GOLF_FILENAME);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(file.data, rawArrayBuffer)).to.equal(true);
   });
