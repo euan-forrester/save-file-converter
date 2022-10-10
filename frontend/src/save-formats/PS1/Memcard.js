@@ -223,6 +223,8 @@ export default class Ps1MemcardSaveData {
 
   static FRAME_SIZE = FRAME_SIZE;
 
+  static TOTAL_SIZE = (NUM_BLOCKS + 1) * BLOCK_SIZE; // Total size of this file: header block + data blocks
+
   static DIRECTORY_FRAME_AVAILABLE_OFFSET = DIRECTORY_FRAME_AVAILABLE_OFFSET;
 
   static DIRECTORY_FRAME_NEXT_BLOCK_OFFSET = DIRECTORY_FRAME_NEXT_BLOCK_OFFSET;

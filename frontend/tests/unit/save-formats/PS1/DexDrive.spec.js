@@ -19,6 +19,9 @@ const DEXDRIVE_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME = `${DIR}/gran-turismo.26537
 const RAW_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME = [`${DIR}/gran-turismo.26537-BASCUS-94194GT.srm`, `${DIR}/gran-turismo.26537-BASCUS-94194RT.srm`];
 const OUTPUT_DEXDRIVE_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME = `${DIR}/gran-turismo.26537-output.gme`;
 
+const DEXDRIVE_EMPTY_HEADER_FILENAME = `${DIR}/digimon-world.21133.gme`;
+const RAW_EMPTY_HEADER_FILENAME = `${DIR}/digimon-world.21133-BASLUS-01032DMR0.srm`;
+
 const COMMENTS = [
   'I used to have a DexDrive but then I foolishly gave it away when I was purging old stuff. Now I have regret.',
   'I thought it was useless without a serial port, and that the included software was too old, but you can get a USB adaptor and memcardrex can talk to it.',
@@ -128,5 +131,20 @@ describe('PS1 - DexDrive save format', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[1].rawData, saveFilesArrayBuffers[1])).to.equal(true);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getArrayBuffer(), dexDriveArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a file containing an empty header (without the correct magic)', async () => {
+    const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_EMPTY_HEADER_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_EMPTY_HEADER_FILENAME);
+
+    const dexDriveSaveData = Ps1DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+
+    expect(dexDriveSaveData.getSaveFiles().length).to.equal(1);
+
+    expect(dexDriveSaveData.getSaveFiles()[0].startingBlock).to.equal(0);
+    expect(dexDriveSaveData.getSaveFiles()[0].filename).to.equal('BASLUS-01032DMR0');
+    expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
+    expect(dexDriveSaveData.getSaveFiles()[0].description).to.equal('Digi 1onFou');
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawArrayBuffer)).to.equal(true);
   });
 });
