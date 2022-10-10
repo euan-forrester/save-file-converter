@@ -95,7 +95,16 @@ export default class N64DexDriveSaveData {
 
     const dexDriveHeaderArrayBuffer = arrayBuffer.slice(0, HEADER_LENGTH);
 
-    Util.checkMagic(dexDriveHeaderArrayBuffer, 0, HEADER_MAGIC, MAGIC_ENCODING);
+    try {
+      Util.checkMagic(dexDriveHeaderArrayBuffer, 0, HEADER_MAGIC, MAGIC_ENCODING);
+    } catch (e) {
+      // For some files found on the Internet they just contain a completely blank header. Not sure what
+      // program makes them. But they're parseable by the rest of the code here even though they don't
+      // contain the correct magic
+      if (arrayBuffer.byteLength !== (HEADER_LENGTH + N64MempackSaveData.TOTAL_SIZE)) {
+        throw new Error('This does not appear to be a N64 DexDrive file');
+      }
+    }
 
     const comments = getComments(dexDriveHeaderArrayBuffer);
 

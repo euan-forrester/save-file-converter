@@ -45,6 +45,10 @@ const DEXDRIVE_SINGLE_PAGE_FILENAME = `${DIR}/ecw-hardcore-revolution.1000.n64`;
 const RAW_SINGLE_PAGE_FILENAME = `${DIR}/ecw-hardcore-revolution.1000.mpk`;
 const RAW_SINGLE_PAGE_NOTE_1_FILENAME = `${DIR}/ecw-hardcore-revolution.1000-1`;
 
+const DEXDRIVE_EMPTY_HEADER_FILENAME = `${DIR}/ecw-hardcore-revolution-empty-header.1000.n64`; // We're reusing the same data, just manually setting the header to be all blank, so the other two files are exactly the same
+const RAW_EMPTY_HEADER_FILENAME = RAW_SINGLE_PAGE_FILENAME;
+const RAW_EMPTY_HEADER_NOTE_1_FILENAME = RAW_SINGLE_PAGE_NOTE_1_FILENAME;
+
 describe('N64 - DexDrive save format', () => {
   before(() => {
     seedrandom('Happy day = when I realized collectathons were no longer a genre', { global: true }); // Overwrite Math.random() so that it's predictable
@@ -327,6 +331,28 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(1);
     expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('ECW');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('All Hidden Wrestlers and Cheats Unlocked');
+    expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NWIE');
+    expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('51');
+    expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal('E');
+    expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal('N');
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNoteArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a file containing an empty header (without the correct magic)', async () => {
+    const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_EMPTY_HEADER_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_EMPTY_HEADER_FILENAME);
+    const rawNoteArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_EMPTY_HEADER_NOTE_1_FILENAME);
+
+    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getMempack().getArrayBuffer(), rawArrayBuffer)).to.equal(true);
+
+    expect(dexDriveSaveData.getSaveFiles().length).to.equal(1);
+
+    expect(dexDriveSaveData.getSaveFiles()[0].startingPage).to.equal(5);
+    expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(1);
+    expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('ECW');
+    expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NWIE');
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('51');
     expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal('E');
