@@ -100,7 +100,7 @@ const DEFAULT_BGP_INDEX = 0;
 const DEFAULT_OBP0_INDEX = 0;
 const DEFAULT_OBP1_INDEX = 0;
 const DEFAULT_GRAPHICS_SETTINGS = 0x00000002;
-const DEFAULT_TIMER = 0n;
+const DEFAULT_TIMER = 0x02C445F9n; // 0n;
 
 const STORED_INFO_TYPE_ALL = 0;
 // const STORED_INFO_TYPE_SETTINGS_RAM = 1; // The emulator returns immediately after reading the SRAM data if the stored info type is one of these: https://github.com/lambertjamesd/gb64/blob/master/src/save.c#L588
@@ -211,10 +211,10 @@ export default class Gb64EmulatorSaveData {
 
     const rawArrayBuffer = uncompressedData.slice(UNCOMPRESSED_DATA_SRAM_OFFSET, UNCOMPRESSED_DATA_SRAM_OFFSET + sramLength);
 
-    return new Gb64EmulatorSaveData(flashCartArrayBuffer, rawArrayBuffer);
+    return new Gb64EmulatorSaveData(flashCartArrayBuffer, rawArrayBuffer, uncompressedData);
   }
 
-  static createFromRawData(rawArrayBuffer) {
+  static createFromRawData(rawArrayBuffer, uncompressedDataFromOtherSave) {
     const isGbc = false; // FIXME: Needs to come from the ROM
     const sramLength = rawArrayBuffer.byteLength; // FIXME: This needs to come from the ROM too
 
@@ -244,7 +244,7 @@ export default class Gb64EmulatorSaveData {
     console.log(`Calculated uncompressed data size of ${uncompressedDataSize}`);
 
     const resizedRawArrayBuffer = SaveFilesUtil.resizeRawSave(rawArrayBuffer, sramLength, UNCOMPRESSED_DATA_FILL_VALUE);
-    const uncompressedDataPadding = Util.getFilledArrayBuffer(uncompressedDataSize - sramLength, UNCOMPRESSED_DATA_FILL_VALUE);
+    const uncompressedDataPadding = uncompressedDataFromOtherSave.slice(sramLength); // Util.getFilledArrayBuffer(uncompressedDataSize - sramLength, UNCOMPRESSED_DATA_FILL_VALUE);
 
     const uncompressedData = Util.concatArrayBuffers([resizedRawArrayBuffer, uncompressedDataPadding]);
     const compressedData = pako.deflate(uncompressedData);
@@ -255,14 +255,14 @@ export default class Gb64EmulatorSaveData {
 
     const flashCartArrayBuffer = Util.concatArrayBuffers([headerArrayBuffer, compressedData, paddingArrayBuffer]);
 
-    return new Gb64EmulatorSaveData(flashCartArrayBuffer, rawArrayBuffer);
+    return new Gb64EmulatorSaveData(flashCartArrayBuffer, rawArrayBuffer, uncompressedData);
   }
 
-  static createWithNewSize(neon64EmulatorSaveData, newSize) {
-    const newRawSaveData = SaveFilesUtil.resizeRawSave(neon64EmulatorSaveData.getRawArrayBuffer(), newSize);
+  static createWithNewSize(gb64EmulatorSaveData, newSize) {
+    const newRawSaveData = SaveFilesUtil.resizeRawSave(gb64EmulatorSaveData.getRawArrayBuffer(), newSize);
 
     // Don't call createFromRawData() with the resized raw data, because we'll get an error saying Neon can only do 8kB saves. Bypass it instead.
-    return new Gb64EmulatorSaveData(neon64EmulatorSaveData.getFlashCartArrayBuffer(), newRawSaveData);
+    return new Gb64EmulatorSaveData(gb64EmulatorSaveData.getFlashCartArrayBuffer(), newRawSaveData, gb64EmulatorSaveData.getUncompressedData());
   }
 
   static getFlashCartFileExtension() {
@@ -281,9 +281,10 @@ export default class Gb64EmulatorSaveData {
     return 'gb';
   }
 
-  constructor(flashCartArrayBuffer, rawArrayBuffer) {
+  constructor(flashCartArrayBuffer, rawArrayBuffer, uncompressedDataArrayBuffer) {
     this.flashCartArrayBuffer = flashCartArrayBuffer;
     this.rawArrayBuffer = rawArrayBuffer;
+    this.uncompressedDataArrayBuffer = uncompressedDataArrayBuffer;
   }
 
   getRawArrayBuffer() {
@@ -292,5 +293,9 @@ export default class Gb64EmulatorSaveData {
 
   getFlashCartArrayBuffer() {
     return this.flashCartArrayBuffer;
+  }
+
+  getUncompressedDataArayBuffer() {
+    return this.uncompressedDataArrayBuffer;
   }
 }
