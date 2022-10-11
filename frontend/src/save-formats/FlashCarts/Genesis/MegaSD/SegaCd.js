@@ -43,14 +43,16 @@ export default class GenesisMegaSdSegaCdFlashCartSaveData {
     const rawRamCartSaveArrayBuffer = SegaCdUtil.resize(truncatedFlashCartRamCartSaveArrayBuffer, GenesisMegaSdSegaCdFlashCartSaveData.EMULATOR_RAM_CART_SIZE);
 
     return new GenesisMegaSdSegaCdFlashCartSaveData(
-      truncatedFlashCartInternalSaveBuffer,
-      truncatedFlashCartRamCartSaveArrayBuffer,
+      flashCartArrayBuffer,
       truncatedFlashCartInternalSaveBuffer,
       rawRamCartSaveArrayBuffer,
     );
   }
 
   static createFromRawData({ rawInternalSaveArrayBuffer = null, rawRamCartSaveArrayBuffer = null }) {
+    const textEncoder = new TextEncoder(MAGIC_ENCODING);
+    const magicArrayBuffer = Util.bufferToArrayBuffer(textEncoder.encode(MAGIC));
+
     let truncatedRawInternalSaveBuffer = SegaCdUtil.makeEmptySave(SegaCdUtil.INTERNAL_SAVE_SIZE);
     let truncatedRawRamCartSaveArrayBuffer = SegaCdUtil.makeEmptySave(GenesisMegaSdSegaCdFlashCartSaveData.EMULATOR_RAM_CART_SIZE);
     let flashCartRamCartSaveArrayBuffer = SegaCdUtil.makeEmptySave(GenesisMegaSdSegaCdFlashCartSaveData.FLASH_CART_RAM_CART_SIZE);
@@ -68,9 +70,10 @@ export default class GenesisMegaSdSegaCdFlashCartSaveData {
       flashCartRamCartSaveArrayBuffer = SegaCdUtil.resize(truncatedRawRamCartSaveArrayBuffer, GenesisMegaSdSegaCdFlashCartSaveData.FLASH_CART_RAM_CART_SIZE);
     }
 
+    const flashCartArrayBuffer = Util.concatArrayBuffers([magicArrayBuffer, truncatedRawInternalSaveBuffer, flashCartRamCartSaveArrayBuffer]);
+
     return new GenesisMegaSdSegaCdFlashCartSaveData(
-      truncatedRawInternalSaveBuffer,
-      flashCartRamCartSaveArrayBuffer,
+      flashCartArrayBuffer,
       truncatedRawInternalSaveBuffer,
       truncatedRawRamCartSaveArrayBuffer,
     );
@@ -80,8 +83,7 @@ export default class GenesisMegaSdSegaCdFlashCartSaveData {
     const newRawRamCartArrayBuffer = SegaCdUtil.resize(flashCartSaveData.rawRamCartSaveArrayBuffer, newSize);
 
     return new GenesisMegaSdSegaCdFlashCartSaveData(
-      flashCartSaveData.flashCartInternalSaveArrayBuffer,
-      flashCartSaveData.flashCartRamCartSaveArrayBuffer,
+      flashCartSaveData.flashCartArrayBuffer,
       flashCartSaveData.rawInternalSaveArrayBuffer,
       newRawRamCartArrayBuffer,
     );
@@ -124,9 +126,8 @@ export default class GenesisMegaSdSegaCdFlashCartSaveData {
     return GenesisMegaSdSegaCdFlashCartSaveData.FLASH_CART_RAM_CART_SIZE;
   }
 
-  constructor(flashCartInternalSaveArrayBuffer, flashCartRamCartSaveArrayBuffer, rawInternalSaveArrayBuffer, rawRamCartSaveArrayBuffer) {
-    this.flashCartInternalSaveArrayBuffer = flashCartInternalSaveArrayBuffer;
-    this.flashCartRamCartSaveArrayBuffer = flashCartRamCartSaveArrayBuffer;
+  constructor(flashCartArrayBuffer, rawInternalSaveArrayBuffer, rawRamCartSaveArrayBuffer) {
+    this.flashCartArrayBuffer = flashCartArrayBuffer;
     this.rawInternalSaveArrayBuffer = rawInternalSaveArrayBuffer;
     this.rawRamCartSaveArrayBuffer = rawRamCartSaveArrayBuffer;
   }
@@ -144,16 +145,7 @@ export default class GenesisMegaSdSegaCdFlashCartSaveData {
     }
   }
 
-  getFlashCartArrayBuffer(index = GenesisMegaSdSegaCdFlashCartSaveData.INTERNAL_MEMORY) {
-    switch (index) {
-      case GenesisMegaSdSegaCdFlashCartSaveData.INTERNAL_MEMORY:
-        return this.flashCartInternalSaveArrayBuffer;
-
-      case GenesisMegaSdSegaCdFlashCartSaveData.RAM_CART:
-        return this.flashCartRamCartSaveArrayBuffer;
-
-      default:
-        throw new Error(`Unknown index: ${index}`);
-    }
+  getFlashCartArrayBuffer() {
+    return this.flashCartArrayBuffer;
   }
 }
