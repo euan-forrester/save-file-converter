@@ -3,6 +3,11 @@
 // - Magic
 // - Internal memory
 // - RAM cart
+//
+// I don't have an example of a file that only has the internal memory, so I don't know if the file is truncated
+// (i.e. it's just magic + internal memory) or if it also includes an empty RAM cart section.
+//
+// So we're going to make this code able to parse a file that's truncated but only output files that have both sections, just to be safe.
 
 import SegaCdUtil from '../../../../util/SegaCd';
 import Util from '../../../../util/util';
@@ -26,12 +31,19 @@ export default class GenesisMegaSdSegaCdFlashCartSaveData {
   static createFromFlashCartData(flashCartArrayBuffer) {
     Util.checkMagic(flashCartArrayBuffer, MAGIC_OFFSET, MAGIC, MAGIC_ENCODING);
 
-    if (flashCartArrayBuffer.byteLength !== (INTERNAL_MEMORY_OFFSET + SegaCdUtil.INTERNAL_SAVE_SIZE + GenesisMegaSdSegaCdFlashCartSaveData.FLASH_CART_RAM_CART_SIZE)) {
+    const isShortVersion = (flashCartArrayBuffer.byteLength === (INTERNAL_MEMORY_OFFSET + SegaCdUtil.INTERNAL_SAVE_SIZE));
+    const isLongVersion = (flashCartArrayBuffer.byteLength === (INTERNAL_MEMORY_OFFSET + SegaCdUtil.INTERNAL_SAVE_SIZE + GenesisMegaSdSegaCdFlashCartSaveData.FLASH_CART_RAM_CART_SIZE));
+
+    if (!isShortVersion && !isLongVersion) {
       throw new Error('This file does not appear to be a Mega SD Sega CD save file');
     }
 
     const flashCartInternalSaveArrayBuffer = flashCartArrayBuffer.slice(INTERNAL_MEMORY_OFFSET, INTERNAL_MEMORY_OFFSET + SegaCdUtil.INTERNAL_SAVE_SIZE);
-    const flashCartRamCartSaveArrayBuffer = flashCartArrayBuffer.slice(RAM_CART_OFFSET, RAM_CART_OFFSET + GenesisMegaSdSegaCdFlashCartSaveData.FLASH_CART_RAM_CART_SIZE);
+
+    let flashCartRamCartSaveArrayBuffer = SegaCdUtil.makeEmptySave(GenesisMegaSdSegaCdFlashCartSaveData.FLASH_CART_RAM_CART_SIZE);
+    if (isLongVersion) {
+      flashCartRamCartSaveArrayBuffer = flashCartArrayBuffer.slice(RAM_CART_OFFSET, RAM_CART_OFFSET + GenesisMegaSdSegaCdFlashCartSaveData.FLASH_CART_RAM_CART_SIZE);
+    }
 
     const truncatedFlashCartInternalSaveBuffer = SegaCdUtil.truncateToActualSize(flashCartInternalSaveArrayBuffer);
 
