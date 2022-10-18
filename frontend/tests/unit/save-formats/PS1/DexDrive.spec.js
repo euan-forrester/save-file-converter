@@ -22,6 +22,9 @@ const OUTPUT_DEXDRIVE_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME = `${DIR}/gran-turism
 const DEXDRIVE_EMPTY_HEADER_FILENAME = `${DIR}/digimon-world.21133.gme`;
 const RAW_EMPTY_HEADER_FILENAME = `${DIR}/digimon-world.21133-BASLUS-01032DMR0.srm`;
 
+const DEXDRIVE_NO_HEADER_FILENAME = `${DIR}/tony-hawks-pro-skater-4.24197.gme`;
+const RAW_NO_HEADER_FILENAME = `${DIR}/tony-hawks-pro-skater-4.24197-BASLUS-01485PNMOG01.srm`;
+
 const COMMENTS = [
   'I used to have a DexDrive but then I foolishly gave it away when I was purging old stuff. Now I have regret.',
   'I thought it was useless without a serial port, and that the included software was too old, but you can get a USB adaptor and memcardrex can talk to it.',
@@ -145,6 +148,21 @@ describe('PS1 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].filename).to.equal('BASLUS-01032DMR0');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].description).to.equal('Digi 1onFou');
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a file containing no header (just a raw memory card image file)', async () => {
+    const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_NO_HEADER_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_NO_HEADER_FILENAME);
+
+    const dexDriveSaveData = Ps1DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+
+    expect(dexDriveSaveData.getSaveFiles().length).to.equal(1);
+
+    expect(dexDriveSaveData.getSaveFiles()[0].startingBlock).to.equal(0);
+    expect(dexDriveSaveData.getSaveFiles()[0].filename).to.equal('BASLUS-01485PNMOG01');
+    expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
+    expect(dexDriveSaveData.getSaveFiles()[0].description).to.equal('THPS4 CAREERー PHELIPE E RENATO');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawArrayBuffer)).to.equal(true);
   });
 });

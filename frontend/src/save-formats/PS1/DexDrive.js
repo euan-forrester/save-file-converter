@@ -119,15 +119,23 @@ export default class Ps1DexDriveSaveData {
 
     // Parse the DexDrive-specific header: magic and comments
 
-    const dexDriveHeaderArrayBuffer = arrayBuffer.slice(0, HEADER_LENGTH);
+    let dexDriveHeaderArrayBuffer = arrayBuffer.slice(0, HEADER_LENGTH);
+    let memcardArrayBuffer = arrayBuffer.slice(HEADER_LENGTH); // The remainder of the file is the actual contents of the memory card
 
     try {
       Util.checkMagic(dexDriveHeaderArrayBuffer, 0, HEADER_MAGIC, MAGIC_ENCODING);
     } catch (e) {
-      // For some files found on the Internet they just contain a completely blank header. Not sure what
-      // program makes them. But they're parseable by the rest of the code here even though they don't
-      // contain the correct magic
-      if (arrayBuffer.byteLength !== (HEADER_LENGTH + Ps1MemcardSaveData.TOTAL_SIZE)) {
+      if (arrayBuffer.byteLength === Ps1MemcardSaveData.TOTAL_SIZE) {
+        // Some files, found on gamefaqs primarily, are labeled as being dexdrive but are actually
+        // raw memcard images. This is likely due to gamefaqs' policy of only allowing "legitimate" saves
+        // and not those that could have come from an emulator.
+        dexDriveHeaderArrayBuffer = Util.getFilledArrayBuffer(HEADER_LENGTH, 0x00);
+        memcardArrayBuffer = arrayBuffer;
+      } else if (arrayBuffer.byteLength !== (HEADER_LENGTH + Ps1MemcardSaveData.TOTAL_SIZE)) {
+        // For some files found on the Internet they just contain a completely blank header. Not sure what
+        // program makes them. But they're parseable by the rest of the code here even though they don't
+        // contain the correct magic
+
         throw new Error('This does not appear to be a PS1 DexDrive file');
       }
     }
@@ -139,7 +147,6 @@ export default class Ps1DexDriveSaveData {
     const comments = getComments(dexDriveHeaderArrayBuffer);
 
     // Parse the rest of the file
-    const memcardArrayBuffer = arrayBuffer.slice(HEADER_LENGTH); // The remainder of the file is the actual contents of the memory card
 
     this.memoryCard = Ps1MemcardSaveData.createFromPs1MemcardData(memcardArrayBuffer);
 
