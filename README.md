@@ -93,6 +93,9 @@ Everything on this site is free and open source with no advertising. If you find
     - https://github.com/hrydgard/ppsspp/blob/master/Tools/SaveTool/decrypt.c This decrypts a savegame file
     - https://github.com/hrydgard/ppsspp/blob/81b5e080ff885e98b5761632158457ce3e5d1fb5/Core/HLE/sceKernelModule.cpp#L1251 The code before here decrypts the executable
     - https://github.com/euan-forrester/psp-encryption-webassembly Copy of the relevant code in PPSSPP, compiled into webassembly
+  - For Gran Turismo the game key is device-specific. Must be generated somehow from a device ID. So can't find it in the executable.
+    - So we still need a box to enter the game key instead of just ISO/eboot
+    - Maybe detect this ISO and warn the user?
 - NES/SNES Classic save game format
   - https://github.com/TeamShinkansen/Hakchi2-CE (tool used to write games onto the devices)
   - https://github.com/JanErikGunnar/ClassicEditionTools (scripts to convert raw saves to/from NES Classic format)
