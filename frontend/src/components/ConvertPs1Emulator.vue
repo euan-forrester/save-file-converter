@@ -111,6 +111,7 @@
 
 <script>
 import { saveAs } from 'file-saver';
+import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
@@ -184,6 +185,12 @@ export default {
         const saveFiles = event.map((f) => ({ filename: f.filename, rawData: f.arrayBuffer }));
 
         this.memcardSaveData = Ps1MemcardSaveData.createFromSaveFiles(saveFiles);
+
+        if (this.memcardSaveData.getSaveFiles().length > 0) {
+          this.outputFilename = `${Util.convertDescriptionToFilename(this.memcardSaveData.getSaveFiles()[0].description)}.mcr`;
+        } else {
+          this.outputFilename = 'output.mcr';
+        }
       } catch (e) {
         this.errorMessage = e.message;
         this.memcardSaveData = null;

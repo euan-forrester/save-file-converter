@@ -17,6 +17,22 @@ export default class Util {
     return `${Util.removeFilenameExtension(filename)}${stringToAppend}${path.extname(filename)}`;
   }
 
+  static convertDescriptionToFilename(description) {
+    // First, remove everything but A-Z, a-z, 0-9, dash, underscore, space
+    // Then check how many A-Z, a-z, 0-9 there are. If > 0 then done, if 0 then return 'output'
+    // This is to prevent a filename of just being a single space, or a dash, etc, if the
+    // original description is all japanese characters plus a space, for example
+
+    const descriptionStripped = description.replace(/[^0-9a-z_\- ]/gi, '');
+    const descriptionStrippedAlphanumeric = descriptionStripped.replace(/[^0-9a-z]/gi, '');
+
+    if (descriptionStrippedAlphanumeric.length > 0) {
+      return descriptionStripped;
+    }
+
+    return 'output';
+  }
+
   static bufferToArrayBuffer(b) {
     return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength); // https://stackoverflow.com/questions/8609289/convert-a-binary-nodejs-buffer-to-javascript-arraybuffer/31394257#31394257
   }
