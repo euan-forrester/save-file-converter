@@ -111,6 +111,7 @@
 
 <script>
 import { saveAs } from 'file-saver';
+import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
@@ -195,6 +196,12 @@ export default {
         }));
 
         this.mempackSaveData = N64MempackSaveData.createFromSaveFiles(saveFiles);
+
+        if (this.mempackSaveData.getSaveFiles().length > 0) {
+          this.outputFilename = `${Util.convertDescriptionToFilename(this.mempackSaveData.getSaveFiles()[0].noteName)}.mpk`;
+        } else {
+          this.outputFilename = 'output.mpk';
+        }
       } catch (e) {
         this.errorMessage = e.message;
         this.mempackSaveData = null;

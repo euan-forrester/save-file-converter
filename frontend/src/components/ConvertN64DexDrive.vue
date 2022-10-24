@@ -242,6 +242,12 @@ export default {
         }));
 
         this.dexDriveSaveData = N64DexDriveSaveData.createFromSaveFiles(saveFiles);
+
+        if (this.dexDriveSaveData.getSaveFiles().length > 0) {
+          this.outputFilename = `${Util.convertDescriptionToFilename(this.dexDriveSaveData.getSaveFiles()[0].noteName)}.n64`;
+        } else {
+          this.outputFilename = 'output.n64';
+        }
       } catch (e) {
         this.errorMessage = e.message;
         this.dexDriveSaveData = null;

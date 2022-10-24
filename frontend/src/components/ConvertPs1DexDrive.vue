@@ -234,6 +234,12 @@ export default {
         const saveFiles = event.map((f) => ({ filename: f.filename, rawData: f.arrayBuffer, comment: 'Created with savefileconverter.com' }));
 
         this.dexDriveSaveData = PS1DexDriveSaveData.createFromSaveFiles(saveFiles);
+
+        if (this.dexDriveSaveData.getSaveFiles().length > 0) {
+          this.outputFilename = `${Util.convertDescriptionToFilename(this.dexDriveSaveData.getSaveFiles()[0].description)}.gme`;
+        } else {
+          this.outputFilename = 'output.gme';
+        }
       } catch (e) {
         this.errorMessage = e.message;
         this.dexDriveSaveData = null;
