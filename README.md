@@ -149,10 +149,7 @@ Everything on this site is free and open source with no advertising. If you find
   - savesplitter tool here: https://krikzz.com/pub/support/mega-everdrive/pro-series/
 
 ## Cart reader notes
-
-- Sanni cart reader
-  - Nintendo 64: It endian swaps the save before writing it out (i.e. the save is usable in an emulator)
-  
+ 
 - Retrode2
   - Genesis: SRAM/FRAM saves are byte expanded by doubling: "HELLO" becomes "HHEELLLLOO" rather than " H E L L O" like in many emulators/flash carts
 
