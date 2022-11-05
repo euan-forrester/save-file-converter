@@ -119,7 +119,7 @@ export default class GenesisMegaSdSegaCdFlashCartSaveData {
   }
 
   static getRawFileExtension() {
-    return 'brm';
+    return 'SRM';
   }
 
   static requiresRomClass() {

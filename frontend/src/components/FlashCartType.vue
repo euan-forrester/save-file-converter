@@ -127,6 +127,7 @@ export default {
         GenesisMegaSD: [
           { value: null, text: 'Choose game type', disabled: true },
           { value: 'FlashCart-GenesisMegaSD', text: 'Genesis game' },
+          { value: 'FlashCart-SegaCDMegaSD', text: 'Sega CD game' },
           { value: 'FlashCart-SMSGenesisMegaSD', text: 'SMS game' },
           { value: 'FlashCart-32XGenesisMegaSD', text: '32X game' },
         ],

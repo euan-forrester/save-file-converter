@@ -23,7 +23,7 @@
               v-on:input="flashCartTypeChanged()"
               :disabled="false"
             />
-            <div v-if="this.isSegaCd">
+            <div v-if="this.isSegaCdWithTwoOutputFiles">
               <sega-cd-save-type-selector
                 :value="this.segaCdSaveType"
                 @change="changeSegaCdSaveType($event)"
@@ -55,24 +55,48 @@
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'">
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
+            <div v-if="this.isSegaCdWithOneOutputFile">
+              <sega-cd-save-type-selector
+                :value="this.segaCdSaveType"
+                @change="changeSegaCdSaveType($event)"
+              />
+            </div>
             <div v-if="this.displayOutputFileSize">
               <output-filesize v-model="outputFilesize" id="output-filesize" :platform="this.flashCartTypeClass.adjustOutputSizesPlatform()"/>
             </div>
           </div>
           <div v-else>
-            <input-file
-              @load="readEmulatorSaveData($event)"
-              :errorMessage="this.errorMessage"
-              placeholderText="Choose a file to convert"
-              :leaveRoomForHelpIcon="false"
-            />
+            <div v-if="this.isSegaCdWithOneOutputFile">
+              <input-file
+                @load="readEmulatorSaveData($event, 'rawInternalSaveArrayBuffer')"
+                :errorMessage="this.errorMessage"
+                placeholderText="Choose an internal memory save file to convert"
+                :leaveRoomForHelpIcon="false"
+                ref="inputFileSegaCdInternalMemory"
+              />
+              <input-file
+                @load="readEmulatorSaveData($event, 'rawRamCartSaveArrayBuffer')"
+                :errorMessage="this.errorMessage"
+                placeholderText="Choose a RAM cartridge save file to convert"
+                :leaveRoomForHelpIcon="false"
+                ref="inputFileSegaCdRamCart"
+              />
+            </div>
+            <div v-else>
+              <input-file
+                @load="readEmulatorSaveData($event)"
+                :errorMessage="this.errorMessage"
+                placeholderText="Choose a file to convert"
+                :leaveRoomForHelpIcon="false"
+              />
+            </div>
             <flash-cart-type
               v-model="flashCartType"
               id="flash-cart-type"
               v-on:input="flashCartTypeChanged()"
               :disabled="false"
             />
-            <div v-if="this.isSegaCd">
+            <div v-if="this.isSegaCdWithTwoOutputFiles">
               <sega-cd-save-type-selector
                 :value="this.segaCdSaveType"
                 @change="changeSegaCdSaveType($event)"
@@ -145,6 +169,7 @@ import GenesisMegaEverdriveProNesFlashCartSaveData from '../save-formats/FlashCa
 import GenesisMegaEverdriveProSmsFlashCartSaveData from '../save-formats/FlashCarts/Genesis/MegaEverdrivePro/SMS';
 import GenesisMegaEverdrivePro32xFlashCartSaveData from '../save-formats/FlashCarts/Genesis/MegaEverdrivePro/32X';
 import GenesisMegaSdGenesisFlashCartSaveData from '../save-formats/FlashCarts/Genesis/MegaSD/Genesis';
+import GenesisMegaSdSegaCdFlashCartSaveData from '../save-formats/FlashCarts/Genesis/MegaSD/SegaCd';
 import GenesisMegaSdSmsFlashCartSaveData from '../save-formats/FlashCarts/Genesis/MegaSD/SMS';
 import GenesisMegaSd32xFlashCartSaveData from '../save-formats/FlashCarts/Genesis/MegaSD/32X';
 import GbFlashCartSaveData from '../save-formats/FlashCarts/GB';
@@ -180,8 +205,14 @@ export default {
     SegaCdSaveTypeSelector,
   },
   computed: {
-    isSegaCd: {
+    isSegaCdWithTwoOutputFiles: {
       get() { return (this.flashCartType === 'FlashCart-SegaCDGenesisEverdrive'); },
+    },
+    isSegaCdWithOneOutputFile: {
+      get() { return (this.flashCartType === 'FlashCart-SegaCDMegaSD'); },
+    },
+    isSegaCd: {
+      get() { return (this.isSegaCdWithTwoOutputFiles || this.isSegaCdWithOneOutputFile); },
     },
     displayOutputFileSize: {
       get() {
@@ -277,6 +308,11 @@ export default {
             break;
           }
 
+          case 'FlashCart-SegaCDMegaSD': {
+            this.flashCartTypeClass = GenesisMegaSdSegaCdFlashCartSaveData;
+            break;
+          }
+
           case 'FlashCart-SMSGenesisMegaSD': {
             this.flashCartTypeClass = GenesisMegaSdSmsFlashCartSaveData;
             break;
@@ -349,21 +385,21 @@ export default {
       return inputFilename;
     },
     getFlashCartInput() {
-      if (this.isSegaCd) {
+      if (this.isSegaCdWithTwoOutputFiles) {
         return (this.segaCdSaveType === 'internal-memory') ? { flashCartInternalSaveArrayBuffer: this.inputArrayBuffer } : { flashCartRamCartSaveArrayBuffer: this.inputArrayBuffer };
       }
 
       return this.inputArrayBuffer;
     },
     getRawInput() {
-      if (this.isSegaCd) {
+      if (this.isSegaCdWithTwoOutputFiles) {
         return (this.segaCdSaveType === 'internal-memory') ? { rawInternalSaveArrayBuffer: this.inputArrayBuffer } : { rawRamCartSaveArrayBuffer: this.inputArrayBuffer };
       }
 
       return this.inputArrayBuffer;
     },
     getFlashCartFilename() {
-      if (this.isSegaCd) {
+      if (this.isSegaCdWithTwoOutputFiles) {
         return this.flashCartTypeClass.getFlashCartFileName(this.segaCdSaveType);
       }
 
@@ -450,7 +486,7 @@ export default {
       let needsResize = false;
 
       if (this.isSegaCd) {
-        needsResize = this.flashCartSaveData.getRawArrayBuffer(GenesisMegaEverdriveProSegaCdFlashCartSaveData.RAM_CART).byteLength !== this.outputFilesize;
+        needsResize = this.flashCartSaveData.getRawArrayBuffer(this.flashCartTypeClass.RAM_CART).byteLength !== this.outputFilesize;
       } else {
         needsResize = this.flashCartSaveData.getRawArrayBuffer().byteLength !== this.outputFilesize;
       }
