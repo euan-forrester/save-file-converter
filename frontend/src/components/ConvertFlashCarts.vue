@@ -193,6 +193,7 @@ export default {
       inputArrayBuffer: null,
       inputFilename: null,
       inputFileType: null,
+      inputSegaCd: {},
       segaCdSaveType: 'internal-memory',
     };
   },
@@ -243,6 +244,7 @@ export default {
       this.inputArrayBuffer = null;
       this.inputFilename = null;
       this.inputFileType = null;
+      this.inputSegaCd = {};
       this.segaCdSaveType = 'internal-memory';
     },
     getFileExtensionsString(romFormatClass) {
@@ -396,6 +398,10 @@ export default {
         return (this.segaCdSaveType === 'internal-memory') ? { rawInternalSaveArrayBuffer: this.inputArrayBuffer } : { rawRamCartSaveArrayBuffer: this.inputArrayBuffer };
       }
 
+      if (this.isSegaCdWithOneOutputFile) {
+        return this.inputSegaCd;
+      }
+
       return this.inputArrayBuffer;
     },
     getFlashCartFilename() {
@@ -471,14 +477,21 @@ export default {
       this.inputArrayBuffer = event.arrayBuffer;
       this.inputFilename = event.filename;
       this.segaCdSaveType = this.getDefaultSegaCdSaveType();
+      this.inputSegaCd = {};
 
       this.updateFlashCartSaveData();
     },
-    readEmulatorSaveData(event) {
+    readEmulatorSaveData(event, inputSegaCdType = null) {
       this.inputFileType = 'raw';
       this.inputArrayBuffer = event.arrayBuffer;
       this.inputFilename = event.filename;
       this.segaCdSaveType = this.getDefaultSegaCdSaveType();
+
+      if (inputSegaCdType !== null) {
+        this.inputSegaCd[inputSegaCdType] = event.arrayBuffer;
+      } else {
+        this.inputSegaCd = {};
+      }
 
       this.updateFlashCartSaveData();
     },

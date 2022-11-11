@@ -102,24 +102,11 @@ export default class GenesisMegaSdSegaCdFlashCartSaveData {
   }
 
   static getFlashCartFileExtension() {
-    return null; // See getFlashCartFileName()
-  }
-
-  static getFlashCartFileName(index = GenesisMegaSdSegaCdFlashCartSaveData.INTERNAL_MEMORY) {
-    switch (index) {
-      case GenesisMegaSdSegaCdFlashCartSaveData.INTERNAL_MEMORY:
-        return 'cd-bram.brm';
-
-      case GenesisMegaSdSegaCdFlashCartSaveData.RAM_CART:
-        return 'cd-cart.srm';
-
-      default:
-        throw new Error(`Unknown index: ${index}`);
-    }
+    return 'SRM';
   }
 
   static getRawFileExtension() {
-    return 'SRM';
+    return 'brm';
   }
 
   static requiresRomClass() {
