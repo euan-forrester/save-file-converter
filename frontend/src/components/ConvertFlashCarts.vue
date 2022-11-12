@@ -440,7 +440,7 @@ export default {
       return this.flashCartSaveData.getRawArrayBuffer().byteLength;
     },
     getDefaultSegaCdSaveType() {
-      if (this.isSegaCd) {
+      if (this.isSegaCdWithTwoOutputFiles) {
         if ((this.inputArrayBuffer !== null) && (this.inputArrayBuffer.byteLength > SegaCdUtil.INTERNAL_SAVE_SIZE)) {
           return 'ram-cart';
         }
