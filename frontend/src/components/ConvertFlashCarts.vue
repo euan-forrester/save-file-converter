@@ -88,6 +88,7 @@
                 :errorMessage="this.errorMessage"
                 placeholderText="Choose a file to convert"
                 :leaveRoomForHelpIcon="false"
+                ref="inputFileEmulator"
               />
             </div>
             <flash-cart-type
@@ -185,6 +186,7 @@ export default {
       flashCartSaveData: null,
       romData: null,
       flashCartType: null,
+      flashCartTypePrevious: null,
       flashCartTypeClass: null,
       errorMessage: null,
       outputFilename: null,
@@ -207,13 +209,13 @@ export default {
   },
   computed: {
     isSegaCdWithTwoOutputFiles: {
-      get() { return (this.flashCartType === 'FlashCart-SegaCDGenesisEverdrive'); },
+      get() { return this.flashCartTypeIsSegaCdWithTwoOutputFiles(this.flashCartType); },
     },
     isSegaCdWithOneOutputFile: {
-      get() { return (this.flashCartType === 'FlashCart-SegaCDMegaSD'); },
+      get() { return this.flashCartTypeIsSegaCdWithOneOutputFile(this.flashCartType); },
     },
     isSegaCd: {
-      get() { return (this.isSegaCdWithTwoOutputFiles || this.isSegaCdWithOneOutputFile); },
+      get() { return this.flashCartTypeIsSegaCd(this.flashCartType); },
     },
     displayOutputFileSize: {
       get() {
@@ -232,11 +234,21 @@ export default {
     },
   },
   methods: {
+    flashCartTypeIsSegaCdWithTwoOutputFiles(flashCartType) {
+      return (flashCartType === 'FlashCart-SegaCDGenesisEverdrive');
+    },
+    flashCartTypeIsSegaCdWithOneOutputFile(flashCartType) {
+      return (flashCartType === 'FlashCart-SegaCDMegaSD');
+    },
+    flashCartTypeIsSegaCd(flashCartType) {
+      return (this.flashCartTypeIsSegaCdWithTwoOutputFiles(flashCartType) || this.flashCartTypeIsSegaCdWithOneOutputFile(flashCartType));
+    },
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
       this.flastCartSaveData = null;
       this.romData = null;
       this.flashCartType = null;
+      this.flashCartTypePrevious = null;
       this.flashCartTypeClass = null;
       this.errorMessage = null;
       this.outputFilename = null;
@@ -358,6 +370,36 @@ export default {
       } else {
         this.flashCartTypeClass = null;
       }
+
+      // We use different input boxes in the UI depending on whether there are 1 or 2 raw files to read,
+      // and so we want to wipe out any input file info that may be lurking internally when we switch to showing a different input box
+      // because it's not clear which box we would assign that to
+      //
+      // Additionally, there's a browser optimization/bug where when we swap out a different file input that's
+      // in the same location as a previous one, then the contents of the file box in the DOM carry over to the new box
+      // even though it's a different element. So, we call reset() here
+
+      const currentlySegaCd = this.isSegaCd;
+      const previouslySegaCd = this.flashCartTypeIsSegaCd(this.flashCartTypePrevious);
+
+      if ((currentlySegaCd !== previouslySegaCd) && (this.conversionDirection !== 'convertToEmulator')) {
+        this.inputFileType = null;
+        this.inputArrayBuffer = null;
+        this.inputFilename = null;
+        this.inputSegaCd = {};
+        // The refs become undefined when the components are removed using a v-if
+        if (this.$refs.inputFileSegaCdInternalMemory) {
+          this.$refs.inputFileSegaCdInternalMemory.reset();
+        }
+        if (this.$refs.inputFileSegaCdRamCart) {
+          this.$refs.inputFileSegaCdRamCart.reset();
+        }
+        if (this.$refs.inputFileEmulator) {
+          this.$refs.inputFileEmulator.reset();
+        }
+      }
+
+      this.flashCartTypePrevious = this.flashCartType;
 
       this.segaCdSaveType = this.getDefaultSegaCdSaveType();
       this.updateFlashCartSaveData();
