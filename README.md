@@ -152,6 +152,8 @@ Everything on this site is free and open source with no advertising. If you find
  
 - Retrode2
   - Genesis: SRAM/FRAM saves are byte expanded by doubling: "HELLO" becomes "HHEELLLLOO" rather than " H E L L O" like in many emulators/flash carts
+- Retroblaster
+  - Same as Retrode2
 
 ## GBA save file size difficulty
 - https://zork.net/~st/jottings/GBA_saves.html
