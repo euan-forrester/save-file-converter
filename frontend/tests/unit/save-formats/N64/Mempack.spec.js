@@ -13,8 +13,14 @@ const RAW_TWO_FILES_NOTE_1_FILENAME = `${DIR}/tony-hawks-pro-skater-2.1077-1`;
 const RAW_TWO_FILES_NOTE_2_FILENAME = `${DIR}/tony-hawks-pro-skater-2.1077-2`;
 
 describe('N64 - Mempack save format', () => {
+  let randomNumberGenerator = null;
+
   before(() => {
-    seedrandom('Zelda 2D > Zelda 3D', { global: true }); // Overwrite Math.random() so that it's predictable
+    // Replace Math.random() so that the results are predictable
+    // We can't just override the global Math.random() because these tests run concurrently with tests of the
+    // N64 dexdrive format, which also depends on random numbers. When they execute concurrently, re-seeding
+    // causes unpredictable results
+    randomNumberGenerator = seedrandom('Zelda 2D > Zelda 3D');
   });
 
   it('should create a file containing a single save that is 121 pages', async () => {
@@ -28,7 +34,7 @@ describe('N64 - Mempack save format', () => {
       rawData: rawNoteArrayBuffer,
     }];
 
-    const mempackSaveData = N64MempackSaveData.createFromSaveFiles(saveFiles);
+    const mempackSaveData = N64MempackSaveData.createFromSaveFiles(saveFiles, randomNumberGenerator);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(mempackSaveData.getArrayBuffer(), rawArrayBuffer)).to.equal(true);
 
@@ -62,7 +68,7 @@ describe('N64 - Mempack save format', () => {
       rawData: rawNote2ArrayBuffer,
     }];
 
-    const mempackSaveData = N64MempackSaveData.createFromSaveFiles(saveFiles);
+    const mempackSaveData = N64MempackSaveData.createFromSaveFiles(saveFiles, randomNumberGenerator);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(mempackSaveData.getArrayBuffer(), rawArrayBuffer)).to.equal(true);
 

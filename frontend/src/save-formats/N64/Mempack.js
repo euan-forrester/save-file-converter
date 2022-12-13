@@ -232,27 +232,27 @@ function checkIdArea(arrayBuffer) {
   }
 }
 
-function randomByte() {
-  const val = 0 | Math.random() * 256;
-  console.log(`Random byte: ${val}`);
-  return val;
+function randomByte(randomNumberGenerator = null) {
+  const rng = (randomNumberGenerator !== null) ? randomNumberGenerator : Math.random;
+
+  return 0 | rng() * 256;
 }
 
 // Based on https://github.com/bryc/mempak/blob/master/js/state.js#L13
-function createIdAreaPage() {
+function createIdAreaPage(randomNumberGenerator = null) {
   // This page is 4 copies of the same block at different offsets
 
   const checksumBlock = new ArrayBuffer(ID_AREA_BLOCK_SIZE);
   const checksumBlockDataView = new DataView(checksumBlock);
 
-  checksumBlockDataView.setUint8(1, randomByte() & 0x3F);
-  checksumBlockDataView.setUint8(5, randomByte() & 0x7);
-  checksumBlockDataView.setUint8(6, randomByte());
-  checksumBlockDataView.setUint8(7, randomByte());
-  checksumBlockDataView.setUint8(8, randomByte() & 0xF);
-  checksumBlockDataView.setUint8(9, randomByte());
-  checksumBlockDataView.setUint8(10, randomByte());
-  checksumBlockDataView.setUint8(11, randomByte());
+  checksumBlockDataView.setUint8(1, randomByte(randomNumberGenerator) & 0x3F);
+  checksumBlockDataView.setUint8(5, randomByte(randomNumberGenerator) & 0x7);
+  checksumBlockDataView.setUint8(6, randomByte(randomNumberGenerator));
+  checksumBlockDataView.setUint8(7, randomByte(randomNumberGenerator));
+  checksumBlockDataView.setUint8(8, randomByte(randomNumberGenerator) & 0xF);
+  checksumBlockDataView.setUint8(9, randomByte(randomNumberGenerator));
+  checksumBlockDataView.setUint8(10, randomByte(randomNumberGenerator));
+  checksumBlockDataView.setUint8(11, randomByte(randomNumberGenerator));
   checksumBlockDataView.setUint8(ID_AREA_DEVICE_OFFSET, DEVICE_CONTROLLER_PAK);
   checksumBlockDataView.setUint8(ID_AREA_BANK_SIZE_OFFSET, BANK_SIZE);
 
@@ -556,7 +556,7 @@ export default class N64MempackSaveData {
     return new N64MempackSaveData(mempackArrayBuffer);
   }
 
-  static createFromSaveFiles(saveFiles) {
+  static createFromSaveFiles(saveFiles, randomNumberGenerator = null) {
     // Check to make sure that there's not too many save files, or too much data, or save files the wrong length
 
     if (saveFiles.length > NUM_NOTES) {
@@ -581,7 +581,7 @@ export default class N64MempackSaveData {
 
     // Now make our header pages
 
-    const idAreaPage = createIdAreaPage();
+    const idAreaPage = createIdAreaPage(randomNumberGenerator);
     const { inodeTablePage, startingPages } = createInodeTablePage(saveFiles);
 
     const saveFilesWithStartingPage = saveFiles.map((x, i) => ({ ...x, startingPage: startingPages[i] }));
