@@ -121,7 +121,7 @@ export default class N64DexDriveSaveData {
 
     // Add in the comments we found in the header
     this.saveFiles = mempack.getSaveFiles().map((x) => ({ ...x, comment: comments[x.noteIndex] }));
-    this.mempack = mempack;
+    this.mempack = N64MempackSaveData.createFromSaveFiles(this.saveFiles); // Re-create our memory pack image from scratch because many dexdrive files found in the wild are seen as corrupt when loaded in game
   }
 
   getSaveFiles() {

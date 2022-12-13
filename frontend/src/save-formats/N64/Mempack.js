@@ -233,7 +233,9 @@ function checkIdArea(arrayBuffer) {
 }
 
 function randomByte() {
-  return 0 | Math.random() * 256;
+  const val = 0 | Math.random() * 256;
+  console.log(`Random byte: ${val}`);
+  return val;
 }
 
 // Based on https://github.com/bryc/mempak/blob/master/js/state.js#L13

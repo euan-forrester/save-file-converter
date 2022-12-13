@@ -53,9 +53,24 @@ const DEXDRIVE_NO_HEADER_FILENAME = `${DIR}/ecw-hardcore-revolution-no-header.10
 const RAW_NO_HEADER_FILENAME = RAW_SINGLE_PAGE_FILENAME;
 const RAW_NO_HEADER_NOTE_1_FILENAME = RAW_SINGLE_PAGE_NOTE_1_FILENAME;
 
+const DEXDRIVE_CORRUPTED_FILENAME = `${DIR}/Ready 2 Rumble Boxing (U) [!].n64`;
+const RAW_FIXED_FILENAME = `${DIR}/Ready 2 Rumble Boxing (U) [!]-fixed.mpk`;
+const RAW_FIXED_NOTE_1_FILENAME = `${DIR}/Ready 2 Rumble Boxing (U) [!]-fixed-1`;
+const RAW_FIXED_NOTE_2_FILENAME = `${DIR}/Ready 2 Rumble Boxing (U) [!]-fixed-2`;
+
 describe('N64 - DexDrive save format', () => {
-  before(() => {
-    seedrandom('Happy day = when I realized collectathons were no longer a genre', { global: true }); // Overwrite Math.random() so that it's predictable
+  beforeEach(() => {
+    // Overwrite Math.random() so that it's predictable.
+    //
+    // For some reason making the input text longer made tests unpredictable between runs
+    //
+    // Tests 10 and on get a different sequence of numbers from tests 1-9. Don't know why.
+    //
+    // Having a longer input text sequence here made tests 10+ get a different sequence every run,
+    // even though it was consistent for each test (test 10 got the same sequence as test 11, etc)
+    // Making the input text here shorter, or removing the N64 mempack tests (which also seed the RNG)
+    // at least makes the sequence the same between runs
+    seedrandom('hello', { global: true });
   });
 
   it('should convert a file containing a single save that is 121 pages', async () => {
@@ -384,5 +399,40 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal('E');
     expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNoteArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a file containing corrupted controller pak data to one that is not corrupted', async () => {
+    const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_CORRUPTED_FILENAME);
+    // const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_FIXED_FILENAME);
+    const rawNote1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_FIXED_NOTE_1_FILENAME);
+    const rawNote2ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_FIXED_NOTE_2_FILENAME);
+
+    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+
+    // expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getMempack().getArrayBuffer(), rawArrayBuffer)).to.equal(true);
+
+    ArrayBufferUtil.writeArrayBuffer(RAW_FIXED_FILENAME, dexDriveSaveData.getMempack().getArrayBuffer());
+
+    expect(dexDriveSaveData.getSaveFiles().length).to.equal(2);
+
+    expect(dexDriveSaveData.getSaveFiles()[0].startingPage).to.equal(5);
+    expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(9);
+    expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('READY2RUMBLE');
+    expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
+    expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NRDP');
+    expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('5D');
+    expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal('P');
+    expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal('N');
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNote1ArrayBuffer)).to.equal(true);
+
+    expect(dexDriveSaveData.getSaveFiles()[1].startingPage).to.equal(14);
+    expect(dexDriveSaveData.getSaveFiles()[1].pageNumbers.length).to.equal(9);
+    expect(dexDriveSaveData.getSaveFiles()[1].noteName).to.equal('READY2RUMBLE');
+    expect(dexDriveSaveData.getSaveFiles()[1].comment).to.equal('');
+    expect(dexDriveSaveData.getSaveFiles()[1].gameSerialCode).to.equal('NRDP');
+    expect(dexDriveSaveData.getSaveFiles()[1].publisherCode).to.equal('5D');
+    expect(dexDriveSaveData.getSaveFiles()[1].region).to.equal('P');
+    expect(dexDriveSaveData.getSaveFiles()[1].media).to.equal('N');
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[1].rawData, rawNote2ArrayBuffer)).to.equal(true);
   });
 });
