@@ -146,7 +146,7 @@ export default {
   methods: {
     getFileListNames() {
       if ((this.mempackSaveData !== null) && (this.mempackSaveData.getSaveFiles() !== null)) {
-        return this.mempackSaveData.getSaveFiles().map((x) => ({ displayText: N64MempackSaveData.isCartSave(x) ? `Cartridge save: ${x.noteName}` : x.noteName }));
+        return this.mempackSaveData.getSaveFiles().map((x) => ({ displayText: N64MempackSaveData.isCartSave(x) ? `Cartridge save: ${x.noteName}` : `${x.noteName} (${x.regionName})` }));
       }
 
       return [];
