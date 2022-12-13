@@ -53,9 +53,20 @@ const DEXDRIVE_NO_HEADER_FILENAME = `${DIR}/ecw-hardcore-revolution-no-header.10
 const RAW_NO_HEADER_FILENAME = RAW_SINGLE_PAGE_FILENAME;
 const RAW_NO_HEADER_NOTE_1_FILENAME = RAW_SINGLE_PAGE_NOTE_1_FILENAME;
 
+const DEXDRIVE_CORRUPTED_FILENAME = `${DIR}/Ready 2 Rumble Boxing (U) [!].n64`;
+const RAW_FIXED_FILENAME = `${DIR}/Ready 2 Rumble Boxing (U) [!]-fixed.mpk`;
+const RAW_FIXED_NOTE_1_FILENAME = `${DIR}/Ready 2 Rumble Boxing (U) [!]-fixed-1`;
+const RAW_FIXED_NOTE_2_FILENAME = `${DIR}/Ready 2 Rumble Boxing (U) [!]-fixed-2`;
+
 describe('N64 - DexDrive save format', () => {
-  before(() => {
-    seedrandom('Happy day = when I realized collectathons were no longer a genre', { global: true }); // Overwrite Math.random() so that it's predictable
+  let randomNumberGenerator = null;
+
+  beforeEach(() => {
+    // Replace Math.random() so that the results are predictable
+    // We can't just override the global Math.random() because these tests run concurrently with tests of the
+    // N64 mempack format, which also depends on random numbers. When they execute concurrently, re-seeding
+    // causes unpredictable results
+    randomNumberGenerator = seedrandom('Happy day = when I realized collectathons were no longer a genre');
   });
 
   it('should convert a file containing a single save that is 121 pages', async () => {
@@ -63,7 +74,7 @@ describe('N64 - DexDrive save format', () => {
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_ONE_FILE_FILENAME);
     const rawNoteArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_ONE_FILE_NOTE_FILENAME);
 
-    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer, randomNumberGenerator);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getMempack().getArrayBuffer(), rawArrayBuffer)).to.equal(true);
 
@@ -85,7 +96,7 @@ describe('N64 - DexDrive save format', () => {
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_COMMENT_FILENAME);
     const rawNoteArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_COMMENT_NOTE_FILENAME);
 
-    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer, randomNumberGenerator);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getMempack().getArrayBuffer(), rawArrayBuffer)).to.equal(true);
 
@@ -110,7 +121,7 @@ describe('N64 - DexDrive save format', () => {
     const rawNote1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_TWO_FILES_NOTE_1_FILENAME);
     const rawNote2ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_TWO_FILES_NOTE_2_FILENAME);
 
-    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer, randomNumberGenerator);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getMempack().getArrayBuffer(), rawArrayBuffer)).to.equal(true);
 
@@ -157,7 +168,7 @@ describe('N64 - DexDrive save format', () => {
       rawData: rawNote2ArrayBuffer,
     }];
 
-    const dexDriveSaveData = N64DexDriveSaveData.createFromSaveFiles(saveFiles);
+    const dexDriveSaveData = N64DexDriveSaveData.createFromSaveFiles(saveFiles, randomNumberGenerator);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getArrayBuffer(), dexDriveArrayBuffer)).to.equal(true);
 
@@ -189,7 +200,7 @@ describe('N64 - DexDrive save format', () => {
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_05KB_EEP_FILENAME);
     const rawNoteArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_05KB_EEP_NOTE_FILENAME);
 
-    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer, randomNumberGenerator);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getMempack().getArrayBuffer(), rawArrayBuffer)).to.equal(true);
 
@@ -212,7 +223,7 @@ describe('N64 - DexDrive save format', () => {
     const rawNote1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_05KB_EEP_BLACKBAG_NOTE_1_FILENAME);
     const rawNote2ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_05KB_EEP_BLACKBAG_NOTE_2_FILENAME);
 
-    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer, randomNumberGenerator);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getMempack().getArrayBuffer(), rawArrayBuffer)).to.equal(true);
 
@@ -244,7 +255,7 @@ describe('N64 - DexDrive save format', () => {
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_2KB_EEP_FILENAME);
     const rawNoteArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_2KB_EEP_NOTE_FILENAME);
 
-    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer, randomNumberGenerator);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getMempack().getArrayBuffer(), rawArrayBuffer)).to.equal(true);
 
@@ -273,7 +284,7 @@ describe('N64 - DexDrive save format', () => {
     const rawNote3ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_FOUR_FILES_NOTE_3_FILENAME);
     const rawNote4ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_FOUR_FILES_NOTE_4_FILENAME);
 
-    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer, randomNumberGenerator);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getMempack().getArrayBuffer(), rawArrayBuffer)).to.equal(true);
 
@@ -325,7 +336,7 @@ describe('N64 - DexDrive save format', () => {
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_SINGLE_PAGE_FILENAME);
     const rawNoteArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_SINGLE_PAGE_NOTE_1_FILENAME);
 
-    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer, randomNumberGenerator);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getMempack().getArrayBuffer(), rawArrayBuffer)).to.equal(true);
 
@@ -347,7 +358,7 @@ describe('N64 - DexDrive save format', () => {
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_EMPTY_HEADER_FILENAME);
     const rawNoteArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_EMPTY_HEADER_NOTE_1_FILENAME);
 
-    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer, randomNumberGenerator);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getMempack().getArrayBuffer(), rawArrayBuffer)).to.equal(true);
 
@@ -369,7 +380,7 @@ describe('N64 - DexDrive save format', () => {
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_NO_HEADER_FILENAME);
     const rawNoteArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_NO_HEADER_NOTE_1_FILENAME);
 
-    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer);
+    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer, randomNumberGenerator);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getMempack().getArrayBuffer(), rawArrayBuffer)).to.equal(true);
 
@@ -384,5 +395,38 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal('E');
     expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNoteArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a file containing corrupted controller pak data to one that is not corrupted', async () => {
+    const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_CORRUPTED_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_FIXED_FILENAME);
+    const rawNote1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_FIXED_NOTE_1_FILENAME);
+    const rawNote2ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_FIXED_NOTE_2_FILENAME);
+
+    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer, randomNumberGenerator);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getMempack().getArrayBuffer(), rawArrayBuffer)).to.equal(true);
+
+    expect(dexDriveSaveData.getSaveFiles().length).to.equal(2);
+
+    expect(dexDriveSaveData.getSaveFiles()[0].startingPage).to.equal(5);
+    expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(9);
+    expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('READY2RUMBLE');
+    expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
+    expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NRDP');
+    expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('5D');
+    expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal('P');
+    expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal('N');
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNote1ArrayBuffer)).to.equal(true);
+
+    expect(dexDriveSaveData.getSaveFiles()[1].startingPage).to.equal(14);
+    expect(dexDriveSaveData.getSaveFiles()[1].pageNumbers.length).to.equal(9);
+    expect(dexDriveSaveData.getSaveFiles()[1].noteName).to.equal('READY2RUMBLE');
+    expect(dexDriveSaveData.getSaveFiles()[1].comment).to.equal('');
+    expect(dexDriveSaveData.getSaveFiles()[1].gameSerialCode).to.equal('NRDP');
+    expect(dexDriveSaveData.getSaveFiles()[1].publisherCode).to.equal('5D');
+    expect(dexDriveSaveData.getSaveFiles()[1].region).to.equal('P');
+    expect(dexDriveSaveData.getSaveFiles()[1].media).to.equal('N');
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[1].rawData, rawNote2ArrayBuffer)).to.equal(true);
   });
 });

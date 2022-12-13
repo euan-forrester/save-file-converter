@@ -43,14 +43,14 @@ function getComments(headerArrayBuffer) {
 }
 
 export default class N64DexDriveSaveData {
-  static createFromDexDriveData(dexDriveArrayBuffer) {
-    return new N64DexDriveSaveData(dexDriveArrayBuffer);
+  static createFromDexDriveData(dexDriveArrayBuffer, randomNumberGenerator = null) {
+    return new N64DexDriveSaveData(dexDriveArrayBuffer, randomNumberGenerator);
   }
 
-  static createFromSaveFiles(saveFiles) {
+  static createFromSaveFiles(saveFiles, randomNumberGenerator = null) {
     // The DexDrive image is the DexDrive header then the regular mempack data
 
-    const mempackSaveData = N64MempackSaveData.createFromSaveFiles(saveFiles);
+    const mempackSaveData = N64MempackSaveData.createFromSaveFiles(saveFiles, randomNumberGenerator);
 
     const headerArrayBuffer = new ArrayBuffer(HEADER_LENGTH);
     const headerArray = new Uint8Array(headerArrayBuffer);
@@ -84,11 +84,11 @@ export default class N64DexDriveSaveData {
 
     const finalArrayBuffer = Util.concatArrayBuffers([headerArrayBuffer, mempackSaveData.getArrayBuffer()]);
 
-    return N64DexDriveSaveData.createFromDexDriveData(finalArrayBuffer);
+    return N64DexDriveSaveData.createFromDexDriveData(finalArrayBuffer, randomNumberGenerator);
   }
 
   // This constructor creates a new object from a binary representation of a DexDrive save data file
-  constructor(arrayBuffer) {
+  constructor(arrayBuffer, randomNumberGenerator = null) {
     this.arrayBuffer = arrayBuffer;
 
     // Parse the DexDrive-specific header: magic and comments
@@ -121,7 +121,7 @@ export default class N64DexDriveSaveData {
 
     // Add in the comments we found in the header
     this.saveFiles = mempack.getSaveFiles().map((x) => ({ ...x, comment: comments[x.noteIndex] }));
-    this.mempack = mempack;
+    this.mempack = N64MempackSaveData.createFromSaveFiles(this.saveFiles, randomNumberGenerator); // Re-create our memory pack image from scratch because many dexdrive files found in the wild are seen as corrupt when loaded in game
   }
 
   getSaveFiles() {
