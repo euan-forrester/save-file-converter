@@ -3,7 +3,7 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 import GenesisMegaaSdSmsFlashCartSaveData from '@/save-formats/FlashCarts/Genesis/MegaSD/SMS';
 
-const DIR = './tests/unit/save-formats/data/flashcarts/genesis';
+const DIR = './tests/data/save-formats/flashcarts/genesis';
 
 const MEGA_SD_FILENAME = `${DIR}/megasd/Phantasy Star (USA, Europe) (Rev 1).SRM`;
 const RAW_FILENAME = `${DIR}/megasd/Phantasy Star (USA, Europe) (Rev 1)-raw.sav`;

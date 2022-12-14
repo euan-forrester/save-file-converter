@@ -11,7 +11,7 @@ const TEST_RETAIL_ISOS = config.get().testPspRetailIsos; // They're quite large 
 
 const TIMEOUT_MS = 40000; // Need to load in some large files
 
-const DIR = './tests/unit/rom-formats/data/psp';
+const DIR = './tests/data/rom-formats/psp';
 
 const CASTLEVANIA_ISO_FILENAME = `${DIR}/retail/Castlevania - Dracula X Chronicles.ISO`;
 const CASTLEVANIA_EXECUTABLE_FILENAME = `${DIR}/retail/Castlevania - Dracula X Chronicles - EBOOT.BIN`;

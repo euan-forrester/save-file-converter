@@ -3,7 +3,7 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 import GenesisMegaEverdrivePro32xFlashCartSaveData from '@/save-formats/FlashCarts/Genesis/MegaEverdrivePro/32X';
 
-const DIR = './tests/unit/save-formats/data/flashcarts/genesis/megaeverdrivepro';
+const DIR = './tests/data/save-formats/flashcarts/genesis/megaeverdrivepro';
 
 const MEGA_EVERDRIVE_PRO_SRAM_FILENAME = `${DIR}/36 Great Holes Starring Fred Couples (Japan, USA).srm`;
 const MEGA_EVERDRIVE_PRO_FRAM_FILENAME = `${DIR}/Knuckles' Chaotix (Japan, USA) (En).srm`;

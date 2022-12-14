@@ -3,7 +3,7 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 import GbFlashCartSaveData from '@/save-formats/FlashCarts/GB';
 
-const DIR = './tests/unit/save-formats/data/flashcarts/gb';
+const DIR = './tests/data/save-formats/flashcarts/gb';
 
 const GB_FILENAME = `${DIR}/Final Fantasy Legend II.srm`;
 

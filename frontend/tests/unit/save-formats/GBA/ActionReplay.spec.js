@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import ActionReplaySaveData from '@/save-formats/GBA/ActionReplay';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/gba/action-replay';
+const DIR = './tests/data/save-formats/gba/action-replay';
 
 const ACTIONREPLAY_FILENAME = `${DIR}/the-legend-of-zelda-the-minish-cap.11439.xps`;
 const RAW_FILENAME = `${DIR}/the-legend-of-zelda-the-minish-cap.11439.srm`;

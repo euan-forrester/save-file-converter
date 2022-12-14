@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import Neon64EmulatorSaveData from '@/save-formats/FlashCarts/N64/Neon64Emulator';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/flashcarts/n64/neon64emulator';
+const DIR = './tests/data/save-formats/flashcarts/n64/neon64emulator';
 
 const RAW_ZELDA_FILENAME = `${DIR}/Zelda II - The Adventure of Link (USA)-to-raw.sav`;
 const NEON64_ZELDA_FILENAME = `${DIR}/Zelda II - The Adventure of Link (USA)-neon.srm`;

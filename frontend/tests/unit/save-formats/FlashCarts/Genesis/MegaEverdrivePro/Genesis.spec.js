@@ -3,7 +3,7 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 import GenesisMegaEverdriveProGenesisFlashCartSaveData from '@/save-formats/FlashCarts/Genesis/MegaEverdrivePro/Genesis';
 
-const DIR = './tests/unit/save-formats/data/flashcarts/genesis/megaeverdrivepro';
+const DIR = './tests/data/save-formats/flashcarts/genesis/megaeverdrivepro';
 
 const MEGA_EVERDRIVE_PRO_SRAM_FILENAME = `${DIR}/Phantasy Star II (USA, Europe) (Rev A).srm`;
 const MEGA_EVERDRIVE_PRO_EEPROM_FILENAME = `${DIR}/Wonder Boy in Monster World (USA, Europe).srm`;

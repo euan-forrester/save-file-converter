@@ -3,7 +3,7 @@ import ConvertFromN64 from '@/save-formats/Wii/ConvertFromN64';
 
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/wii/n64';
+const DIR = './tests/data/save-formats/wii/n64';
 
 // One save of each type from here: http://micro-64.com/database/gamesave.shtml
 

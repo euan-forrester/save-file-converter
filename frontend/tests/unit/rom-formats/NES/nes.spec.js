@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import NesRom from '@/rom-formats/nes';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/rom-formats/data/nes';
+const DIR = './tests/data/rom-formats/nes';
 
 const INES_FILENAME = `${DIR}/Zelda II - header.nes`; // Not a real ROM file (!), just the parts in the header that we read
 

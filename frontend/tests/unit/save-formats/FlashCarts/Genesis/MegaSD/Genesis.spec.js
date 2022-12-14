@@ -3,7 +3,7 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 import GenesisMegaSdGenesisFlashCartSaveData from '@/save-formats/FlashCarts/Genesis/MegaSD/Genesis';
 
-const DIR = './tests/unit/save-formats/data/flashcarts/genesis/megasd';
+const DIR = './tests/data/save-formats/flashcarts/genesis/megasd';
 
 // Not sure why, but most files in the list of sample SRAM saves I was given are padded out with 0x00 and one was padded out with 0xFF
 const MEGA_SD_NEW_SRAM_PADDED_00_FILENAME = `${DIR}/Phantasy Star II (USA, Europe) (Rev A)-new-style.SRM`;

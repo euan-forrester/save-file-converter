@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import Ps1MemcardSaveData from '@/save-formats/PS1/Memcard';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/ps1/memcard';
+const DIR = './tests/data/save-formats/ps1/memcard';
 
 const SINGLE_BLOCK_TWO_FILES_FILENAMES = [`${DIR}/castlevania-symphony-of-the-night.1782-BASLUS-00067DRAX00.srm`, `${DIR}/castlevania-symphony-of-the-night.1782-BASLUS-00067DRAX01.srm`];
 

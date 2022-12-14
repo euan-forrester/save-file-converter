@@ -7,7 +7,7 @@ const config = Config.Create();
 
 const TEST_RETAIL_ROMS = config.get().testFlashCartRetailGames; // We don't check retail ROMs into the repo
 
-const DIR = './tests/unit/save-formats/data/flashcarts/gba/smsadvanceemulator';
+const DIR = './tests/data/save-formats/flashcarts/gba/smsadvanceemulator';
 
 const RAW_PHANTASY_STAR_ON_GBA_FILENAME = `${DIR}/Phantasy Star (USA, Europe) (Rev 1)-from-coury-raw.srm`;
 const SMS_ADVANCE_PHANTASY_STAR_ON_GBA_FILENAME = `${DIR}/Phantasy Star (USA, Europe) (Rev 1)-from-coury.srm`;

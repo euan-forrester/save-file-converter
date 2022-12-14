@@ -4,7 +4,7 @@ import N64DexDriveSaveData from '@/save-formats/N64/DexDrive';
 import N64MempackSaveData from '@/save-formats/N64/Mempack';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/n64/dexdrive';
+const DIR = './tests/data/save-formats/n64/dexdrive';
 
 const DEXDRIVE_ONE_FILE_FILENAME = `${DIR}/mario-kart-64.1116.n64`;
 const RAW_ONE_FILE_FILENAME = `${DIR}/mario-kart-64.1116.mpk`;

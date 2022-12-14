@@ -3,7 +3,7 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 import SnesFlashCartSaveData from '@/save-formats/FlashCarts/SNES';
 
-const DIR = './tests/unit/save-formats/data/flashcarts/snes';
+const DIR = './tests/data/save-formats/flashcarts/snes';
 
 const SNES_FILENAME = `${DIR}/Donkey Kong Country 2 - Diddy's Kong Quest.srm`;
 

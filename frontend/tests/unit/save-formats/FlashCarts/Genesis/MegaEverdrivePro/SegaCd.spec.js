@@ -4,7 +4,7 @@ import SegaCdUtil from '@/util/SegaCd';
 
 import GenesisMegaEverdriveProSegaCdFlashCartSaveData from '@/save-formats/FlashCarts/Genesis/MegaEverdrivePro/SegaCd';
 
-const DIR = './tests/unit/save-formats/data/flashcarts/genesis/megaeverdrivepro';
+const DIR = './tests/data/save-formats/flashcarts/genesis/megaeverdrivepro';
 
 const MEGA_EVERDRIVE_PRO_RAM_CART_FILENAME = `${DIR}/Popful Mail (USA) (RE) cd-cart.srm`;
 const CONVERTED_TO_RAW_RAM_CART_FILENAME = `${DIR}/Popful Mail (USA) (RE) cd-cart-raw.srm`;

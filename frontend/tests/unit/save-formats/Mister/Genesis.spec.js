@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import MisterGenesisSaveData from '@/save-formats/Mister/Genesis';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/mister/genesis';
+const DIR = './tests/data/save-formats/mister/genesis';
 
 const RAW_PHANTASY_STAR_2_FILENAME = `${DIR}/phantasy-star-ii.18168-raw.srm`;
 const MISTER_PHANTASY_STAR_2_FILENAME = `${DIR}/phantasy-star-ii.18168-mister.sav`;

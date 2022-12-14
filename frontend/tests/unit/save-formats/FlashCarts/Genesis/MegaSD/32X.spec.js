@@ -3,7 +3,7 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 import GenesisMegaSd32xFlashCartSaveData from '@/save-formats/FlashCarts/Genesis/MegaSD/32X';
 
-const DIR = './tests/unit/save-formats/data/flashcarts/genesis/megasd';
+const DIR = './tests/data/save-formats/flashcarts/genesis/megasd';
 
 const MEGA_SD_NEW_SRAM_FILENAME = `${DIR}/36 Great Holes Starring Fred Couples (Japan, USA).SRM`;
 const MEGA_SD_RAW_NEW_SRAM_FILENAME = `${DIR}/36 Great Holes Starring Fred Couples (Japan, USA)-raw.sav`;

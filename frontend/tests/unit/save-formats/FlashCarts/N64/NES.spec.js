@@ -3,7 +3,7 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 import N64NesFlashCartSaveData from '@/save-formats/FlashCarts/N64/NES';
 
-const DIR = './tests/unit/save-formats/data/flashcarts/n64/nes';
+const DIR = './tests/data/save-formats/flashcarts/n64/nes';
 
 const N64_EVERDRIVE_NES_CORE_FILENAME = `${DIR}/Zelda II - The Adventure of Link (USA)-from-everdrive.srm`;
 

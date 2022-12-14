@@ -16,9 +16,9 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 describe('Troubleshooting example files', () => {
   it('should remove padding from the start', async () => {
-    const brokenSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan).srm');
-    const testSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) fixed.srm');
-    const correctSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) fixed.srm');
+    const brokenSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/data/util/Tomato Adventure (Japan).srm');
+    const testSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/data/util/Tomato Adventure (Japan) fixed.srm');
+    const correctSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/data/util/Tomato Adventure (Japan) fixed.srm');
 
     const fixedData = PaddingUtil.attemptFix(testSaveData, brokenSaveData);
 
@@ -26,9 +26,9 @@ describe('Troubleshooting example files', () => {
   });
 
   it('should add padding to the start', async () => {
-    const brokenSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) fixed.srm');
-    const testSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan).srm');
-    const correctSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan).srm');
+    const brokenSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/data/util/Tomato Adventure (Japan) fixed.srm');
+    const testSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/data/util/Tomato Adventure (Japan).srm');
+    const correctSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/data/util/Tomato Adventure (Japan).srm');
 
     const fixedData = PaddingUtil.attemptFix(testSaveData, brokenSaveData);
 
@@ -36,9 +36,9 @@ describe('Troubleshooting example files', () => {
   });
 
   it('should remove padding at the the start and end', async () => {
-    const brokenSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) extra padding at end.srm');
-    const testSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) fixed.srm');
-    const correctSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) fixed.srm');
+    const brokenSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/data/util/Tomato Adventure (Japan) extra padding at end.srm');
+    const testSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/data/util/Tomato Adventure (Japan) fixed.srm');
+    const correctSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/data/util/Tomato Adventure (Japan) fixed.srm');
 
     const fixedData = PaddingUtil.attemptFix(testSaveData, brokenSaveData);
 
@@ -46,9 +46,9 @@ describe('Troubleshooting example files', () => {
   });
 
   it('should add padding to the end', async () => {
-    const brokenSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan).srm');
-    const testSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) fixed extra padding at end.srm');
-    const correctSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) fixed extra padding at end.srm');
+    const brokenSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/data/util/Tomato Adventure (Japan).srm');
+    const testSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/data/util/Tomato Adventure (Japan) fixed extra padding at end.srm');
+    const correctSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/data/util/Tomato Adventure (Japan) fixed extra padding at end.srm');
 
     const fixedData = PaddingUtil.attemptFix(testSaveData, brokenSaveData);
 
@@ -56,9 +56,9 @@ describe('Troubleshooting example files', () => {
   });
 
   it('should be able to use a test save that\'s all padding', async () => {
-    const brokenSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan).srm');
-    const testSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) test save all padding.srm');
-    const correctSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) fixed.srm');
+    const brokenSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/data/util/Tomato Adventure (Japan).srm');
+    const testSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/data/util/Tomato Adventure (Japan) test save all padding.srm');
+    const correctSaveData = await ArrayBufferUtil.readArrayBuffer('./tests/data/util/Tomato Adventure (Japan) fixed.srm');
 
     const fixedData = PaddingUtil.attemptFix(testSaveData, brokenSaveData);
 
@@ -66,22 +66,22 @@ describe('Troubleshooting example files', () => {
   });
 
   it('should notice when 2 files have the same size and padding', async () => {
-    const arrayBuffer1 = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan).srm');
-    const arrayBuffer2 = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) fixed.srm');
+    const arrayBuffer1 = await ArrayBufferUtil.readArrayBuffer('./tests/data/util/Tomato Adventure (Japan).srm');
+    const arrayBuffer2 = await ArrayBufferUtil.readArrayBuffer('./tests/data/util/Tomato Adventure (Japan) fixed.srm');
 
     expect(PaddingUtil.fileSizeAndPaddingFromStartIsSame(arrayBuffer1, arrayBuffer2)).to.equal(false);
   });
 
   it('should notice when 2 files have different sizes', async () => {
-    const arrayBuffer1 = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) fixed.srm');
-    const arrayBuffer2 = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) test save all padding.srm');
+    const arrayBuffer1 = await ArrayBufferUtil.readArrayBuffer('./tests/data/util/Tomato Adventure (Japan) fixed.srm');
+    const arrayBuffer2 = await ArrayBufferUtil.readArrayBuffer('./tests/data/util/Tomato Adventure (Japan) test save all padding.srm');
 
     expect(PaddingUtil.fileSizeAndPaddingFromStartIsSame(arrayBuffer1, arrayBuffer2)).to.equal(true);
   });
 
   it('should notice when 2 files have the same size but different padding', async () => {
-    const arrayBuffer1 = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) fixed extra padding at end.srm');
-    const arrayBuffer2 = await ArrayBufferUtil.readArrayBuffer('./tests/unit/util/data/Tomato Adventure (Japan) fixed extra padding at start.srm');
+    const arrayBuffer1 = await ArrayBufferUtil.readArrayBuffer('./tests/data/util/Tomato Adventure (Japan) fixed extra padding at end.srm');
+    const arrayBuffer2 = await ArrayBufferUtil.readArrayBuffer('./tests/data/util/Tomato Adventure (Japan) fixed extra padding at start.srm');
 
     expect(PaddingUtil.fileSizeAndPaddingFromStartIsSame(arrayBuffer1, arrayBuffer2)).to.equal(false);
   });

@@ -1,10 +1,10 @@
 .DS_Store
 /test
 /frontend/stats.json
-/frontend/tests/unit/rom-formats/data/psp/retail/*
-/frontend/tests/unit/rom-formats/data/psp/make-iso/*
-/frontend/tests/unit/rom-formats/data/sms/retail/*
-/frontend/tests/unit/save-formats/data/flashcarts/gba/goombaemulator/retail/*
-/frontend/tests/unit/save-formats/data/flashcarts/gba/pocketnesemulator/retail/*
-/frontend/tests/unit/save-formats/data/flashcarts/gba/smsadvanceemulator/retail/*
+/frontend/tests/data/rom-formats/psp/retail/*
+/frontend/tests/data/rom-formats/psp/make-iso/*
+/frontend/tests/data/rom-formats/sms/retail/*
+/frontend/tests/data/save-formats/flashcarts/gba/goombaemulator/retail/*
+/frontend/tests/data/save-formats/flashcarts/gba/pocketnesemulator/retail/*
+/frontend/tests/data/save-formats/flashcarts/gba/smsadvanceemulator/retail/*
 /frontend/tests/config.local.js

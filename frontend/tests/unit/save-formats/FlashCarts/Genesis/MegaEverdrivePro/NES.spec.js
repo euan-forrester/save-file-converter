@@ -3,7 +3,7 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 import GenesisMegaEverdriveProNesFlashCartSaveData from '@/save-formats/FlashCarts/Genesis/MegaEverdrivePro/NES';
 
-const DIR = './tests/unit/save-formats/data/flashcarts/genesis';
+const DIR = './tests/data/save-formats/flashcarts/genesis';
 
 const MEGA_EVERDRIVE_PRO_NES_FILENAME = `${DIR}/megaeverdrivepro/Zelda II - The Adventure of Link (USA).srm`;
 
