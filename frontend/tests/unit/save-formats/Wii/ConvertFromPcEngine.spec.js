@@ -3,7 +3,7 @@ import ConvertFromPcEngine from '@/save-formats/Wii/ConvertFromPcEngine';
 
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/wii/pcengine';
+const DIR = './tests/data/save-formats/wii/pcengine';
 
 const CASTLEVANIA_MY_EXTRACTED_FILENAME = `${DIR}/Castlevania - Rondo of Blood (my save) - extracted.bup`;
 const CASTLEVANIA_MY_RAW_FILENAME = `${DIR}/Castlevania - Rondo of Blood (my save) - raw.sav`;

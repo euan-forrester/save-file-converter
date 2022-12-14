@@ -3,7 +3,7 @@ import seedrandom from 'seedrandom';
 import N64MempackSaveData from '@/save-formats/N64/Mempack';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/n64/mempack';
+const DIR = './tests/data/save-formats/n64/mempack';
 
 const RAW_ONE_FILE_FILENAME = `${DIR}/mario-kart-64.1116.mpk`;
 const RAW_ONE_FILE_NOTE_FILENAME = `${DIR}/mario-kart-64.1116-1`;

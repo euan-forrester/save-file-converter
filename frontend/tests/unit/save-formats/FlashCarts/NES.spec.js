@@ -3,7 +3,7 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 import NesFlashCartSaveData from '@/save-formats/FlashCarts/NES';
 
-const DIR = './tests/unit/save-formats/data/flashcarts/nes';
+const DIR = './tests/data/save-formats/flashcarts/nes';
 
 const NES_FILENAME = `${DIR}/Crystalis.sav`;
 

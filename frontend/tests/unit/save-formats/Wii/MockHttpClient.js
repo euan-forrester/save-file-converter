@@ -1,6 +1,6 @@
 import { readFile } from 'fs/promises';
 
-const FILE_LOCATION = './tests/unit/save-formats/data/wii/gametdb';
+const FILE_LOCATION = './tests/data/save-formats/wii/gametdb';
 const ENCODING = 'utf8';
 
 export default function getMockHttpClient() {

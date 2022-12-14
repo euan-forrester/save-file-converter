@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import GbaRom from '@/rom-formats/gba';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/rom-formats/data/gba';
+const DIR = './tests/data/rom-formats/gba';
 
 const FILENAME = `${DIR}/Zelda - Minish Cap header.gba`; // Not a real ROM file (!), just the parts in the header that we read
 

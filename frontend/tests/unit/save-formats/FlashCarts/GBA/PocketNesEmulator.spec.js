@@ -7,7 +7,7 @@ const config = Config.Create();
 
 const TEST_RETAIL_ROMS = config.get().testFlashCartRetailGames; // We don't check retail ROMs into the repo
 
-const DIR = './tests/unit/save-formats/data/flashcarts/gba/pocketnesemulator';
+const DIR = './tests/data/save-formats/flashcarts/gba/pocketnesemulator';
 
 const RAW_POCKETNES_ZELDA_FILENAME = `${DIR}/Zelda II - The Adventure of Link (USA)-from-pocketnes.sav`;
 const POCKETNES_ZELDA_FILENAME = `${DIR}/Zelda II - The Adventure of Link (USA)-from-pocketnes.esv`;

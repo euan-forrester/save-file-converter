@@ -3,7 +3,7 @@ import ConvertFromSega from '@/save-formats/Wii/ConvertFromSega';
 
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/wii/sega';
+const DIR = './tests/data/save-formats/wii/sega';
 
 const MASTER_SYSTEM_EXTRACTED_FILENAME = `${DIR}/phantasy-star.21604-extracted.bin`; // This one contains "compound data"
 const MASTER_SYSTEM_RAW_FILENAME = `${DIR}/phantasy-star.21604-raw.bin`;

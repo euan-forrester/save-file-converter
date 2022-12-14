@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import WiiSaveData from '@/save-formats/Wii/Wii';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/wii';
+const DIR = './tests/data/save-formats/wii';
 
 const WII_FILENAME = `${DIR}/zelda-ii-the-adventure-of-link.15037.bin`;
 const RAW_FILENAME = `${DIR}/zelda-ii-the-adventure-of-link.15037-extracted.bin`;

@@ -7,7 +7,7 @@ const config = Config.Create();
 
 const TEST_RETAIL_ROMS = config.get().testFlashCartRetailGames; // We don't check retail ROMs into the repo
 
-const DIR = './tests/unit/rom-formats/data/sms';
+const DIR = './tests/data/rom-formats/sms';
 
 const SMS_FILENAME = `${DIR}/retail/Phantasy Star (USA, Europe) (Rev A).sms`; // The SMS header is pretty far into the file, so we can't just include a snippit of the beginning of the file
 

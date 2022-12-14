@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import GameSharkSpSaveData from '@/save-formats/GBA/GameSharkSP';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/gba/gameshark-sp';
+const DIR = './tests/data/save-formats/gba/gameshark-sp';
 
 const GAMESHARKSP_FILENAME = `${DIR}/final-fantasy-tactics-advance.22864.gsv`;
 const RAW_FILENAME = `${DIR}/final-fantasy-tactics-advance.22864.srm`;

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import PspSaveData from '@/save-formats/PS1/Psp';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/ps1/psp';
+const DIR = './tests/data/save-formats/ps1/psp';
 
 const PSP_SIGNATURE_FILENAME = `${DIR}/Suikoden 2-psp-signature.VMP`;
 const PROGRAM_SIGNATURE_FILENAME = `${DIR}/Suikoden 2-vita-mcr2vmp-signature.VMP`;

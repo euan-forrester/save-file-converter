@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import Retron5SaveData from '@/save-formats/Retron5';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/retron5';
+const DIR = './tests/data/save-formats/retron5';
 
 const RETRON5_FILENAME = `${DIR}/Final Fantasy III (USA).sav`;
 const RAW_FILENAME = `${DIR}/Final Fantasy III (USA).srm`;

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import Ps1DexDriveSaveData from '@/save-formats/PS1/DexDrive';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/ps1/dexdrive';
+const DIR = './tests/data/save-formats/ps1/dexdrive';
 
 const DEXDRIVE_NO_FILES_FILENAME = `${DIR}/castlevania-symphony-of-the-night.3172.gme`;
 

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import PspParamSfo from '@/save-formats/PSP/ParamSfo';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/psp';
+const DIR = './tests/data/save-formats/psp';
 
 const PARAM_SFO_FILENAME = `${DIR}/PARAM.SFO`;
 

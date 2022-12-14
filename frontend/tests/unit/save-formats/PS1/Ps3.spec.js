@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import Ps3SaveData from '@/save-formats/PS1/Ps3';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/ps1/ps3';
+const DIR = './tests/data/save-formats/ps1/ps3';
 
 const PS3_STREET_FIGHTER_EX2_PLUS_FILENAME = `${DIR}/Street Fighter EX2 Plus-BASLUS-0110553595354454D.PSV`;
 const PS3_STREET_FIGHTER_EX2_PLUS_BASE_FILENAME = PS3_STREET_FIGHTER_EX2_PLUS_FILENAME.substr(-28, 24);

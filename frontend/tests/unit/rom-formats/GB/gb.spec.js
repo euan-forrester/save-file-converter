@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import GbRom from '@/rom-formats/gb';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/rom-formats/data/gb';
+const DIR = './tests/data/rom-formats/gb';
 
 const GB_FILENAME = `${DIR}/Zelda - Link's Awakening header.gb`; // Not a real ROM file (!), just the parts in the header that we read
 const GBC_FILENAME = `${DIR}/Wario Land 3 header.gbc`; // Not a real ROM file (!), just the parts in the header that we read

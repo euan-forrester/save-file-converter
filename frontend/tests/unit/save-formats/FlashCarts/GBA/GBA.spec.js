@@ -3,7 +3,7 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 import GbaFlashCartSaveData from '@/save-formats/FlashCarts/GBA/GBA';
 
-const DIR = './tests/unit/save-formats/data/flashcarts/gba';
+const DIR = './tests/data/save-formats/flashcarts/gba';
 
 const GBA_FILENAME = `${DIR}/Metroid - Zero Mission (USA).sav`;
 

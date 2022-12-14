@@ -3,7 +3,7 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 import GenesisMegaEverdriveProSmsFlashCartSaveData from '@/save-formats/FlashCarts/Genesis/MegaEverdrivePro/SMS';
 
-const DIR = './tests/unit/save-formats/data/flashcarts/genesis';
+const DIR = './tests/data/save-formats/flashcarts/genesis';
 
 const MEGA_EVERDRIVE_PRO_SMS_FILENAME = `${DIR}/megaeverdrivepro/Phantasy Star (USA, Europe) (Rev A).srm`;
 

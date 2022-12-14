@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import N64FlashCartSaveData from '@/save-formats/FlashCarts/N64/N64';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/flashcarts/n64';
+const DIR = './tests/data/save-formats/flashcarts/n64';
 
 const RAW_2_KILOBIT_EEPROM_FILENAME = `${DIR}/Star Fox 64.eep`;
 const RAW_16_KILOBIT_EEPROM_FILENAME = `${DIR}/yoshis-story.17238.eep`;

@@ -3,7 +3,7 @@ import MisterSegaCdSaveData from '@/save-formats/Mister/SegaCd';
 import SegaCdUtil from '@/util/SegaCd';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/mister/segacd';
+const DIR = './tests/data/save-formats/mister/segacd';
 
 const MISTER_INTERNAL_ONLY_FILENAME = `${DIR}/Popful Mail (USA) (RE)-mister-internal-only.sav`;
 

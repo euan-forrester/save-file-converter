@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import SegaCdUtil from '@/util/SegaCd';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/util/data';
+const DIR = './tests/data/util';
 
 const INTERNAL_FILENAME = `${DIR}/Popful Mail (USA) (RE)-internal.sav`;
 const RAM_CART_FILENAME = `${DIR}/Popful Mail (USA) (RE)-internal-to-ram-cart.brm`;

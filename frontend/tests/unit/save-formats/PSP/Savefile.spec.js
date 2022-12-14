@@ -3,7 +3,7 @@ import PspSaveData from '@/save-formats/PSP/Savefile';
 import Util from '@/util/util';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/psp';
+const DIR = './tests/data/save-formats/psp';
 
 const PSP_ENCRYPTION_WASM_BUILD_MDOE = 'release'; // For some reason, the outputted encrypted files are different if the psp-encryption lib is built in debug or release, but the results are still deterministic within those build modes
 const KIRK_INIT_SEED = 0x12345678;

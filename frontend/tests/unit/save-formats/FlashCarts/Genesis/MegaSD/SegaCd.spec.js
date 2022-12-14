@@ -4,7 +4,7 @@ import SegaCdUtil from '@/util/SegaCd';
 
 import GenesisMegaSdSegaCdFlashCartSaveData from '@/save-formats/FlashCarts/Genesis/MegaSD/SegaCd';
 
-const DIR = './tests/unit/save-formats/data/flashcarts/genesis';
+const DIR = './tests/data/save-formats/flashcarts/genesis';
 
 const MEGA_SD_FILENAME = `${DIR}/megasd/Popful Mail (U).SRM`;
 const RAW_INTERNAL_MEMORY_FILENAME = `${DIR}/megasd/Popful Mail (U)-internal-memory.brm`;
