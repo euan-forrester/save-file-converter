@@ -40,9 +40,16 @@ const PLATFORMS = [
   'Homebrew', // Homebrew title
 ];
 
+const REGIONS = {
+  'NTSC-U': 'North America',
+  'NTSC-J': 'Japan',
+  'PAL': 'Europe', // eslint-disable-line quote-props
+};
+
 const PLATFORMS_LOWERCASE = PLATFORMS.map((x) => x.toLowerCase());
 
 const UNKNOWN_PLATFORM = 'Unknown';
+const UNKNOWN_REGION = 'Unknown region';
 
 export default class GetPlatform {
   constructor(httpClient) {
@@ -55,6 +62,10 @@ export default class GetPlatform {
 
   static unknownPlatform() {
     return UNKNOWN_PLATFORM;
+  }
+
+  static unknownRegion() {
+    return UNKNOWN_REGION;
   }
 
   async get(gameId) {
@@ -86,20 +97,39 @@ export default class GetPlatform {
       // such as in the case of homebrew titles
 
       let platformType = null;
+      let region = null;
 
-      for (let i = 3; i >= 2; i -= 1) { // Count backwards because almost every game has it on row 3
-        const platformRow = gameDataTable.querySelector(`tr:nth-child(${i})`);
-        let rowName = platformRow.querySelector('td:first-child').firstChild.textContent;
+      for (let i = 3; i >= 1; i -= 1) { // Count backwards because almost every game has it on row 3
+        const row = gameDataTable.querySelector(`tr:nth-child(${i})`);
+
+        let rowName = row.querySelector('td:first-child').firstChild.textContent;
 
         if (rowName !== null) {
           rowName = rowName.trim().toLowerCase();
         }
 
-        if (rowName === 'type') {
-          platformType = platformRow.querySelector('td:last-child').firstChild.textContent;
-          break;
+        if ((rowName === 'type') && (platformType === null)) {
+          platformType = row.querySelector('td:last-child').firstChild.textContent;
+        }
+
+        if ((rowName === 'region') && (region === null)) {
+          region = row.querySelector('td:last-child').firstChild.textContent;
         }
       }
+
+      // Make sure our region has every word capitalized, so that we get something like "North America"
+
+      if (region !== null) {
+        region = region.trim().toUpperCase();
+
+        if (region in REGIONS) {
+          region = REGIONS[region]; // Turn "NTSC-U" into "North America", etc
+        } else {
+          region = null;
+        }
+      }
+
+      // Make sure we find the platform we parsed in our list of all possible platforms
 
       if (platformType !== null) {
         platformType = platformType.trim().toLowerCase();
@@ -107,17 +137,32 @@ export default class GetPlatform {
 
       const platformTypeIndex = PLATFORMS_LOWERCASE.indexOf(platformType);
 
-      if (platformTypeIndex === -1) {
-        return UNKNOWN_PLATFORM;
+      let platform = UNKNOWN_PLATFORM;
+
+      if (platformTypeIndex >= 0) {
+        platform = PLATFORMS[platformTypeIndex];
       }
 
-      return PLATFORMS[platformTypeIndex];
+      if (region === null) {
+        region = UNKNOWN_REGION;
+      }
+
+      return {
+        platform,
+        region,
+      };
     } catch (error) {
       if ((error.response !== undefined) && (error.response.status === 404)) {
-        return UNKNOWN_PLATFORM;
+        return {
+          platform: UNKNOWN_PLATFORM,
+          region: UNKNOWN_REGION,
+        };
       }
 
-      return UNKNOWN_PLATFORM; // Unsure if we should do something different here
+      return {
+        platform: UNKNOWN_PLATFORM,
+        region: UNKNOWN_REGION,
+      }; // Unsure if we should do something different here
     }
   }
 }

@@ -87,6 +87,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NKTJ');
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('01');
     expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal('J');
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('Japan');
     expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNoteArrayBuffer)).to.equal(true);
   });
@@ -109,6 +110,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NPDE');
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('4Y');
     expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal('E');
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('North America');
     expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNoteArrayBuffer)).to.equal(true);
 
@@ -134,6 +136,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NTQE');
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('52');
     expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal('E');
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('North America');
     expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNote1ArrayBuffer)).to.equal(true);
 
@@ -144,6 +147,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[1].gameSerialCode).to.equal('NTQE');
     expect(dexDriveSaveData.getSaveFiles()[1].publisherCode).to.equal('52');
     expect(dexDriveSaveData.getSaveFiles()[1].region).to.equal('E');
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('North America');
     expect(dexDriveSaveData.getSaveFiles()[1].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[1].rawData, rawNote2ArrayBuffer)).to.equal(true);
   });
@@ -181,6 +185,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NTQE');
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('52');
     expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal('E');
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('North America');
     expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNote1ArrayBuffer)).to.equal(true);
 
@@ -191,6 +196,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[1].gameSerialCode).to.equal('NTQE');
     expect(dexDriveSaveData.getSaveFiles()[1].publisherCode).to.equal('52');
     expect(dexDriveSaveData.getSaveFiles()[1].region).to.equal('E');
+    expect(dexDriveSaveData.getSaveFiles()[1].regionName).to.equal('North America');
     expect(dexDriveSaveData.getSaveFiles()[1].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[1].rawData, rawNote2ArrayBuffer)).to.equal(true);
   });
@@ -213,6 +219,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE);
     expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_REGION_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('Unknown region');
     expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_MEDIA_CODE);
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNoteArrayBuffer)).to.equal(true);
   });
@@ -236,6 +243,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal(N64MempackSaveData.BLACKBAG_CART_SAVE_GAME_SERIAL_CODE);
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal(N64MempackSaveData.BLACKBAG_CART_SAVE_PUBLISHER_CODE);
     expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal(N64MempackSaveData.BLACKBAG_CART_SAVE_REGION_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('Unknown region');
     expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal(N64MempackSaveData.BLACKBAG_CART_SAVE_MEDIA_CODE);
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNote1ArrayBuffer)).to.equal(true);
 
@@ -246,6 +254,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[1].gameSerialCode).to.equal(N64MempackSaveData.BLACKBAG_CART_SAVE_GAME_SERIAL_CODE);
     expect(dexDriveSaveData.getSaveFiles()[1].publisherCode).to.equal(N64MempackSaveData.BLACKBAG_CART_SAVE_PUBLISHER_CODE);
     expect(dexDriveSaveData.getSaveFiles()[1].region).to.equal(N64MempackSaveData.BLACKBAG_CART_SAVE_REGION_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[1].regionName).to.equal('Unknown region');
     expect(dexDriveSaveData.getSaveFiles()[1].media).to.equal(N64MempackSaveData.BLACKBAG_CART_SAVE_MEDIA_CODE);
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[1].rawData, rawNote2ArrayBuffer)).to.equal(true);
   });
@@ -270,6 +279,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE);
     expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_REGION_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('Unknown region');
     expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_MEDIA_CODE);
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNoteArrayBuffer)).to.equal(true);
   });
@@ -297,6 +307,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NAME');
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('5H');
     expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal('E');
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('North America');
     expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNote1ArrayBuffer)).to.equal(true);
 
@@ -307,6 +318,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[1].gameSerialCode).to.equal('NBYE');
     expect(dexDriveSaveData.getSaveFiles()[1].publisherCode).to.equal('52');
     expect(dexDriveSaveData.getSaveFiles()[1].region).to.equal('E');
+    expect(dexDriveSaveData.getSaveFiles()[1].regionName).to.equal('North America');
     expect(dexDriveSaveData.getSaveFiles()[1].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[1].rawData, rawNote2ArrayBuffer)).to.equal(true);
 
@@ -317,6 +329,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[2].gameSerialCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
     expect(dexDriveSaveData.getSaveFiles()[2].publisherCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE);
     expect(dexDriveSaveData.getSaveFiles()[2].region).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_REGION_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[2].regionName).to.equal('Unknown region');
     expect(dexDriveSaveData.getSaveFiles()[2].media).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_MEDIA_CODE);
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[2].rawData, rawNote3ArrayBuffer)).to.equal(true);
 
@@ -327,6 +340,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[3].gameSerialCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
     expect(dexDriveSaveData.getSaveFiles()[3].publisherCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE);
     expect(dexDriveSaveData.getSaveFiles()[3].region).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_REGION_CODE);
+    expect(dexDriveSaveData.getSaveFiles()[3].regionName).to.equal('Unknown region');
     expect(dexDriveSaveData.getSaveFiles()[3].media).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_MEDIA_CODE);
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[3].rawData, rawNote4ArrayBuffer)).to.equal(true);
   });
@@ -349,6 +363,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NWIE');
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('51');
     expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal('E');
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('North America');
     expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNoteArrayBuffer)).to.equal(true);
   });
@@ -371,6 +386,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NWIE');
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('51');
     expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal('E');
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('North America');
     expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNoteArrayBuffer)).to.equal(true);
   });
@@ -393,6 +409,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NWIE');
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('51');
     expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal('E');
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('North America');
     expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNoteArrayBuffer)).to.equal(true);
   });
@@ -416,6 +433,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NRDP');
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('5D');
     expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal('P');
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('Europe');
     expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNote1ArrayBuffer)).to.equal(true);
 
@@ -426,6 +444,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[1].gameSerialCode).to.equal('NRDP');
     expect(dexDriveSaveData.getSaveFiles()[1].publisherCode).to.equal('5D');
     expect(dexDriveSaveData.getSaveFiles()[1].region).to.equal('P');
+    expect(dexDriveSaveData.getSaveFiles()[1].regionName).to.equal('Europe');
     expect(dexDriveSaveData.getSaveFiles()[1].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[1].rawData, rawNote2ArrayBuffer)).to.equal(true);
   });

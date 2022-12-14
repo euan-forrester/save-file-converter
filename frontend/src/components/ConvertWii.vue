@@ -25,6 +25,9 @@
               :errorMessage="this.platformErrorMessage"
               :disabled="this.currentlyLoadingPlatform"
             />
+            <region-viewer
+              :regionName="this.regionName"
+            />
           </div>
           <div v-else>
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
@@ -129,6 +132,7 @@ import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import WiiVcPlatform from './WiiVcPlatform.vue';
+import RegionViewer from './RegionViewer.vue';
 import WiiSaveData from '../save-formats/Wii/Wii';
 import GetPlatform from '../save-formats/Wii/GetPlatform';
 import ConvertFromPlatform from '../save-formats/Wii/ConvertFromPlatform';
@@ -143,6 +147,7 @@ export default {
       outputSaveData: null,
       errorMessage: null,
       platformErrorMessage: null,
+      regionName: null,
       outputFilename: null,
       outputPlatform: null,
       currentlyLoadingPlatform: null,
@@ -154,6 +159,7 @@ export default {
     ConversionDirection,
     InputFile,
     OutputFilename,
+    RegionViewer,
     WiiVcPlatform,
   },
   methods: {
@@ -162,6 +168,7 @@ export default {
       this.outputSaveData = null;
       this.errorMessage = null;
       this.platformErrorMessage = null;
+      this.regionName = null;
       this.outputFilename = null;
       this.outputPlatform = null;
       this.currentlyLoadingPlatform = false;
@@ -173,6 +180,7 @@ export default {
       this.outputFilename = null;
       this.outputSaveData = null;
       this.outputPlatform = null;
+      this.regionName = null;
       this.currentlyLoadingPlatform = false;
       this.wiiSaveData = null;
       this.inputFilename = null;
@@ -186,11 +194,13 @@ export default {
         this.inputFilename = event.filename;
 
         this.currentlyLoadingPlatform = true;
-        const platform = await getPlatform.get(this.wiiSaveData.getGameId());
+        const gameInfo = await getPlatform.get(this.wiiSaveData.getGameId());
         this.currentlyLoadingPlatform = false;
 
-        if (platform !== GetPlatform.unknownPlatform()) {
-          this.outputPlatform = platform; // Triggers outputPlatformChanged()
+        this.regionName = gameInfo.region;
+
+        if (gameInfo.platform !== GetPlatform.unknownPlatform()) {
+          this.outputPlatform = gameInfo.platform; // Triggers outputPlatformChanged()
         } else {
           this.platformErrorMessage = 'Unable to automatically determine the platform for this save. Please select it manually.';
         }

@@ -78,6 +78,28 @@ const CART_SAVE_SIZES = [
   2048,
 ];
 
+// Taken from https://github.com/bryc/mempak/blob/master/js/codedb.js#L88
+const REGION_CODE_TO_NAME = {
+  A: 'All regions',
+  B: 'Brazil', // Unlicensed?
+  C: 'China', // Unused?
+  D: 'Germany',
+  E: 'North America',
+  F: 'France',
+  H: 'Netherlands', // Unused. GC/Wii only.
+  I: 'Italy',
+  J: 'Japan',
+  K: 'South Korea', // Unused. GC/Wii only.
+  P: 'Europe',
+  R: 'Russia', // Unused. Wii only.
+  S: 'Spain',
+  U: 'Australia', // Although some AU games used standard P codes.
+  W: 'Taiwan', // Unused. GC/Wii only.
+  X: 'Europe', // Alternative PAL version (Other languages)
+  Y: 'Europe', // Alternative PAL version (Other languages)
+  Z: 'Europe', // Unused. Alternative PAL version 3. Possibly Wii only.
+};
+
 const GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE = '\x3B\xAD\xD1\xE5';
 const GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE = '\xFA\xDE';
 const BLACKBAG_CART_SAVE_GAME_SERIAL_CODE = '\xDE\xAD\xBE\xEF'; // #cute
@@ -284,6 +306,16 @@ function getMediaCode(gameSerialCode) {
   return gameSerialCode.charAt(GAME_SERIAL_CODE_MEDIA_INDEX);
 }
 
+function getRegionName(gameSerialCode) {
+  const regionCode = getRegionCode(gameSerialCode);
+
+  if (regionCode in REGION_CODE_TO_NAME) {
+    return REGION_CODE_TO_NAME[regionCode];
+  }
+
+  return 'Unknown region';
+}
+
 // Taken from https://github.com/bryc/mempak/blob/master/js/parser.js#L173
 function readNoteTable(inodePageArrayBuffer, noteTableArrayBuffer) {
   const noteKeys = [];
@@ -343,6 +375,7 @@ function readNoteTable(inodePageArrayBuffer, noteTableArrayBuffer) {
         publisherCodeFixup,
         noteName,
         region: getRegionCode(gameSerialCode),
+        regionName: getRegionName(gameSerialCode),
         media: getMediaCode(gameSerialCode),
       });
     }

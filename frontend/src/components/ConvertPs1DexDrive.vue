@@ -183,7 +183,7 @@ export default {
     },
     getFileListNames() {
       if ((this.dexDriveSaveData !== null) && (this.dexDriveSaveData.getSaveFiles() !== null)) {
-        return this.dexDriveSaveData.getSaveFiles().map((x) => ({ displayText: x.description }));
+        return this.dexDriveSaveData.getSaveFiles().map((x) => ({ displayText: `${x.description} (${x.regionName})` }));
       }
 
       return [];

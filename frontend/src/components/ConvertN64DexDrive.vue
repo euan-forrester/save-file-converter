@@ -177,7 +177,7 @@ export default {
     },
     getFileListNames() {
       if ((this.dexDriveSaveData !== null) && (this.dexDriveSaveData.getSaveFiles() !== null)) {
-        return this.dexDriveSaveData.getSaveFiles().map((x) => ({ displayText: N64MempackSaveData.isCartSave(x) ? `Cartridge save: ${x.noteName}` : x.noteName }));
+        return this.dexDriveSaveData.getSaveFiles().map((x) => ({ displayText: N64MempackSaveData.isCartSave(x) ? `Cartridge save: ${x.noteName}` : `${x.noteName} (${x.regionName})` }));
       }
 
       return [];

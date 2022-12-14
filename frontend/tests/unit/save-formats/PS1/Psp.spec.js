@@ -62,36 +62,43 @@ describe('PS1 - PSP save format', () => {
 
     expect(pspSaveData.getSaveFiles()[0].startingBlock).to.equal(0);
     expect(pspSaveData.getSaveFiles()[0].filename).to.equal('BASLUS-00958GS2-1');
+    expect(pspSaveData.getSaveFiles()[0].regionName).to.equal('North America');
     expect(pspSaveData.getSaveFiles()[0].description).to.equal('SUIKODEN2-(1) LV57  31:11:33');
     expect(ArrayBufferUtil.arrayBuffersEqual(pspSaveData.getSaveFiles()[0].rawData, rawArrayBuffers[0])).to.equal(true);
 
     expect(pspSaveData.getSaveFiles()[1].startingBlock).to.equal(2);
     expect(pspSaveData.getSaveFiles()[1].filename).to.equal('BASLUS-00958GS2-2');
+    expect(pspSaveData.getSaveFiles()[1].regionName).to.equal('North America');
     expect(pspSaveData.getSaveFiles()[1].description).to.equal('SUIKODEN2-(2) LV57  31:16:35');
     expect(ArrayBufferUtil.arrayBuffersEqual(pspSaveData.getSaveFiles()[1].rawData, rawArrayBuffers[1])).to.equal(true);
 
     expect(pspSaveData.getSaveFiles()[2].startingBlock).to.equal(4);
     expect(pspSaveData.getSaveFiles()[2].filename).to.equal('BASLUS-00958GS2-3');
+    expect(pspSaveData.getSaveFiles()[2].regionName).to.equal('North America');
     expect(pspSaveData.getSaveFiles()[2].description).to.equal('SUIKODEN2-(3) LV57  31:25:14');
     expect(ArrayBufferUtil.arrayBuffersEqual(pspSaveData.getSaveFiles()[2].rawData, rawArrayBuffers[2])).to.equal(true);
 
     expect(pspSaveData.getSaveFiles()[3].startingBlock).to.equal(6);
     expect(pspSaveData.getSaveFiles()[3].filename).to.equal('BASLUS-00958GS2-4');
+    expect(pspSaveData.getSaveFiles()[3].regionName).to.equal('North America');
     expect(pspSaveData.getSaveFiles()[3].description).to.equal('SUIKODEN2-(4) LV54  30:31:12');
     expect(ArrayBufferUtil.arrayBuffersEqual(pspSaveData.getSaveFiles()[3].rawData, rawArrayBuffers[3])).to.equal(true);
 
     expect(pspSaveData.getSaveFiles()[4].startingBlock).to.equal(8);
     expect(pspSaveData.getSaveFiles()[4].filename).to.equal('BASLUS-00958GS2-5');
+    expect(pspSaveData.getSaveFiles()[4].regionName).to.equal('North America');
     expect(pspSaveData.getSaveFiles()[4].description).to.equal('SUIKODEN2-(5) LV59  32:30:22');
     expect(ArrayBufferUtil.arrayBuffersEqual(pspSaveData.getSaveFiles()[4].rawData, rawArrayBuffers[4])).to.equal(true);
 
     expect(pspSaveData.getSaveFiles()[5].startingBlock).to.equal(10);
     expect(pspSaveData.getSaveFiles()[5].filename).to.equal('BASLUS-00958GS2-6');
+    expect(pspSaveData.getSaveFiles()[5].regionName).to.equal('North America');
     expect(pspSaveData.getSaveFiles()[5].description).to.equal('SUIKODEN2-(6) LV60  32:39:39');
     expect(ArrayBufferUtil.arrayBuffersEqual(pspSaveData.getSaveFiles()[5].rawData, rawArrayBuffers[5])).to.equal(true);
 
     expect(pspSaveData.getSaveFiles()[6].startingBlock).to.equal(12);
     expect(pspSaveData.getSaveFiles()[6].filename).to.equal('BASLUS-00958GS2-7');
+    expect(pspSaveData.getSaveFiles()[6].regionName).to.equal('North America');
     expect(pspSaveData.getSaveFiles()[6].description).to.equal('SUIKODEN2-(7) LV60  32:54:42');
     expect(ArrayBufferUtil.arrayBuffersEqual(pspSaveData.getSaveFiles()[6].rawData, rawArrayBuffers[6])).to.equal(true);
   });
@@ -108,11 +115,13 @@ describe('PS1 - PSP save format', () => {
 
     expect(pspSaveData.getSaveFiles()[0].startingBlock).to.equal(0);
     expect(pspSaveData.getSaveFiles()[0].filename).to.equal('BASCUS-94194GT');
+    expect(pspSaveData.getSaveFiles()[0].regionName).to.equal('North America');
     expect(pspSaveData.getSaveFiles()[0].description).to.equal('GT game data');
     expect(ArrayBufferUtil.arrayBuffersEqual(pspSaveData.getSaveFiles()[0].rawData, saveFilesArrayBuffers[0])).to.equal(true);
 
     expect(pspSaveData.getSaveFiles()[1].startingBlock).to.equal(5);
     expect(pspSaveData.getSaveFiles()[1].filename).to.equal('BASCUS-94194RT');
+    expect(pspSaveData.getSaveFiles()[1].regionName).to.equal('North America');
     expect(pspSaveData.getSaveFiles()[1].description).to.equal('GT replay data');
     expect(ArrayBufferUtil.arrayBuffersEqual(pspSaveData.getSaveFiles()[1].rawData, saveFilesArrayBuffers[1])).to.equal(true);
 

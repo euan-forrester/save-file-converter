@@ -46,6 +46,7 @@ describe('N64 - Mempack save format', () => {
     expect(mempackSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NKTJ');
     expect(mempackSaveData.getSaveFiles()[0].publisherCode).to.equal('01');
     expect(mempackSaveData.getSaveFiles()[0].region).to.equal('J');
+    expect(mempackSaveData.getSaveFiles()[0].regionName).to.equal('Japan');
     expect(mempackSaveData.getSaveFiles()[0].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(mempackSaveData.getSaveFiles()[0].rawData, rawNoteArrayBuffer)).to.equal(true);
   });
@@ -80,6 +81,7 @@ describe('N64 - Mempack save format', () => {
     expect(mempackSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NTQE');
     expect(mempackSaveData.getSaveFiles()[0].publisherCode).to.equal('52');
     expect(mempackSaveData.getSaveFiles()[0].region).to.equal('E');
+    expect(mempackSaveData.getSaveFiles()[0].regionName).to.equal('North America');
     expect(mempackSaveData.getSaveFiles()[0].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(mempackSaveData.getSaveFiles()[0].rawData, rawNote1ArrayBuffer)).to.equal(true);
 
@@ -89,6 +91,7 @@ describe('N64 - Mempack save format', () => {
     expect(mempackSaveData.getSaveFiles()[1].gameSerialCode).to.equal('NTQE');
     expect(mempackSaveData.getSaveFiles()[1].publisherCode).to.equal('52');
     expect(mempackSaveData.getSaveFiles()[1].region).to.equal('E');
+    expect(mempackSaveData.getSaveFiles()[1].regionName).to.equal('North America');
     expect(mempackSaveData.getSaveFiles()[1].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(mempackSaveData.getSaveFiles()[1].rawData, rawNote2ArrayBuffer)).to.equal(true);
   });

@@ -145,7 +145,7 @@ export default {
   methods: {
     getFileListNames() {
       if ((this.memcardSaveData !== null) && (this.memcardSaveData.getSaveFiles() !== null)) {
-        return this.memcardSaveData.getSaveFiles().map((x) => ({ displayText: x.description }));
+        return this.memcardSaveData.getSaveFiles().map((x) => ({ displayText: `${x.description} (${x.regionName})` }));
       }
 
       return [];
