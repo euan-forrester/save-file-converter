@@ -18,74 +18,88 @@ describe('Get Wii platform', function () { // eslint-disable-line func-names
   });
 
   it('should get the correct VC platform for an NES game', async () => {
-    const platform = await this.getPlatform.get('FBNE'); // Ninja Gaiden
-    expect(platform).equals('VC-NES');
+    const gameInfo = await this.getPlatform.get('FBNE'); // Ninja Gaiden
+    expect(gameInfo.platform).equals('VC-NES');
+    expect(gameInfo.region).equals('North America');
   });
 
   it('should get the correct VC platform for a SNES game', async () => {
-    const platform = await this.getPlatform.get('JECE'); // Chrono Trigger
-    expect(platform).equals('VC-SNES');
+    const gameInfo = await this.getPlatform.get('JECE'); // Chrono Trigger
+    expect(gameInfo.platform).equals('VC-SNES');
+    expect(gameInfo.region).equals('North America');
   });
 
   it('should get the correct VC platform for an N64 game', async () => {
-    const platform = await this.getPlatform.get('NADJ'); // Star Fox 64
-    expect(platform).equals('VC-N64');
+    const gameInfo = await this.getPlatform.get('NADJ'); // Star Fox 64
+    expect(gameInfo.platform).equals('VC-N64');
+    expect(gameInfo.region).equals('Japan');
   });
 
   it('should get the correct VC platform for a Turbografx 16 game', async () => {
-    const platform = await this.getPlatform.get('QAPN'); // Castlevania: Rondo of Blood
-    expect(platform).equals('VC-PCE');
+    const gameInfo = await this.getPlatform.get('QAPN'); // Castlevania: Rondo of Blood
+    expect(gameInfo.platform).equals('VC-PCE');
+    expect(gameInfo.region).equals('North America');
   });
 
   it('should get the correct VC platform for a Master System game', async () => {
-    const platform = await this.getPlatform.get('LADE'); // Phantasy Star
-    expect(platform).equals('VC-SMS');
+    const gameInfo = await this.getPlatform.get('LADE'); // Phantasy Star
+    expect(gameInfo.platform).equals('VC-SMS');
+    expect(gameInfo.region).equals('North America');
   });
 
   it('should get the correct VC platform for a Genesis game', async () => {
-    const platform = await this.getPlatform.get('MC4E'); // Strider
-    expect(platform).equals('VC-MD');
+    const gameInfo = await this.getPlatform.get('MC4E'); // Strider
+    expect(gameInfo.platform).equals('VC-MD');
+    expect(gameInfo.region).equals('North America');
   });
 
   it('should get the correct VC platform for a Neo Geo game', async () => {
-    const platform = await this.getPlatform.get('EAEP'); // Samurai Shodown
-    expect(platform).equals('VC-NEOGEO');
+    const gameInfo = await this.getPlatform.get('EAEP'); // Samurai Shodown
+    expect(gameInfo.platform).equals('VC-NEOGEO');
+    expect(gameInfo.region).equals('Europe');
   });
 
   it('should get the correct VC platform for a C64 game', async () => {
-    const platform = await this.getPlatform.get('C97E'); // California Games
-    expect(platform).equals('VC-C64');
+    const gameInfo = await this.getPlatform.get('C97E'); // California Games
+    expect(gameInfo.platform).equals('VC-C64');
+    expect(gameInfo.region).equals('North America');
   });
 
   it('should get the correct VC platform for an arcade game', async () => {
-    const platform = await this.getPlatform.get('E6ZJ'); // Star Force
-    expect(platform).equals('VC-Arcade');
+    const gameInfo = await this.getPlatform.get('E6ZJ'); // Star Force
+    expect(gameInfo.platform).equals('VC-Arcade');
+    expect(gameInfo.region).equals('Japan');
   });
 
   it('should recognize a WiiWare game', async () => {
-    const platform = await this.getPlatform.get('WKTE'); // Contra Rebirth
-    expect(platform).equals('WiiWare');
+    const gameInfo = await this.getPlatform.get('WKTE'); // Contra Rebirth
+    expect(gameInfo.platform).equals('WiiWare');
+    expect(gameInfo.region).equals('North America');
   });
 
   it('should recognize a Wii game', async () => {
-    const platform = await this.getPlatform.get('R3OP01'); // Metroid: Other M
-    expect(platform).equals('Wii');
+    const gameInfo = await this.getPlatform.get('R3OP01'); // Metroid: Other M
+    expect(gameInfo.platform).equals('Wii');
+    expect(gameInfo.region).equals('Europe');
   });
 
   it('should recognize a Homebrew game', async () => {
-    const platform = await this.getPlatform.get('D40A'); // Luigi and the Island of Mystery
-    expect(platform).equals('Homebrew');
+    const gameInfo = await this.getPlatform.get('D40A'); // Luigi and the Island of Mystery
+    expect(gameInfo.platform).equals('Homebrew');
+    expect(gameInfo.region).equals(GetPlatform.unknownRegion());
   });
 
   it('should recognize a game without a platform listed', async () => {
     // Some titles in the downloadable XML document don't have any platform listed. Those seem to get
     // listed as 'Wii' when viewed on the main site
-    const platform = await this.getPlatform.get('DAXE01'); // The Legend of Zelda: Skyward Sword (Demo)
-    expect(platform).equals('Wii');
+    const gameInfo = await this.getPlatform.get('DAXE01'); // The Legend of Zelda: Skyward Sword (Demo)
+    expect(gameInfo.platform).equals('Wii');
+    expect(gameInfo.region).equals('North America');
   });
 
   it('should not recognize an unknown game', async () => {
-    const platform = await this.getPlatform.get('ABCD');
-    expect(platform).equals(GetPlatform.unknownPlatform());
+    const gameInfo = await this.getPlatform.get('ABCD');
+    expect(gameInfo.platform).equals(GetPlatform.unknownPlatform());
+    expect(gameInfo.region).equals(GetPlatform.unknownRegion());
   });
 });
