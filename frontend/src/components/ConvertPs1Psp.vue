@@ -188,7 +188,7 @@ export default {
     },
     getFileListNames() {
       if ((this.pspSaveData !== null) && (this.pspSaveData.getSaveFiles() !== null)) {
-        return this.pspSaveData.getSaveFiles().map((x) => ({ displayText: x.description }));
+        return this.pspSaveData.getSaveFiles().map((x) => ({ displayText: `${x.description} (${x.regionName})` }));
       }
 
       return [];

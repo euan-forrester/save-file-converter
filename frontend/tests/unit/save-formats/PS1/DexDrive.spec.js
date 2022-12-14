@@ -49,6 +49,7 @@ describe('PS1 - DexDrive save format', () => {
 
     expect(dexDriveSaveData.getSaveFiles()[0].startingBlock).to.equal(0);
     expect(dexDriveSaveData.getSaveFiles()[0].filename).to.equal('BASLUS-00067DRAX01');
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('North America');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].description).to.equal('CASTLEVANIA-2 PHOENIX 208%');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawArrayBuffer)).to.equal(true);
@@ -64,12 +65,14 @@ describe('PS1 - DexDrive save format', () => {
 
     expect(dexDriveSaveData.getSaveFiles()[0].startingBlock).to.equal(0);
     expect(dexDriveSaveData.getSaveFiles()[0].filename).to.equal('BASLUS-00067DRAX00');
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('North America');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].description).to.equal('CASTLEVANIA-1 ALUCARD 200%');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawArrayBuffers[0])).to.equal(true);
 
     expect(dexDriveSaveData.getSaveFiles()[1].startingBlock).to.equal(1);
     expect(dexDriveSaveData.getSaveFiles()[1].filename).to.equal('BASLUS-00067DRAX01');
+    expect(dexDriveSaveData.getSaveFiles()[1].regionName).to.equal('North America');
     expect(dexDriveSaveData.getSaveFiles()[1].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[1].description).to.equal('CASTLEVANIA-2 RICHTER 195%');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[1].rawData, rawArrayBuffers[1])).to.equal(true);
@@ -85,6 +88,7 @@ describe('PS1 - DexDrive save format', () => {
 
     expect(dexDriveSaveData.getSaveFiles()[0].startingBlock).to.equal(0);
     expect(dexDriveSaveData.getSaveFiles()[0].filename).to.equal('BASCUS-94194GT');
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('North America');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].description).to.equal('GT game data');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawArrayBuffer)).to.equal(true);
@@ -100,12 +104,14 @@ describe('PS1 - DexDrive save format', () => {
 
     expect(dexDriveSaveData.getSaveFiles()[0].startingBlock).to.equal(6);
     expect(dexDriveSaveData.getSaveFiles()[0].filename).to.equal('BASCUS-94194GT');
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('North America');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].description).to.equal('GT game data');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawArrayBuffers[0])).to.equal(true);
 
     expect(dexDriveSaveData.getSaveFiles()[1].startingBlock).to.equal(12);
     expect(dexDriveSaveData.getSaveFiles()[1].filename).to.equal('BASCUS-94194RT');
+    expect(dexDriveSaveData.getSaveFiles()[1].regionName).to.equal('North America');
     expect(dexDriveSaveData.getSaveFiles()[1].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[1].description).to.equal('GT replay data');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[1].rawData, rawArrayBuffers[1])).to.equal(true);
@@ -123,12 +129,14 @@ describe('PS1 - DexDrive save format', () => {
 
     expect(dexDriveSaveData.getSaveFiles()[0].startingBlock).to.equal(0);
     expect(dexDriveSaveData.getSaveFiles()[0].filename).to.equal('BASCUS-94194GT');
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('North America');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal(COMMENTS[0]);
     expect(dexDriveSaveData.getSaveFiles()[0].description).to.equal('GT game data');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, saveFilesArrayBuffers[0])).to.equal(true);
 
     expect(dexDriveSaveData.getSaveFiles()[1].startingBlock).to.equal(5);
     expect(dexDriveSaveData.getSaveFiles()[1].filename).to.equal('BASCUS-94194RT');
+    expect(dexDriveSaveData.getSaveFiles()[1].regionName).to.equal('North America');
     expect(dexDriveSaveData.getSaveFiles()[1].comment).to.equal(COMMENTS[1]);
     expect(dexDriveSaveData.getSaveFiles()[1].description).to.equal('GT replay data');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[1].rawData, saveFilesArrayBuffers[1])).to.equal(true);
@@ -146,6 +154,7 @@ describe('PS1 - DexDrive save format', () => {
 
     expect(dexDriveSaveData.getSaveFiles()[0].startingBlock).to.equal(0);
     expect(dexDriveSaveData.getSaveFiles()[0].filename).to.equal('BASLUS-01032DMR0');
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('North America');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].description).to.equal('Digi 1onFou');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawArrayBuffer)).to.equal(true);
@@ -161,6 +170,7 @@ describe('PS1 - DexDrive save format', () => {
 
     expect(dexDriveSaveData.getSaveFiles()[0].startingBlock).to.equal(0);
     expect(dexDriveSaveData.getSaveFiles()[0].filename).to.equal('BASLUS-01485PNMOG01');
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('North America');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].description).to.equal('THPS4 CAREERー PHELIPE E RENATO');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawArrayBuffer)).to.equal(true);

@@ -189,7 +189,7 @@ export default {
     },
     getFileListNames() {
       if ((this.ps3SaveData !== null) && (this.ps3SaveData.getSaveFiles() !== null)) {
-        return this.ps3SaveData.getSaveFiles().map((x) => ({ displayText: x.description }));
+        return this.ps3SaveData.getSaveFiles().map((x) => ({ displayText: `${x.description} (${x.regionName})` }));
       }
 
       return [];

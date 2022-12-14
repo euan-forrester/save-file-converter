@@ -42,6 +42,30 @@ const SAVE_BLOCK_DESCRIPTION_OFFSET = 0x04;
 const SAVE_BLOCK_DESCRIPTION_LENGTH = 64;
 const SAVE_BLOCK_DESCRIPTION_ENCODING = 'shift-jis';
 
+// The filename begins with the country code:
+// https://www.psdevwiki.com/ps3/PS1_Savedata#Virtual_Memory_Card_PS1_.28.VM1.29
+function getRegionName(filename) {
+  const firstChar = filename.charAt(0);
+
+  if (firstChar === 'B') {
+    const secondChar = filename.charAt(1);
+
+    if (secondChar === 'I') {
+      return 'Japan';
+    }
+
+    if (secondChar === 'A') {
+      return 'North America';
+    }
+
+    if (secondChar === 'E') {
+      return 'Europe';
+    }
+  }
+
+  return 'Unknown region';
+}
+
 function convertTextToHalfWidth(s) {
   // The description stored in the save data is in full-width characters but we'd rather display normal half-width ones
   // https://stackoverflow.com/a/58515363
@@ -328,6 +352,7 @@ export default class Ps1MemcardSaveData {
         // This block begins a save, which may be comprised of several blocks
 
         const filename = Util.trimNull(filenameTextDecoder.decode(directoryFrame.slice(DIRECTORY_FRAME_FILENAME_OFFSET, DIRECTORY_FRAME_FILENAME_OFFSET + DIRECTORY_FRAME_FILENAME_LENGTH)));
+        const regionName = getRegionName(filename);
         const expectedSize = directoryFrameDataView.getUint32(DIRECTORY_FRAME_FILE_SIZE_OFFSET, LITTLE_ENDIAN);
         const dataBlocks = [getBlock(dataBlocksArrayBuffer, i)];
 
@@ -365,6 +390,7 @@ export default class Ps1MemcardSaveData {
         this.saveFiles.push({
           startingBlock: i,
           filename,
+          regionName,
           description,
           rawData,
         });
