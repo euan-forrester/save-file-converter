@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import Gb64EmulatorSaveData from '@/save-formats/FlashCarts/N64/GB64Emulator';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-const DIR = './tests/unit/save-formats/data/flashcarts/n64/gb64emulator';
+const DIR = './tests/data/save-formats/flashcarts/n64/gb64emulator';
 
 const GB64_ZELDA_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (USA, Europe)-everdrive.fla`;
 const GB64_TO_RAW_ZELDA_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (USA, Europe)-everdrive-to-raw.sav`;
