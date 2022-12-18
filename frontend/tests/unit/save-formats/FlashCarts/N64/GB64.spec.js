@@ -9,7 +9,7 @@ const GB64_TO_RAW_ZELDA_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakeni
 const GB64_ZELDA_UNCOMPRESSED_DATA_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (USA, Europe)-everdrive-uncompressed-data.sav`;
 
 const RAW_ZELDA_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (USA, Europe)-emulator.sav`;
-// const RAW_TO_GB64_ZELDA_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (USA, Europe)-emulator-to-everdrive.fla`;
+const RAW_TO_GB64_ZELDA_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (USA, Europe)-emulator-to-everdrive.fla`;
 
 const ZELDA_SRAM_SIZE = 8192;
 
@@ -34,9 +34,19 @@ describe('Flash cart - N64 - GB64 emulator save format', () => {
 
     // expect(ArrayBufferUtil.arrayBuffersEqual(gb64EmulatorSaveData.getFlashCartArrayBuffer(), gb64ArrayBuffer)).to.equal(true);
 
-    // ArrayBufferUtil.writeArrayBuffer(RAW_TO_GB64_ZELDA_FILENAME, gb64EmulatorSaveData.getFlashCartArrayBuffer());
+    ArrayBufferUtil.writeArrayBuffer(RAW_TO_GB64_ZELDA_FILENAME, gb64EmulatorSaveData.getFlashCartArrayBuffer());
 
     // For now, we just output the raw SRAM data without a header, which GB64 will be able to load. Later will we output a proper file
-    expect(ArrayBufferUtil.arrayBuffersEqual(gb64EmulatorSaveData.getFlashCartArrayBuffer(), rawArrayBuffer)).to.equal(true);
+    // expect(ArrayBufferUtil.arrayBuffersEqual(gb64EmulatorSaveData.getFlashCartArrayBuffer(), rawArrayBuffer)).to.equal(true);
+  });
+
+  it('should be able to parse a file that it creased', async () => {
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_ZELDA_FILENAME);
+    const uncompressedDataArrayBuffer = await ArrayBufferUtil.readArrayBuffer(GB64_ZELDA_UNCOMPRESSED_DATA_FILENAME);
+
+    const gb64EmulatorSaveData = Gb64EmulatorSaveData.createFromRawData(rawArrayBuffer, uncompressedDataArrayBuffer);
+    const gb64EmulatorSaveDataParsed = Gb64EmulatorSaveData.createFromFlashCartDataInternal(gb64EmulatorSaveData.getFlashCartArrayBuffer(), ZELDA_SRAM_SIZE);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(gb64EmulatorSaveDataParsed.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
 });

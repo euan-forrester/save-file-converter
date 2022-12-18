@@ -77,7 +77,6 @@ const MAGIC_ENCODING = 'US-ASCII';
 
 const VERSION_OFFSET = 4;
 const FLAGS_OFFSET = 8;
-/*
 const BGP_INDEX_OFFSET = 10;
 const OBP0_INDEX_OFFSET = 12;
 const OBP1_INDEX_OFFSET = 14;
@@ -85,28 +84,24 @@ const INPUT_MAPPING_OFFSET = 16;
 const INPUT_MAPPING_LENGTH = 16;
 const GRAPHICS_SETTINGS_OFFSET = 32;
 const TIMER_OFFSET = 40;
-*/
 const STORED_INFO_TYPE_OFFSET = 48;
 const COMPRESSED_SIZE_OFFSET = 52;
 const COMPRESSED_DATA_OFFSET = 0x80;
 
-/*
 const HEADER_SIZE = COMPRESSED_DATA_OFFSET;
 const HEADER_FILL_VALUE = 0x00;
 
 const FILE_LENGTH = 0x20000;
 const FILE_PADDING_VALUE = 0xAA;
-*/
 
 const DESIRED_VERSION = 2;
-/*
+
 const DEFAULT_FLAGS = 0x0000;
 const DEFAULT_BGP_INDEX = 0;
 const DEFAULT_OBP0_INDEX = 0;
 const DEFAULT_OBP1_INDEX = 0;
 const DEFAULT_GRAPHICS_SETTINGS = 0x00000002;
 const DEFAULT_TIMER = 0x02C445F9n; // 0n;
-*/
 
 const STORED_INFO_TYPE_ALL = 0;
 // const STORED_INFO_TYPE_SETTINGS_RAM = 1; // The emulator returns immediately after reading the SRAM data if the stored info type is one of these: https://github.com/lambertjamesd/gb64/blob/master/src/save.c#L588
@@ -115,9 +110,7 @@ const STORED_INFO_TYPE_SETTINGS = 3;
 const STORED_INFO_TYPE_NONE = 4;
 
 const UNCOMPRESSED_DATA_SRAM_OFFSET = 0;
-/*
 const UNCOMPRESSED_DATA_FILL_VALUE = 0x00;
-*/
 const MIN_SRAM_SIZE = 8192;
 
 /*
@@ -132,8 +125,8 @@ function alignFlashOffset(offset) {
 }
 */
 
-/*
-function calculateUncompressedDataSize(sramLength, isGbc) {
+function calculateUncompressedDataSize(/* sramLength, isGbc */) {
+  /*
   // Taken from https://github.com/lambertjamesd/gb64/blob/master/src/save.c#L441
   // which seems, oddly enough, to be different from https://github.com/lambertjamesd/gb64/blob/master/src/save.c#L720
   // (The latter doesn't rely on checking if the platform is GBC, for example)
@@ -148,12 +141,10 @@ function calculateUncompressedDataSize(sramLength, isGbc) {
   offset = alignFlashOffset(offset + MISC_SAVE_STATE_DATA_SIZE);
 
   return offset;
-
+  */
   return 25472;
 }
-*/
 
-/*
 function getDefaultInputMapping() {
   // Just hardcode the default data I see in an example save file, rather than spelling out every
   // last item here
@@ -167,7 +158,6 @@ function getDefaultInputMapping() {
 
   return arrayBuffer;
 }
-*/
 
 export default class Gb64EmulatorSaveData {
   static createFromFlashCartData(flashCartArrayBuffer, romArrayBuffer) {
@@ -225,7 +215,6 @@ export default class Gb64EmulatorSaveData {
   }
 
   static createFromRawData(rawArrayBuffer/* , uncompressedDataFromOtherSave */) {
-    /*
     const isGbc = false; // FIXME: Needs to come from the ROM
     const sramLength = rawArrayBuffer.byteLength; // FIXME: This needs to come from the ROM too
 
@@ -255,27 +244,20 @@ export default class Gb64EmulatorSaveData {
     console.log(`Calculated uncompressed data size of ${uncompressedDataSize}`);
 
     const resizedRawArrayBuffer = SaveFilesUtil.resizeRawSave(rawArrayBuffer, sramLength, UNCOMPRESSED_DATA_FILL_VALUE);
-    const uncompressedDataPadding = uncompressedDataFromOtherSave.slice(sramLength); // Util.getFilledArrayBuffer(uncompressedDataSize - sramLength, UNCOMPRESSED_DATA_FILL_VALUE);
+    const uncompressedDataPadding = Util.getFilledArrayBuffer(uncompressedDataSize - sramLength, UNCOMPRESSED_DATA_FILL_VALUE); /* uncompressedDataFromOtherSave.slice(sramLength); */
 
     const uncompressedData = Util.concatArrayBuffers([resizedRawArrayBuffer, uncompressedDataPadding]);
     const compressedData = pako.deflate(uncompressedData);
 
     headerDataView.setUint32(COMPRESSED_SIZE_OFFSET, compressedData.byteLength, LITTLE_ENDIAN);
 
+    console.log(`Compressed data down to ${compressedData.byteLength} bytes`);
+
     const paddingArrayBuffer = Util.getFilledArrayBuffer(FILE_LENGTH - HEADER_SIZE - compressedData.byteLength, FILE_PADDING_VALUE);
 
     const flashCartArrayBuffer = Util.concatArrayBuffers([headerArrayBuffer, compressedData, paddingArrayBuffer]);
 
     return new Gb64EmulatorSaveData(flashCartArrayBuffer, rawArrayBuffer, uncompressedData);
-    */
-
-    // We're currently unable to create a GB64 file that will be successfully loaded by the emulator.
-    // As a workaround for now, if we output just the raw SRAM data with no header, GB64 (for backward compatibility reasons)
-    // will interpret it as SRAM data and will load it.
-    //
-    // See https://github.com/lambertjamesd/gb64/issues/30
-
-    return new Gb64EmulatorSaveData(rawArrayBuffer, rawArrayBuffer, null);
   }
 
   static createWithNewSize(gb64EmulatorSaveData, newSize) {
