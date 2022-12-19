@@ -51,7 +51,17 @@
             </b-col>
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'">
-            <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
+            <div v-if="this.individualSavesOrMemoryCard === 'individual-saves'">
+              <output-filename
+                v-model="outputFilename"
+                :leaveRoomForHelpIcon="true"
+                :disabled="true"
+                helpText="The filename for an individual save contains important information that the game needs to find this save data. Please do not modify it after downloading the save."
+              />
+            </div>
+            <div v-else>
+             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
+            </div>
             <individual-saves-or-memory-card-selector
               :value="this.individualSavesOrMemoryCard"
               @change="changeIndividualSavesOrMemoryCard($event)"
