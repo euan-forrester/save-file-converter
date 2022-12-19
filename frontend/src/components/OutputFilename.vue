@@ -6,6 +6,7 @@
           v-bind:value="value"
           v-on:input="$emit('input', $event)"
           placeholder="Output filename"
+          :disabled="this.disabled"
         />
         <div v-if="this.helpText !== null">
           <help-button
@@ -45,6 +46,10 @@ export default {
     value: {
       type: String,
       default: '',
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
     },
     id: {
       type: String,

@@ -51,7 +51,17 @@
             </b-col>
           </b-row>
           <div v-if="this.conversionDirection === 'convertToEmulator'">
-            <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
+            <div v-if="this.individualSavesOrMemoryCard === 'individual-saves'">
+              <output-filename
+                v-model="outputFilename"
+                :leaveRoomForHelpIcon="true"
+                :disabled="true"
+                helpText="The filename for an individual save contains important information that the game needs to find this save data. Please do not modify it after downloading the save."
+              />
+            </div>
+            <div v-else>
+             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
+            </div>
             <individual-saves-or-memory-card-selector
               :value="this.individualSavesOrMemoryCard"
               @change="changeIndividualSavesOrMemoryCard($event)"
@@ -146,7 +156,7 @@ export default {
       conversionDirection: 'convertToEmulator',
       selectedSaveData: null,
       memoryCardIndex: 0,
-      individualSavesOrMemoryCard: 'individual-saves',
+      individualSavesOrMemoryCard: 'memory-card',
       individualSavesText: 'Individual saves',
       memoryCardText: 'Raw/emulator',
     };
@@ -201,7 +211,7 @@ export default {
       this.outputFilename = null;
       this.selectedSaveData = null;
       this.memoryCardIndex = 0;
-      this.individualSavesOrMemoryCard = 'individual-saves';
+      this.individualSavesOrMemoryCard = 'memory-card';
 
       if (newDirection === 'convertToRetron5') {
         this.changeMemoryCardIndex();
@@ -231,8 +241,7 @@ export default {
 
         this.individualSavesOrMemoryCard = null;
 
-        this.changeIndividualSavesOrMemoryCard('individual-saves');
-        this.changeSelectedSaveData(0);
+        this.changeIndividualSavesOrMemoryCard('memory-card');
       } catch (e) {
         this.errorMessage = 'File appears to not be in the correct format';
         this.pspSaveData = null;
