@@ -136,7 +136,7 @@ export default {
       outputFilename: null,
       conversionDirection: 'convertToEmulator',
       selectedSaveData: null,
-      individualSavesOrMemoryCard: 'individual-saves',
+      individualSavesOrMemoryCard: 'memory-card',
       individualSavesText: 'Individual saves',
       memoryCardText: 'Controller Pak',
     };
@@ -189,7 +189,7 @@ export default {
       this.inputFilename = null;
       this.outputFilename = null;
       this.selectedSaveData = null;
-      this.individualSavesOrMemoryCard = 'individual-saves';
+      this.individualSavesOrMemoryCard = 'memory-card';
     },
     changeSelectedSaveData(newSaveData) {
       if (newSaveData !== null) {
