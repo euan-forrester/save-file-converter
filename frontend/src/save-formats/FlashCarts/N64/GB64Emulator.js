@@ -95,7 +95,6 @@ const FILE_LENGTH = 0x20000;
 const FILE_PADDING_VALUE = 0xAA;
 
 const DESIRED_VERSION = 2;
-// const OUTPUT_VERSION = 1; // We can't seem to get gb64 to read the compressed data that we output: perhaps its zlib library is older than ours?
 
 const DEFAULT_FLAGS = 0x0000;
 const DEFAULT_BGP_INDEX = 0;
@@ -215,7 +214,7 @@ export default class Gb64EmulatorSaveData {
     return new Gb64EmulatorSaveData(flashCartArrayBuffer, rawArrayBuffer, uncompressedData);
   }
 
-  static createFromRawData(rawArrayBuffer/* , uncompressedDataFromOtherSave */) {
+  static createFromRawData(rawArrayBuffer) {
     const isGbc = false; // FIXME: Needs to come from the ROM
     const sramLength = rawArrayBuffer.byteLength; // FIXME: This needs to come from the ROM too
 
@@ -242,17 +241,13 @@ export default class Gb64EmulatorSaveData {
 
     const uncompressedDataSize = calculateUncompressedDataSize(sramLength, isGbc);
 
-    console.log(`Calculated uncompressed data size of ${uncompressedDataSize}`);
-
     const resizedRawArrayBuffer = SaveFilesUtil.resizeRawSave(rawArrayBuffer, sramLength, UNCOMPRESSED_DATA_FILL_VALUE);
-    const uncompressedDataPadding = Util.getFilledArrayBuffer(uncompressedDataSize - sramLength, UNCOMPRESSED_DATA_FILL_VALUE); /* uncompressedDataFromOtherSave.slice(sramLength); */
+    const uncompressedDataPadding = Util.getFilledArrayBuffer(uncompressedDataSize - sramLength, UNCOMPRESSED_DATA_FILL_VALUE);
 
     const uncompressedData = Util.concatArrayBuffers([resizedRawArrayBuffer, uncompressedDataPadding]);
     const compressedData = pako.gzip(uncompressedData); // Don't use deflate() because gb64 uses a tiny zlib library that explicitly expects gzip: https://github.com/lambertjamesd/gb64/blob/391b553966ef1ff45368bad8bb28fea119aa20de/src/save.c#L260
 
     headerDataView.setUint32(COMPRESSED_SIZE_OFFSET, compressedData.byteLength, LITTLE_ENDIAN);
-
-    console.log(`Compressed data down to ${compressedData.byteLength} bytes`);
 
     const paddingArrayBuffer = Util.getFilledArrayBuffer(FILE_LENGTH - HEADER_SIZE - compressedData.byteLength, FILE_PADDING_VALUE);
 
