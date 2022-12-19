@@ -146,7 +146,7 @@ export default {
       conversionDirection: 'convertToEmulator',
       selectedSaveData: null,
       memoryCardIndex: 0,
-      individualSavesOrMemoryCard: 'individual-saves',
+      individualSavesOrMemoryCard: 'memory-card',
       individualSavesText: 'Individual saves',
       memoryCardText: 'Raw/emulator',
     };
@@ -201,7 +201,7 @@ export default {
       this.outputFilename = null;
       this.selectedSaveData = null;
       this.memoryCardIndex = 0;
-      this.individualSavesOrMemoryCard = 'individual-saves';
+      this.individualSavesOrMemoryCard = 'memory-card';
 
       if (newDirection === 'convertToRetron5') {
         this.changeMemoryCardIndex();
@@ -231,8 +231,7 @@ export default {
 
         this.individualSavesOrMemoryCard = null;
 
-        this.changeIndividualSavesOrMemoryCard('individual-saves');
-        this.changeSelectedSaveData(0);
+        this.changeIndividualSavesOrMemoryCard('memory-card');
       } catch (e) {
         this.errorMessage = 'File appears to not be in the correct format';
         this.pspSaveData = null;

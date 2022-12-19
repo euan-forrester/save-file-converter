@@ -142,7 +142,7 @@ export default {
       outputFilename: null,
       conversionDirection: 'convertToEmulator',
       selectedSaveData: null,
-      individualSavesOrMemoryCard: 'individual-saves',
+      individualSavesOrMemoryCard: 'memory-card',
       individualSavesText: 'Individual save',
       memoryCardText: 'Raw/emulator',
     };
@@ -201,7 +201,7 @@ export default {
       this.inputFilename = null;
       this.outputFilename = null;
       this.selectedSaveData = null;
-      this.individualSavesOrMemoryCard = 'individual-saves';
+      this.individualSavesOrMemoryCard = 'memory-card';
     },
     changeSelectedSaveData(newSaveData) {
       if (newSaveData !== null) {
@@ -230,8 +230,7 @@ export default {
 
         this.individualSavesOrMemoryCard = null;
 
-        this.changeIndividualSavesOrMemoryCard('individual-saves');
-        this.changeSelectedSaveData(0);
+        this.changeIndividualSavesOrMemoryCard('memory-card');
       } catch (e) {
         this.errorMessage = 'File appears to not be in the correct format';
         this.ps3SaveData = null;
