@@ -95,6 +95,7 @@ const FILE_LENGTH = 0x20000;
 const FILE_PADDING_VALUE = 0xAA;
 
 const DESIRED_VERSION = 2;
+// const OUTPUT_VERSION = 1; // We can't seem to get gb64 to read the compressed data that we output: perhaps its zlib library is older than ours?
 
 const DEFAULT_FLAGS = 0x0000;
 const DEFAULT_BGP_INDEX = 0;
@@ -247,7 +248,7 @@ export default class Gb64EmulatorSaveData {
     const uncompressedDataPadding = Util.getFilledArrayBuffer(uncompressedDataSize - sramLength, UNCOMPRESSED_DATA_FILL_VALUE); /* uncompressedDataFromOtherSave.slice(sramLength); */
 
     const uncompressedData = Util.concatArrayBuffers([resizedRawArrayBuffer, uncompressedDataPadding]);
-    const compressedData = pako.deflate(uncompressedData);
+    const compressedData = pako.gzip(uncompressedData); // Don't use deflate() because gb64 uses a tiny zlib library that explicitly expects gzip: https://github.com/lambertjamesd/gb64/blob/391b553966ef1ff45368bad8bb28fea119aa20de/src/save.c#L260
 
     headerDataView.setUint32(COMPRESSED_SIZE_OFFSET, compressedData.byteLength, LITTLE_ENDIAN);
 
