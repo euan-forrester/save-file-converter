@@ -5,7 +5,8 @@
 // - RAM cart
 //
 // I don't have an example of a file that only has the internal memory, so I don't know if the file is truncated
-// (i.e. it's just magic + internal memory) or if it also includes an empty RAM cart section.
+// (i.e. it's just magic + internal memory) or if it also includes an empty RAM cart section. The only one I've seen has a blank section
+// at the end that's as long as the RAM cart section would be (but is all 0's)
 //
 // So we're going to make this code able to parse a file that's truncated but only output files that have both sections, just to be safe.
 
@@ -42,7 +43,14 @@ export default class GenesisMegaSdSegaCdFlashCartSaveData {
 
     let flashCartRamCartSaveArrayBuffer = SegaCdUtil.makeEmptySave(GenesisMegaSdSegaCdFlashCartSaveData.FLASH_CART_RAM_CART_SIZE);
     if (isLongVersion) {
-      flashCartRamCartSaveArrayBuffer = flashCartArrayBuffer.slice(RAM_CART_OFFSET, RAM_CART_OFFSET + GenesisMegaSdSegaCdFlashCartSaveData.FLASH_CART_RAM_CART_SIZE);
+      const potentialRamCartArrayBuffer = flashCartArrayBuffer.slice(RAM_CART_OFFSET, RAM_CART_OFFSET + GenesisMegaSdSegaCdFlashCartSaveData.FLASH_CART_RAM_CART_SIZE);
+
+      // Ignore the RAM cart portion if it's incorrectly formatted. This can happen with a file that's only the
+      // internal memory: the RAM cart portion is all 0's
+      if (SegaCdUtil.isCorrectlyFormatted(potentialRamCartArrayBuffer)) {
+        // Consider adding a check here to see if potentialRamCartArrayBuffer is indeed all 0's
+        flashCartRamCartSaveArrayBuffer = potentialRamCartArrayBuffer;
+      }
     }
 
     const truncatedFlashCartInternalSaveBuffer = SegaCdUtil.truncateToActualSize(flashCartInternalSaveArrayBuffer);

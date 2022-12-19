@@ -16,6 +16,10 @@ const MEGA_SD_CONVERTED_BACK_INTERNAL_MEMORY_FILENAME = `${DIR}/megasd/Popful Ma
 const MEGA_SD_CONVERTED_BACK_RAM_CART_FILENAME = `${DIR}/megasd/Popful Mail (U)-converted-back-ram-cart.SRM`;
 const MEGA_SD_CONVERTED_BACK_BOTH_FILENAME = `${DIR}/megasd/Popful Mail (U)-converted-back.SRM`; // There are a few bits different in the 'signature' at the end of the RAM cart section, but both files should work
 
+const MEGA_SD_INTERNAL_MEMORY_PLUS_BLANK_RAM_CART_FILENAME = `${DIR}/megasd/Lunar_The_Silver_Star.SRM`;
+const RAW_INTERNAL_MEMORY_PLUS_BLANK_RAM_CART_INTERNAL_MEMORY_FILENAME = `${DIR}/megasd/Lunar_The_Silver_Star-internal-memory.brm`;
+const RAW_INTERNAL_MEMORY_PLUS_BLANK_RAM_CART_RAM_CART_FILENAME = `${DIR}/megasd/Lunar_The_Silver_Star-ram-cart.brm`;
+
 describe('Flash cart - Genesis - Mega SD - Sega CD', () => {
   it('should convert a Mega SD Sega CD save to emulator format', async () => {
     const flashCartArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEGA_SD_FILENAME);
@@ -65,5 +69,16 @@ describe('Flash cart - Genesis - Mega SD - Sega CD', () => {
     const flashCartSaveData = GenesisMegaSdSegaCdFlashCartSaveData.createFromRawData({ rawInternalSaveArrayBuffer, rawRamCartSaveArrayBuffer });
 
     expect(ArrayBufferUtil.arrayBuffersEqual(flashCartSaveData.getFlashCartArrayBuffer(), flashCartArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a Mega SD file containing internal memory plus a blank RAM cart to emulator format', async () => {
+    const flashCartArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEGA_SD_INTERNAL_MEMORY_PLUS_BLANK_RAM_CART_FILENAME);
+    const rawInternalSaveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_INTERNAL_MEMORY_PLUS_BLANK_RAM_CART_INTERNAL_MEMORY_FILENAME);
+    const rawRamCartSaveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_INTERNAL_MEMORY_PLUS_BLANK_RAM_CART_RAM_CART_FILENAME);
+
+    const flashCartSaveData = GenesisMegaSdSegaCdFlashCartSaveData.createFromFlashCartData(flashCartArrayBuffer);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(flashCartSaveData.getRawArrayBuffer(GenesisMegaSdSegaCdFlashCartSaveData.INTERNAL_MEMORY), rawInternalSaveArrayBuffer)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(flashCartSaveData.getRawArrayBuffer(GenesisMegaSdSegaCdFlashCartSaveData.RAM_CART), rawRamCartSaveArrayBuffer)).to.equal(true);
   });
 });
