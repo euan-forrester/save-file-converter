@@ -178,6 +178,7 @@ import GbaFlashCartSaveData from '../save-formats/FlashCarts/GBA/GBA';
 import N64FlashCartSaveData from '../save-formats/FlashCarts/N64/N64';
 import N64NesFlashCartSaveData from '../save-formats/FlashCarts/N64/NES';
 import Neon64EmulatorSaveData from '../save-formats/FlashCarts/N64/Neon64Emulator';
+import Gb64EmulatorSaveData from '../save-formats/FlashCarts/N64/GB64Emulator';
 
 export default {
   name: 'ConvertFlashCarts',
@@ -359,6 +360,11 @@ export default {
 
           case 'FlashCart-Neon64Emulator': {
             this.flashCartTypeClass = Neon64EmulatorSaveData;
+            break;
+          }
+
+          case 'FlashCart-GB64Emulator': {
+            this.flashCartTypeClass = Gb64EmulatorSaveData;
             break;
           }
 

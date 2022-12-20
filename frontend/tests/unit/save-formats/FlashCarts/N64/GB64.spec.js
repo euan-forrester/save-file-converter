@@ -45,7 +45,7 @@ describe('Flash cart - N64 - GB64 emulator save format', () => {
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GB_FILENAME);
     const gb64ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GB_TO_GB64_FILENAME);
 
-    const gb64EmulatorSaveData = Gb64EmulatorSaveData.createFromRawData(rawArrayBuffer, false);
+    const gb64EmulatorSaveData = Gb64EmulatorSaveData.createFromRawDataInternal(rawArrayBuffer, GB_ZELDA_SRAM_SIZE, false);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(gb64EmulatorSaveData.getFlashCartArrayBuffer(), gb64ArrayBuffer)).to.equal(true);
   });
@@ -53,7 +53,7 @@ describe('Flash cart - N64 - GB64 emulator save format', () => {
   it('should be able to parse a GB file that it created', async () => {
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GB_FILENAME);
 
-    const gb64EmulatorSaveData = Gb64EmulatorSaveData.createFromRawData(rawArrayBuffer, false);
+    const gb64EmulatorSaveData = Gb64EmulatorSaveData.createFromRawDataInternal(rawArrayBuffer, GB_ZELDA_SRAM_SIZE, false);
     const gb64EmulatorSaveDataParsed = Gb64EmulatorSaveData.createFromFlashCartDataInternal(gb64EmulatorSaveData.getFlashCartArrayBuffer(), GB_ZELDA_SRAM_SIZE);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(gb64EmulatorSaveDataParsed.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
@@ -74,7 +74,7 @@ describe('Flash cart - N64 - GB64 emulator save format', () => {
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_FILENAME);
     const gb64ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_TO_GB64_FILENAME);
 
-    const gb64EmulatorSaveData = Gb64EmulatorSaveData.createFromRawData(rawArrayBuffer, true);
+    const gb64EmulatorSaveData = Gb64EmulatorSaveData.createFromRawDataInternal(rawArrayBuffer, GBC_ZELDA_SRAM_SIZE, true);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(gb64EmulatorSaveData.getFlashCartArrayBuffer(), gb64ArrayBuffer)).to.equal(true);
   });
@@ -82,7 +82,7 @@ describe('Flash cart - N64 - GB64 emulator save format', () => {
   it('should be able to parse a GBC file that it created', async () => {
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_FILENAME);
 
-    const gb64EmulatorSaveData = Gb64EmulatorSaveData.createFromRawData(rawArrayBuffer, true);
+    const gb64EmulatorSaveData = Gb64EmulatorSaveData.createFromRawDataInternal(rawArrayBuffer, GBC_ZELDA_SRAM_SIZE, true);
     const gb64EmulatorSaveDataParsed = Gb64EmulatorSaveData.createFromFlashCartDataInternal(gb64EmulatorSaveData.getFlashCartArrayBuffer(), GBC_ZELDA_SRAM_SIZE);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(gb64EmulatorSaveDataParsed.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
@@ -103,7 +103,7 @@ describe('Flash cart - N64 - GB64 emulator save format', () => {
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_LARGER_SAVE_FILENAME);
     const gb64ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_LARGER_SAVE_TO_GB64_FILENAME);
 
-    const gb64EmulatorSaveData = Gb64EmulatorSaveData.createFromRawData(rawArrayBuffer, true);
+    const gb64EmulatorSaveData = Gb64EmulatorSaveData.createFromRawDataInternal(rawArrayBuffer, GBC_WARIO_SRAM_SIZE, true);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(gb64EmulatorSaveData.getFlashCartArrayBuffer(), gb64ArrayBuffer)).to.equal(true);
   });
@@ -111,7 +111,7 @@ describe('Flash cart - N64 - GB64 emulator save format', () => {
   it('should be able to parse a GBC larger file that it created', async () => {
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_LARGER_SAVE_FILENAME);
 
-    const gb64EmulatorSaveData = Gb64EmulatorSaveData.createFromRawData(rawArrayBuffer, true);
+    const gb64EmulatorSaveData = Gb64EmulatorSaveData.createFromRawDataInternal(rawArrayBuffer, GBC_WARIO_SRAM_SIZE, true);
     const gb64EmulatorSaveDataParsed = Gb64EmulatorSaveData.createFromFlashCartDataInternal(gb64EmulatorSaveData.getFlashCartArrayBuffer(), GBC_WARIO_SRAM_SIZE);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(gb64EmulatorSaveDataParsed.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);

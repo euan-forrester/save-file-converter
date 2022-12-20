@@ -181,7 +181,7 @@ export default class Gb64EmulatorSaveData {
     const flashCartDataView = new DataView(flashCartArrayBuffer);
 
     const version = flashCartDataView.getUint32(VERSION_OFFSET, LITTLE_ENDIAN);
-    const flags = flashCartDataView.getUint16(FLAGS_OFFSET, LITTLE_ENDIAN);
+    // const flags = flashCartDataView.getUint16(FLAGS_OFFSET, LITTLE_ENDIAN);
     const storedInfoType = flashCartDataView.getUint32(STORED_INFO_TYPE_OFFSET, LITTLE_ENDIAN);
     const compressedSize = flashCartDataView.getUint32(COMPRESSED_SIZE_OFFSET, LITTLE_ENDIAN);
     const dataIsCompressed = (version === DESIRED_VERSION);
@@ -198,16 +198,12 @@ export default class Gb64EmulatorSaveData {
       throw new Error('This file does not contain save data');
     }
 
-    console.log(`Found version: ${version}, flags: 0x${flags.toString(16)}, storedInfoType: ${storedInfoType}, compressed size: ${compressedSize} bytes`);
-
     let gameboyStateData = null;
 
     if (dataIsCompressed) {
       const compressedData = flashCartArrayBuffer.slice(GAMEBOY_STATE_DATA_OFFSET, GAMEBOY_STATE_DATA_OFFSET + compressedSize);
 
       gameboyStateData = pako.inflate(compressedData);
-
-      console.log(`Uncompressed data size: ${gameboyStateData.byteLength}`);
     } else {
       gameboyStateData = flashCartArrayBuffer.slice(GAMEBOY_STATE_DATA_OFFSET); // In the emulator code, this begins at ALIGN_FLASH_OFFSET(sizeof(GameboySettings)), which is ALIGN_FLASH_OFFSET(56), which is 0x80 -- same as FLASH_BLOCK_SIZE for the compressed data
     }
@@ -227,9 +223,13 @@ export default class Gb64EmulatorSaveData {
     return new Gb64EmulatorSaveData(flashCartArrayBuffer, rawArrayBuffer, gameboyStateData);
   }
 
-  static createFromRawData(rawArrayBuffer, isGbc) { // FIXME: isGbc Needs to come from the ROM
-    const sramLength = Math.max(rawArrayBuffer.byteLength, MIN_SRAM_SIZE); // FIXME: This needs to come from the ROM too
+  static createFromRawData(rawArrayBuffer, romArrayBuffer) {
+    const gbRom = new GbRom(romArrayBuffer);
 
+    return Gb64EmulatorSaveData.createFromRawDataInternal(rawArrayBuffer, gbRom.getSramSize(), gbRom.getIsGbc());
+  }
+
+  static createFromRawDataInternal(rawArrayBuffer, sramLength, isGbc) {
     const headerArrayBuffer = Util.setMagic(Util.getFilledArrayBuffer(HEADER_SIZE, HEADER_FILL_VALUE), MAGIC_OFFSET, MAGIC, MAGIC_ENCODING);
     const headerDataView = new DataView(headerArrayBuffer);
     const headerUint8Array = new Uint8Array(headerArrayBuffer);
