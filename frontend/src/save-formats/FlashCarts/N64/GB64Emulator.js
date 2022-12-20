@@ -86,9 +86,9 @@ const GRAPHICS_SETTINGS_OFFSET = 32;
 const TIMER_OFFSET = 40;
 const STORED_INFO_TYPE_OFFSET = 48;
 const COMPRESSED_SIZE_OFFSET = 52;
-const COMPRESSED_DATA_OFFSET = 0x80;
+const GAMEBOY_STATE_DATA_OFFSET = 0x80;
 
-const HEADER_SIZE = COMPRESSED_DATA_OFFSET;
+const HEADER_SIZE = GAMEBOY_STATE_DATA_OFFSET;
 const HEADER_FILL_VALUE = 0x00;
 
 const FILE_LENGTH = 0x20000;
@@ -109,8 +109,8 @@ const STORED_INFO_TYPE_ALL = 0;
 const STORED_INFO_TYPE_SETTINGS = 3;
 const STORED_INFO_TYPE_NONE = 4;
 
-const UNCOMPRESSED_DATA_SRAM_OFFSET = 0;
-const UNCOMPRESSED_DATA_FILL_VALUE = 0x00;
+const GAMEBOY_STATE_DATA_SRAM_OFFSET = 0;
+const GAMEBOY_STATE_DATA_FILL_VALUE = 0x00;
 const MIN_SRAM_SIZE = 8192;
 
 /*
@@ -125,7 +125,7 @@ function alignFlashOffset(offset) {
 }
 */
 
-function calculateUncompressedDataSize(/* sramLength, isGbc */) {
+function calculateGameboyStateDataSize(/* sramLength, isGbc */) {
   /*
   // Taken from https://github.com/lambertjamesd/gb64/blob/master/src/save.c#L441
   // which seems, oddly enough, to be different from https://github.com/lambertjamesd/gb64/blob/master/src/save.c#L720
@@ -177,9 +177,10 @@ export default class Gb64EmulatorSaveData {
     const flags = flashCartDataView.getUint16(FLAGS_OFFSET, LITTLE_ENDIAN);
     const storedInfoType = flashCartDataView.getUint32(STORED_INFO_TYPE_OFFSET, LITTLE_ENDIAN);
     const compressedSize = flashCartDataView.getUint32(COMPRESSED_SIZE_OFFSET, LITTLE_ENDIAN);
+    const dataIsCompressed = (version === DESIRED_VERSION);
 
-    if (version !== DESIRED_VERSION) {
-      throw new Error(`Found version ${version} but can only read version ${DESIRED_VERSION}`);
+    if ((version < 0) || (version > DESIRED_VERSION)) {
+      throw new Error(`Found version ${version} but can only read versions 0 through ${DESIRED_VERSION}`);
     }
 
     if ((storedInfoType < STORED_INFO_TYPE_ALL) || (storedInfoType > STORED_INFO_TYPE_NONE)) {
@@ -190,14 +191,19 @@ export default class Gb64EmulatorSaveData {
       throw new Error('This file does not contain save data');
     }
 
-    // FIXME: Need to handle versions 1 & 2: compressedSize is set to 0 in those cases
-
     console.log(`Found version: ${version}, flags: 0x${flags.toString(16)}, storedInfoType: ${storedInfoType}, compressed size: ${compressedSize} bytes`);
 
-    const compressedData = flashCartArrayBuffer.slice(COMPRESSED_DATA_OFFSET, COMPRESSED_DATA_OFFSET + compressedSize);
-    const uncompressedData = pako.inflate(compressedData);
+    let gameboyStateData = null;
 
-    console.log(`Uncompressed data size: ${uncompressedData.byteLength}`);
+    if (dataIsCompressed) {
+      const compressedData = flashCartArrayBuffer.slice(GAMEBOY_STATE_DATA_OFFSET, GAMEBOY_STATE_DATA_OFFSET + compressedSize);
+
+      gameboyStateData = pako.inflate(compressedData);
+
+      console.log(`Uncompressed data size: ${gameboyStateData.byteLength}`);
+    } else {
+      gameboyStateData = flashCartArrayBuffer.slice(GAMEBOY_STATE_DATA_OFFSET); // In the emulator code, this begins at ALIGN_FLASH_OFFSET(sizeof(GameboySettings)), which is ALIGN_FLASH_OFFSET(56), which is 0x80 -- same as FLASH_BLOCK_SIZE for the compressed data
+    }
 
     // The emulator appears to incorrectly obtain the SRAM size from the ROM:
     // https://github.com/lambertjamesd/gb64/blob/master/src/save.c#L443
@@ -209,9 +215,9 @@ export default class Gb64EmulatorSaveData {
 
     const sramLength = Math.max(sramSize, MIN_SRAM_SIZE);
 
-    const rawArrayBuffer = uncompressedData.slice(UNCOMPRESSED_DATA_SRAM_OFFSET, UNCOMPRESSED_DATA_SRAM_OFFSET + sramLength);
+    const rawArrayBuffer = gameboyStateData.slice(GAMEBOY_STATE_DATA_SRAM_OFFSET, GAMEBOY_STATE_DATA_SRAM_OFFSET + sramLength);
 
-    return new Gb64EmulatorSaveData(flashCartArrayBuffer, rawArrayBuffer, uncompressedData);
+    return new Gb64EmulatorSaveData(flashCartArrayBuffer, rawArrayBuffer, gameboyStateData);
   }
 
   static createFromRawData(rawArrayBuffer) {
@@ -239,13 +245,13 @@ export default class Gb64EmulatorSaveData {
     // emulator like RAM, etc. We need to include space for all of it so that the emulator can read it in, otherwise
     // the emulator will fail reading the file: https://github.com/lambertjamesd/gb64/blob/master/src/save.c#L441
 
-    const uncompressedDataSize = calculateUncompressedDataSize(sramLength, isGbc);
+    const gameboyStateDataSize = calculateGameboyStateDataSize(sramLength, isGbc);
 
-    const resizedRawArrayBuffer = SaveFilesUtil.resizeRawSave(rawArrayBuffer, sramLength, UNCOMPRESSED_DATA_FILL_VALUE);
-    const uncompressedDataPadding = Util.getFilledArrayBuffer(uncompressedDataSize - sramLength, UNCOMPRESSED_DATA_FILL_VALUE);
+    const resizedRawArrayBuffer = SaveFilesUtil.resizeRawSave(rawArrayBuffer, sramLength, GAMEBOY_STATE_DATA_FILL_VALUE);
+    const gameboyStateDataPadding = Util.getFilledArrayBuffer(gameboyStateDataSize - sramLength, GAMEBOY_STATE_DATA_FILL_VALUE);
 
-    const uncompressedData = Util.concatArrayBuffers([resizedRawArrayBuffer, uncompressedDataPadding]);
-    const compressedData = pako.gzip(uncompressedData); // Don't use deflate() because gb64 uses a tiny zlib library that explicitly expects gzip: https://github.com/lambertjamesd/gb64/blob/391b553966ef1ff45368bad8bb28fea119aa20de/src/save.c#L260
+    const gameboyStateData = Util.concatArrayBuffers([resizedRawArrayBuffer, gameboyStateDataPadding]);
+    const compressedData = pako.gzip(gameboyStateData); // Don't use deflate() because gb64 uses a tiny zlib library that explicitly expects gzip: https://github.com/lambertjamesd/gb64/blob/391b553966ef1ff45368bad8bb28fea119aa20de/src/save.c#L260
 
     headerDataView.setUint32(COMPRESSED_SIZE_OFFSET, compressedData.byteLength, LITTLE_ENDIAN);
 
@@ -253,14 +259,13 @@ export default class Gb64EmulatorSaveData {
 
     const flashCartArrayBuffer = Util.concatArrayBuffers([headerArrayBuffer, compressedData, paddingArrayBuffer]);
 
-    return new Gb64EmulatorSaveData(flashCartArrayBuffer, rawArrayBuffer, uncompressedData);
+    return new Gb64EmulatorSaveData(flashCartArrayBuffer, rawArrayBuffer, gameboyStateData);
   }
 
   static createWithNewSize(gb64EmulatorSaveData, newSize) {
     const newRawSaveData = SaveFilesUtil.resizeRawSave(gb64EmulatorSaveData.getRawArrayBuffer(), newSize);
 
-    // Don't call createFromRawData() with the resized raw data, because we'll get an error saying Neon can only do 8kB saves. Bypass it instead.
-    return new Gb64EmulatorSaveData(gb64EmulatorSaveData.getFlashCartArrayBuffer(), newRawSaveData, gb64EmulatorSaveData.getUncompressedData());
+    return new Gb64EmulatorSaveData(gb64EmulatorSaveData.getFlashCartArrayBuffer(), newRawSaveData, gb64EmulatorSaveData.gameboyStateDataArrayBuffer());
   }
 
   static getFlashCartFileExtension() {
@@ -279,10 +284,10 @@ export default class Gb64EmulatorSaveData {
     return 'gb';
   }
 
-  constructor(flashCartArrayBuffer, rawArrayBuffer, uncompressedDataArrayBuffer) {
+  constructor(flashCartArrayBuffer, rawArrayBuffer, gameboyStateDataArrayBuffer) {
     this.flashCartArrayBuffer = flashCartArrayBuffer;
     this.rawArrayBuffer = rawArrayBuffer;
-    this.uncompressedDataArrayBuffer = uncompressedDataArrayBuffer;
+    this.gameboyStateDataArrayBuffer = gameboyStateDataArrayBuffer;
   }
 
   getRawArrayBuffer() {
@@ -293,7 +298,7 @@ export default class Gb64EmulatorSaveData {
     return this.flashCartArrayBuffer;
   }
 
-  getUncompressedDataArayBuffer() {
-    return this.uncompressedDataArrayBuffer;
+  getGameboyStateDataArrayBuffer() {
+    return this.gameboyStateDataArrayBuffer;
   }
 }
