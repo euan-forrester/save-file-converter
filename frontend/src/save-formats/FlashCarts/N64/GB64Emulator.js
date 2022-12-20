@@ -23,7 +23,7 @@ struct GameboySettings
     52: u32 compressedSize;
 };
 
-Offset 128: Beginning of data compressed with zlib
+Offset 128: Beginning of data compressed with gzip
 
 When uncompressed, this data is a concatenation of various things the emulator needs, and begins with SRAM data. The length of the SRAM
 data is determined from the ROM
@@ -113,6 +113,9 @@ const GAMEBOY_STATE_DATA_SRAM_OFFSET = 0;
 const GAMEBOY_STATE_DATA_FILL_VALUE = 0x00;
 const MIN_SRAM_SIZE = 8192;
 
+const GAMEBOY_DATA_DATA_LENGTH_GB = (25472 - 8192); // Gotten empirically by looking at a save file for Zelda: Link's Awakening: file size minus game SRAM size
+const GAMEBOY_DATA_DATA_LENGTH_GBC = (58240 - 8192); // Gotten empirically by looking at a save file for Zelda: Oracle of Seasons: file size minus game SRAM size
+
 /*
 const PALETTE_COUNT = 64; // https://github.com/lambertjamesd/gb64/blob/a6b90ef5454e3f2cf4b92dd746926e7ddd858f91/src/memory_map.h#L177
 const MAX_RAM_SIZE = 0x8000; // https://github.com/lambertjamesd/gb64/blob/a6b90ef5454e3f2cf4b92dd746926e7ddd858f91/src/memory_map.h#L12
@@ -125,7 +128,7 @@ function alignFlashOffset(offset) {
 }
 */
 
-function calculateGameboyStateDataSize(/* sramLength, isGbc */) {
+function calculateGameboyStateDataSize(isGbc) {
   /*
   // Taken from https://github.com/lambertjamesd/gb64/blob/master/src/save.c#L441
   // which seems, oddly enough, to be different from https://github.com/lambertjamesd/gb64/blob/master/src/save.c#L720
@@ -142,7 +145,11 @@ function calculateGameboyStateDataSize(/* sramLength, isGbc */) {
 
   return offset;
   */
-  return 25472;
+  if (isGbc) {
+    return GAMEBOY_DATA_DATA_LENGTH_GBC;
+  }
+
+  return GAMEBOY_DATA_DATA_LENGTH_GB;
 }
 
 function getDefaultInputMapping() {
@@ -220,9 +227,8 @@ export default class Gb64EmulatorSaveData {
     return new Gb64EmulatorSaveData(flashCartArrayBuffer, rawArrayBuffer, gameboyStateData);
   }
 
-  static createFromRawData(rawArrayBuffer) {
-    const isGbc = false; // FIXME: Needs to come from the ROM
-    const sramLength = rawArrayBuffer.byteLength; // FIXME: This needs to come from the ROM too
+  static createFromRawData(rawArrayBuffer, isGbc) { // FIXME: isGbc Needs to come from the ROM
+    const sramLength = Math.max(rawArrayBuffer.byteLength, MIN_SRAM_SIZE); // FIXME: This needs to come from the ROM too
 
     const headerArrayBuffer = Util.setMagic(Util.getFilledArrayBuffer(HEADER_SIZE, HEADER_FILL_VALUE), MAGIC_OFFSET, MAGIC, MAGIC_ENCODING);
     const headerDataView = new DataView(headerArrayBuffer);
@@ -245,10 +251,10 @@ export default class Gb64EmulatorSaveData {
     // emulator like RAM, etc. We need to include space for all of it so that the emulator can read it in, otherwise
     // the emulator will fail reading the file: https://github.com/lambertjamesd/gb64/blob/master/src/save.c#L441
 
-    const gameboyStateDataSize = calculateGameboyStateDataSize(sramLength, isGbc);
+    const gameboyStateDataSize = calculateGameboyStateDataSize(isGbc);
 
     const resizedRawArrayBuffer = SaveFilesUtil.resizeRawSave(rawArrayBuffer, sramLength, GAMEBOY_STATE_DATA_FILL_VALUE);
-    const gameboyStateDataPadding = Util.getFilledArrayBuffer(gameboyStateDataSize - sramLength, GAMEBOY_STATE_DATA_FILL_VALUE);
+    const gameboyStateDataPadding = Util.getFilledArrayBuffer(gameboyStateDataSize, GAMEBOY_STATE_DATA_FILL_VALUE);
 
     const gameboyStateData = Util.concatArrayBuffers([resizedRawArrayBuffer, gameboyStateDataPadding]);
     const compressedData = pako.gzip(gameboyStateData); // Don't use deflate() because gb64 uses a tiny zlib library that explicitly expects gzip: https://github.com/lambertjamesd/gb64/blob/391b553966ef1ff45368bad8bb28fea119aa20de/src/save.c#L260
