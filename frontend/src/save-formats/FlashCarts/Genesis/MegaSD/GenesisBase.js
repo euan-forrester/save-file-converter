@@ -144,7 +144,7 @@ export default class GenesisMegaSdGenesisFlashCartSaveData {
     return null;
   }
 
-  static requiresRomClass() {
+  static requiresRom() {
     return null;
   }
 

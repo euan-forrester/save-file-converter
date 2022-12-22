@@ -282,8 +282,11 @@ export default class Gb64EmulatorSaveData {
     return null; // GB/C saves have many possible extensions, and we just want to keep whatever the original extension was
   }
 
-  static requiresRomClass() {
-    return GbRom;
+  static requiresRom() {
+    return {
+      clazz: GbRom,
+      requiredToConvertFrom: ['flashcart', 'raw'],
+    };
   }
 
   static adjustOutputSizesPlatform() {

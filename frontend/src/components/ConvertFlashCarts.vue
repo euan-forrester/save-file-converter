@@ -29,6 +29,18 @@
                 @change="changeSegaCdSaveType($event)"
               />
             </div>
+            <div v-if="this.romIsRequired">
+              <input-file
+                id="choose-raw-file-rom"
+                @load="readRomData($event)"
+                :errorMessage="null"
+                :placeholderText="`Choose the ROM for this file ${getFileExtensionsString(this.flashCartTypeClass.requiresRom().clazz)}`"
+                helpText="These save files contain some information from the corresponding ROM, and the emulator checks this information before allowing the save to be loaded.
+                All processing by this website is done on your local machine, and your ROMs are not sent anywhere."
+                :acceptExtension="this.flashCartTypeClass.requiresRom().clazz.getFileExtensions().join(',')"
+                :leaveRoomForHelpIcon="true"
+              />
+            </div>
           </div>
           <div v-else>
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
@@ -103,15 +115,15 @@
                 @change="changeSegaCdSaveType($event)"
               />
             </div>
-            <div v-if="(this.flashCartTypeClass !== null) && (this.flashCartTypeClass.requiresRomClass() !== null)">
+            <div v-if="this.romIsRequired">
               <input-file
                 id="choose-raw-file-rom"
                 @load="readRomData($event)"
                 :errorMessage="null"
-                :placeholderText="`Choose the ROM for this file ${getFileExtensionsString(this.flashCartTypeClass.requiresRomClass())}`"
+                :placeholderText="`Choose the ROM for this file ${getFileExtensionsString(this.flashCartTypeClass.requiresRom().clazz)}`"
                 helpText="These save files contain some information from the corresponding ROM, and the emulator checks this information before allowing the save to be loaded.
                 All processing by this website is done on your local machine, and your ROMs are not sent anywhere."
-                :acceptExtension="this.flashCartTypeClass.requiresRomClass().getFileExtensions().join(',')"
+                :acceptExtension="this.flashCartTypeClass.requiresRom().clazz.getFileExtensions().join(',')"
                 :leaveRoomForHelpIcon="true"
               />
             </div>
@@ -231,6 +243,21 @@ export default {
         }
 
         return false;
+      },
+    },
+    romIsRequired: {
+      get() {
+        if (this.flashCartTypeClass === null) {
+          return false;
+        }
+
+        let requiresRomToConvertFrom = [];
+
+        if (this.flashCartTypeClass.requiresRom() !== null) {
+          requiresRomToConvertFrom = this.flashCartTypeClass.requiresRom().requiredToConvertFrom;
+        }
+
+        return ((this.inputFileType !== null) || (requiresRomToConvertFrom.indexOf(this.inputFileType) >= 0));
       },
     },
   },
@@ -422,7 +449,7 @@ export default {
       this.updateFlashCartSaveData();
     },
     hasRequiredRomData() {
-      return (this.flashCartTypeClass !== null) && ((this.flashCartTypeClass.requiresRomClass() === null) || (this.romData !== null));
+      return (!this.romIsRequired || (this.romData !== null));
     },
     hasRequiredInputFileData() {
       return (this.inputArrayBuffer !== null) && (this.inputFilename !== null) && (this.inputFileType !== null);
@@ -499,10 +526,10 @@ export default {
     updateFlashCartSaveData() {
       this.errorMessage = null;
 
-      if ((this.flashCartTypeClass !== null) && ((this.inputFileType === 'flashcart') || this.hasRequiredRomData()) && this.hasRequiredInputFileData()) {
+      if ((this.flashCartTypeClass !== null) && this.hasRequiredRomData() && this.hasRequiredInputFileData()) {
         try {
           if (this.inputFileType === 'flashcart') {
-            this.flashCartSaveData = this.flashCartTypeClass.createFromFlashCartData(this.getFlashCartInput());
+            this.flashCartSaveData = this.flashCartTypeClass.createFromFlashCartData(this.getFlashCartInput(), this.romData);
             this.outputFilename = this.getRawFilename();
           } else {
             this.flashCartSaveData = this.flashCartTypeClass.createFromRawData(this.getRawInput(), this.romData);

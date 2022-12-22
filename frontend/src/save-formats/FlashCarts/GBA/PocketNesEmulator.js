@@ -68,8 +68,11 @@ export default class PocketNesEmulatorSaveData extends EmulatorBase {
     return new PocketNesEmulatorSaveData(pocketNesArrayBuffer);
   }
 
-  static requiresRomClass() {
-    return NesRom;
+  static requiresRom() {
+    return { 
+      clazz: NesRom,
+      requiredToConvertFrom: ['raw'],
+    };
   }
 
   // Based on https://github.com/libertyernie/POCKETNESsav/blob/master/POCKETNESsav.h#L73

@@ -33,7 +33,7 @@ export default class GenesisMegaEverdriveProGenesisFlashCartSaveData {
     return null; // Genesis saves have many possible extensions, and we just want to keep whatever the original extension was
   }
 
-  static requiresRomClass() {
+  static requiresRom() {
     return null;
   }
 

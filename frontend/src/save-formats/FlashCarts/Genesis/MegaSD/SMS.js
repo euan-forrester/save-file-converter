@@ -69,7 +69,7 @@ export default class GenesisMegaSdSmsFlashCartSaveData {
     return null; // SMS saves have many possible extensions, and we just want to keep whatever the original extension was
   }
 
-  static requiresRomClass() {
+  static requiresRom() {
     return null;
   }
 
