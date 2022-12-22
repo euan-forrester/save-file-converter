@@ -47,7 +47,7 @@ export default class GoombaEmulatorSaveData extends EmulatorBase {
   }
 
   static requiresRom() {
-    return { 
+    return {
       clazz: GbRom,
       requiredToConvert: ['convertToFormat'],
     };
