@@ -271,7 +271,7 @@ export default class Gb64EmulatorSaveData {
   static createWithNewSize(gb64EmulatorSaveData, newSize) {
     const newRawSaveData = SaveFilesUtil.resizeRawSave(gb64EmulatorSaveData.getRawArrayBuffer(), newSize);
 
-    return new Gb64EmulatorSaveData(gb64EmulatorSaveData.getFlashCartArrayBuffer(), newRawSaveData, gb64EmulatorSaveData.gameboyStateDataArrayBuffer());
+    return new Gb64EmulatorSaveData(gb64EmulatorSaveData.getFlashCartArrayBuffer(), newRawSaveData, gb64EmulatorSaveData.gameboyStateDataArrayBuffer);
   }
 
   static getFlashCartFileExtension() {
