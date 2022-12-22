@@ -10,7 +10,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <input-file
               @load="readWiiSaveData($event)"
               :errorMessage="this.errorMessage"
@@ -38,7 +38,7 @@
             :horizontalLayout="['md', 'lg', 'xl']"
             :verticalLayout="['xs', 'sm']"
             :conversionDirection="this.conversionDirection"
-            disableDirection="convertToRetron5"
+            disableDirection="convertToFormat"
             @change="changeConversionDirection($event)"
             id="conversion-direction"
           />
@@ -55,7 +55,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
           </div>
           <div v-else>
@@ -151,7 +151,7 @@ export default {
       outputFilename: null,
       outputPlatform: null,
       currentlyLoadingPlatform: null,
-      conversionDirection: 'convertToEmulator',
+      conversionDirection: 'convertToRaw',
     };
   },
   components: {
@@ -241,7 +241,7 @@ export default {
       }
     },
     convertFile() {
-      if (this.conversionDirection === 'convertToEmulator') {
+      if (this.conversionDirection === 'convertToRaw') {
         const outputBlob = new Blob([this.outputSaveData], { type: 'application/octet-stream' });
 
         saveAs(outputBlob, this.outputFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101

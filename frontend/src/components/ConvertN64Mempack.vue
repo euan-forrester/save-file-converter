@@ -10,7 +10,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <input-file
               @load="readMempackSaveData($event)"
               :errorMessage="this.errorMessage"
@@ -45,7 +45,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
           </div>
           <div v-else>
@@ -126,7 +126,7 @@ export default {
       errorMessage: null,
       inputFilename: null,
       outputFilename: null,
-      conversionDirection: 'convertToEmulator',
+      conversionDirection: 'convertToRaw',
       selectedSaveData: null,
     };
   },
@@ -138,7 +138,7 @@ export default {
   },
   computed: {
     convertButtonDisabled() {
-      const haveDataSelected = (this.conversionDirection === 'convertToEmulator') ? true : this.selectedSaveData === null;
+      const haveDataSelected = (this.conversionDirection === 'convertToRaw') ? true : this.selectedSaveData === null;
 
       return !this.mempackSaveData || this.mempackSaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
     },
@@ -211,7 +211,7 @@ export default {
     convertFile() {
       let outputArrayBuffer = null;
 
-      if (this.conversionDirection === 'convertToEmulator') {
+      if (this.conversionDirection === 'convertToRaw') {
         outputArrayBuffer = this.mempackSaveData.getSaveFiles()[this.selectedSaveData].rawData;
       } else {
         outputArrayBuffer = this.mempackSaveData.getArrayBuffer();

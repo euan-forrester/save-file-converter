@@ -279,13 +279,13 @@ export default class Gb64EmulatorSaveData {
   }
 
   static getRawFileExtension() {
-    return null; // GB/C saves have many possible extensions, and we just want to keep whatever the original extension was
+    return 'srm'; // GB/C saves have many possible extensions, but keeping .fla is definitely not the correct one
   }
 
   static requiresRom() {
     return {
       clazz: GbRom,
-      requiredToConvertFrom: ['flashcart', 'raw'],
+      requiredToConvert: ['convertToFormat', 'convertToRaw'],
     };
   }
 

@@ -10,7 +10,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <input-file
               @load="readMisterSaveData($event)"
               :errorMessage="this.errorMessage"
@@ -44,7 +44,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
             <div v-if="this.isSegaCd">
               <sega-cd-save-type-selector
@@ -153,7 +153,7 @@ export default {
       errorMessage: null,
       outputFilename: null,
       outputFilesize: null,
-      conversionDirection: 'convertToEmulator',
+      conversionDirection: 'convertToRaw',
       inputArrayBuffer: null,
       inputFilename: null,
       inputFileType: null,
@@ -292,7 +292,7 @@ export default {
       const currentlySegaCd = this.isSegaCd;
       const previouslySegaCd = (this.misterPlatformPrevious === 'Mister-MCD');
 
-      if ((currentlySegaCd !== previouslySegaCd) && (this.conversionDirection !== 'convertToEmulator')) {
+      if ((currentlySegaCd !== previouslySegaCd) && (this.conversionDirection !== 'convertToRaw')) {
         this.inputFileType = null;
         this.inputArrayBuffer = null;
         this.inputFilename = null;
@@ -387,7 +387,7 @@ export default {
 
       let output = null;
 
-      if (this.conversionDirection === 'convertToEmulator') {
+      if (this.conversionDirection === 'convertToRaw') {
         if (this.isSegaCd) {
           output = this.misterSaveData.getRawArrayBuffer(this.segaCdSaveType);
         } else {

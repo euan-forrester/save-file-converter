@@ -10,7 +10,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <input-file
               @load="readDexDriveSaveData($event)"
               :errorMessage="this.errorMessage"
@@ -45,7 +45,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <div v-if="this.individualSavesOrMemoryCard === 'individual-saves'">
               <output-filename
                 v-model="outputFilename"
@@ -144,7 +144,7 @@ export default {
       errorMessage: null,
       inputFilename: null,
       outputFilename: null,
-      conversionDirection: 'convertToEmulator',
+      conversionDirection: 'convertToRaw',
       selectedSaveData: null,
       individualSavesOrMemoryCard: 'memory-card',
       individualSavesText: 'Individual saves',
@@ -160,7 +160,7 @@ export default {
   },
   computed: {
     convertButtonDisabled() {
-      const haveDataSelected = (this.conversionDirection === 'convertToEmulator') ? true : this.selectedSaveData === null;
+      const haveDataSelected = (this.conversionDirection === 'convertToRaw') ? true : this.selectedSaveData === null;
 
       return !this.dexDriveSaveData || this.dexDriveSaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
     },
@@ -267,7 +267,7 @@ export default {
     convertFile() {
       let outputArrayBuffer = null;
 
-      if (this.conversionDirection === 'convertToEmulator') {
+      if (this.conversionDirection === 'convertToRaw') {
         if (this.individualSavesOrMemoryCard === 'individual-saves') {
           outputArrayBuffer = this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData].rawData;
         } else {

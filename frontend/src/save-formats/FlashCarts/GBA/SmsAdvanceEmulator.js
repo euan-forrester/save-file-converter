@@ -69,7 +69,7 @@ export default class SmsAdvanceEmulatorSaveData extends EmulatorBase {
   static requiresRom() {
     return { 
       clazz: SmsRom,
-      requiredToConvertFrom: ['raw'],
+      requiredToConvert: ['convertToFormat'],
     };
   }
 

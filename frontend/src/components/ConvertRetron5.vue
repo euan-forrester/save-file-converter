@@ -10,7 +10,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <input-file
               @load="readRetron5SaveData($event)"
               :errorMessage="this.errorMessage"
@@ -39,7 +39,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
           </div>
           <div v-else>
@@ -103,7 +103,7 @@ export default {
       retron5SaveData: null,
       errorMessage: null,
       outputFilename: null,
-      conversionDirection: 'convertToEmulator',
+      conversionDirection: 'convertToRaw',
     };
   },
   components: {
@@ -139,7 +139,7 @@ export default {
       }
     },
     convertFile() {
-      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.retron5SaveData.getRawSaveData() : this.retron5SaveData.getArrayBuffer();
+      const outputArrayBuffer = (this.conversionDirection === 'convertToRaw') ? this.retron5SaveData.getRawSaveData() : this.retron5SaveData.getArrayBuffer();
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 

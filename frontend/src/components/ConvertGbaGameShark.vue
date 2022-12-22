@@ -10,7 +10,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'" class="inputs-row">
+          <div v-if="this.conversionDirection === 'convertToRaw'" class="inputs-row">
             <input-file
               id="choose-gameshark-file"
               @load="readGameSharkSaveData($event)"
@@ -41,7 +41,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'" class="inputs-row">
+          <div v-if="this.conversionDirection === 'convertToRaw'" class="inputs-row">
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="true"/>
             <output-filesize v-model="outputFilesize" id="raw-filesize" platform="gba"/>
           </div>
@@ -131,7 +131,7 @@ export default {
       errorMessage: null,
       outputFilename: null,
       outputFilesize: null,
-      conversionDirection: 'convertToEmulator',
+      conversionDirection: 'convertToRaw',
     };
   },
   components: {
@@ -197,7 +197,7 @@ export default {
         this.gameSharkSaveData = GameSharkSaveData.createWithNewSize(this.gameSharkSaveData, this.outputFilesize);
       }
 
-      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.gameSharkSaveData.getRawSaveData() : this.gameSharkSaveData.getArrayBuffer();
+      const outputArrayBuffer = (this.conversionDirection === 'convertToRaw') ? this.gameSharkSaveData.getRawSaveData() : this.gameSharkSaveData.getArrayBuffer();
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 

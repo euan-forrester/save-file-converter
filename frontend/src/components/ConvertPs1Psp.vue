@@ -10,7 +10,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <input-file
               @load="readpspSaveData($event)"
               :errorMessage="this.errorMessage"
@@ -50,7 +50,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <div v-if="this.individualSavesOrMemoryCard === 'individual-saves'">
               <output-filename
                 v-model="outputFilename"
@@ -153,7 +153,7 @@ export default {
       errorMessage: null,
       inputFilename: null,
       outputFilename: null,
-      conversionDirection: 'convertToEmulator',
+      conversionDirection: 'convertToRaw',
       selectedSaveData: null,
       memoryCardIndex: 0,
       individualSavesOrMemoryCard: 'memory-card',
@@ -171,7 +171,7 @@ export default {
   },
   computed: {
     convertButtonDisabled() {
-      const haveDataSelected = (this.conversionDirection === 'convertToEmulator') ? true : this.selectedSaveData === null;
+      const haveDataSelected = (this.conversionDirection === 'convertToRaw') ? true : this.selectedSaveData === null;
 
       return !this.pspSaveData || this.pspSaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
     },
@@ -213,7 +213,7 @@ export default {
       this.memoryCardIndex = 0;
       this.individualSavesOrMemoryCard = 'memory-card';
 
-      if (newDirection === 'convertToRetron5') {
+      if (newDirection === 'convertToFormat') {
         this.changeMemoryCardIndex();
       }
     },
@@ -265,7 +265,7 @@ export default {
     convertFile() {
       let outputArrayBuffer = null;
 
-      if (this.conversionDirection === 'convertToEmulator') {
+      if (this.conversionDirection === 'convertToRaw') {
         if (this.individualSavesOrMemoryCard === 'individual-saves') {
           outputArrayBuffer = this.pspSaveData.getSaveFiles()[this.selectedSaveData].rawData;
         } else {

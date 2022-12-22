@@ -71,7 +71,7 @@ export default class PocketNesEmulatorSaveData extends EmulatorBase {
   static requiresRom() {
     return { 
       clazz: NesRom,
-      requiredToConvertFrom: ['raw'],
+      requiredToConvert: ['convertToFormat'],
     };
   }
 

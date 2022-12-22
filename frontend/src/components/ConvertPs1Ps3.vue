@@ -10,7 +10,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <input-file
               @load="readPs3SaveData($event)"
               :errorMessage="this.errorMessage"
@@ -50,7 +50,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <div v-if="this.individualSavesOrMemoryCard === 'individual-saves'">
               <output-filename
                 v-model="outputFilename"
@@ -150,7 +150,7 @@ export default {
       errorMessage: null,
       inputFilename: null,
       outputFilename: null,
-      conversionDirection: 'convertToEmulator',
+      conversionDirection: 'convertToRaw',
       selectedSaveData: null,
       individualSavesOrMemoryCard: 'memory-card',
       individualSavesText: 'Individual save',
@@ -217,7 +217,7 @@ export default {
       if (newSaveData !== null) {
         if ((this.ps3SaveData !== null) && (this.ps3SaveData.getSaveFiles().length > 0)) {
           this.selectedSaveData = newSaveData;
-          if (this.conversionDirection === 'convertToEmulator') {
+          if (this.conversionDirection === 'convertToRaw') {
             this.outputFilename = this.ps3SaveData.getSaveFiles()[this.selectedSaveData].filename;
           } else {
             this.outputFilename = this.ps3SaveData.getPs3SaveFiles()[this.selectedSaveData].filename;
@@ -265,7 +265,7 @@ export default {
     convertFile() {
       let outputArrayBuffer = null;
 
-      if (this.conversionDirection === 'convertToEmulator') {
+      if (this.conversionDirection === 'convertToRaw') {
         if (this.individualSavesOrMemoryCard === 'individual-saves') {
           outputArrayBuffer = this.ps3SaveData.getSaveFiles()[this.selectedSaveData].rawData;
         } else {
