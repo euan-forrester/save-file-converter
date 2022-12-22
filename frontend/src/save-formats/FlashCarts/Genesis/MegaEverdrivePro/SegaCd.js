@@ -93,7 +93,7 @@ export default class GenesisMegaEverdriveProSegaCdFlashCartSaveData {
     return 'brm';
   }
 
-  static requiresRomClass() {
+  static requiresRom() {
     return null;
   }
 

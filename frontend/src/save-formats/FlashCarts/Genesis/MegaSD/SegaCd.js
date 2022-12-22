@@ -117,7 +117,7 @@ export default class GenesisMegaSdSegaCdFlashCartSaveData {
     return 'brm';
   }
 
-  static requiresRomClass() {
+  static requiresRom() {
     return null;
   }
 

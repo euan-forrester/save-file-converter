@@ -66,8 +66,11 @@ export default class SmsAdvanceEmulatorSaveData extends EmulatorBase {
     return new SmsAdvanceEmulatorSaveData(flashCartArrayBuffer);
   }
 
-  static requiresRomClass() {
-    return SmsRom;
+  static requiresRom() {
+    return { 
+      clazz: SmsRom,
+      requiredToConvert: ['convertToFormat'],
+    };
   }
 
   // Based on https://github.com/libertyernie/goombasav/blob/master/goombasav.h#L85

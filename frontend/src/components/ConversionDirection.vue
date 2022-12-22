@@ -57,12 +57,12 @@ export default {
     return {
       conversionDirectionInternal: this.conversionDirection, // We shouldn't directly mutate a prop because when the parent gets reloaded it'll reset its value
       optionsHorizontal: [
-        { html: '<i class="fa fa-arrow-circle-right fa-3x"></i>', value: 'convertToEmulator', disabled: this.disableDirection === 'convertToEmulator' },
-        { html: '<i class="fa fa-arrow-circle-left fa-3x"></i>', value: 'convertToRetron5', disabled: this.disableDirection === 'convertToRetron5' },
+        { html: '<i class="fa fa-arrow-circle-right fa-3x"></i>', value: 'convertToRaw', disabled: this.disableDirection === 'convertToRaw' },
+        { html: '<i class="fa fa-arrow-circle-left fa-3x"></i>', value: 'convertToFormat', disabled: this.disableDirection === 'convertToFormat' },
       ],
       optionsVertical: [
-        { html: '<i class="fa fa-arrow-circle-down fa-3x"></i>', value: 'convertToEmulator', disabled: this.disableDirection === 'convertToEmulator' },
-        { html: '<i class="fa fa-arrow-circle-up fa-3x"></i>', value: 'convertToRetron5', disabled: this.disableDirection === 'convertToRetron5' },
+        { html: '<i class="fa fa-arrow-circle-down fa-3x"></i>', value: 'convertToRaw', disabled: this.disableDirection === 'convertToRaw' },
+        { html: '<i class="fa fa-arrow-circle-up fa-3x"></i>', value: 'convertToFormat', disabled: this.disableDirection === 'convertToFormat' },
       ],
     };
   },

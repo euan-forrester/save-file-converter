@@ -136,6 +136,7 @@ export default {
           { value: 'FlashCart-N64', text: 'Nintendo 64 game' },
           { value: 'FlashCart-NESN64', text: 'NES game' },
           { value: 'FlashCart-Neon64Emulator', text: 'NES game (Neon64 emulator)' },
+          { value: 'FlashCart-GB64Emulator', text: 'GB/GBC game (GB64 emulator)' },
         ],
       },
     };

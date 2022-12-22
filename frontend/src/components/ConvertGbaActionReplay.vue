@@ -10,7 +10,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <input-file
               @load="readActionReplaySaveData($event)"
               :errorMessage="this.errorMessage"
@@ -40,7 +40,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
             <output-filesize v-model="outputFilesize" id="action-replay-filesize" platform="gba"/>
           </div>
@@ -109,7 +109,7 @@ export default {
       errorMessage: null,
       outputFilename: null,
       outputFilesize: null,
-      conversionDirection: 'convertToEmulator',
+      conversionDirection: 'convertToRaw',
     };
   },
   components: {
@@ -153,7 +153,7 @@ export default {
         this.actionReplaySaveData = ActionReplaySaveData.createWithNewSize(this.actionReplaySaveData, this.outputFilesize);
       }
 
-      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.actionReplaySaveData.getRawSaveData() : this.actionReplaySaveData.getArrayBuffer();
+      const outputArrayBuffer = (this.conversionDirection === 'convertToRaw') ? this.actionReplaySaveData.getRawSaveData() : this.actionReplaySaveData.getArrayBuffer();
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 

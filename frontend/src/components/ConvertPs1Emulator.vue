@@ -10,7 +10,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <input-file
               @load="readMemcardSaveData($event)"
               :errorMessage="this.errorMessage"
@@ -45,7 +45,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
           </div>
           <div v-else>
@@ -125,7 +125,7 @@ export default {
       memcardSaveData: null,
       errorMessage: null,
       outputFilename: null,
-      conversionDirection: 'convertToEmulator',
+      conversionDirection: 'convertToRaw',
       selectedSaveData: null,
     };
   },
@@ -137,7 +137,7 @@ export default {
   },
   computed: {
     convertButtonDisabled() {
-      const haveDataSelected = (this.conversionDirection === 'convertToEmulator') ? true : this.selectedSaveData === null;
+      const haveDataSelected = (this.conversionDirection === 'convertToRaw') ? true : this.selectedSaveData === null;
 
       return !this.memcardSaveData || this.memcardSaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
     },
@@ -198,7 +198,7 @@ export default {
       }
     },
     convertFile() {
-      const outputArrayBuffer = (this.conversionDirection === 'convertToEmulator') ? this.memcardSaveData.getSaveFiles()[this.selectedSaveData].rawData : this.memcardSaveData.getArrayBuffer();
+      const outputArrayBuffer = (this.conversionDirection === 'convertToRaw') ? this.memcardSaveData.getSaveFiles()[this.selectedSaveData].rawData : this.memcardSaveData.getArrayBuffer();
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 

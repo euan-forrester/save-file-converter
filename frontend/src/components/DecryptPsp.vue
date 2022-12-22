@@ -10,7 +10,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <input-file
               @load="readEncryptedSaveData($event)"
               :errorMessage="this.errorMessage"
@@ -52,7 +52,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
           </div>
           <div v-else>
@@ -92,7 +92,7 @@
           >
           Convert!
           </b-button>
-        <div v-if="this.conversionDirection !== 'convertToEmulator'">
+        <div v-if="this.conversionDirection !== 'convertToRaw'">
           <help-button
             popover-text="You will need to download 2 files: the encrypted save file and an updated PARAM.SFO file.
             Copy them over the original files on your PSP or created by your emulator."
@@ -159,7 +159,7 @@ export default {
       gamekeyArrayBuffer: null,
       errorMessage: null,
       outputFilename: null,
-      conversionDirection: 'convertToEmulator',
+      conversionDirection: 'convertToRaw',
       gamekeyHelpText: 'See the help links below for information on how to install custom firmware on your PSP, and how to install a plugin that will output a game key file for each game.',
     };
   },
@@ -200,7 +200,7 @@ export default {
       this.errorMessage = null;
     },
     hasEnoughInfoToConvertFile() {
-      if (this.conversionDirection === 'convertToEmulator') {
+      if (this.conversionDirection === 'convertToRaw') {
         // Decrypting
         return this.pspDataArrayBuffer && this.gamekeyArrayBuffer && this.outputFilename;
       }
@@ -210,7 +210,7 @@ export default {
     },
     convertFile() {
       this.errorMessage = null;
-      if (this.conversionDirection === 'convertToEmulator') {
+      if (this.conversionDirection === 'convertToRaw') {
         // Decrypting
         try {
           const pspSaveData = PspSaveData.createFromEncryptedData(this.pspDataArrayBuffer, this.gamekeyArrayBuffer);

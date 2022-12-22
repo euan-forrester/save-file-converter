@@ -10,7 +10,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <input-file
               @load="readFlashCartSaveData($event)"
               :errorMessage="this.errorMessage"
@@ -27,6 +27,18 @@
               <sega-cd-save-type-selector
                 :value="this.segaCdSaveType"
                 @change="changeSegaCdSaveType($event)"
+              />
+            </div>
+            <div v-if="this.romIsRequired">
+              <input-file
+                id="choose-raw-file-rom"
+                @load="readRomData($event)"
+                :errorMessage="null"
+                :placeholderText="`Choose the ROM for this file ${getFileExtensionsString(this.flashCartTypeClass.requiresRom().clazz)}`"
+                helpText="These save files require some information from the corresponding ROM.
+                All processing by this website is done on your local machine, and your ROMs are not sent anywhere."
+                :acceptExtension="this.flashCartTypeClass.requiresRom().clazz.getFileExtensions().join(',')"
+                :leaveRoomForHelpIcon="true"
               />
             </div>
           </div>
@@ -53,7 +65,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'">
+          <div v-if="this.conversionDirection === 'convertToRaw'">
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
             <div v-if="this.isSegaCdWithOneOutputFile">
               <sega-cd-save-type-selector
@@ -103,15 +115,15 @@
                 @change="changeSegaCdSaveType($event)"
               />
             </div>
-            <div v-if="(this.flashCartTypeClass !== null) && (this.flashCartTypeClass.requiresRomClass() !== null)">
+            <div v-if="this.romIsRequired">
               <input-file
                 id="choose-raw-file-rom"
                 @load="readRomData($event)"
                 :errorMessage="null"
-                :placeholderText="`Choose the ROM for this file ${getFileExtensionsString(this.flashCartTypeClass.requiresRomClass())}`"
-                helpText="These save files contain some information from the corresponding ROM, and the emulator checks this information before allowing the save to be loaded.
+                :placeholderText="`Choose the ROM for this file ${getFileExtensionsString(this.flashCartTypeClass.requiresRom().clazz)}`"
+                helpText="These save files require some information from the corresponding ROM.
                 All processing by this website is done on your local machine, and your ROMs are not sent anywhere."
-                :acceptExtension="this.flashCartTypeClass.requiresRomClass().getFileExtensions().join(',')"
+                :acceptExtension="this.flashCartTypeClass.requiresRom().clazz.getFileExtensions().join(',')"
                 :leaveRoomForHelpIcon="true"
               />
             </div>
@@ -178,6 +190,7 @@ import GbaFlashCartSaveData from '../save-formats/FlashCarts/GBA/GBA';
 import N64FlashCartSaveData from '../save-formats/FlashCarts/N64/N64';
 import N64NesFlashCartSaveData from '../save-formats/FlashCarts/N64/NES';
 import Neon64EmulatorSaveData from '../save-formats/FlashCarts/N64/Neon64Emulator';
+import Gb64EmulatorSaveData from '../save-formats/FlashCarts/N64/GB64Emulator';
 
 export default {
   name: 'ConvertFlashCarts',
@@ -191,10 +204,9 @@ export default {
       errorMessage: null,
       outputFilename: null,
       outputFilesize: null,
-      conversionDirection: 'convertToEmulator',
+      conversionDirection: 'convertToRaw',
       inputArrayBuffer: null,
       inputFilename: null,
-      inputFileType: null,
       inputSegaCd: {},
       segaCdSaveType: 'internal-memory',
     };
@@ -223,13 +235,28 @@ export default {
           if (this.isSegaCd) {
             // Flash carts have fixed sizes for their RAM carts, so we don't want to adjust them.
             // Emulators may have any size
-            return ((this.conversionDirection === 'convertToEmulator') && (this.segaCdSaveType === 'ram-cart'));
+            return ((this.conversionDirection === 'convertToRaw') && (this.segaCdSaveType === 'ram-cart'));
           }
 
           return true;
         }
 
         return false;
+      },
+    },
+    romIsRequired: {
+      get() {
+        if (this.flashCartTypeClass === null) {
+          return false;
+        }
+
+        let requiresRomToConvert = [];
+
+        if (this.flashCartTypeClass.requiresRom() !== null) {
+          requiresRomToConvert = this.flashCartTypeClass.requiresRom().requiredToConvert;
+        }
+
+        return (requiresRomToConvert.indexOf(this.conversionDirection) >= 0);
       },
     },
   },
@@ -255,7 +282,6 @@ export default {
       this.outputFilesize = null;
       this.inputArrayBuffer = null;
       this.inputFilename = null;
-      this.inputFileType = null;
       this.inputSegaCd = {};
       this.segaCdSaveType = 'internal-memory';
     },
@@ -362,6 +388,11 @@ export default {
             break;
           }
 
+          case 'FlashCart-GB64Emulator': {
+            this.flashCartTypeClass = Gb64EmulatorSaveData;
+            break;
+          }
+
           default: {
             this.flashCartTypeClass = null;
             break;
@@ -382,11 +413,12 @@ export default {
       const currentlySegaCd = this.isSegaCd;
       const previouslySegaCd = this.flashCartTypeIsSegaCd(this.flashCartTypePrevious);
 
-      if ((currentlySegaCd !== previouslySegaCd) && (this.conversionDirection !== 'convertToEmulator')) {
-        this.inputFileType = null;
+      if ((currentlySegaCd !== previouslySegaCd) && (this.conversionDirection !== 'convertToRaw')) {
         this.inputArrayBuffer = null;
+        this.flashCartSaveData = null;
         this.inputFilename = null;
         this.inputSegaCd = {};
+        this.outputFilesize = null;
         // The refs become undefined when the components are removed using a v-if
         if (this.$refs.inputFileSegaCdInternalMemory) {
           this.$refs.inputFileSegaCdInternalMemory.reset();
@@ -416,10 +448,10 @@ export default {
       this.updateFlashCartSaveData();
     },
     hasRequiredRomData() {
-      return (this.flashCartTypeClass !== null) && ((this.flashCartTypeClass.requiresRomClass() === null) || (this.romData !== null));
+      return (!this.romIsRequired || (this.romData !== null));
     },
     hasRequiredInputFileData() {
-      return (this.inputArrayBuffer !== null) && (this.inputFilename !== null) && (this.inputFileType !== null);
+      return (this.inputArrayBuffer !== null) && (this.inputFilename !== null);
     },
     getOutputFilename(inputFilename, fileExtension) {
       if (fileExtension !== null) {
@@ -472,7 +504,7 @@ export default {
 
         // RAM cart, so ask the class the default size
 
-        if (this.inputFileType === 'flashcart') {
+        if (this.conversionDirection === 'convertToRaw') {
           return this.flashCartTypeClass.getRawDefaultRamCartSize();
         }
 
@@ -493,10 +525,10 @@ export default {
     updateFlashCartSaveData() {
       this.errorMessage = null;
 
-      if ((this.flashCartTypeClass !== null) && ((this.inputFileType === 'flashcart') || this.hasRequiredRomData()) && this.hasRequiredInputFileData()) {
+      if ((this.flashCartTypeClass !== null) && this.hasRequiredRomData() && this.hasRequiredInputFileData()) {
         try {
-          if (this.inputFileType === 'flashcart') {
-            this.flashCartSaveData = this.flashCartTypeClass.createFromFlashCartData(this.getFlashCartInput());
+          if (this.conversionDirection === 'convertToRaw') {
+            this.flashCartSaveData = this.flashCartTypeClass.createFromFlashCartData(this.getFlashCartInput(), this.romData);
             this.outputFilename = this.getRawFilename();
           } else {
             this.flashCartSaveData = this.flashCartTypeClass.createFromRawData(this.getRawInput(), this.romData);
@@ -515,7 +547,6 @@ export default {
       }
     },
     readFlashCartSaveData(event) {
-      this.inputFileType = 'flashcart';
       this.inputArrayBuffer = event.arrayBuffer;
       this.inputFilename = event.filename;
       this.segaCdSaveType = this.getDefaultSegaCdSaveType();
@@ -524,7 +555,6 @@ export default {
       this.updateFlashCartSaveData();
     },
     readEmulatorSaveData(event, inputSegaCdType = null) {
-      this.inputFileType = 'raw';
       this.inputArrayBuffer = event.arrayBuffer;
       this.inputFilename = event.filename;
       this.segaCdSaveType = this.getDefaultSegaCdSaveType();
@@ -552,7 +582,7 @@ export default {
 
       let output = null;
 
-      if (this.conversionDirection === 'convertToEmulator') {
+      if (this.conversionDirection === 'convertToRaw') {
         if (this.isSegaCd) {
           output = this.flashCartSaveData.getRawArrayBuffer(this.segaCdSaveType);
         } else {

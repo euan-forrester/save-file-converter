@@ -46,8 +46,11 @@ export default class GoombaEmulatorSaveData extends EmulatorBase {
     return new GoombaEmulatorSaveData(goombaArrayBuffer);
   }
 
-  static requiresRomClass() {
-    return GbRom;
+  static requiresRom() {
+    return { 
+      clazz: GbRom,
+      requiredToConvert: ['convertToFormat'],
+    };
   }
 
   // Based on https://github.com/libertyernie/goombasav/blob/master/goombasav.h#L61

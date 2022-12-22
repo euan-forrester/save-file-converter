@@ -10,7 +10,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'" class="inputs-row">
+          <div v-if="this.conversionDirection === 'convertToRaw'" class="inputs-row">
             <input-file
               id="choose-gameshark-file"
               @load="readGameSharkSaveData($event)"
@@ -30,7 +30,7 @@
             :horizontalLayout="['md', 'lg', 'xl']"
             :verticalLayout="['xs', 'sm']"
             :conversionDirection="this.conversionDirection"
-            disableDirection="convertToRetron5"
+            disableDirection="convertToFormat"
             @change="changeConversionDirection($event)"
             id="conversion-direction"
           />
@@ -46,7 +46,7 @@
               </b-jumbotron>
             </b-col>
           </b-row>
-          <div v-if="this.conversionDirection === 'convertToEmulator'" class="inputs-row">
+          <div v-if="this.conversionDirection === 'convertToRaw'" class="inputs-row">
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="true"/>
             <output-filesize v-model="outputFilesize" id="raw-filesize" platform="gba"/>
           </div>
@@ -137,7 +137,7 @@ export default {
       errorMessage: null,
       outputFilename: null,
       outputFilesize: null,
-      conversionDirection: 'convertToEmulator',
+      conversionDirection: 'convertToRaw',
     };
   },
   components: {
