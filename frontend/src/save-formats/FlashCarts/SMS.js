@@ -9,8 +9,8 @@ export default class SmsFlashCartSaveData {
     return new SmsFlashCartSaveData(rawArrayBuffer, rawArrayBuffer);
   }
 
-  static createWithNewSize(nesFlashCartSaveData, newSize) {
-    const newRawSaveData = SaveFilesUtil.resizeRawSave(nesFlashCartSaveData.getRawArrayBuffer(), newSize);
+  static createWithNewSize(flashCartSaveData, newSize) {
+    const newRawSaveData = SaveFilesUtil.resizeRawSave(flashCartSaveData.getRawArrayBuffer(), newSize);
 
     return SmsFlashCartSaveData.createFromRawData(newRawSaveData);
   }

@@ -9,8 +9,8 @@ export default class GameGearFlashCartSaveData {
     return new GameGearFlashCartSaveData(rawArrayBuffer, rawArrayBuffer);
   }
 
-  static createWithNewSize(nesFlashCartSaveData, newSize) {
-    const newRawSaveData = SaveFilesUtil.resizeRawSave(nesFlashCartSaveData.getRawArrayBuffer(), newSize);
+  static createWithNewSize(flashCartSaveData, newSize) {
+    const newRawSaveData = SaveFilesUtil.resizeRawSave(flashCartSaveData.getRawArrayBuffer(), newSize);
 
     return GameGearFlashCartSaveData.createFromRawData(newRawSaveData);
   }
