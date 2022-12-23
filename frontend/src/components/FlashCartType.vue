@@ -98,6 +98,8 @@ export default {
         { value: 'GenesisMegaSD', text: 'Genesis cart (Mega SD)' },
         { value: 'N64', text: 'Nintendo 64 cart' },
         { value: 'PCE', text: 'TurboGrafx-16/PC Engine cart' },
+        { value: 'GG', text: 'Game Gear cart' },
+        { value: 'SMS', text: 'Master System/Mark III cart' },
       ],
 
       platformTypes: {
@@ -141,6 +143,12 @@ export default {
         ],
         PCE: [
           { value: 'FlashCart-PCE', text: 'TurboGrafx-16/PC Engine game' },
+        ],
+        GG: [
+          { value: 'FlashCart-GG', text: 'Game Gear game' },
+        ],
+        SMS: [
+          { value: 'FlashCart-SMS', text: 'Master System/Mark III game' },
         ],
       },
     };
