@@ -191,6 +191,9 @@ import N64FlashCartSaveData from '../save-formats/FlashCarts/N64/N64';
 import N64NesFlashCartSaveData from '../save-formats/FlashCarts/N64/NES';
 import Neon64EmulatorSaveData from '../save-formats/FlashCarts/N64/Neon64Emulator';
 import Gb64EmulatorSaveData from '../save-formats/FlashCarts/N64/GB64Emulator';
+import PcEngineFlashCartSaveData from '../save-formats/FlashCarts/PcEngine';
+import GameGearFlashCartSaveData from '../save-formats/FlashCarts/GameGear';
+import SmsFlashCartSaveData from '../save-formats/FlashCarts/SMS';
 
 export default {
   name: 'ConvertFlashCarts',
@@ -390,6 +393,21 @@ export default {
 
           case 'FlashCart-GB64Emulator': {
             this.flashCartTypeClass = Gb64EmulatorSaveData;
+            break;
+          }
+
+          case 'FlashCart-PCE': {
+            this.flashCartTypeClass = PcEngineFlashCartSaveData;
+            break;
+          }
+
+          case 'FlashCart-GG': {
+            this.flashCartTypeClass = GameGearFlashCartSaveData;
+            break;
+          }
+
+          case 'FlashCart-SMS': {
+            this.flashCartTypeClass = SmsFlashCartSaveData;
             break;
           }
 

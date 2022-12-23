@@ -97,6 +97,9 @@ export default {
         { value: 'GenesisEverdrive', text: 'Genesis cart (Everdrive)' },
         { value: 'GenesisMegaSD', text: 'Genesis cart (Mega SD)' },
         { value: 'N64', text: 'Nintendo 64 cart' },
+        { value: 'PCE', text: 'TurboGrafx-16/PC Engine cart' },
+        { value: 'GG', text: 'Game Gear cart' },
+        { value: 'SMS', text: 'Master System/Mark III cart' },
       ],
 
       platformTypes: {
@@ -137,6 +140,15 @@ export default {
           { value: 'FlashCart-NESN64', text: 'NES game' },
           { value: 'FlashCart-Neon64Emulator', text: 'NES game (Neon64 emulator)' },
           { value: 'FlashCart-GB64Emulator', text: 'GB/GBC game (GB64 emulator)' },
+        ],
+        PCE: [
+          { value: 'FlashCart-PCE', text: 'TurboGrafx-16/PC Engine game' },
+        ],
+        GG: [
+          { value: 'FlashCart-GG', text: 'Game Gear game' },
+        ],
+        SMS: [
+          { value: 'FlashCart-SMS', text: 'Master System/Mark III game' },
         ],
       },
     };
