@@ -212,6 +212,13 @@ export default {
       this.outputFilename = null;
       this.selectedSaveData = null;
       this.individualSavesOrMemoryCard = 'memory-card';
+
+      if (this.conversionDirection === 'convertToFormat') {
+        // Can only convert individual saves to PS3 format. Maybe we should auto detect whether we
+        // were given an individual save or a memory card image and adjust accodingly (and allow the user
+        // to choose an individual save from the memory card image)?
+        this.changeIndividualSavesOrMemoryCard('individual-saves');
+      }
     },
     changeSelectedSaveData(newSaveData) {
       if (newSaveData !== null) {
