@@ -9,7 +9,7 @@
       <b-row>
         <b-col class="nav-row">
           <router-link to="/mister">MiSTer</router-link> |
-          <router-link to="/flash-carts">Flash cartridges{{'\xa0'}}(Beta)</router-link>
+          <router-link to="/flash-carts">Flash cartridges</router-link>
         </b-col>
       </b-row>
       <b-row>
