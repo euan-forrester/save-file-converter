@@ -61,6 +61,10 @@ export default (arrayBuffer, fileName) => {
   // Some N64 saves have this strange internal filename. We need to truncate the file to
   // the nearest legit size:
   // https://forums.dolphin-emu.org/archive/index.php?thread-35067-95.html
+  //
+  // NMFE is the game ID for Mario Golf 64 in North America. This game was released on Wii VC
+  // in PAL regions and Japan as well: is the filename different in those saves?
+  // Should we rework the logic to look for "RAM_*" filenames and just do the same handling?
   if (fileName === 'RAM_NMFE') {
     for (let i = ALL_SIZES.length - 1; i >= 0; i -= 1) {
       if (ALL_SIZES[i] < arrayBuffer.byteLength) {
