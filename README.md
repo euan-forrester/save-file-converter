@@ -141,6 +141,7 @@ Everything on this site is free and open source with no advertising. If you find
       - https://github.com/hcs64/neon64v2/issues/20
       - http://themanbehindcurtain.blogspot.com/
 - Sega CD:
+  - https://github.com/superctr/buram/
   - Sega operating manuals
     - Standards that games were to use when interfacing with backup RAM: https://segaretro.org/images/6/6e/Sega-CD_Software_Standards.pdf
     - BIOS calls that games were to use to access backup RAM: https://segaretro.org/images/4/44/MCDBios.pdf
