@@ -25,6 +25,10 @@ const DIRECTORY_VOLUME_OFFSET = 0x00;
 const DIRECTORY_NUM_FILES_OFFSET = 0x18;
 const DIRECTORY_NUM_FREE_BLOCKS_OFFSET = 0x10;
 
+const DIRECTORY_ENTRY_SIZE = 0x20;
+
+const BLOCK_SIZE = 0x40;
+
 const TEXT_ENCODING = 'US-ASCII';
 const VOLUME_LENGTH = 11;
 const FORMAT_LENGTH = 11;
@@ -74,7 +78,7 @@ function decodeText(arrayBuffer, offset, length) {
   const rawText = textDecoder.decode(arrayBuffer.slice(offset, offset + length));
   const text = rawText.replace(/(?!([A-Z]|[0-9]|\*))./g, '_'); // Anything other than A-Z, 0-9, or * is replaced with a _
 
-  return text.replace(/_*$/g, ''); // Remove trailing _'s This will remove all trailing _'s, so that the string '_____' -> ''. The implementation linked above will turn it into '_' (leaving a single underscore), which I'm not actually sure is more correct
+  return text.replace(/_*$/g, ''); // Remove trailing _'s. This will remove all trailing _'s, so that the string '_____' -> ''. The implementation linked above will turn it into '_' (leaving a single underscore), which I'm not actually sure is more correct
 }
 
 // Taken from https://github.com/superctr/buram/blob/master/buram.c#L470
@@ -107,12 +111,28 @@ function readRepeatCode(arrayBuffer, offsetFromDirectory, repeatCount) {
   throw new Error(`Unable to find repeat code at offset from directory 0x${offsetFromDirectory.toString(16)}`);
 }
 
-function getNumSaveFiles(arrayBuffer) {
-  return readRepeatCode(arrayBuffer, DIRECTORY_NUM_FILES_OFFSET, DIRECTORY_REPEAT_COUNT);
+// This is based on https://github.com/superctr/buram/blob/master/buram.c#L433
+// (but without the optimization of cacheing the last accessed buffer)
+function decodeBuffer(arrayBuffer, offset) {
+  const block = arrayBuffer.slice(offset, offset + BLOCK_SIZE);
+  
 }
 
-function getNumFreeBlocks(arrayBuffer) {
-  return readRepeatCode(arrayBuffer, DIRECTORY_NUM_FREE_BLOCKS_OFFSET, DIRECTORY_REPEAT_COUNT);
+// This is based on https://github.com/superctr/buram/blob/master/buram.c#L820
+// which is called by https://github.com/superctr/buram/blob/master/buram.c#L1013
+function readSaveFiles(arrayBuffer, numSaveFiles) {
+  const directoryOffset = arrayBuffer.byteLength - DIRECTORY_SIZE;
+  let currentOffset = directoryOffset - DIRECTORY_ENTRY_SIZE;
+
+  for (let i = 0; i < numSaveFiles; i += 1) {
+    const decodedBuffer = decodeBuffer(arrayBuffer, currentOffset);
+
+    // The first part of the directory entry is the filename in ASCII so temporarily let's print the whole thing to see if we decoded the buffer correctly
+    const textDecoder = new TextDecoder('US-ASCII');
+    const bufferAsAscii = textDecoder.decode(decodedBuffer);
+
+    console.log(`Decoded buffer into '${bufferAsAscii}'`);
+  }
 }
 
 export default class SegaCdSaveData {
@@ -135,14 +155,14 @@ export default class SegaCdSaveData {
 
     const segaCdArrayBuffer = SegaCdUtil.truncateToActualSize(arrayBuffer);
 
-    const numSaveFiles = getNumSaveFiles(segaCdArrayBuffer);
+    const numSaveFiles = readRepeatCode(arrayBuffer, DIRECTORY_NUM_FILES_OFFSET, DIRECTORY_REPEAT_COUNT);
 
-    this.saveFiles = new Array(numSaveFiles);
-    this.numFreeBlocks = getNumFreeBlocks(segaCdArrayBuffer);
+    this.saveFiles = readSaveFiles(segaCdArrayBuffer, numSaveFiles);
+    this.numFreeBlocks = readRepeatCode(arrayBuffer, DIRECTORY_NUM_FREE_BLOCKS_OFFSET, DIRECTORY_REPEAT_COUNT);
     this.format = decodeText(segaCdArrayBuffer, segaCdArrayBuffer.byteLength - DIRECTORY_SIZE + DIRECTORY_FORMAT_OFFSET, FORMAT_LENGTH);
     this.volume = decodeText(segaCdArrayBuffer, segaCdArrayBuffer.byteLength - DIRECTORY_SIZE + DIRECTORY_VOLUME_OFFSET, VOLUME_LENGTH);
     this.mediaId = decodeText(segaCdArrayBuffer, segaCdArrayBuffer.byteLength - MEDIA_ID_LENGTH, MEDIA_ID_LENGTH);
-    this.arrayBuffer = arrayBuffer;
+    this.arrayBuffer = segaCdArrayBuffer;
   }
 
   getSaveFiles() {
