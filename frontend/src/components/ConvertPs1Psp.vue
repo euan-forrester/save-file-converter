@@ -215,6 +215,7 @@ export default {
 
       if (newDirection === 'convertToFormat') {
         this.changeMemoryCardIndex();
+        this.individualSavesOrMemoryCard = 'individual-saves';
       }
     },
     changeMemoryCardIndex() {

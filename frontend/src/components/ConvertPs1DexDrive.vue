@@ -206,6 +206,10 @@ export default {
       this.outputFilename = null;
       this.selectedSaveData = null;
       this.individualSavesOrMemoryCard = 'memory-card';
+
+      if (newDirection === 'convertToFormat') {
+        this.individualSavesOrMemoryCard = 'individual-saves';
+      }
     },
     changeSelectedSaveData(newSaveData) {
       if (newSaveData !== null) {
