@@ -10,6 +10,7 @@ https://github.com/superctr/buram/
 */
 
 import SegaCdUtil from '../util/SegaCd';
+// import reedsolomon from '../../lib/reedsolomon-js/reedsolomon';
 
 const GENERATOR_POLYNOMIAL_REED_SOLOMON_8 = [87, 166, 113, 75, 198, 25, 167, 114, 76, 199, 26, 1]; // https://github.com/superctr/buram/blob/master/buram.c#L586
 const GENERATOR_POLYNOMIAL_REED_SOLOMON_6 = [20, 58, 56, 18, 26, 6, 59, 57, 19, 27, 7, 1]; // https://github.com/superctr/buram/blob/master/buram.c#L587
@@ -28,6 +29,11 @@ const DIRECTORY_NUM_FREE_BLOCKS_OFFSET = 0x10;
 const DIRECTORY_ENTRY_SIZE = 0x20;
 
 const BLOCK_SIZE = 0x40;
+// const SUB_BLOCK_SIZE = 0x08; // A block is made up of sub-blocks, which are interleaved and encoded with Reed-Solomon
+// const NUM_SUB_BLOCKS = BLOCK_SIZE / SUB_BLOCK_SIZE;
+
+// const REED_SOLOMON_DATA_SIZE = 0x06; // Within a sub-block, this many bytes are the actual data
+// const REED_SOLOMON_PARITY_SIZE = SUB_BLOCK_SIZE - REED_SOLOMON_DATA_SIZE; // Within a sub-block, this many bytes are the parity data
 
 const TEXT_ENCODING = 'US-ASCII';
 const VOLUME_LENGTH = 11;
@@ -111,16 +117,110 @@ function readRepeatCode(arrayBuffer, offsetFromDirectory, repeatCount) {
   throw new Error(`Unable to find repeat code at offset from directory 0x${offsetFromDirectory.toString(16)}`);
 }
 
+/*
+// Based on https://github.com/superctr/buram/blob/master/buram.c#L329
+// Deinterleave the 8-bit Reed-Solomon code so that parity bits are at the bottom
+function deinterleaveReedSolomon8(subBlockNum, blockArrayBuffer) {
+  const blockUint8Array = new Uint8Array(blockArrayBuffer);
+
+  const outArrayBuffer = new ArrayBuffer(SUB_BLOCK_SIZE);
+  const outUint8Array = new Uint8Array(outArrayBuffer);
+
+  outUint8Array.fill(0);
+
+  for (let i = 0; i < SUB_BLOCK_SIZE; i += 1) {
+    let tmp = blockUint8Array[subBlockNum + (i * 8)];
+
+    for (let j = 0; j < SUB_BLOCK_SIZE; j += 1) {
+      outUint8Array[j] = (outUint8Array[j] << 1) | (tmp >> 7); // Here in the reference code it appears to depend on uninitialized data. We explicily initialize it to 0
+      tmp <<= 1;
+    }
+  }
+
+  return outArrayBuffer;
+}
+*/
+
+// Based on https://github.com/superctr/buram/blob/master/buram.c#L228
+// Deinterleave 36 bytes of data from 48 bytes
+function deinterleaveData(inputBlockArrayBuffer) {
+  const inputBlockUint8Array = new Uint8Array(inputBlockArrayBuffer);
+  let inputCurrentOffset = 0;
+
+  const outputArrayBuffer = new ArrayBuffer(BLOCK_SIZE);
+  const outputUint8Array = new Uint8Array(outputArrayBuffer);
+  let outputCurrentOffset = 0;
+
+  for (let i = 0; i < 12; i += 1) {
+    let sr = inputBlockUint8Array[inputCurrentOffset];
+    inputCurrentOffset += 1;
+
+    sr <<= 6;
+
+    sr = (sr & 0xFF00) | inputBlockUint8Array[inputCurrentOffset];
+    inputCurrentOffset += 1;
+
+    outputUint8Array[outputCurrentOffset] = (sr >> 6);
+    outputCurrentOffset += 1;
+
+    sr <<= 6;
+
+    sr = (sr & 0xFF00) | inputBlockUint8Array[inputCurrentOffset];
+    inputCurrentOffset += 1;
+
+    outputUint8Array[outputCurrentOffset] = (sr >> 4);
+    outputCurrentOffset += 1;
+
+    sr <<= 6;
+
+    sr = (sr & 0xFF00) | inputBlockUint8Array[inputCurrentOffset];
+    inputCurrentOffset += 1;
+
+    outputUint8Array[outputCurrentOffset] = (sr >> 2);
+    outputCurrentOffset += 1;
+  }
+
+  return outputArrayBuffer;
+}
+
 // This is based on https://github.com/superctr/buram/blob/master/buram.c#L433
 // (but without the optimization of cacheing the last accessed buffer)
+// and https://github.com/superctr/buram/blob/master/buram.c#L377
 function decodeBuffer(arrayBuffer, offset) {
-  const block = arrayBuffer.slice(offset, offset + BLOCK_SIZE);
-  
+  /*
+  const reedSolomon = new reedsolomon.ReedSolomonDecoder(reedsolomon.GenericGF.AZTEC_DATA_8());
+  */
+
+  const alignedOffset = offset & -(BLOCK_SIZE);
+
+  const block = arrayBuffer.slice(alignedOffset, alignedOffset + BLOCK_SIZE);
+
+  /*
+  // Perform error correction on the data
+
+  let flags = 0;
+
+  for (let i = 0; i < NUM_SUB_BLOCKS; i += 1) {
+    const deinterleavedBlockBuffer = deinterleaveReedSolomon8(i, block);
+    const decodedBlockBuffer = reedSolomon.decode(deinterleavedBlockBuffer, REED_SOLOMON_PARITY_SIZE);
+    const interleavedBlockBuffer = interleaveReedSolomon8(decodedBlockBuffer);
+
+    // FIXME: Fill in interleavedBlockBuffer back into the input arrayBuffer
+  }
+  */
+
+  // Now deinterleave the final data to return
+
+  const outputArrayBuffer = deinterleaveData(block);
+
+  return outputArrayBuffer.slice(2 + ((offset ^ alignedOffset) >> 1));
 }
 
 // This is based on https://github.com/superctr/buram/blob/master/buram.c#L820
 // which is called by https://github.com/superctr/buram/blob/master/buram.c#L1013
 function readSaveFiles(arrayBuffer, numSaveFiles) {
+  const saveFiles = [];
+
   const directoryOffset = arrayBuffer.byteLength - DIRECTORY_SIZE;
   let currentOffset = directoryOffset - DIRECTORY_ENTRY_SIZE;
 
@@ -131,8 +231,15 @@ function readSaveFiles(arrayBuffer, numSaveFiles) {
     const textDecoder = new TextDecoder('US-ASCII');
     const bufferAsAscii = textDecoder.decode(decodedBuffer);
 
+    currentOffset -= DIRECTORY_ENTRY_SIZE;
+
+    saveFiles.push({});
+
+    console.log('Buffer is: ', decodedBuffer);
     console.log(`Decoded buffer into '${bufferAsAscii}'`);
   }
+
+  return saveFiles;
 }
 
 export default class SegaCdSaveData {
