@@ -9,6 +9,8 @@ It appears that the BIOS was reverse-engineered and an implementation of some fu
 https://github.com/superctr/buram/
 */
 
+import crc32 from 'crc-32';
+
 import SegaCdUtil from '../util/SegaCd';
 // import reedsolomon from '../../lib/reedsolomon-js/reedsolomon';
 
@@ -34,6 +36,12 @@ const BLOCK_SIZE = 0x40;
 
 // const REED_SOLOMON_DATA_SIZE = 0x06; // Within a sub-block, this many bytes are the actual data
 // const REED_SOLOMON_PARITY_SIZE = SUB_BLOCK_SIZE - REED_SOLOMON_DATA_SIZE; // Within a sub-block, this many bytes are the parity data
+
+// When deinterleaved, a block becomes 36 bytes of data where the first 2 and last 2 bytes are CRC information
+const BLOCK_DATA_BEGIN_OFFSET = 2;
+const BLOCK_DATA_SIZE = 32;
+const BLOCK_CRC_1_OFFSET = 0;
+const BLOCK_CRC_2_OFFSET = BLOCK_DATA_BEGIN_OFFSET + BLOCK_DATA_SIZE;
 
 const TEXT_ENCODING = 'US-ASCII';
 const VOLUME_LENGTH = 11;
@@ -183,6 +191,12 @@ function deinterleaveData(inputBlockArrayBuffer) {
   return outputArrayBuffer;
 }
 
+function getCheckCrc(deinterleavedBlockArrayBuffer, startOffset) {
+  const uint8Array = new Uint8Array(deinterleavedBlockArrayBuffer);
+
+  return (uint8Array[startOffset] << 8) | uint8Array[startOffset + 1];
+}
+
 // This is based on https://github.com/superctr/buram/blob/master/buram.c#L433
 // (but without the optimization of cacheing the last accessed buffer)
 // and https://github.com/superctr/buram/blob/master/buram.c#L377
@@ -213,7 +227,18 @@ function decodeBuffer(arrayBuffer, offset) {
 
   const outputArrayBuffer = deinterleaveData(block);
 
-  return outputArrayBuffer.slice(2 + ((offset ^ alignedOffset) >> 1));
+  // And check that it's not corrupted. The 2 check CRCs appear to be for redundancy and are usually the same
+
+  const checkCrc1 = getCheckCrc(outputArrayBuffer, BLOCK_CRC_1_OFFSET);
+  const checkCrc2 = ~(getCheckCrc(outputArrayBuffer, BLOCK_CRC_2_OFFSET)) & 0xFFFF;
+
+  const crc = crc32.buf(new Uint8Array(outputArrayBuffer.slice(BLOCK_DATA_BEGIN_OFFSET, BLOCK_DATA_BEGIN_OFFSET + BLOCK_DATA_SIZE))) >>> 0; // '>>> 0' interprets the result as an unsigned integer: https://stackoverflow.com/questions/1822350/what-is-the-javascript-operator-and-how-do-you-use-it
+
+  if ((crc !== checkCrc1) && (crc !== checkCrc2)) {
+    throw new Error(`Data appears to be corrupt: found CRC 0x${crc.toString(16)} rather than 0x${checkCrc1.toString(16)} or 0x${checkCrc2.toString(16)}`);
+  }
+
+  return outputArrayBuffer.slice(BLOCK_DATA_BEGIN_OFFSET + ((offset ^ alignedOffset) >> 1), BLOCK_DATA_BEGIN_OFFSET + BLOCK_DATA_SIZE);
 }
 
 // This is based on https://github.com/superctr/buram/blob/master/buram.c#L820
