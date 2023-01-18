@@ -9,7 +9,7 @@ It appears that the BIOS was reverse-engineered and an implementation of some fu
 https://github.com/superctr/buram/
 */
 
-import Crc16 from './Crc16';
+import calcCrc16 from './Crc16'; // eslint-disable-line
 import SegaCdUtil from '../../util/SegaCd';
 // import reedsolomon from '../../lib/reedsolomon-js/reedsolomon';
 
@@ -182,25 +182,11 @@ function deinterleaveData(inputBlockArrayBuffer) {
   return outputArrayBuffer;
 }
 
-function getCheckCrc(deinterleavedBlockArrayBuffer, startOffset) {
-  const uint8Array = new Uint8Array(deinterleavedBlockArrayBuffer);
-
-  return (uint8Array[startOffset] << 8) | uint8Array[startOffset + 1];
-}
-
-// This is based on https://github.com/superctr/buram/blob/master/buram.c#L433
-// (but without the optimization of cacheing the last accessed buffer)
-// and https://github.com/superctr/buram/blob/master/buram.c#L377
-function decodeBuffer(arrayBuffer, offset) {
+// FIXME: Deinterleave the data, perform Reed-Solomon error correction, then re-interleave it again
+function getErrorCorrectedData(inputBlockArrayBuffer) {
   /*
   const reedSolomon = new reedsolomon.ReedSolomonDecoder(reedsolomon.GenericGF.AZTEC_DATA_8());
   */
-
-  const crc16 = new Crc16();
-
-  const alignedOffset = offset & -(BLOCK_SIZE);
-
-  const block = arrayBuffer.slice(alignedOffset, alignedOffset + BLOCK_SIZE);
 
   /*
   // Perform error correction on the data
@@ -216,19 +202,44 @@ function decodeBuffer(arrayBuffer, offset) {
   }
   */
 
-  // Now deinterleave the final data to return
+  return inputBlockArrayBuffer;
+}
 
-  const outputArrayBuffer = deinterleaveData(block);
+// Grabs one of the 2 CRC checksums embedded in the deinterleaved block
+function getCheckCrc(deinterleavedBlockArrayBuffer, startOffset) {
+  const uint8Array = new Uint8Array(deinterleavedBlockArrayBuffer);
 
-  // And check that it's not corrupted. The 2 check CRCs appear to be for redundancy and are usually the same
+  return (uint8Array[startOffset] << 8) | uint8Array[startOffset + 1];
+}
 
-  const checkCrc1 = getCheckCrc(outputArrayBuffer, BLOCK_CRC_1_OFFSET);
-  const checkCrc2 = ~(getCheckCrc(outputArrayBuffer, BLOCK_CRC_2_OFFSET)) & 0xFFFF;
+// Check if the deinterleaved block is corrupted or not. The 2 check CRCs appear to be for redundancy
+function checkCrc(deinterleavedBlockArrayBuffer) {
+  const checkCrc1 = getCheckCrc(deinterleavedBlockArrayBuffer, BLOCK_CRC_1_OFFSET);
+  const checkCrc2 = ~(getCheckCrc(deinterleavedBlockArrayBuffer, BLOCK_CRC_2_OFFSET)) & 0xFFFF;
 
-  const crc = crc16.calc(outputArrayBuffer.slice(BLOCK_DATA_BEGIN_OFFSET, BLOCK_DATA_BEGIN_OFFSET + BLOCK_DATA_SIZE));
+  const crc = calcCrc16(deinterleavedBlockArrayBuffer.slice(BLOCK_DATA_BEGIN_OFFSET, BLOCK_DATA_BEGIN_OFFSET + BLOCK_DATA_SIZE));
 
   if ((crc !== checkCrc1) && (crc !== checkCrc2)) {
     throw new Error(`Data appears to be corrupt: found CRC 0x${crc.toString(16)} rather than 0x${checkCrc1.toString(16)} or 0x${checkCrc2.toString(16)}`);
+  }
+}
+
+// This is based on https://github.com/superctr/buram/blob/master/buram.c#L433
+// (but without the optimization of cacheing the last accessed buffer)
+// and https://github.com/superctr/buram/blob/master/buram.c#L377
+function decodeBuffer(arrayBuffer, offset) {
+  const alignedOffset = offset & -(BLOCK_SIZE);
+
+  const block = arrayBuffer.slice(alignedOffset, alignedOffset + BLOCK_SIZE);
+
+  let outputArrayBuffer = deinterleaveData(block);
+
+  try {
+    checkCrc(outputArrayBuffer);
+  } catch (e) {
+    const correctedBlock = getErrorCorrectedData(block);
+    outputArrayBuffer = deinterleaveData(correctedBlock);
+    checkCrc(outputArrayBuffer); // If this one doesn't work, then throw an error to our caller
   }
 
   return outputArrayBuffer.slice(BLOCK_DATA_BEGIN_OFFSET + ((offset ^ alignedOffset) >> 1), BLOCK_DATA_BEGIN_OFFSET + BLOCK_DATA_SIZE);
