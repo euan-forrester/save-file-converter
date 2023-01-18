@@ -13,6 +13,8 @@ import calcCrc16 from './Crc16'; // eslint-disable-line
 import SegaCdUtil from '../../util/SegaCd';
 // import reedsolomon from '../../lib/reedsolomon-js/reedsolomon';
 
+const LITTLE_ENDIAN = false;
+
 const GENERATOR_POLYNOMIAL_REED_SOLOMON_8 = [87, 166, 113, 75, 198, 25, 167, 114, 76, 199, 26, 1]; // https://github.com/superctr/buram/blob/master/buram.c#L586
 const GENERATOR_POLYNOMIAL_REED_SOLOMON_6 = [20, 58, 56, 18, 26, 6, 59, 57, 19, 27, 7, 1]; // https://github.com/superctr/buram/blob/master/buram.c#L587
 
@@ -26,7 +28,12 @@ const DIRECTORY_VOLUME_OFFSET = 0x00;
 const DIRECTORY_NUM_FILES_OFFSET = 0x18;
 const DIRECTORY_NUM_FREE_BLOCKS_OFFSET = 0x10;
 
-const DIRECTORY_ENTRY_SIZE = 0x20;
+const DIRECTORY_ENTRY_SIZE = 0x20; // Half a block
+const DIRECTORY_ENTRY_FILENAME_OFFSET = 0;
+const DIRECTORY_ENTRY_FILENAME_LENGTH = 11;
+const DIRECTORY_ENTRY_FILE_DATA_IS_ENCODED_OFFSET = 11;
+const DIRECTORY_ENTRY_FILE_DATA_START_BLOCK_OFFSET = 12;
+const DIRECTORY_ENTRY_FILE_SIZE_OFFSET = 14;
 
 const BLOCK_SIZE = 0x40;
 // const SUB_BLOCK_SIZE = 0x08; // A block is made up of sub-blocks, which are interleaved and encoded with Reed-Solomon
@@ -205,17 +212,12 @@ function getErrorCorrectedData(inputBlockArrayBuffer) {
   return inputBlockArrayBuffer;
 }
 
-// Grabs one of the 2 CRC checksums embedded in the deinterleaved block
-function getCheckCrc(deinterleavedBlockArrayBuffer, startOffset) {
-  const uint8Array = new Uint8Array(deinterleavedBlockArrayBuffer);
-
-  return (uint8Array[startOffset] << 8) | uint8Array[startOffset + 1];
-}
-
 // Check if the deinterleaved block is corrupted or not. The 2 check CRCs appear to be for redundancy
 function checkCrc(deinterleavedBlockArrayBuffer) {
-  const checkCrc1 = getCheckCrc(deinterleavedBlockArrayBuffer, BLOCK_CRC_1_OFFSET);
-  const checkCrc2 = ~(getCheckCrc(deinterleavedBlockArrayBuffer, BLOCK_CRC_2_OFFSET)) & 0xFFFF;
+  const dataView = new DataView(deinterleavedBlockArrayBuffer);
+
+  const checkCrc1 = dataView.getUint16(BLOCK_CRC_1_OFFSET, LITTLE_ENDIAN);
+  const checkCrc2 = ~(dataView.getUint16(BLOCK_CRC_2_OFFSET, LITTLE_ENDIAN));
 
   const crc = calcCrc16(deinterleavedBlockArrayBuffer.slice(BLOCK_DATA_BEGIN_OFFSET, BLOCK_DATA_BEGIN_OFFSET + BLOCK_DATA_SIZE));
 
@@ -227,6 +229,9 @@ function checkCrc(deinterleavedBlockArrayBuffer) {
 // This is based on https://github.com/superctr/buram/blob/master/buram.c#L433
 // (but without the optimization of cacheing the last accessed buffer)
 // and https://github.com/superctr/buram/blob/master/buram.c#L377
+//
+// Note that it works differently than the reference implemnentation by first checking the CRC
+// and only if that fails then trying to use error-correction on the data
 function decodeBuffer(arrayBuffer, offset) {
   const alignedOffset = offset & -(BLOCK_SIZE);
 
@@ -250,22 +255,23 @@ function decodeBuffer(arrayBuffer, offset) {
 function readSaveFiles(arrayBuffer, numSaveFiles) {
   const saveFiles = [];
 
+  const textDecoder = new TextDecoder(TEXT_ENCODING);
+
   const directoryOffset = arrayBuffer.byteLength - DIRECTORY_SIZE;
   let currentOffset = directoryOffset - DIRECTORY_ENTRY_SIZE;
 
   for (let i = 0; i < numSaveFiles; i += 1) {
     const decodedBuffer = decodeBuffer(arrayBuffer, currentOffset);
+    const decodedBufferDataView = new DataView(decodedBuffer);
 
-    // The first part of the directory entry is the filename in ASCII so temporarily let's print the whole thing to see if we decoded the buffer correctly
-    const textDecoder = new TextDecoder('US-ASCII');
-    const bufferAsAscii = textDecoder.decode(decodedBuffer);
+    saveFiles.push({
+      filename: textDecoder.decode(decodedBuffer.slice(DIRECTORY_ENTRY_FILENAME_OFFSET, DIRECTORY_ENTRY_FILENAME_OFFSET + DIRECTORY_ENTRY_FILENAME_LENGTH)),
+      dataIsEncoded: (decodedBufferDataView.getUint8(DIRECTORY_ENTRY_FILE_DATA_IS_ENCODED_OFFSET) !== 0),
+      startBlockNumber: decodedBufferDataView.getUint16(DIRECTORY_ENTRY_FILE_DATA_START_BLOCK_OFFSET, LITTLE_ENDIAN),
+      fileSize: decodedBufferDataView.getUint16(DIRECTORY_ENTRY_FILE_SIZE_OFFSET, LITTLE_ENDIAN),
+    });
 
     currentOffset -= DIRECTORY_ENTRY_SIZE;
-
-    saveFiles.push({});
-
-    console.log('Buffer is: ', decodedBuffer);
-    console.log(`Decoded buffer into '${bufferAsAscii}'`);
   }
 
   return saveFiles;
@@ -290,10 +296,10 @@ export default class SegaCdSaveData {
 
     const segaCdArrayBuffer = SegaCdUtil.truncateToActualSize(arrayBuffer);
 
-    const numSaveFiles = readRepeatCode(arrayBuffer, DIRECTORY_NUM_FILES_OFFSET, DIRECTORY_REPEAT_COUNT);
+    const numSaveFiles = readRepeatCode(segaCdArrayBuffer, DIRECTORY_NUM_FILES_OFFSET, DIRECTORY_REPEAT_COUNT);
 
     this.saveFiles = readSaveFiles(segaCdArrayBuffer, numSaveFiles);
-    this.numFreeBlocks = readRepeatCode(arrayBuffer, DIRECTORY_NUM_FREE_BLOCKS_OFFSET, DIRECTORY_REPEAT_COUNT);
+    this.numFreeBlocks = readRepeatCode(segaCdArrayBuffer, DIRECTORY_NUM_FREE_BLOCKS_OFFSET, DIRECTORY_REPEAT_COUNT);
     this.format = decodeText(segaCdArrayBuffer, segaCdArrayBuffer.byteLength - DIRECTORY_SIZE + DIRECTORY_FORMAT_OFFSET, FORMAT_LENGTH);
     this.volume = decodeText(segaCdArrayBuffer, segaCdArrayBuffer.byteLength - DIRECTORY_SIZE + DIRECTORY_VOLUME_OFFSET, VOLUME_LENGTH);
     this.mediaId = decodeText(segaCdArrayBuffer, segaCdArrayBuffer.byteLength - MEDIA_ID_LENGTH, MEDIA_ID_LENGTH);

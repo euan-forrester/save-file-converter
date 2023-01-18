@@ -14,10 +14,14 @@ describe('Sega CD', () => {
 
     const segaCdSaveData = SegaCdSaveData.createFromSegaCdData(segaCdArrayBuffer);
 
-    expect(segaCdSaveData.getSaveFiles().length).to.equal(1);
     expect(segaCdSaveData.getNumFreeBlocks()).to.equal(112);
     expect(segaCdSaveData.getFormat()).to.equal('SEGA_CD_ROM');
     expect(segaCdSaveData.getVolume()).to.equal('');
     expect(segaCdSaveData.getMediaId()).to.equal('RAM_CARTRIDGE');
+
+    expect(segaCdSaveData.getSaveFiles().length).to.equal(1);
+    expect(segaCdSaveData.getSaveFiles()[0].dataIsEncoded).to.equal(false);
+    expect(segaCdSaveData.getSaveFiles()[0].startBlockNumber).to.equal(1);
+    expect(segaCdSaveData.getSaveFiles()[0].fileSize).to.equal(13);
   });
 });
