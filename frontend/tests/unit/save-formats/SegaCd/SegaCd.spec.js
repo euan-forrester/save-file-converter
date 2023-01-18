@@ -20,6 +20,7 @@ describe('Sega CD', () => {
     expect(segaCdSaveData.getMediaId()).to.equal('RAM_CARTRIDGE');
 
     expect(segaCdSaveData.getSaveFiles().length).to.equal(1);
+    expect(segaCdSaveData.getSaveFiles()[0].filename).to.equal('POPFUL_MAIL');
     expect(segaCdSaveData.getSaveFiles()[0].dataIsEncoded).to.equal(false);
     expect(segaCdSaveData.getSaveFiles()[0].startBlockNumber).to.equal(1);
     expect(segaCdSaveData.getSaveFiles()[0].fileSize).to.equal(13);
