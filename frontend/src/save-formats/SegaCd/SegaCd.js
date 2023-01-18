@@ -11,6 +11,7 @@ https://github.com/superctr/buram/
 
 import calcCrc16 from './Crc16'; // eslint-disable-line
 import SegaCdUtil from '../../util/SegaCd';
+import Util from '../../util/util';
 // import reedsolomon from '../../lib/reedsolomon-js/reedsolomon';
 
 const LITTLE_ENDIAN = false;
@@ -232,7 +233,7 @@ function checkCrc(deinterleavedBlockArrayBuffer) {
 //
 // Note that it works differently than the reference implemnentation by first checking the CRC
 // and only if that fails then trying to use error-correction on the data
-function decodeBuffer(arrayBuffer, offset) {
+function decodeBlock(arrayBuffer, offset) {
   const alignedOffset = offset & -(BLOCK_SIZE);
 
   const block = arrayBuffer.slice(alignedOffset, alignedOffset + BLOCK_SIZE);
@@ -258,20 +259,43 @@ function readSaveFiles(arrayBuffer, numSaveFiles) {
   const textDecoder = new TextDecoder(TEXT_ENCODING);
 
   const directoryOffset = arrayBuffer.byteLength - DIRECTORY_SIZE;
-  let currentOffset = directoryOffset - DIRECTORY_ENTRY_SIZE;
+  let currentOffsetInDirectory = directoryOffset - DIRECTORY_ENTRY_SIZE;
 
   for (let i = 0; i < numSaveFiles; i += 1) {
-    const decodedBuffer = decodeBuffer(arrayBuffer, currentOffset);
+    const decodedBuffer = decodeBlock(arrayBuffer, currentOffsetInDirectory);
     const decodedBufferDataView = new DataView(decodedBuffer);
+
+    const dataIsEncoded = (decodedBufferDataView.getUint8(DIRECTORY_ENTRY_FILE_DATA_IS_ENCODED_OFFSET) !== 0);
+    const startBlockNumber = decodedBufferDataView.getUint16(DIRECTORY_ENTRY_FILE_DATA_START_BLOCK_OFFSET, LITTLE_ENDIAN);
+    const fileSizeBlocks = decodedBufferDataView.getUint16(DIRECTORY_ENTRY_FILE_SIZE_OFFSET, LITTLE_ENDIAN);
+
+    let fileData = null;
+
+    const fileDataStartOffset = startBlockNumber * BLOCK_SIZE;
+
+    if (dataIsEncoded) {
+      const fileDataDecodedBlocks = [];
+      let currentOffsetInFile = fileDataStartOffset;
+
+      for (let blockNum = 0; blockNum < fileSizeBlocks; blockNum += 1) {
+        fileDataDecodedBlocks.push(decodeBlock(arrayBuffer, currentOffsetInFile));
+        currentOffsetInFile += BLOCK_SIZE;
+      }
+
+      fileData = Util.concatArrayBuffers(fileDataDecodedBlocks);
+    } else {
+      fileData = arrayBuffer.slice(fileDataStartOffset, fileDataStartOffset + (fileSizeBlocks * BLOCK_SIZE));
+    }
 
     saveFiles.push({
       filename: textDecoder.decode(decodedBuffer.slice(DIRECTORY_ENTRY_FILENAME_OFFSET, DIRECTORY_ENTRY_FILENAME_OFFSET + DIRECTORY_ENTRY_FILENAME_LENGTH)),
-      dataIsEncoded: (decodedBufferDataView.getUint8(DIRECTORY_ENTRY_FILE_DATA_IS_ENCODED_OFFSET) !== 0),
-      startBlockNumber: decodedBufferDataView.getUint16(DIRECTORY_ENTRY_FILE_DATA_START_BLOCK_OFFSET, LITTLE_ENDIAN),
-      fileSize: decodedBufferDataView.getUint16(DIRECTORY_ENTRY_FILE_SIZE_OFFSET, LITTLE_ENDIAN),
+      dataIsEncoded,
+      startBlockNumber,
+      fileSizeBlocks,
+      fileData,
     });
 
-    currentOffset -= DIRECTORY_ENTRY_SIZE;
+    currentOffsetInDirectory -= DIRECTORY_ENTRY_SIZE;
   }
 
   return saveFiles;
