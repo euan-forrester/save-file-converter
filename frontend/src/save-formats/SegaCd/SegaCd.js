@@ -9,16 +9,14 @@ It appears that the BIOS was reverse-engineered and an implementation of some fu
 https://github.com/superctr/buram/
 */
 
-import crc32 from 'crc-32';
-
-import SegaCdUtil from '../util/SegaCd';
+import Crc16 from './Crc16';
+import SegaCdUtil from '../../util/SegaCd';
 // import reedsolomon from '../../lib/reedsolomon-js/reedsolomon';
 
 const GENERATOR_POLYNOMIAL_REED_SOLOMON_8 = [87, 166, 113, 75, 198, 25, 167, 114, 76, 199, 26, 1]; // https://github.com/superctr/buram/blob/master/buram.c#L586
 const GENERATOR_POLYNOMIAL_REED_SOLOMON_6 = [20, 58, 56, 18, 26, 6, 59, 57, 19, 27, 7, 1]; // https://github.com/superctr/buram/blob/master/buram.c#L587
 
 const GALOIS_FIELD_TABLE_SIZE = 256;
-const CRC_TABLE_SIZE = 256;
 
 const DIRECTORY_SIZE = 0x40;
 const DIRECTORY_REPEAT_COUNT = 4;
@@ -77,13 +75,6 @@ function initReedSolomon(poly, bitsPerSymbol, generatorPolynomial) {
     galoisFieldIndexOf,
     galoisFieldAlphaTo,
   };
-}
-
-// https://github.com/superctr/buram/blob/master/buram.c#L183
-function initCrcTable() {
-  const crcTable = new Array(CRC_TABLE_SIZE).fill(0);
-  // FIXME: missing code here, but can prob replace with a library?
-  return crcTable;
 }
 
 // Based on https://github.com/superctr/buram/blob/master/buram.c#L886
@@ -205,6 +196,8 @@ function decodeBuffer(arrayBuffer, offset) {
   const reedSolomon = new reedsolomon.ReedSolomonDecoder(reedsolomon.GenericGF.AZTEC_DATA_8());
   */
 
+  const crc16 = new Crc16();
+
   const alignedOffset = offset & -(BLOCK_SIZE);
 
   const block = arrayBuffer.slice(alignedOffset, alignedOffset + BLOCK_SIZE);
@@ -232,7 +225,7 @@ function decodeBuffer(arrayBuffer, offset) {
   const checkCrc1 = getCheckCrc(outputArrayBuffer, BLOCK_CRC_1_OFFSET);
   const checkCrc2 = ~(getCheckCrc(outputArrayBuffer, BLOCK_CRC_2_OFFSET)) & 0xFFFF;
 
-  const crc = crc32.buf(new Uint8Array(outputArrayBuffer.slice(BLOCK_DATA_BEGIN_OFFSET, BLOCK_DATA_BEGIN_OFFSET + BLOCK_DATA_SIZE))) >>> 0; // '>>> 0' interprets the result as an unsigned integer: https://stackoverflow.com/questions/1822350/what-is-the-javascript-operator-and-how-do-you-use-it
+  const crc = crc16.calc(outputArrayBuffer.slice(BLOCK_DATA_BEGIN_OFFSET, BLOCK_DATA_BEGIN_OFFSET + BLOCK_DATA_SIZE));
 
   if ((crc !== checkCrc1) && (crc !== checkCrc2)) {
     throw new Error(`Data appears to be corrupt: found CRC 0x${crc.toString(16)} rather than 0x${checkCrc1.toString(16)} or 0x${checkCrc2.toString(16)}`);
@@ -283,7 +276,6 @@ export default class SegaCdSaveData {
 
     this.reedSolomon8 = initReedSolomon(0x1D, 8, GENERATOR_POLYNOMIAL_REED_SOLOMON_8);
     this.reedSolomon6 = initReedSolomon(3, 6, GENERATOR_POLYNOMIAL_REED_SOLOMON_6);
-    this.crcTable = initCrcTable();
 
     const segaCdArrayBuffer = SegaCdUtil.truncateToActualSize(arrayBuffer);
 

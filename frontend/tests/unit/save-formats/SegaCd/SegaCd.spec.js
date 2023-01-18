@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 // import SegaCdUtil from '@/util/SegaCd';
 
-import SegaCdSaveData from '@/save-formats/SegaCd';
+import SegaCdSaveData from '@/save-formats/SegaCd/SegaCd';
 
 const DIR = './tests/data/save-formats/segacd';
 
