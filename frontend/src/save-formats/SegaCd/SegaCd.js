@@ -256,8 +256,6 @@ function decodeBlock(arrayBuffer, offset) {
 function readSaveFiles(arrayBuffer, numSaveFiles) {
   const saveFiles = [];
 
-  const textDecoder = new TextDecoder(TEXT_ENCODING);
-
   const directoryOffset = arrayBuffer.byteLength - DIRECTORY_SIZE;
   let currentOffsetInDirectory = directoryOffset - DIRECTORY_ENTRY_SIZE;
 
@@ -288,7 +286,7 @@ function readSaveFiles(arrayBuffer, numSaveFiles) {
     }
 
     saveFiles.push({
-      filename: textDecoder.decode(decodedBuffer.slice(DIRECTORY_ENTRY_FILENAME_OFFSET, DIRECTORY_ENTRY_FILENAME_OFFSET + DIRECTORY_ENTRY_FILENAME_LENGTH)),
+      filename: decodeText(decodedBuffer, DIRECTORY_ENTRY_FILENAME_OFFSET, DIRECTORY_ENTRY_FILENAME_LENGTH),
       dataIsEncoded,
       startBlockNumber,
       fileSizeBlocks,
