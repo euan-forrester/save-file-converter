@@ -22,14 +22,12 @@ const GENERATOR_POLYNOMIAL_REED_SOLOMON_6 = [20, 58, 56, 18, 26, 6, 59, 57, 19, 
 const GALOIS_FIELD_TABLE_SIZE = 256;
 
 const DIRECTORY_SIZE = 0x40;
-const DIRECTORY_REPEAT_COUNT = 4;
 
 const DIRECTORY_FORMAT_OFFSET = 0x20;
 const DIRECTORY_VOLUME_OFFSET = 0x00;
-const DIRECTORY_NUM_FILES_OFFSET = 0x18;
-const DIRECTORY_NUM_FREE_BLOCKS_OFFSET = 0x10;
 
-const DIRECTORY_ENTRY_SIZE = 0x20; // Half a block
+const DIRECTORY_ENTRY_SIZE_ENCODED = 0x20; // Half a block
+const DIRECTORY_ENTRY_SIZE_PLAINTEXT = DIRECTORY_ENTRY_SIZE_ENCODED / 2; // Encoding doubles the size
 const DIRECTORY_ENTRY_FILENAME_OFFSET = 0;
 const DIRECTORY_ENTRY_FILENAME_LENGTH = 11;
 const DIRECTORY_ENTRY_FILE_DATA_IS_ENCODED_OFFSET = 11;
@@ -48,6 +46,7 @@ const BLOCK_DATA_BEGIN_OFFSET = 2;
 const BLOCK_DATA_SIZE = 32;
 const BLOCK_CRC_1_OFFSET = 0;
 const BLOCK_CRC_2_OFFSET = BLOCK_DATA_BEGIN_OFFSET + BLOCK_DATA_SIZE;
+const BLOCK_TOTAL_CRC_SIZE = 4; // 2 x 16 bit CRCs
 
 const TEXT_ENCODING = 'US-ASCII';
 const VOLUME_LENGTH = 11;
@@ -85,43 +84,24 @@ function initReedSolomon(poly, bitsPerSymbol, generatorPolynomial) {
   };
 }
 
+function sanitizeText(rawText) {
+  return rawText.replace(/(?!([A-Z]|[0-9]|\*))./g, '_'); // Anything other than A-Z, 0-9, or * is replaced with a _
+}
+
 // Based on https://github.com/superctr/buram/blob/master/buram.c#L886
 function decodeText(arrayBuffer, offset, length) {
   const textDecoder = new TextDecoder(TEXT_ENCODING);
   const rawText = textDecoder.decode(arrayBuffer.slice(offset, offset + length));
-  const text = rawText.replace(/(?!([A-Z]|[0-9]|\*))./g, '_'); // Anything other than A-Z, 0-9, or * is replaced with a _
+  const text = sanitizeText(rawText);
 
   return text.replace(/_*$/g, ''); // Remove trailing _'s. This will remove all trailing _'s, so that the string '_____' -> ''. The implementation linked above will turn it into '_' (leaving a single underscore), which I'm not actually sure is more correct
 }
 
-// Taken from https://github.com/superctr/buram/blob/master/buram.c#L470
-function readRepeatCode(arrayBuffer, offsetFromDirectory, repeatCount) {
-  const startOffset = arrayBuffer.byteLength - DIRECTORY_SIZE + offsetFromDirectory;
-  const uint8Array = new Uint8Array(arrayBuffer);
-  const buffer = new Uint16Array(repeatCount);
+function encodeText(text, length) {
+  const textEncoder = new TextEncoder(TEXT_ENCODING);
+  const sanitizedText = sanitizeText(text.toUpperCase());
 
-  let currentOffset = startOffset;
-
-  for (let i = 0; i < repeatCount; i += 1) {
-    buffer[i] = ((uint8Array[currentOffset] << 8) | uint8Array[currentOffset + 1]);
-    currentOffset += 2;
-  }
-
-  for (let i = 0; i < (repeatCount / 2); i += 1) {
-    let repeats = 0;
-
-    for (let j = i + 1; j < repeatCount; j += 1) {
-      if (buffer[i] === buffer[j]) {
-        repeats += 1;
-      }
-    }
-
-    if (repeats > (repeatCount / 2)) {
-      return buffer[i];
-    }
-  }
-
-  throw new Error(`Unable to find repeat code at offset from directory 0x${offsetFromDirectory.toString(16)}`);
+  return textEncoder.encode(sanitizedText).slice(0, length);
 }
 
 /*
@@ -154,7 +134,7 @@ function deinterleaveData(inputBlockArrayBuffer) {
   const inputBlockUint8Array = new Uint8Array(inputBlockArrayBuffer);
   let inputCurrentOffset = 0;
 
-  const outputArrayBuffer = new ArrayBuffer(BLOCK_SIZE);
+  const outputArrayBuffer = new ArrayBuffer((BLOCK_SIZE / 2) + BLOCK_TOTAL_CRC_SIZE);
   const outputUint8Array = new Uint8Array(outputArrayBuffer);
   let outputCurrentOffset = 0;
 
@@ -184,6 +164,46 @@ function deinterleaveData(inputBlockArrayBuffer) {
     inputCurrentOffset += 1;
 
     outputUint8Array[outputCurrentOffset] = (sr >> 2);
+    outputCurrentOffset += 1;
+  }
+
+  return outputArrayBuffer;
+}
+
+// Based on https://github.com/superctr/buram/blob/master/buram.c#L208
+// Interleave 36 bytes of data into 48 bytes
+function interleaveData(inputBlockArrayBuffer) {
+  const inputBlockUint8Array = new Uint8Array(inputBlockArrayBuffer);
+  let inputCurrentOffset = 0;
+
+  const outputArrayBuffer = new ArrayBuffer(BLOCK_SIZE);
+  const outputUint8Array = new Uint8Array(outputArrayBuffer);
+  let outputCurrentOffset = 0;
+
+  for (let i = 0; i < 12; i += 1) {
+    let sr = inputBlockUint8Array[inputCurrentOffset];
+    inputCurrentOffset += 1;
+
+    outputUint8Array[outputCurrentOffset] = sr;
+    outputCurrentOffset += 1;
+
+    sr <<= 8;
+
+    sr |= inputBlockUint8Array[inputCurrentOffset];
+    inputCurrentOffset += 1;
+
+    outputUint8Array[outputCurrentOffset] = (sr >> 2);
+    outputCurrentOffset += 1;
+
+    sr <<= 8;
+
+    sr |= inputBlockUint8Array[inputCurrentOffset];
+    inputCurrentOffset += 1;
+
+    outputUint8Array[outputCurrentOffset] = (sr >> 4);
+    outputCurrentOffset += 1;
+
+    outputUint8Array[outputCurrentOffset] = (sr << 2);
     outputCurrentOffset += 1;
   }
 
@@ -223,7 +243,7 @@ function checkCrc(deinterleavedBlockArrayBuffer) {
   const crc = calcCrc16(deinterleavedBlockArrayBuffer.slice(BLOCK_DATA_BEGIN_OFFSET, BLOCK_DATA_BEGIN_OFFSET + BLOCK_DATA_SIZE));
 
   if ((crc !== checkCrc1) && (crc !== checkCrc2)) {
-    throw new Error(`Data appears to be corrupt: found CRC 0x${crc.toString(16)} rather than 0x${checkCrc1.toString(16)} or 0x${checkCrc2.toString(16)}`);
+    throw new Error(`Data appears to be corrupt: calculated CRC 0x${crc.toString(16)} rather than 0x${checkCrc1.toString(16)} or 0x${checkCrc2.toString(16)}`);
   }
 }
 
@@ -251,13 +271,39 @@ function decodeBlock(arrayBuffer, offset) {
   return outputArrayBuffer.slice(BLOCK_DATA_BEGIN_OFFSET + ((offset ^ alignedOffset) >> 1), BLOCK_DATA_BEGIN_OFFSET + BLOCK_DATA_SIZE);
 }
 
+// Based on https://github.com/superctr/buram/blob/master/buram.c#L449 (again with no optimization
+// of cacheing the last accessed block)
+function encodeBlock(destinationArrayBuffer, sourceArrayBuffer, destinationOffset) {
+  if (sourceArrayBuffer.byteLength !== (BLOCK_SIZE / 2)) {
+    throw new Error(`Unable to encode block of length ${sourceArrayBuffer.byteLength} bytes, block must be ${BLOCK_SIZE / 2} bytes`);
+  }
+
+  // Calculate the CRC and make an ArrayBuffer with the data and CRCs in the correct place
+
+  const crc = calcCrc16(sourceArrayBuffer);
+
+  let writeArrayBuffer = new ArrayBuffer(sourceArrayBuffer.byteLength + BLOCK_TOTAL_CRC_SIZE);
+  const writeDataView = new DataView(writeArrayBuffer);
+
+  writeDataView.setUint16(BLOCK_CRC_1_OFFSET, crc, LITTLE_ENDIAN);
+  writeDataView.setUint16(BLOCK_CRC_2_OFFSET, ~crc, LITTLE_ENDIAN);
+
+  writeArrayBuffer = Util.setArrayBufferPortion(writeArrayBuffer, sourceArrayBuffer, BLOCK_CRC_1_OFFSET + 2, 0, sourceArrayBuffer.byteLength);
+
+  // Now interleave the data and write it to the destination
+
+  const interleavedArrayBuffer = interleaveData(writeArrayBuffer);
+
+  return Util.setArrayBufferPortion(destinationArrayBuffer, interleavedArrayBuffer, destinationOffset, 0, interleavedArrayBuffer.byteLength);
+}
+
 // This is based on https://github.com/superctr/buram/blob/master/buram.c#L820
 // which is called by https://github.com/superctr/buram/blob/master/buram.c#L1013
 function readSaveFiles(arrayBuffer, numSaveFiles) {
   const saveFiles = [];
 
   const directoryOffset = arrayBuffer.byteLength - DIRECTORY_SIZE;
-  let currentOffsetInDirectory = directoryOffset - DIRECTORY_ENTRY_SIZE;
+  let currentOffsetInDirectory = directoryOffset - DIRECTORY_ENTRY_SIZE_ENCODED;
 
   for (let i = 0; i < numSaveFiles; i += 1) {
     const decodedBuffer = decodeBlock(arrayBuffer, currentOffsetInDirectory);
@@ -293,39 +339,154 @@ function readSaveFiles(arrayBuffer, numSaveFiles) {
       fileData,
     });
 
-    currentOffsetInDirectory -= DIRECTORY_ENTRY_SIZE;
+    currentOffsetInDirectory -= DIRECTORY_ENTRY_SIZE_ENCODED;
   }
 
   return saveFiles;
 }
 
-export default class SegaCdSaveData {
-  static createFromSegaCdData(segaCdArrayBuffer) {
-    return new SegaCdSaveData(segaCdArrayBuffer);
+function getRequiredBlocks(saveFile) {
+  const fileSizeBytes = saveFile.fileData.byteLength;
+  const fileSizeRequiredBytes = saveFile.dataIsEncoded ? fileSizeBytes * 2 : fileSizeBytes; // When encoding the data we can only store 32 bytes of data in every 64 byte block
+
+  return Math.ceil(fileSizeRequiredBytes / BLOCK_SIZE);
+}
+
+function getEmptyDirectoryEntry() {
+  return Util.getFilledArrayBuffer(DIRECTORY_ENTRY_SIZE_PLAINTEXT, 0);
+}
+
+function getDirectoryEntry(saveFile, startingBlock) {
+  const directoryEntry = new ArrayBuffer(DIRECTORY_ENTRY_SIZE_PLAINTEXT);
+  const directoryEntryDataView = new DataView(directoryEntry);
+  const directoryEntryUint8Array = new Uint8Array(directoryEntry);
+
+  const encodedFilename = encodeText(saveFile.filename, DIRECTORY_ENTRY_FILENAME_LENGTH);
+  const fileSizeRequiredBlocks = getRequiredBlocks(saveFile);
+
+  directoryEntryUint8Array.set(encodedFilename, DIRECTORY_ENTRY_FILENAME_OFFSET);
+  directoryEntryDataView.setUint8(DIRECTORY_ENTRY_FILE_DATA_IS_ENCODED_OFFSET, saveFile.dataIsEncoded ? 0xFF : 0x00); // https://github.com/superctr/buram/blob/master/buram.c#L1129
+  directoryEntryDataView.setUint16(DIRECTORY_ENTRY_FILE_DATA_START_BLOCK_OFFSET, startingBlock, LITTLE_ENDIAN);
+  directoryEntryDataView.setUint16(DIRECTORY_ENTRY_FILE_SIZE_OFFSET, fileSizeRequiredBlocks, LITTLE_ENDIAN);
+
+  return directoryEntry;
+}
+
+// Based on https://github.com/superctr/buram/blob/master/buram.c#L766
+function writeSaveFile(saveFile, startingBlock, segaCdArrayBuffer) {
+  const fileSizeRequiredBlocks = getRequiredBlocks(saveFile);
+
+  if (saveFile.dataIsEncoded) {
+    let outputArrayBuffer = Util.copyArrayBuffer(segaCdArrayBuffer);
+
+    for (let i = 0; i < fileSizeRequiredBlocks; i += 1) {
+      const sourceBlockOffset = i * (BLOCK_SIZE / 2);
+      const destinationBlockOffset = (startingBlock + i) * BLOCK_SIZE;
+
+      outputArrayBuffer = encodeBlock(outputArrayBuffer, saveFile.fileData.slice(sourceBlockOffset, sourceBlockOffset + (BLOCK_SIZE / 2)), destinationBlockOffset);
+    }
+
+    return outputArrayBuffer;
   }
 
-  static createFromSaveFiles(saveFiles) {
-    this.saveFiles = saveFiles;
+  return Util.setArrayBufferPortion(segaCdArrayBuffer, saveFile.fileData, startingBlock * BLOCK_SIZE, 0, saveFile.fileData.byteLength);
+}
+
+function getVolumeInfo(segaCdArrayBuffer) {
+  return {
+    numFreeBlocks: SegaCdUtil.getNumFreeBlocks(segaCdArrayBuffer),
+    format: decodeText(segaCdArrayBuffer, segaCdArrayBuffer.byteLength - DIRECTORY_SIZE + DIRECTORY_FORMAT_OFFSET, FORMAT_LENGTH),
+    volume: decodeText(segaCdArrayBuffer, segaCdArrayBuffer.byteLength - DIRECTORY_SIZE + DIRECTORY_VOLUME_OFFSET, VOLUME_LENGTH),
+    mediaId: decodeText(segaCdArrayBuffer, segaCdArrayBuffer.byteLength - MEDIA_ID_LENGTH, MEDIA_ID_LENGTH),
+  };
+}
+
+export default class SegaCdSaveData {
+  static createFromSegaCdData(arrayBuffer) {
+    const segaCdArrayBuffer = SegaCdUtil.truncateToActualSize(arrayBuffer);
+
+    const numSaveFiles = SegaCdUtil.getNumFiles(segaCdArrayBuffer);
+    const saveFiles = readSaveFiles(segaCdArrayBuffer, numSaveFiles);
+
+    return new SegaCdSaveData(segaCdArrayBuffer, saveFiles);
+  }
+
+  static createFromSaveFiles(saveFiles, size) {
+    // Setup and make sure we have enough space for the files
+
+    let segaCdArrayBuffer = SegaCdUtil.makeEmptySave(size);
+    const initialFreeBlocks = SegaCdUtil.getNumFreeBlocks(segaCdArrayBuffer);
+
+    const requiredBlocksForSaves = saveFiles.reduce((accumulatedBlocks, saveFile) => accumulatedBlocks + getRequiredBlocks(saveFile), 0);
+    const requiredBlocksForDirectoryEntries = Math.ceil(saveFiles.length / 2);
+
+    const requiredBlocks = requiredBlocksForSaves + requiredBlocksForDirectoryEntries - 1; // FIXME: Another off-by-one error on the blocks, similar to resizing the save file
+
+    if (requiredBlocks > initialFreeBlocks) {
+      throw new Error(`The specified save files require a total of ${requiredBlocks} blocks of free space, but Sega CD save data of ${size} bytes only has ${initialFreeBlocks} free blocks`);
+    }
+
+    // Write the files
+
+    let currentBlock = 1; // Block 0 is reserved
+    const saveFilesOutput = [];
+    const directoryEntries = [];
+
+    saveFiles.forEach((saveFile) => {
+      const fileSizeBlocks = getRequiredBlocks(saveFile);
+
+      directoryEntries.push(getDirectoryEntry(saveFile, currentBlock));
+
+      segaCdArrayBuffer = writeSaveFile(saveFile, currentBlock, segaCdArrayBuffer);
+
+      saveFilesOutput.push({
+        ...saveFile,
+        startBlockNumber: currentBlock,
+        fileSizeBlocks,
+      });
+
+      currentBlock += fileSizeBlocks;
+    });
+
+    // Combine our directory entries into half-blocks that can be encoded as full blocks
+
+    if ((directoryEntries.length % 2) === 1) {
+      directoryEntries.push(getEmptyDirectoryEntry());
+    }
+
+    const combinedDirectoryEntries = [];
+
+    for (let i = 0; i < (directoryEntries.length / 2); i += 1) {
+      combinedDirectoryEntries.push(Util.concatArrayBuffers([directoryEntries[(i * 2) + 1], directoryEntries[i * 2]])); // Directory entires are written in reverse order: they're read from the bottom up
+    }
+
+    combinedDirectoryEntries.forEach((combinedDirectoryEntry, index) => {
+      const offset = segaCdArrayBuffer.byteLength - DIRECTORY_SIZE - (BLOCK_SIZE * (index + 1));
+
+      segaCdArrayBuffer = encodeBlock(segaCdArrayBuffer, combinedDirectoryEntry, offset);
+    });
+
+    // Finish up
+
+    const numFreeBlocks = initialFreeBlocks - requiredBlocks;
+
+    SegaCdUtil.setNumFreeBlocks(segaCdArrayBuffer, numFreeBlocks);
+    SegaCdUtil.setNumFiles(segaCdArrayBuffer, saveFiles.length);
+
+    return new SegaCdSaveData(segaCdArrayBuffer, saveFilesOutput);
   }
 
   // This constructor creates a new object from a binary representation of Sega CD save data
-  constructor(arrayBuffer) {
+  constructor(arrayBuffer, saveFiles) {
     // Begin by initializing the context
     // https://github.com/superctr/buram/blob/master/buram.c#L584
 
     this.reedSolomon8 = initReedSolomon(0x1D, 8, GENERATOR_POLYNOMIAL_REED_SOLOMON_8);
     this.reedSolomon6 = initReedSolomon(3, 6, GENERATOR_POLYNOMIAL_REED_SOLOMON_6);
 
-    const segaCdArrayBuffer = SegaCdUtil.truncateToActualSize(arrayBuffer);
-
-    const numSaveFiles = readRepeatCode(segaCdArrayBuffer, DIRECTORY_NUM_FILES_OFFSET, DIRECTORY_REPEAT_COUNT);
-
-    this.saveFiles = readSaveFiles(segaCdArrayBuffer, numSaveFiles);
-    this.numFreeBlocks = readRepeatCode(segaCdArrayBuffer, DIRECTORY_NUM_FREE_BLOCKS_OFFSET, DIRECTORY_REPEAT_COUNT);
-    this.format = decodeText(segaCdArrayBuffer, segaCdArrayBuffer.byteLength - DIRECTORY_SIZE + DIRECTORY_FORMAT_OFFSET, FORMAT_LENGTH);
-    this.volume = decodeText(segaCdArrayBuffer, segaCdArrayBuffer.byteLength - DIRECTORY_SIZE + DIRECTORY_VOLUME_OFFSET, VOLUME_LENGTH);
-    this.mediaId = decodeText(segaCdArrayBuffer, segaCdArrayBuffer.byteLength - MEDIA_ID_LENGTH, MEDIA_ID_LENGTH);
-    this.arrayBuffer = segaCdArrayBuffer;
+    this.arrayBuffer = arrayBuffer;
+    this.saveFiles = saveFiles;
+    this.volumeInfo = getVolumeInfo(arrayBuffer);
   }
 
   getSaveFiles() {
@@ -333,19 +494,19 @@ export default class SegaCdSaveData {
   }
 
   getNumFreeBlocks() {
-    return this.numFreeBlocks;
+    return this.volumeInfo.numFreeBlocks;
   }
 
   getFormat() {
-    return this.format;
+    return this.volumeInfo.format;
   }
 
   getVolume() {
-    return this.volume;
+    return this.volumeInfo.volume;
   }
 
   getMediaId() {
-    return this.mediaId;
+    return this.volumeInfo.mediaId;
   }
 
   getArrayBuffer() {

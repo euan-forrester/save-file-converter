@@ -102,6 +102,14 @@ export default class Util {
     return Buffer.from(uint8Array).toString('hex').toUpperCase();
   }
 
+  static copyArrayBuffer(source) {
+    const destination = new ArrayBuffer(source.byteLength);
+
+    new Uint8Array(destination).set(new Uint8Array(source));
+
+    return destination;
+  }
+
   static setArrayBufferPortion(destination, source, destinationOffset, sourceOffset, length) {
     const destinationArray = new Uint8Array(destination);
     const sourceArray = new Uint8Array(source.slice(sourceOffset, sourceOffset + length));

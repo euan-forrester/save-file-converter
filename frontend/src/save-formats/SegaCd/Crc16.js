@@ -21,7 +21,7 @@ for (let i = 0; i < CRC_TABLE_SIZE; i += 1) {
 }
 
 // https://github.com/superctr/buram/blob/master/buram.c#L197
-export default function (arrayBuffer) {
+export default function (arrayBuffer) { // eslint-disable-line func-names
   let out = 0;
   const uint8Array = new Uint8Array(arrayBuffer);
   const length = arrayBuffer.byteLength;
