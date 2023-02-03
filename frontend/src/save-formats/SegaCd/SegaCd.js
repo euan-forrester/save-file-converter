@@ -35,8 +35,8 @@ const DIRECTORY_ENTRY_FILE_DATA_START_BLOCK_OFFSET = 12;
 const DIRECTORY_ENTRY_FILE_SIZE_OFFSET = 14;
 
 const BLOCK_SIZE = 0x40;
-// const SUB_BLOCK_SIZE = 0x08; // A block is made up of sub-blocks, which are interleaved and encoded with Reed-Solomon
-// const NUM_SUB_BLOCKS = BLOCK_SIZE / SUB_BLOCK_SIZE;
+const SUB_BLOCK_SIZE = 0x08; // A block is made up of sub-blocks, which are interleaved and encoded with Reed-Solomon
+const NUM_SUB_BLOCKS = BLOCK_SIZE / SUB_BLOCK_SIZE;
 
 // const REED_SOLOMON_DATA_SIZE = 0x06; // Within a sub-block, this many bytes are the actual data
 // const REED_SOLOMON_PARITY_SIZE = SUB_BLOCK_SIZE - REED_SOLOMON_DATA_SIZE; // Within a sub-block, this many bytes are the parity data
@@ -47,6 +47,8 @@ const BLOCK_DATA_SIZE = 32;
 const BLOCK_CRC_1_OFFSET = 0;
 const BLOCK_CRC_2_OFFSET = BLOCK_DATA_BEGIN_OFFSET + BLOCK_DATA_SIZE;
 const BLOCK_TOTAL_CRC_SIZE = 4; // 2 x 16 bit CRCs
+
+const REED_SOLOMON_6_LAST_DATA_BYTE = [0x2d, 0x2e, 0x2f, 0x08, 0x11, 0x1a, 0x23, 0x2c];
 
 const TEXT_ENCODING = 'US-ASCII';
 const VOLUME_LENGTH = 11;
@@ -103,30 +105,6 @@ function encodeText(text, length) {
 
   return textEncoder.encode(sanitizedText).slice(0, length);
 }
-
-/*
-// Based on https://github.com/superctr/buram/blob/master/buram.c#L329
-// Deinterleave the 8-bit Reed-Solomon code so that parity bits are at the bottom
-function deinterleaveReedSolomon8(subBlockNum, blockArrayBuffer) {
-  const blockUint8Array = new Uint8Array(blockArrayBuffer);
-
-  const outArrayBuffer = new ArrayBuffer(SUB_BLOCK_SIZE);
-  const outUint8Array = new Uint8Array(outArrayBuffer);
-
-  outUint8Array.fill(0);
-
-  for (let i = 0; i < SUB_BLOCK_SIZE; i += 1) {
-    let tmp = blockUint8Array[subBlockNum + (i * 8)];
-
-    for (let j = 0; j < SUB_BLOCK_SIZE; j += 1) {
-      outUint8Array[j] = (outUint8Array[j] << 1) | (tmp >> 7); // Here in the reference code it appears to depend on uninitialized data. We explicily initialize it to 0
-      tmp <<= 1;
-    }
-  }
-
-  return outArrayBuffer;
-}
-*/
 
 // Based on https://github.com/superctr/buram/blob/master/buram.c#L228
 // Deinterleave 36 bytes of data from 48 bytes
@@ -210,13 +188,11 @@ function interleaveData(inputBlockArrayBuffer) {
   return outputArrayBuffer;
 }
 
+/*
 // FIXME: Deinterleave the data, perform Reed-Solomon error correction, then re-interleave it again
 function getErrorCorrectedData(inputBlockArrayBuffer) {
-  /*
   const reedSolomon = new reedsolomon.ReedSolomonDecoder(reedsolomon.GenericGF.AZTEC_DATA_8());
-  */
 
-  /*
   // Perform error correction on the data
 
   let flags = 0;
@@ -228,9 +204,105 @@ function getErrorCorrectedData(inputBlockArrayBuffer) {
 
     // FIXME: Fill in interleavedBlockBuffer back into the input arrayBuffer
   }
-  */
 
-  return inputBlockArrayBuffer;
+}
+*/
+
+// Interleave the 8-bit Reed-Solomon code
+// Based on https://github.com/superctr/buram/blob/master/buram.c#L313
+function interleaveReedSolomon8(subBlockIndex, deinterleavedSubBlockArrayBuffer, blockArrayBuffer) {
+  const outputBlock = Util.copyArrayBuffer(blockArrayBuffer);
+  const outputUint8Array = new Uint8Array(outputBlock);
+
+  const inputUint8Array = new Uint8Array(deinterleavedSubBlockArrayBuffer);
+
+  for (let i = 0; i < SUB_BLOCK_SIZE; i += 1) {
+    let temp = inputUint8Array[i];
+
+    for (let j = 0; j < SUB_BLOCK_SIZE; j += 1) {
+      const outputIndex = subBlockIndex + (j * SUB_BLOCK_SIZE);
+      outputUint8Array[outputIndex] = (((outputUint8Array[outputIndex] << 1) & 0xFF) | (temp >> 7));
+      temp = (temp << 1) & 0xFF;
+    }
+  }
+
+  return outputBlock;
+}
+
+// Deinterleave the 8-bit Reed-Solomon code so that parity bits are at the bottom
+// Based on https://github.com/superctr/buram/blob/master/buram.c#L329
+function deinterleaveReedSolomon8(subBlockIndex, blockArrayBuffer) {
+  const outputSubBlock = Util.getFilledArrayBuffer(SUB_BLOCK_SIZE, 0);
+  const outputUint8Array = new Uint8Array(outputSubBlock);
+
+  const blockUint8Array = new Uint8Array(blockArrayBuffer);
+
+  for (let i = 0; i < SUB_BLOCK_SIZE; i += 1) {
+    let temp = blockUint8Array[subBlockIndex + (i * SUB_BLOCK_SIZE)];
+
+    for (let j = 0; j < SUB_BLOCK_SIZE; j += 1) {
+      outputUint8Array[j] = (((outputUint8Array[j] << 1) & 0xFF) | (temp >> 7));
+      temp = (temp << 1) & 0xFF;
+    }
+  }
+
+  return outputSubBlock;
+}
+
+// Interleave the 6-bit Reed-Solomon code
+// Based on https://github.com/superctr/buram/blob/master/buram.c#L267
+function interleaveReedSolomon6(subBlockIndex, deinterleavedSubBlockArrayBuffer, blockArrayBuffer) {
+  const outputBlock = Util.copyArrayBuffer(blockArrayBuffer);
+  const outputUint8Array = new Uint8Array(outputBlock);
+
+  const inputUint8Array = new Uint8Array(deinterleavedSubBlockArrayBuffer);
+
+  for (let i = 0; i < 5; i += 1) {
+    outputUint8Array[subBlockIndex + (i * 9)] = inputUint8Array[i] << 2;
+  }
+
+  outputUint8Array[REED_SOLOMON_6_LAST_DATA_BYTE[subBlockIndex]] = inputUint8Array[5] << 2;
+  outputUint8Array[0x30 + subBlockIndex] = inputUint8Array[6] << 2;
+  outputUint8Array[0x38 + subBlockIndex] = inputUint8Array[7] << 2;
+
+  return outputBlock;
+}
+
+// Deinterleave the 6-bit Reed-Solomon code so that parity bits are at the bottom
+// Based on https://github.com/superctr/buram/blob/master/buram.c#L280
+function deinterleaveReedSolomon6(subBlockIndex, blockArrayBuffer) {
+  const outputSubBlock = Util.getFilledArrayBuffer(SUB_BLOCK_SIZE, 0);
+  const outputUint8Array = new Uint8Array(outputSubBlock);
+
+  const blockUint8Array = new Uint8Array(blockArrayBuffer);
+
+  for (let i = 0; i < 5; i += 1) {
+    outputUint8Array[i] = blockUint8Array[subBlockIndex + (i * 9)] >> 2;
+  }
+
+  outputUint8Array[5] = blockUint8Array[REED_SOLOMON_6_LAST_DATA_BYTE[subBlockIndex]] >> 2;
+  outputUint8Array[6] = blockUint8Array[0x30 + subBlockIndex] >> 2;
+  outputUint8Array[7] = blockUint8Array[0x38 + subBlockIndex] >> 2;
+
+  return outputSubBlock;
+}
+
+// Perform error correction on the block
+// Based on https://github.com/superctr/buram/blob/master/buram.c#L377
+function getErrorCorrectedData(blockArrayBuffer) {
+  let correctedBlockArrayBuffer = Util.copyArrayBuffer(blockArrayBuffer);
+
+  for (let subBlockIndex = 0; subBlockIndex < NUM_SUB_BLOCKS; subBlockIndex += 1) {
+    const deinterleavedSubBlock = deinterleaveReedSolomon8(subBlockIndex, correctedBlockArrayBuffer);
+    correctedBlockArrayBuffer = interleaveReedSolomon8(subBlockIndex, deinterleavedSubBlock, correctedBlockArrayBuffer);
+  }
+
+  for (let subBlockIndex = 0; subBlockIndex < NUM_SUB_BLOCKS; subBlockIndex += 1) {
+    const deinterleavedSubBlock = deinterleaveReedSolomon6(subBlockIndex, correctedBlockArrayBuffer);
+    correctedBlockArrayBuffer = interleaveReedSolomon6(subBlockIndex, deinterleavedSubBlock, correctedBlockArrayBuffer);
+  }
+
+  return correctedBlockArrayBuffer;
 }
 
 // Check if the deinterleaved block is corrupted or not. The 2 check CRCs appear to be for redundancy
@@ -238,7 +310,7 @@ function checkCrc(deinterleavedBlockArrayBuffer) {
   const dataView = new DataView(deinterleavedBlockArrayBuffer);
 
   const checkCrc1 = dataView.getUint16(BLOCK_CRC_1_OFFSET, LITTLE_ENDIAN);
-  const checkCrc2 = ~(dataView.getUint16(BLOCK_CRC_2_OFFSET, LITTLE_ENDIAN));
+  const checkCrc2 = 0xFFFF & (~(dataView.getUint16(BLOCK_CRC_2_OFFSET, LITTLE_ENDIAN)) >>> 0); // Convert to unsigned and cut off anything beyond the low 16 bits
 
   const crc = calcCrc16(deinterleavedBlockArrayBuffer.slice(BLOCK_DATA_BEGIN_OFFSET, BLOCK_DATA_BEGIN_OFFSET + BLOCK_DATA_SIZE));
 
@@ -258,7 +330,9 @@ function decodeBlock(arrayBuffer, offset) {
 
   const block = arrayBuffer.slice(alignedOffset, alignedOffset + BLOCK_SIZE);
 
-  let outputArrayBuffer = deinterleaveData(block);
+  const correctedBlock2 = getErrorCorrectedData(block); // FIXME: Remove this
+
+  let outputArrayBuffer = deinterleaveData(correctedBlock2/* block */);
 
   try {
     checkCrc(outputArrayBuffer);
@@ -286,7 +360,7 @@ function encodeBlock(destinationArrayBuffer, sourceArrayBuffer, destinationOffse
   const writeDataView = new DataView(writeArrayBuffer);
 
   writeDataView.setUint16(BLOCK_CRC_1_OFFSET, crc, LITTLE_ENDIAN);
-  writeDataView.setUint16(BLOCK_CRC_2_OFFSET, ~crc, LITTLE_ENDIAN);
+  writeDataView.setUint16(BLOCK_CRC_2_OFFSET, ~crc >>> 0, LITTLE_ENDIAN);
 
   writeArrayBuffer = Util.setArrayBufferPortion(writeArrayBuffer, sourceArrayBuffer, BLOCK_CRC_1_OFFSET + 2, 0, sourceArrayBuffer.byteLength);
 
