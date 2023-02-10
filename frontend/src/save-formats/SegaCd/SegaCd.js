@@ -12,14 +12,9 @@ https://github.com/superctr/buram/
 import calcCrc16 from './Crc16'; // eslint-disable-line
 import SegaCdUtil from '../../util/SegaCd';
 import Util from '../../util/util';
-// import reedsolomon from '../../lib/reedsolomon-js/reedsolomon';
+import reedSolomon from './ReedSolomon';
 
 const LITTLE_ENDIAN = false;
-
-const GENERATOR_POLYNOMIAL_REED_SOLOMON_8 = [87, 166, 113, 75, 198, 25, 167, 114, 76, 199, 26, 1]; // https://github.com/superctr/buram/blob/master/buram.c#L586
-const GENERATOR_POLYNOMIAL_REED_SOLOMON_6 = [20, 58, 56, 18, 26, 6, 59, 57, 19, 27, 7, 1]; // https://github.com/superctr/buram/blob/master/buram.c#L587
-
-const GALOIS_FIELD_TABLE_SIZE = 256;
 
 const DIRECTORY_SIZE = 0x40;
 
@@ -55,37 +50,6 @@ const VOLUME_LENGTH = 11;
 const FORMAT_LENGTH = 11;
 const MEDIA_ID_LENGTH = 16;
 
-// https://github.com/superctr/buram/blob/master/buram.c#L85
-function initReedSolomon(poly, bitsPerSymbol, generatorPolynomial) {
-  const symbolsPerBlock = (1 << bitsPerSymbol) - 1;
-
-  const galoisFieldIndexOf = new Array(GALOIS_FIELD_TABLE_SIZE).fill(0);
-  const galoisFieldAlphaTo = new Array(GALOIS_FIELD_TABLE_SIZE).fill(0);
-
-  let sr = 1;
-
-  for (let i = 1; i <= symbolsPerBlock; i += 1) {
-    galoisFieldIndexOf[sr] = i;
-    galoisFieldAlphaTo[i] = sr;
-
-    sr <<= 1;
-
-    if ((sr & (1 << bitsPerSymbol)) !== 0) {
-      sr ^= poly;
-    }
-
-    i += 1;
-  }
-
-  return {
-    bitsPerSymbol,
-    symbolsPerBlock,
-    generatorPolynomial,
-    galoisFieldIndexOf,
-    galoisFieldAlphaTo,
-  };
-}
-
 function sanitizeText(rawText) {
   return rawText.replace(/(?!([A-Z]|[0-9]|\*))./g, '_'); // Anything other than A-Z, 0-9, or * is replaced with a _
 }
@@ -101,7 +65,7 @@ function decodeText(arrayBuffer, offset, length) {
 
 function encodeText(text, length) {
   const textEncoder = new TextEncoder(TEXT_ENCODING);
-  const sanitizedText = sanitizeText(text.toUpperCase());
+  const sanitizedText = sanitizeText(text.toUpperCase()).padEnd(length, '_');
 
   return textEncoder.encode(sanitizedText).slice(0, length);
 }
@@ -187,26 +151,6 @@ function interleaveData(inputBlockArrayBuffer) {
 
   return outputArrayBuffer;
 }
-
-/*
-// FIXME: Deinterleave the data, perform Reed-Solomon error correction, then re-interleave it again
-function getErrorCorrectedData(inputBlockArrayBuffer) {
-  const reedSolomon = new reedsolomon.ReedSolomonDecoder(reedsolomon.GenericGF.AZTEC_DATA_8());
-
-  // Perform error correction on the data
-
-  let flags = 0;
-
-  for (let i = 0; i < NUM_SUB_BLOCKS; i += 1) {
-    const deinterleavedBlockBuffer = deinterleaveReedSolomon8(i, block);
-    const decodedBlockBuffer = reedSolomon.decode(deinterleavedBlockBuffer, REED_SOLOMON_PARITY_SIZE);
-    const interleavedBlockBuffer = interleaveReedSolomon8(decodedBlockBuffer);
-
-    // FIXME: Fill in interleavedBlockBuffer back into the input arrayBuffer
-  }
-
-}
-*/
 
 // Interleave the 8-bit Reed-Solomon code
 // Based on https://github.com/superctr/buram/blob/master/buram.c#L313
@@ -294,12 +238,33 @@ function getErrorCorrectedData(blockArrayBuffer) {
 
   for (let subBlockIndex = 0; subBlockIndex < NUM_SUB_BLOCKS; subBlockIndex += 1) {
     const deinterleavedSubBlock = deinterleaveReedSolomon8(subBlockIndex, correctedBlockArrayBuffer);
-    correctedBlockArrayBuffer = interleaveReedSolomon8(subBlockIndex, deinterleavedSubBlock, correctedBlockArrayBuffer);
+    const errorCorrectedSubBlock = reedSolomon.decode(deinterleavedSubBlock, 8);
+    correctedBlockArrayBuffer = interleaveReedSolomon8(subBlockIndex, errorCorrectedSubBlock, correctedBlockArrayBuffer);
   }
 
   for (let subBlockIndex = 0; subBlockIndex < NUM_SUB_BLOCKS; subBlockIndex += 1) {
     const deinterleavedSubBlock = deinterleaveReedSolomon6(subBlockIndex, correctedBlockArrayBuffer);
-    correctedBlockArrayBuffer = interleaveReedSolomon6(subBlockIndex, deinterleavedSubBlock, correctedBlockArrayBuffer);
+    const errorCorrectedSubBlock = reedSolomon.decode(deinterleavedSubBlock, 6);
+    correctedBlockArrayBuffer = interleaveReedSolomon6(subBlockIndex, errorCorrectedSubBlock, correctedBlockArrayBuffer);
+  }
+
+  return correctedBlockArrayBuffer;
+}
+
+// Based on https://github.com/superctr/buram/blob/master/buram.c#L345
+function addErrorCorrectionData(blockArrayBuffer) {
+  let correctedBlockArrayBuffer = Util.copyArrayBuffer(blockArrayBuffer);
+
+  for (let subBlockIndex = 0; subBlockIndex < NUM_SUB_BLOCKS; subBlockIndex += 1) {
+    const deinterleavedSubBlock = deinterleaveReedSolomon6(subBlockIndex, correctedBlockArrayBuffer);
+    const errorCorrectedSubBlock = reedSolomon.encode(deinterleavedSubBlock, 6);
+    correctedBlockArrayBuffer = interleaveReedSolomon6(subBlockIndex, errorCorrectedSubBlock, correctedBlockArrayBuffer);
+  }
+
+  for (let subBlockIndex = 0; subBlockIndex < NUM_SUB_BLOCKS; subBlockIndex += 1) {
+    const deinterleavedSubBlock = deinterleaveReedSolomon8(subBlockIndex, correctedBlockArrayBuffer);
+    const errorCorrectedSubBlock = reedSolomon.encode(deinterleavedSubBlock, 8);
+    correctedBlockArrayBuffer = interleaveReedSolomon8(subBlockIndex, errorCorrectedSubBlock, correctedBlockArrayBuffer);
   }
 
   return correctedBlockArrayBuffer;
@@ -367,8 +332,9 @@ function encodeBlock(destinationArrayBuffer, sourceArrayBuffer, destinationOffse
   // Now interleave the data and write it to the destination
 
   const interleavedArrayBuffer = interleaveData(writeArrayBuffer);
+  const errorCorrectionDataArrayBuffer = addErrorCorrectionData(interleavedArrayBuffer);
 
-  return Util.setArrayBufferPortion(destinationArrayBuffer, interleavedArrayBuffer, destinationOffset, 0, interleavedArrayBuffer.byteLength);
+  return Util.setArrayBufferPortion(destinationArrayBuffer, errorCorrectionDataArrayBuffer, destinationOffset, 0, errorCorrectionDataArrayBuffer.byteLength);
 }
 
 // This is based on https://github.com/superctr/buram/blob/master/buram.c#L820
@@ -552,12 +518,6 @@ export default class SegaCdSaveData {
 
   // This constructor creates a new object from a binary representation of Sega CD save data
   constructor(arrayBuffer, saveFiles) {
-    // Begin by initializing the context
-    // https://github.com/superctr/buram/blob/master/buram.c#L584
-
-    this.reedSolomon8 = initReedSolomon(0x1D, 8, GENERATOR_POLYNOMIAL_REED_SOLOMON_8);
-    this.reedSolomon6 = initReedSolomon(3, 6, GENERATOR_POLYNOMIAL_REED_SOLOMON_6);
-
     this.arrayBuffer = arrayBuffer;
     this.saveFiles = saveFiles;
     this.volumeInfo = getVolumeInfo(arrayBuffer);
