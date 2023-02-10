@@ -457,7 +457,7 @@ export default class SegaCdSaveData {
     const requiredBlocksForSaves = saveFiles.reduce((accumulatedBlocks, saveFile) => accumulatedBlocks + getRequiredBlocks(saveFile), 0);
     const requiredBlocksForDirectoryEntries = Math.ceil(saveFiles.length / 2);
 
-    const requiredBlocks = requiredBlocksForSaves + requiredBlocksForDirectoryEntries - 1; // FIXME: Another off-by-one error on the blocks, similar to resizing the save file
+    const requiredBlocks = requiredBlocksForSaves + requiredBlocksForDirectoryEntries - 1; // FIXME: What is this off-by-one error?
 
     if (requiredBlocks > initialFreeBlocks) {
       throw new Error(`The specified save files require a total of ${requiredBlocks} blocks of free space, but Sega CD save data of ${size} bytes only has ${initialFreeBlocks} free blocks`);
