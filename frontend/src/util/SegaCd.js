@@ -165,7 +165,9 @@ export default class SegaCdUtil {
     // at the end of the file
 
     const numFiles = SegaCdUtil.getNumFiles(inputArrayBufferActualSize);
-    const footerLength = (numFiles + 1) * DIRECTORY_ENTRY_SIZE;
+    const numApparentDirectoryEntries = ((numFiles % 2) === 1) ? (numFiles + 1) : numFiles; // Our directory entries get interleaved in pairs, so if there's an odd number it will still take an entire block to encode
+
+    const footerLength = numApparentDirectoryEntries * DIRECTORY_ENTRY_SIZE;
 
     // Next divide up the file into its components
 
