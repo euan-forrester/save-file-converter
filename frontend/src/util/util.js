@@ -110,6 +110,20 @@ export default class Util {
     return destination;
   }
 
+  static padArrayBuffer(inputArrayBuffer, desiredLength, fillValue) {
+    if (inputArrayBuffer.byteLength === desiredLength) {
+      return inputArrayBuffer;
+    }
+
+    if (inputArrayBuffer.byteLength > desiredLength) {
+      throw new Error(`Cannot pad array buffer of length ${inputArrayBuffer.byteLength} to length ${desiredLength}`);
+    }
+
+    const outputArrayBuffer = Util.getFilledArrayBuffer(desiredLength, fillValue);
+
+    return Util.setArrayBufferPortion(outputArrayBuffer, inputArrayBuffer, 0, 0, inputArrayBuffer.byteLength);
+  }
+
   static setArrayBufferPortion(destination, source, destinationOffset, sourceOffset, length) {
     const destinationArray = new Uint8Array(destination);
     const sourceArray = new Uint8Array(source.slice(sourceOffset, sourceOffset + length));

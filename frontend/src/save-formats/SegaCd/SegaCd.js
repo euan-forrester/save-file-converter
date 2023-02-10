@@ -414,13 +414,14 @@ function writeSaveFile(saveFile, startingBlock, segaCdArrayBuffer) {
   const fileSizeRequiredBlocks = getRequiredBlocks(saveFile);
 
   if (saveFile.dataIsEncoded) {
+    const paddedInputArrayBuffer = Util.padArrayBuffer(saveFile.fileData, fileSizeRequiredBlocks * BLOCK_SIZE, 0x00);
     let outputArrayBuffer = Util.copyArrayBuffer(segaCdArrayBuffer);
 
     for (let i = 0; i < fileSizeRequiredBlocks; i += 1) {
       const sourceBlockOffset = i * (BLOCK_SIZE / 2);
       const destinationBlockOffset = (startingBlock + i) * BLOCK_SIZE;
 
-      outputArrayBuffer = encodeBlock(outputArrayBuffer, saveFile.fileData.slice(sourceBlockOffset, sourceBlockOffset + (BLOCK_SIZE / 2)), destinationBlockOffset);
+      outputArrayBuffer = encodeBlock(outputArrayBuffer, paddedInputArrayBuffer.slice(sourceBlockOffset, sourceBlockOffset + (BLOCK_SIZE / 2)), destinationBlockOffset);
     }
 
     return outputArrayBuffer;
