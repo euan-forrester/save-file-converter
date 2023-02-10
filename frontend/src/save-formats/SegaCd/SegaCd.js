@@ -33,9 +33,6 @@ const BLOCK_SIZE = 0x40;
 const SUB_BLOCK_SIZE = 0x08; // A block is made up of sub-blocks, which are interleaved and encoded with Reed-Solomon
 const NUM_SUB_BLOCKS = BLOCK_SIZE / SUB_BLOCK_SIZE;
 
-// const REED_SOLOMON_DATA_SIZE = 0x06; // Within a sub-block, this many bytes are the actual data
-// const REED_SOLOMON_PARITY_SIZE = SUB_BLOCK_SIZE - REED_SOLOMON_DATA_SIZE; // Within a sub-block, this many bytes are the parity data
-
 // When deinterleaved, a block becomes 36 bytes of data where the first 2 and last 2 bytes are CRC information
 const BLOCK_DATA_BEGIN_OFFSET = 2;
 const BLOCK_DATA_SIZE = 32;
