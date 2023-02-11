@@ -6,7 +6,7 @@ This is based on https://github.com/superctr/buram/
 All manipulation of Sega CD saves is done via the BIOS, and emulators etc just make BIOS calls and don't manipulate the data directly.
 It appears that the BIOS was reverse-engineered to create the above repo.
 
-The file is broken up in to blocks of 64 bytes each. There is considerable redundancy and error correction throughout the data.
+The file is broken up into blocks of 64 bytes each. There is considerable redundancy and error correction throughout the data.
 
 The first block is reserved. The repo above doesn't alter any data in this block, but the BIOS does. I don't know what it contains.
 
@@ -325,9 +325,7 @@ function decodeBlock(arrayBuffer, offset) {
 
   const block = arrayBuffer.slice(alignedOffset, alignedOffset + BLOCK_SIZE);
 
-  const correctedBlock2 = getErrorCorrectedData(block); // FIXME: Remove this
-
-  let outputArrayBuffer = deinterleaveData(correctedBlock2/* block */);
+  let outputArrayBuffer = deinterleaveData(block);
 
   try {
     checkCrc(outputArrayBuffer);
