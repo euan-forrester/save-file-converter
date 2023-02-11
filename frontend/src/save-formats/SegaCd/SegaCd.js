@@ -1,12 +1,39 @@
 /* eslint-disable no-bitwise */
 
 /*
-The SegaCD file format isn't published anywhere I'm aware of. It's written to and read from by the Sega CD BIOS,
-and so emulators, flash carts, the mister, etc., just call functions in that BIOS and don't directly read or
-alter the data.
+This is based on https://github.com/superctr/buram/
 
-It appears that the BIOS was reverse-engineered and an implementation of some functionality to manipulate the data was posted here:
-https://github.com/superctr/buram/
+All manipulation of Sega CD saves is done via the BIOS, and emulators etc just make BIOS calls and don't manipulate the data directly.
+It appears that the BIOS was reverse-engineered to create the above repo.
+
+The file is broken up in to blocks of 64 bytes each. There is considerable redundancy and error correction throughout the data.
+
+The first block is reserved. The repo above doesn't alter any data in this block, but the BIOS does. I don't know what it contains.
+
+The last block is reserved for directory information: volume name, number of free blocks, number of save files, etc. The latter 2 values are written 4 times each.
+
+Blocks may have error correction encoding applied to them. If applied, it takes the 64 byte block and uses only the first 48 bytes.
+Those 48 bytes actually contain 36 bytes of data, plus error-correction parity information. The 36 bytes of data are actually 32 bytes
+of data plus 2 16-bit CRCs to verify the integrety of the data. Thus, when error correction is applied to a block, 64 bytes actually holds 32 bytes of data.
+
+Each of the 2 CRCs is the bitwise-NOT of the other. The CRC algorithm appears to be custom: I couldn't find a match in the library I tried.
+
+From the perspective of the parity information, each 64 byte block is regarded as made up of 8-byte subblocks. Each subblock contains 6 bytes of data
+and 2 bytes of parity information. The parity bytes are calculated by what appears to be a custom implementation of Reed-Solomon encoding. I was unable
+to make an off-the-shelf Reed-Solomon library properly process the data.
+
+The parity bytes are interleaved (twice) with the actual data. Each set of parity bytes allows for 1 byte to be corrected, and so I think the object
+here is to allow for a 1-bit error in any byte of data. I didn't understand why there is both 6-bit and 8-bit Reed-Solomon encoding applied to the data.
+
+The data for the contents of the files themselves is written in blocks from the start of the file (starting from block 1). It's just a concatenation of all of
+the data from all of the files. File data may be encoded for error-correction or it may not be.
+
+The file metadata (directory entries) is stored in half-blocks starting at the second-last block of the file and moving upwards towards the start of the file.
+Thus, the two sets of data will eventually meet in the middle of the file. Each directory entry is 16 bytes of data long, and directory entries are encoded for
+error-correction. Thus, 2 directory entries can fit in each block, and the entire block is used whether there are 1 or 2 entires in it (because the
+data is interleaved)
+
+Directory entries contain the filename, starting block number, length, and whether error correction encoding is applied to the file data.
 */
 
 import calcCrc16 from './Crc16'; // eslint-disable-line
@@ -453,12 +480,12 @@ export default class SegaCdSaveData {
     // Setup and make sure we have enough space for the files
 
     let segaCdArrayBuffer = SegaCdUtil.makeEmptySave(size);
-    const initialFreeBlocks = SegaCdUtil.getNumFreeBlocks(segaCdArrayBuffer);
+    const initialFreeBlocks = SegaCdUtil.getTotalAvailableBlocks(segaCdArrayBuffer); // If we call SegaCdUtil.getNumFreeBlocks() it will subtract one because of the extra block that's reserved for the first file's directory entry
 
     const requiredBlocksForSaves = saveFiles.reduce((accumulatedBlocks, saveFile) => accumulatedBlocks + getRequiredBlocks(saveFile), 0);
     const requiredBlocksForDirectoryEntries = Math.ceil(saveFiles.length / 2);
 
-    const requiredBlocks = requiredBlocksForSaves + requiredBlocksForDirectoryEntries - 1; // FIXME: What is this off-by-one error?
+    const requiredBlocks = requiredBlocksForSaves + requiredBlocksForDirectoryEntries;
 
     if (requiredBlocks > initialFreeBlocks) {
       throw new Error(`The specified save files require a total of ${requiredBlocks} blocks of free space, but Sega CD save data of ${size} bytes only has ${initialFreeBlocks} free blocks`);

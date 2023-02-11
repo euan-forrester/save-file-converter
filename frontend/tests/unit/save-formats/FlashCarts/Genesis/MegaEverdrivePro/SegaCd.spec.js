@@ -68,6 +68,7 @@ describe('Flash cart - Genesis - Mega Everdrive Pro - Sega CD', () => {
       flashCartSaveData.getRawArrayBuffer(GenesisMegaEverdriveProSegaCdFlashCartSaveData.INTERNAL_MEMORY),
       EMPTY_INTERNAL_MEMORY_SAVE,
     )).to.equal(true);
+
     expect(ArrayBufferUtil.arrayBuffersEqual(
       flashCartSaveData.getRawArrayBuffer(GenesisMegaEverdriveProSegaCdFlashCartSaveData.RAM_CART),
       rawRamCartArrayBuffer,

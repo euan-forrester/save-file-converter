@@ -25,7 +25,8 @@ const DIRECTORY_NUM_FREE_BLOCKS_OFFSET = 0x10;
 const DIRECTORY_NUM_FILES_OFFSET = 0x18;
 
 const BLOCK_SIZE = 0x40;
-const NUM_RESERVED_BLOCKS = 3; // The first block is reserved, the last block contains the BRAM_FORMAT, and there's one more reserved for the first file to be written: https://github.com/superctr/buram/blob/master/buram.c#L713
+const NUM_RESERVED_BLOCKS = 2; // The first block is reserved, the last block contains the BRAM_FORMAT
+const NUM_INITIAL_RESERVED_BLOCKS = NUM_RESERVED_BLOCKS + 1; // and there's one more reserved when the file is created for save room for the directory entry for the eventual first file: https://github.com/superctr/buram/blob/master/buram.c#L713
 
 const DIRECTORY_SIZE = 0x40; // A block
 const DIRECTORY_ENTRY_SIZE = 0x20; // Half a block
@@ -71,13 +72,6 @@ function writeRepeatCode(arrayBuffer, offsetFromDirectory, value) {
     dataView.setUint16(currentOffset, value, LITTLE_ENDIAN);
     currentOffset += 2;
   }
-}
-
-// Based on https://github.com/superctr/buram/blob/master/buram.c#L702
-function fillInNewSize(bramFormat, newSize) {
-  const totalFreeBlocks = (newSize / BLOCK_SIZE) - NUM_RESERVED_BLOCKS;
-
-  writeRepeatCode(bramFormat, DIRECTORY_NUM_FREE_BLOCKS_OFFSET, totalFreeBlocks);
 }
 
 export default class SegaCdUtil {
@@ -127,7 +121,9 @@ export default class SegaCdUtil {
 
     BRAM_FORMAT.forEach((byte, index) => { bramFormatUint8Array[index] = byte; });
 
-    fillInNewSize(bramFormat, size);
+    const totalFreeBlocks = (size / BLOCK_SIZE) - NUM_INITIAL_RESERVED_BLOCKS;
+
+    SegaCdUtil.setNumFreeBlocks(bramFormat, totalFreeBlocks);
 
     return Util.concatArrayBuffers([initialData, bramFormat]);
   }
@@ -146,6 +142,10 @@ export default class SegaCdUtil {
 
   static setNumFreeBlocks(inputArrayBuffer, value) {
     writeRepeatCode(inputArrayBuffer, DIRECTORY_NUM_FREE_BLOCKS_OFFSET, value);
+  }
+
+  static getTotalAvailableBlocks(inputArrayBuffer) {
+    return Math.ceil(inputArrayBuffer.byteLength / BLOCK_SIZE) - NUM_RESERVED_BLOCKS;
   }
 
   static resize(inputArrayBuffer, newSize) {
@@ -177,10 +177,19 @@ export default class SegaCdUtil {
     const footerData = inputArrayBufferActualSize.slice(footerOffset, footerOffset + footerLength);
     const bramFormat = inputArrayBufferActualSize.slice(bramFormatOffset);
 
-    // Now change the bytes in bramFormat to reflect the new size
-    // From https://github.com/ekeeke/Genesis-Plus-GX/blob/master/sdl/sdl1/main.c#L824
+    // Set the new number of free blocks. Note that we could calculate this by parsing the entire file and
+    // adding up all the save sizes within it. But we'll just trust that the previous number was correct.
+    const previousFreeBlocks = SegaCdUtil.getNumFreeBlocks(inputArrayBufferActualSize);
+    const sizeDifferenceBlocks = (newSize - inputArrayBufferActualSize.byteLength) / BLOCK_SIZE; // Positive or negative
+    const newFreeBlocks = previousFreeBlocks + sizeDifferenceBlocks;
 
-    fillInNewSize(bramFormat, newSize);
+    if (newFreeBlocks < 0) {
+      const prevTotalBlocks = inputArrayBufferActualSize.byteLength / BLOCK_SIZE;
+      const newTotalBlocks = newSize / BLOCK_SIZE;
+      throw new Error(`Insufficient free blocks in file to change size from ${prevTotalBlocks} to ${newTotalBlocks} blocks. Previous free blocks: ${previousFreeBlocks}`);
+    }
+
+    SegaCdUtil.setNumFreeBlocks(bramFormat, newFreeBlocks);
 
     if (newSize > inputArrayBufferActualSize.byteLength) {
       // Make the file bigger by splicing in a blank block just before the footer and BRAM_FORMAT

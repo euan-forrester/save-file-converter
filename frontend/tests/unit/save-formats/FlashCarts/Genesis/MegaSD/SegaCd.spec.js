@@ -14,7 +14,6 @@ const MEGA_SD_INTERNAL_MEMORY_ONLY_FILENAME = `${DIR}/megasd/Popful Mail (U)-int
 
 const MEGA_SD_CONVERTED_BACK_INTERNAL_MEMORY_FILENAME = `${DIR}/megasd/Popful Mail (U)-converted-back-internal-memory.SRM`;
 const MEGA_SD_CONVERTED_BACK_RAM_CART_FILENAME = `${DIR}/megasd/Popful Mail (U)-converted-back-ram-cart.SRM`;
-const MEGA_SD_CONVERTED_BACK_BOTH_FILENAME = `${DIR}/megasd/Popful Mail (U)-converted-back.SRM`; // There are a few bits different in the 'signature' at the end of the RAM cart section, but both files should work
 
 const MEGA_SD_INTERNAL_MEMORY_PLUS_BLANK_RAM_CART_FILENAME = `${DIR}/megasd/Lunar_The_Silver_Star.SRM`;
 const RAW_INTERNAL_MEMORY_PLUS_BLANK_RAM_CART_INTERNAL_MEMORY_FILENAME = `${DIR}/megasd/Lunar_The_Silver_Star-internal-memory.brm`;
@@ -64,7 +63,7 @@ describe('Flash cart - Genesis - Mega SD - Sega CD', () => {
   it('should convert emulator internal memory + RAM cart Sega CD files to Mega SD format', async () => {
     const rawInternalSaveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_INTERNAL_MEMORY_FILENAME);
     const rawRamCartSaveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_RAM_CART_FILENAME);
-    const flashCartArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEGA_SD_CONVERTED_BACK_BOTH_FILENAME);
+    const flashCartArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEGA_SD_FILENAME);
 
     const flashCartSaveData = GenesisMegaSdSegaCdFlashCartSaveData.createFromRawData({ rawInternalSaveArrayBuffer, rawRamCartSaveArrayBuffer });
 
