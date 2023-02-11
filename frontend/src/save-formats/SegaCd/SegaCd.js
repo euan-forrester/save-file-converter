@@ -12,6 +12,8 @@ The first block is reserved. The repo above doesn't alter any data in this block
 
 The last block is reserved for directory information: volume name, number of free blocks, number of save files, etc. The latter 2 values are written 4 times each.
 
+There is potentially an additional block reserved for a future directory entry (see below)
+
 Blocks may have error correction encoding applied to them. If applied, it takes the 64 byte block and uses only the first 48 bytes.
 Those 48 bytes actually contain 36 bytes of data, plus error-correction parity information. The 36 bytes of data are actually 32 bytes
 of data plus 2 16-bit CRCs to verify the integrety of the data. Thus, when error correction is applied to a block, 64 bytes actually holds 32 bytes of data.
@@ -34,6 +36,10 @@ error-correction. Thus, 2 directory entries can fit in each block, and the entir
 data is interleaved)
 
 Directory entries contain the filename, starting block number, length, and whether error correction encoding is applied to the file data.
+
+There is always a half-block available for the next directory entry. If the number of saves is odd, this data will be stored in the same block
+as the last entry and no extra blocks are reserved. However if the number of saves is even then an additional block is reserved for that
+future directory entry. This includes when the file is empty.
 */
 
 import calcCrc16 from './Crc16'; // eslint-disable-line
