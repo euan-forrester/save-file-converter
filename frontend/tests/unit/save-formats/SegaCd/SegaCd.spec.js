@@ -145,13 +145,15 @@ describe('Sega CD', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(segaCdSaveData.getSaveFiles()[3].fileData, rawArrayBuffers[3])).to.equal(true);
   });
 
-  it('should be able to parse a file that it creates', async () => {
+  it('should be able to create a save file from individual files', async () => {
     const rawArrayBuffers = await Promise.all(INTERNAL_MEMORY_MULTIPLE_FILES_FILES.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
 
     // This is identical to the data created by the reference tool https://github.com/superctr/buram for this data.
     // It's different from the file created by the BIOS though: the final block of directory information (i.e. closest to the top of the file)
     // is different for some reason.
     // Also, the BIOS fills in some data in the reserved block at the beginning of the file
+    //
+    // This file was tested as being able to be loaded by the BIOS
     const expectedCreatedArrayBuffer = await ArrayBufferUtil.readArrayBuffer(CREATED_FILE_FILENAME);
 
     const saveFiles = [
