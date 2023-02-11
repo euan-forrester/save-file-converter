@@ -247,4 +247,57 @@ describe('Sega CD', () => {
     expect(segaCdSaveData.getSaveFiles()[6].fileSizeBlocks).to.equal(11);
     expect(ArrayBufferUtil.arrayBuffersEqual(segaCdSaveData.getSaveFiles()[6].fileData, rawArrayBuffers[6])).to.equal(true);
   });
+
+  it('should correctly set the number of free blocks when the number of files is even', async () => {
+    const rawArrayBuffers = await Promise.all(INTERNAL_MEMORY_MULTIPLE_FILES_FILES.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
+
+    const saveFiles = [
+      {
+        filename: 'POPFUL_MAIL',
+        fileData: rawArrayBuffers[0],
+        dataIsEncoded: false,
+      },
+      {
+        filename: 'DW__DATA_00',
+        fileData: rawArrayBuffers[1],
+        dataIsEncoded: false,
+      },
+    ];
+
+    const createdSegaCdSaveData = SegaCdSaveData.createFromSaveFiles(saveFiles, 8192);
+
+    // 8192 bytes = 128 blocks
+    // 2 reserved blocks
+    // 13 blocks in first file
+    // 40 blocks in second file
+    // 1 block for the 2 directory entries
+    // 1 more block reserved for the next future directory entry
+    //
+    // Result is 71 free blocks
+
+    expect(createdSegaCdSaveData.getNumFreeBlocks()).to.equal(71);
+  });
+
+  it('should correctly set the number of free blocks when the number of files is odd', async () => {
+    const rawArrayBuffers = await Promise.all(INTERNAL_MEMORY_MULTIPLE_FILES_FILES.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
+
+    const saveFiles = [
+      {
+        filename: 'DW__DATA_00',
+        fileData: rawArrayBuffers[1],
+        dataIsEncoded: false,
+      },
+    ];
+
+    const createdSegaCdSaveData = SegaCdSaveData.createFromSaveFiles(saveFiles, 8192);
+
+    // 8192 bytes = 128 blocks
+    // 2 reserved blocks
+    // 40 blocks in first file
+    // 1 block for the 1 directory entry and next future directory entry
+    //
+    // Result is 85 free blocks
+
+    expect(createdSegaCdSaveData.getNumFreeBlocks()).to.equal(85);
+  });
 });

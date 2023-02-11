@@ -484,8 +484,9 @@ export default class SegaCdSaveData {
 
     const requiredBlocksForSaves = saveFiles.reduce((accumulatedBlocks, saveFile) => accumulatedBlocks + getRequiredBlocks(saveFile), 0);
     const requiredBlocksForDirectoryEntries = Math.ceil(saveFiles.length / 2);
+    const requiredReservedBlocks = ((saveFiles.length % 2) === 0) ? 1 : 0; // We can store 2 directory entries in a block. We always need room for the next future directory entry. So, if there are an odd number of save files we can store the next one in our last block. But if there are an even number of save files we need to reserve the next block
 
-    const requiredBlocks = requiredBlocksForSaves + requiredBlocksForDirectoryEntries;
+    const requiredBlocks = requiredBlocksForSaves + requiredBlocksForDirectoryEntries + requiredReservedBlocks;
 
     if (requiredBlocks > initialFreeBlocks) {
       throw new Error(`The specified save files require a total of ${requiredBlocks} blocks of free space, but Sega CD save data of ${size} bytes only has ${initialFreeBlocks} free blocks`);
