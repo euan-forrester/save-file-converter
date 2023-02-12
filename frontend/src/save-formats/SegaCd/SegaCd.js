@@ -475,7 +475,27 @@ export default class SegaCdSaveData {
     const segaCdArrayBuffer = SegaCdUtil.truncateToActualSize(arrayBuffer);
 
     const numSaveFiles = SegaCdUtil.getNumFiles(segaCdArrayBuffer);
-    const saveFiles = readSaveFiles(segaCdArrayBuffer, numSaveFiles);
+    let saveFiles = readSaveFiles(segaCdArrayBuffer, numSaveFiles);
+
+    // Some emulators concat their internal memory save with their ram cart save.
+    // We may wish to build a better UI around this to make it clear where
+    // the saves are coming from, but for now as a first pass just parse both parts
+    // and concat the arrays of save files together so the user can see everything
+    //
+    // Unsure how common this is: found one save while looking that was in this format
+
+    if (segaCdArrayBuffer.byteLength < arrayBuffer.byteLength) {
+      const arrayBuffer2 = arrayBuffer.slice(segaCdArrayBuffer.byteLength);
+
+      if (SegaCdUtil.isCorrectlyFormatted(arrayBuffer2)) {
+        const segaCdArrayBuffer2 = SegaCdUtil.truncateToActualSize(arrayBuffer2);
+
+        const numSaveFiles2 = SegaCdUtil.getNumFiles(segaCdArrayBuffer2);
+        const saveFiles2 = readSaveFiles(segaCdArrayBuffer2, numSaveFiles2);
+
+        saveFiles = saveFiles.concat(saveFiles2);
+      }
+    }
 
     return new SegaCdSaveData(segaCdArrayBuffer, saveFiles);
   }
