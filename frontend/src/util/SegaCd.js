@@ -26,7 +26,7 @@ const DIRECTORY_NUM_FILES_OFFSET = 0x18;
 
 const BLOCK_SIZE = 0x40;
 const NUM_RESERVED_BLOCKS = 2; // The first block is reserved, the last block contains the BRAM_FORMAT
-const NUM_INITIAL_RESERVED_BLOCKS = NUM_RESERVED_BLOCKS + 1; // and there's one more reserved when the file is created for save room for the directory entry for the eventual first file: https://github.com/superctr/buram/blob/master/buram.c#L713
+const NUM_INITIAL_RESERVED_BLOCKS = NUM_RESERVED_BLOCKS + 1; // and there's one more reserved when the file is created for save room for the directory entry for the eventual first file. This happens whenever the number of save files is even: https://github.com/superctr/buram/blob/master/buram.c#L713
 
 const DIRECTORY_SIZE = 0x40; // A block
 const DIRECTORY_ENTRY_SIZE = 0x20; // Half a block

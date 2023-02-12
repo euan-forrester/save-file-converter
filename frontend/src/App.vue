@@ -40,6 +40,7 @@
       </b-row>
       <b-row>
         <b-col class="nav-row">
+          <router-link to="/sega-cd">Sega{{'\xa0'}}CD</router-link> |
           <router-link to="/psp">PSP{{'\xa0'}}-{{'\xa0'}}Save{{'\xa0'}}decryption{{'\xa0'}}</router-link>
         </b-col>
       </b-row>
