@@ -149,6 +149,9 @@ export default {
 
       return [];
     },
+    getFileNameFromSaveFile(saveFile) {
+      return `${saveFile.filename}-${saveFile.dataIsEncoded ? 'ECC' : 'RAW'}.bin`;
+    },
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
       this.segaCdSaveData = null;
@@ -159,7 +162,7 @@ export default {
     changeSelectedSaveData(newSaveData) {
       if (this.segaCdSaveData.getSaveFiles().length > 0) {
         this.selectedSaveData = newSaveData;
-        this.outputFilename = this.segaCdSaveData.getSaveFiles()[this.selectedSaveData].filename;
+        this.outputFilename = this.getFileNameFromSaveFile(this.segaCdSaveData.getSaveFiles()[this.selectedSaveData]);
       } else {
         this.selectedSaveData = null;
         this.outputFilename = null;
