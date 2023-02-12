@@ -421,6 +421,11 @@ function getRequiredBlocks(saveFile) {
 }
 
 function getEmptyDirectoryEntry() {
+  // I've noticed that both this tool and the reference tool create data that differs from the files created
+  // by the BIOS in the topmost directory entry only, when there are an odd number of saves. i.e. it seems that perhaps the BIOS
+  // does not fill the other half of that block with 0x00 as we do here. I tried a few values and wasn't able to
+  // replicate the output of the BIOS. Maybe there's a value that matches the BIOS output? Regardless the BIOS is able to
+  // read the files that we create.
   return Util.getFilledArrayBuffer(DIRECTORY_ENTRY_SIZE_PLAINTEXT, 0);
 }
 
