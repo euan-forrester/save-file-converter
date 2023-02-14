@@ -12,7 +12,7 @@
           </b-row>
           <div v-if="this.conversionDirection === 'convertToRaw'">
             <input-file
-              @load="readsegaCdSaveData($event)"
+              @load="readSegaCdSaveData($event)"
               :errorMessage="this.errorMessage"
               placeholderText="Choose a file to convert"
               :leaveRoomForHelpIcon="false"
@@ -39,13 +39,33 @@
         <b-col sm=12 md=5 align-self="start">
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
-              <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })" :class="$mq === 'md' ? 'fix-jumbotron' : ''">
-                <template v-slot:header>Individual saves</template>
+              <b-jumbotron
+                fluid
+                :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })"
+                :class="($mq === 'md') && (this.individualSavesOrMemoryCard === 'individual-saves') ? 'fix-jumbotron' : ''"
+              >
+                <template v-slot:header>{{ individualSavesOrMemoryCardText }}</template>
               </b-jumbotron>
             </b-col>
           </b-row>
           <div v-if="this.conversionDirection === 'convertToRaw'">
-            <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
+            <div v-if="this.individualSavesOrMemoryCard === 'individual-saves'">
+              <output-filename
+                v-model="outputFilename"
+                :leaveRoomForHelpIcon="true"
+                :disabled="true"
+                helpText="The filename for an individual save contains important information that the game needs to find this save data. Please do not modify it after downloading the save."
+              />
+            </div>
+            <div v-else>
+             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
+            </div>
+            <individual-saves-or-memory-card-selector
+              :value="this.individualSavesOrMemoryCard"
+              @change="changeIndividualSavesOrMemoryCard($event)"
+              :individualSavesText="this.individualSavesText"
+              :memoryCardText="this.memoryCardText"
+            />
           </div>
           <div v-else>
             <input-file
@@ -66,7 +86,7 @@
       <b-row class="justify-content-md-center" align-h="center">
         <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
           <b-button
-            class="ps1-emulator-convert-button"
+            class="sega-cd-convert-button"
             variant="success"
             block
             :disabled="this.convertButtonDisabled"
@@ -79,7 +99,7 @@
       <b-row>
         <b-col>
           <div class="help">
-            Help: how can I <router-link to="/original-hardware?sort=segacd">copy save files to and from a Sega CD</router-link>?
+            Help: how can I <router-link to="/original-hardware?sort=segacd">copy save files to and from a Sega CD console</router-link>?
           </div>
         </b-col>
       </b-row>
@@ -90,7 +110,7 @@
 <style scoped>
 
 /* Separate class for each different button to enable tracking in google tag manager */
-.ps1-emulator-convert-button {
+.sega-cd-convert-button {
   margin-top: 1em;
 }
 
@@ -115,6 +135,7 @@ import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import FileList from './FileList.vue';
+import IndividualSavesOrMemoryCardSelector from './IndividualSavesOrMemoryCardSelector.vue';
 import SegaCdSaveData from '../save-formats/SegaCd/SegaCd';
 
 export default {
@@ -123,9 +144,13 @@ export default {
     return {
       segaCdSaveData: null,
       errorMessage: null,
+      inputFilename: null,
       outputFilename: null,
       conversionDirection: 'convertToRaw',
       selectedSaveData: null,
+      individualSavesOrMemoryCard: 'memory-card',
+      individualSavesText: 'Individual saves',
+      memoryCardText: 'Raw/emulator',
     };
   },
   components: {
@@ -133,6 +158,7 @@ export default {
     InputFile,
     OutputFilename,
     FileList,
+    IndividualSavesOrMemoryCardSelector,
   },
   computed: {
     convertButtonDisabled() {
@@ -140,8 +166,43 @@ export default {
 
       return !this.segaCdSaveData || this.segaCdSaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
     },
+    individualSavesOrMemoryCardText() {
+      return (this.individualSavesOrMemoryCard === 'individual-saves') ? this.individualSavesText : this.memoryCardText;
+    },
   },
   methods: {
+    getFileNameFromSaveFile(saveFile) {
+      return `${saveFile.filename}-${saveFile.dataIsEncoded ? 'ECC' : 'RAW'}.bin`;
+    },
+    getSaveFileFromFileName(filename) {
+      const rawIndex = filename.indexOf('-RAW');
+      const eccIndex = filename.indexOf('-ECC');
+
+      if ((rawIndex < 0) === (eccIndex < 0)) {
+        throw new Error('This does not appear to be the filename of a Sega CD individual save');
+      }
+
+      return {
+        filename: filename.slice(0, Math.max(rawIndex, eccIndex)),
+        dataIsEncoded: (eccIndex >= 0),
+      };
+    },
+    changeIndividualSavesOrMemoryCard(newValue) {
+      if (this.individualSavesOrMemoryCard !== newValue) {
+        this.individualSavesOrMemoryCard = newValue;
+
+        if (newValue === 'individual-saves') {
+          if (this.selectedSaveData === null) {
+            this.changeSelectedSaveData(0);
+          }
+        } else {
+          if (this.inputFilename !== null) {
+            this.outputFilename = Util.changeFilenameExtension(this.inputFilename, 'brm');
+          }
+          this.selectedSaveData = null;
+        }
+      }
+    },
     getFileListNames() {
       if ((this.segaCdSaveData !== null) && (this.segaCdSaveData.getSaveFiles() !== null)) {
         return this.segaCdSaveData.getSaveFiles().map((x) => ({ displayText: `${x.filename}` }));
@@ -149,31 +210,37 @@ export default {
 
       return [];
     },
-    getFileNameFromSaveFile(saveFile) {
-      return `${saveFile.filename}-${saveFile.dataIsEncoded ? 'ECC' : 'RAW'}.bin`;
-    },
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
       this.segaCdSaveData = null;
       this.errorMessage = null;
+      this.inputFilename = null;
       this.outputFilename = null;
       this.selectedSaveData = null;
+      this.individualSavesOrMemoryCard = 'memory-card';
     },
     changeSelectedSaveData(newSaveData) {
-      if (this.segaCdSaveData.getSaveFiles().length > 0) {
-        this.selectedSaveData = newSaveData;
-        this.outputFilename = this.getFileNameFromSaveFile(this.segaCdSaveData.getSaveFiles()[this.selectedSaveData]);
-      } else {
-        this.selectedSaveData = null;
-        this.outputFilename = null;
+      if (newSaveData !== null) {
+        if ((this.segaCdSaveData !== null) && (this.segaCdSaveData.getSaveFiles().length > 0)) {
+          this.selectedSaveData = newSaveData;
+          this.outputFilename = this.getFileNameFromSaveFile(this.segaCdSaveData.getSaveFiles()[this.selectedSaveData]);
+          this.changeIndividualSavesOrMemoryCard('individual-saves');
+        } else {
+          this.selectedSaveData = null;
+          this.outputFilename = null;
+        }
       }
     },
-    readsegaCdSaveData(event) {
+    readSegaCdSaveData(event) {
       this.errorMessage = null;
       this.selectedSaveData = null;
+      this.inputFilename = event.filename;
       try {
         this.segaCdSaveData = SegaCdSaveData.createFromSegaCdData(event.arrayBuffer);
-        this.changeSelectedSaveData(0);
+
+        this.individualSavesOrMemoryCard = null;
+
+        this.changeIndividualSavesOrMemoryCard('memory-card');
       } catch (e) {
         this.errorMessage = 'File appears to not be in the correct format';
         this.segaCdSaveData = null;
@@ -183,10 +250,14 @@ export default {
     readEmulatorSaveData(event) {
       this.errorMessage = null;
       this.selectedSaveData = null;
+      this.inputFilename = null;
       try {
-        const saveFiles = event.map((f) => ({ filename: f.filename, rawData: f.arrayBuffer }));
+        const saveFiles = event.map((f) => ({
+          ...this.getSaveFileFromFileName(f.filename),
+          fileData: f.arrayBuffer,
+        }));
 
-        this.segaCdSaveData = SegaCdSaveData.createFromSaveFiles(saveFiles);
+        this.segaCdSaveData = SegaCdSaveData.createFromSaveFiles(saveFiles, 8192); // FIXME: Need to allow user to select size
 
         if (this.segaCdSaveData.getSaveFiles().length > 0) {
           this.outputFilename = `${Util.convertDescriptionToFilename(this.segaCdSaveData.getSaveFiles()[0].filename)}.brm`;
@@ -200,7 +271,14 @@ export default {
       }
     },
     convertFile() {
-      const outputArrayBuffer = (this.conversionDirection === 'convertToRaw') ? this.segaCdSaveData.getSaveFiles()[this.selectedSaveData].fileData : this.segaCdSaveData.getArrayBuffer();
+      let outputArrayBuffer = null;
+
+      if ((this.conversionDirection === 'convertToRaw') && (this.individualSavesOrMemoryCard === 'individual-saves')) {
+        outputArrayBuffer = this.segaCdSaveData.getSaveFiles()[this.selectedSaveData].fileData;
+      } else {
+        // FIXME: Need to resize here based on size user has selected
+        outputArrayBuffer = this.segaCdSaveData.getArrayBuffer();
+      }
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 
