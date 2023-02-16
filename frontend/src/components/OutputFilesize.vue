@@ -32,11 +32,24 @@ import PlatformSaveSizes from '../save-formats/PlatformSaveSizes';
 
 export default {
   name: 'OutputFilesize',
-  props: [
-    'value',
-    'id',
-    'platform',
-  ],
+  props: {
+    value: {
+      type: Number,
+      default: null,
+    },
+    id: {
+      type: String,
+      default: null,
+    },
+    platform: {
+      type: String,
+      default: null,
+    },
+    valuesToRemove: {
+      type: Array,
+      default: () => [],
+    },
+  },
   components: {
     HelpButton,
   },
@@ -66,7 +79,8 @@ export default {
   },
   computed: {
     options() {
-      return [{ value: null, text: 'Output file size', disabled: true }].concat(PlatformSaveSizes[this.platform].map((s) => ({ value: s, text: this.getDropdownText(s) })));
+      const sizes = PlatformSaveSizes[this.platform].filter((s) => this.valuesToRemove.indexOf(s) < 0);
+      return [{ value: null, text: 'Output file size', disabled: true }].concat(sizes.map((s) => ({ value: s, text: this.getDropdownText(s) })));
     },
   },
 };

@@ -1,6 +1,10 @@
 import path from 'path';
 
 export default class Util {
+  static clampValue(value, min, max) {
+    return Math.min(Math.max(value, min), max);
+  }
+
   static changeFilenameExtension(filename, newExtension) {
     return `${path.basename(filename, path.extname(filename))}.${newExtension}`;
   }

@@ -476,6 +476,12 @@ function getVolumeInfo(segaCdArrayBuffer) {
 }
 
 export default class SegaCdSaveData {
+  static createWithNewSize(segaCdSaveData, newSize) {
+    const newRawSaveData = SegaCdUtil.resize(segaCdSaveData.getArrayBuffer(), newSize);
+
+    return SegaCdSaveData.createFromSegaCdData(newRawSaveData);
+  }
+
   static createFromSegaCdData(arrayBuffer) {
     const segaCdArrayBuffer = SegaCdUtil.truncateToActualSize(arrayBuffer);
 

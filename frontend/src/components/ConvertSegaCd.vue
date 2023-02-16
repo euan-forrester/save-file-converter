@@ -18,7 +18,7 @@
               :leaveRoomForHelpIcon="false"
             />
             <file-list
-              :display="this.segaCdSaveData !== null"
+              :display="this.segaCdSaveDataLargest !== null"
               :files="this.getFileListNames()"
               v-model="selectedSaveData"
               @change="changeSelectedSaveData($event)"
@@ -26,6 +26,19 @@
           </div>
           <div v-else>
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
+            <sega-cd-save-type-selector
+              :value="this.segaCdSaveType"
+              @change="changeSegaCdSaveType($event)"
+            />
+            <div v-if="this.segaCdSaveType === 'ram-cart'">
+              <output-filesize
+                class="output-filesize"
+                :value="this.outputFilesize"
+                @input="changeOutputFilesize($event)"
+                platform="segacd"
+                :values-to-remove="[this.internalSaveSize]"
+              />
+            </div>
           </div>
         </b-col>
         <b-col sm=12 md=2 lg=2 xl=2 align-self="start">
@@ -66,6 +79,21 @@
               :individualSavesText="this.individualSavesText"
               :memoryCardText="this.memoryCardText"
             />
+            <div v-if="this.individualSavesOrMemoryCard === 'memory-card'">
+              <sega-cd-save-type-selector
+                :value="this.segaCdSaveType"
+                @change="changeSegaCdSaveType($event)"
+              />
+              <div v-if="this.segaCdSaveType === 'ram-cart'">
+                <output-filesize
+                  class="output-filesize"
+                  :value="this.outputFilesize"
+                  @input="changeOutputFilesize($event)"
+                  platform="segacd"
+                  :values-to-remove="[this.internalSaveSize]"
+                />
+              </div>
+            </div>
           </div>
           <div v-else>
             <input-file
@@ -76,7 +104,7 @@
               :allowMultipleFiles="true"
             />
             <file-list
-              :display="this.segaCdSaveData !== null"
+              :display="this.segaCdSaveDataLargest !== null"
               :files="this.getFileListNames()"
               :enabled="false"
             />
@@ -118,6 +146,11 @@
   margin-top: 1em;
 }
 
+/* Mpve this up rather than deleting the margin under the selector above so that if this isn't visible there's still margin under the one above */
+.output-filesize {
+  margin-top: -1em;
+}
+
 /* We have so much text in our jumbotron that at the md size it wants to be vertically larger than the other one. So let's constrain it and move the text upwards insie it */
 .fix-jumbotron {
   max-height: 11.5em;
@@ -133,21 +166,28 @@ import { saveAs } from 'file-saver';
 import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
+import OutputFilesize from './OutputFilesize.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import FileList from './FileList.vue';
 import IndividualSavesOrMemoryCardSelector from './IndividualSavesOrMemoryCardSelector.vue';
+import SegaCdSaveTypeSelector from './SegaCdSaveTypeSelector.vue';
 import SegaCdSaveData from '../save-formats/SegaCd/SegaCd';
+import SegaCdUtil from '../util/SegaCd';
+import PlatformSaveSizes from '../save-formats/PlatformSaveSizes';
 
 export default {
   name: 'ConvertSegaCd',
   data() {
     return {
-      segaCdSaveData: null,
+      segaCdSaveDataLargest: null,
+      segaCdSaveDataResized: null,
       errorMessage: null,
       inputFilename: null,
       outputFilename: null,
+      outputFilesize: SegaCdUtil.INTERNAL_SAVE_SIZE,
       conversionDirection: 'convertToRaw',
       selectedSaveData: null,
+      segaCdSaveType: 'internal-memory',
       individualSavesOrMemoryCard: 'memory-card',
       individualSavesText: 'Individual saves',
       memoryCardText: 'Raw/emulator',
@@ -157,17 +197,30 @@ export default {
     ConversionDirection,
     InputFile,
     OutputFilename,
+    OutputFilesize,
     FileList,
     IndividualSavesOrMemoryCardSelector,
+    SegaCdSaveTypeSelector,
   },
   computed: {
     convertButtonDisabled() {
       const haveDataSelected = (this.conversionDirection === 'convertToRaw') ? true : this.selectedSaveData === null;
 
-      return !this.segaCdSaveData || this.segaCdSaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
+      const segaCdSaveData = (this.individualSavesOrMemoryCard === 'individual-saves') ? this.segaCdSaveDataLargest : this.segaCdSaveDataResized;
+
+      return !segaCdSaveData || segaCdSaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
     },
     individualSavesOrMemoryCardText() {
       return (this.individualSavesOrMemoryCard === 'individual-saves') ? this.individualSavesText : this.memoryCardText;
+    },
+    internalSaveSize() {
+      return SegaCdUtil.INTERNAL_SAVE_SIZE;
+    },
+    largestRamCartSaveSize() {
+      return PlatformSaveSizes.segacd.at(-1); // Last element of array
+    },
+    smallestRamCartSaveSize() {
+      return PlatformSaveSizes.segacd[1]; // First element is the internal memory size
     },
   },
   methods: {
@@ -187,7 +240,54 @@ export default {
         dataIsEncoded: (eccIndex >= 0),
       };
     },
+    getFileSizeErrorMessage() {
+      let messagePrefix = null;
+
+      if (this.segaCdSaveType === 'internal-memory') {
+        messagePrefix = 'The Sega CD internal memory';
+      } else {
+        messagePrefix = `A Sega CD RAM cart of size ${this.outputFilesize / 1024}kB`;
+      }
+
+      return `${messagePrefix} is not large enough to contain all of the files specified`;
+    },
+    getSegaCdDataResized() {
+      this.segaCdSaveDataResized = null;
+      if (this.segaCdSaveDataLargest !== null) {
+        try {
+          this.segaCdSaveDataResized = SegaCdSaveData.createWithNewSize(this.segaCdSaveDataLargest, this.outputFilesize);
+        } catch (e) {
+          this.errorMessage = this.getFileSizeErrorMessage();
+          this.segaCdSaveDataResized = null;
+          this.selectedSaveData = null;
+        }
+      }
+    },
+    changeSegaCdSaveType(newValue) {
+      if (this.segaCdSaveType !== newValue) {
+        this.segaCdSaveType = newValue;
+        if (newValue === 'internal-memory') {
+          this.outputFilesize = this.internalSaveSize;
+        } else if (this.segaCdSaveDataLargest !== null) {
+          this.outputFilesize = Util.clampValue(this.segaCdSaveDataLargest.getArrayBuffer().byteLength, this.smallestRamCartSaveSize, this.largestRamCartSaveSize);
+        } else {
+          this.outputFilesize = this.largestRamCartSaveSize;
+        }
+
+        this.changeOutputFilesize(this.outputFilesize);
+      }
+    },
+    changeOutputFilesize(newValue) {
+      this.outputFilesize = newValue;
+      this.errorMessage = null;
+
+      this.segaCdSaveType = (newValue === SegaCdUtil.INTERNAL_SAVE_SIZE) ? 'internal-memory' : 'ram-cart';
+
+      this.getSegaCdDataResized();
+    },
     changeIndividualSavesOrMemoryCard(newValue) {
+      this.errorMessage = null;
+
       if (this.individualSavesOrMemoryCard !== newValue) {
         this.individualSavesOrMemoryCard = newValue;
 
@@ -200,30 +300,34 @@ export default {
             this.outputFilename = Util.changeFilenameExtension(this.inputFilename, 'brm');
           }
           this.selectedSaveData = null;
+          this.getSegaCdDataResized();
         }
       }
     },
     getFileListNames() {
-      if ((this.segaCdSaveData !== null) && (this.segaCdSaveData.getSaveFiles() !== null)) {
-        return this.segaCdSaveData.getSaveFiles().map((x) => ({ displayText: `${x.filename}` }));
+      if ((this.segaCdSaveDataLargest !== null) && (this.segaCdSaveDataLargest.getSaveFiles() !== null)) {
+        return this.segaCdSaveDataLargest.getSaveFiles().map((x) => ({ displayText: `${x.filename}` }));
       }
 
       return [];
     },
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
-      this.segaCdSaveData = null;
+      this.segaCdSaveDataLargest = null;
+      this.segaCdSaveDataResized = null;
       this.errorMessage = null;
       this.inputFilename = null;
       this.outputFilename = null;
+      this.outputFilesize = SegaCdUtil.INTERNAL_SAVE_SIZE;
       this.selectedSaveData = null;
       this.individualSavesOrMemoryCard = 'memory-card';
+      this.segaCdSaveType = 'internal-memory';
     },
     changeSelectedSaveData(newSaveData) {
       if (newSaveData !== null) {
-        if ((this.segaCdSaveData !== null) && (this.segaCdSaveData.getSaveFiles().length > 0)) {
+        if ((this.segaCdSaveDataLargest !== null) && (this.segaCdSaveDataLargest.getSaveFiles().length > 0)) {
           this.selectedSaveData = newSaveData;
-          this.outputFilename = this.getFileNameFromSaveFile(this.segaCdSaveData.getSaveFiles()[this.selectedSaveData]);
+          this.outputFilename = this.getFileNameFromSaveFile(this.segaCdSaveDataLargest.getSaveFiles()[this.selectedSaveData]);
           this.changeIndividualSavesOrMemoryCard('individual-saves');
         } else {
           this.selectedSaveData = null;
@@ -236,14 +340,18 @@ export default {
       this.selectedSaveData = null;
       this.inputFilename = event.filename;
       try {
-        this.segaCdSaveData = SegaCdSaveData.createFromSegaCdData(event.arrayBuffer);
+        this.segaCdSaveDataLargest = SegaCdSaveData.createFromSegaCdData(event.arrayBuffer);
 
         this.individualSavesOrMemoryCard = null;
 
         this.changeIndividualSavesOrMemoryCard('memory-card');
+        this.changeOutputFilesize(this.segaCdSaveDataLargest.getArrayBuffer().byteLength);
+
+        this.getSegaCdDataResized();
       } catch (e) {
         this.errorMessage = 'File appears to not be in the correct format';
-        this.segaCdSaveData = null;
+        this.segaCdSaveDataLargest = null;
+        this.segaCdSaveDataResized = null;
         this.selectedSaveData = null;
       }
     },
@@ -257,16 +365,18 @@ export default {
           fileData: f.arrayBuffer,
         }));
 
-        this.segaCdSaveData = SegaCdSaveData.createFromSaveFiles(saveFiles, 8192); // FIXME: Need to allow user to select size
+        this.segaCdSaveDataLargest = SegaCdSaveData.createFromSaveFiles(saveFiles, this.largestRamCartSaveSize);
 
-        if (this.segaCdSaveData.getSaveFiles().length > 0) {
-          this.outputFilename = `${Util.convertDescriptionToFilename(this.segaCdSaveData.getSaveFiles()[0].filename)}.brm`;
+        if (this.segaCdSaveDataLargest.getSaveFiles().length > 0) {
+          this.outputFilename = `${Util.convertDescriptionToFilename(this.segaCdSaveDataLargest.getSaveFiles()[0].filename)}.brm`;
         } else {
           this.outputFilename = 'output.brm';
         }
+
+        this.getSegaCdDataResized();
       } catch (e) {
         this.errorMessage = e.message;
-        this.segaCdSaveData = null;
+        this.segaCdSaveDataLargest = null;
         this.selectedSaveData = null;
       }
     },
@@ -274,10 +384,9 @@ export default {
       let outputArrayBuffer = null;
 
       if ((this.conversionDirection === 'convertToRaw') && (this.individualSavesOrMemoryCard === 'individual-saves')) {
-        outputArrayBuffer = this.segaCdSaveData.getSaveFiles()[this.selectedSaveData].fileData;
+        outputArrayBuffer = this.segaCdSaveDataLargest.getSaveFiles()[this.selectedSaveData].fileData;
       } else {
-        // FIXME: Need to resize here based on size user has selected
-        outputArrayBuffer = this.segaCdSaveData.getArrayBuffer();
+        outputArrayBuffer = this.segaCdSaveDataResized.getArrayBuffer();
       }
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
