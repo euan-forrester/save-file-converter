@@ -100,6 +100,6 @@
 }
 
 .new-text {
-  color: deepskyblue;
+  color: indianred;
 }
 </style>
