@@ -43,6 +43,7 @@ future directory entry. This includes when the file is empty.
 */
 
 import calcCrc16 from './Crc16'; // eslint-disable-line
+import PlatformSaveSizes from '../PlatformSaveSizes';
 import SegaCdUtil from '../../util/SegaCd';
 import Util from '../../util/util';
 import reedSolomon from './ReedSolomon';
@@ -505,6 +506,19 @@ export default class SegaCdSaveData {
         const saveFiles2 = readSaveFiles(segaCdArrayBuffer2, numSaveFiles2);
 
         saveFiles = saveFiles.concat(saveFiles2);
+
+        // Make the size of the new save be the next-larger size of the biggest
+        // of the 2 saves we're combining. This should ensure that we're able to store all
+        // of the files in both parts. User will get a cryptic error message about file
+        // being in the wrong format in the unlikely event that they don't fit. But this
+        // will be a seldom-used feature and a fix will add even more complexity.
+
+        const firstSizeIndex = PlatformSaveSizes.segacd.indexOf(segaCdArrayBuffer.byteLength);
+        const secondSizeIndex = PlatformSaveSizes.segacd.indexOf(segaCdArrayBuffer2.byteLength);
+
+        const sizeIndexToUse = Math.min(Math.max(firstSizeIndex, secondSizeIndex) + 1, PlatformSaveSizes.segacd.length - 1);
+
+        return SegaCdSaveData.createFromSaveFiles(saveFiles, PlatformSaveSizes.segacd[sizeIndexToUse]);
       }
     }
 

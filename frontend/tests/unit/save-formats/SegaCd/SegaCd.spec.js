@@ -116,14 +116,13 @@ describe('Sega CD', () => {
 
     const segaCdSaveData = SegaCdSaveData.createFromSegaCdData(segaCdArrayBuffer);
 
-    expect(segaCdSaveData.getNumFreeBlocks()).to.equal(124); // This is the num free blocks in the internal memory portion of the save only. The RAM cart portion has 623 free blocks
-    expect(segaCdSaveData.getFormat()).to.equal('SEGA_CD_ROM'); // These 3 are the names for the internal memory portion only
+    // This is for the newly-created, combined, memory that holds the saves in both portions of the file
+    expect(segaCdSaveData.getNumFreeBlocks()).to.equal(1646);
+    expect(segaCdSaveData.getFormat()).to.equal('SEGA_CD_ROM');
     expect(segaCdSaveData.getVolume()).to.equal('');
     expect(segaCdSaveData.getMediaId()).to.equal('RAM_CARTRIDGE');
 
     expect(segaCdSaveData.getSaveFiles().length).to.equal(5);
-
-    // This file is in the internal memory
 
     expect(segaCdSaveData.getSaveFiles()[0].filename).to.equal('SFCD_DAT_09');
     expect(segaCdSaveData.getSaveFiles()[0].dataIsEncoded).to.equal(true);
@@ -131,29 +130,27 @@ describe('Sega CD', () => {
     expect(segaCdSaveData.getSaveFiles()[0].fileSizeBlocks).to.equal(1);
     expect(ArrayBufferUtil.arrayBuffersEqual(segaCdSaveData.getSaveFiles()[0].fileData, rawArrayBuffers[0])).to.equal(true);
 
-    // These files are in the RAM cart. Note that the starting block number starts over again
-
     expect(segaCdSaveData.getSaveFiles()[1].filename).to.equal('SFCD_DAT_01');
     expect(segaCdSaveData.getSaveFiles()[1].dataIsEncoded).to.equal(true);
-    expect(segaCdSaveData.getSaveFiles()[1].startBlockNumber).to.equal(1);
+    expect(segaCdSaveData.getSaveFiles()[1].startBlockNumber).to.equal(2);
     expect(segaCdSaveData.getSaveFiles()[1].fileSizeBlocks).to.equal(99);
     expect(ArrayBufferUtil.arrayBuffersEqual(segaCdSaveData.getSaveFiles()[1].fileData, rawArrayBuffers[1])).to.equal(true);
 
     expect(segaCdSaveData.getSaveFiles()[2].filename).to.equal('SFCD_DAT_02');
     expect(segaCdSaveData.getSaveFiles()[2].dataIsEncoded).to.equal(true);
-    expect(segaCdSaveData.getSaveFiles()[2].startBlockNumber).to.equal(100);
+    expect(segaCdSaveData.getSaveFiles()[2].startBlockNumber).to.equal(101);
     expect(segaCdSaveData.getSaveFiles()[2].fileSizeBlocks).to.equal(99);
     expect(ArrayBufferUtil.arrayBuffersEqual(segaCdSaveData.getSaveFiles()[2].fileData, rawArrayBuffers[2])).to.equal(true);
 
     expect(segaCdSaveData.getSaveFiles()[3].filename).to.equal('SFCD_DAT_03');
     expect(segaCdSaveData.getSaveFiles()[3].dataIsEncoded).to.equal(true);
-    expect(segaCdSaveData.getSaveFiles()[3].startBlockNumber).to.equal(199);
+    expect(segaCdSaveData.getSaveFiles()[3].startBlockNumber).to.equal(200);
     expect(segaCdSaveData.getSaveFiles()[3].fileSizeBlocks).to.equal(99);
     expect(ArrayBufferUtil.arrayBuffersEqual(segaCdSaveData.getSaveFiles()[3].fileData, rawArrayBuffers[3])).to.equal(true);
 
     expect(segaCdSaveData.getSaveFiles()[4].filename).to.equal('SFCD_DAT_04');
     expect(segaCdSaveData.getSaveFiles()[4].dataIsEncoded).to.equal(true);
-    expect(segaCdSaveData.getSaveFiles()[4].startBlockNumber).to.equal(298);
+    expect(segaCdSaveData.getSaveFiles()[4].startBlockNumber).to.equal(299);
     expect(segaCdSaveData.getSaveFiles()[4].fileSizeBlocks).to.equal(99);
     expect(ArrayBufferUtil.arrayBuffersEqual(segaCdSaveData.getSaveFiles()[4].fileData, rawArrayBuffers[4])).to.equal(true);
   });
