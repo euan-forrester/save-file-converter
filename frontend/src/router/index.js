@@ -96,6 +96,11 @@ const routes = [
     component: () => import(/* webpackChunkName: "flash-carts" */ '../views/FlashCarts.vue'),
   },
   {
+    path: '/sega-cd',
+    name: 'Sega CD',
+    component: () => import(/* webpackChunkName: "sega-cd" */ '../views/SegaCd.vue'),
+  },
+  {
     path: '/utilities',
     redirect: '/utilities/troubleshooting',
   },

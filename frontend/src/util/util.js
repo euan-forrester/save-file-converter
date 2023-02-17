@@ -1,6 +1,10 @@
 import path from 'path';
 
 export default class Util {
+  static clampValue(value, min, max) {
+    return Math.min(Math.max(value, min), max);
+  }
+
   static changeFilenameExtension(filename, newExtension) {
     return `${path.basename(filename, path.extname(filename))}.${newExtension}`;
   }
@@ -100,6 +104,28 @@ export default class Util {
 
   static uint8ArrayToHex(uint8Array) {
     return Buffer.from(uint8Array).toString('hex').toUpperCase();
+  }
+
+  static copyArrayBuffer(source) {
+    const destination = new ArrayBuffer(source.byteLength);
+
+    new Uint8Array(destination).set(new Uint8Array(source));
+
+    return destination;
+  }
+
+  static padArrayBuffer(inputArrayBuffer, desiredLength, fillValue) {
+    if (inputArrayBuffer.byteLength === desiredLength) {
+      return inputArrayBuffer;
+    }
+
+    if (inputArrayBuffer.byteLength > desiredLength) {
+      throw new Error(`Cannot pad array buffer of length ${inputArrayBuffer.byteLength} to length ${desiredLength}`);
+    }
+
+    const outputArrayBuffer = Util.getFilledArrayBuffer(desiredLength, fillValue);
+
+    return Util.setArrayBufferPortion(outputArrayBuffer, inputArrayBuffer, 0, 0, inputArrayBuffer.byteLength);
   }
 
   static setArrayBufferPortion(destination, source, destinationOffset, sourceOffset, length) {

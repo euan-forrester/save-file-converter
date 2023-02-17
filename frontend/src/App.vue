@@ -40,6 +40,7 @@
       </b-row>
       <b-row>
         <b-col class="nav-row">
+          <router-link to="/sega-cd">Sega{{'\xa0'}}CD{{'\xa0'}}<span class="new-text">(New!)</span></router-link> |
           <router-link to="/psp">PSP{{'\xa0'}}-{{'\xa0'}}Save{{'\xa0'}}decryption{{'\xa0'}}</router-link>
         </b-col>
       </b-row>
@@ -96,5 +97,9 @@
 
 .footer {
   min-height: 6em;
+}
+
+.new-text {
+  color: indianred;
 }
 </style>
