@@ -46,7 +46,12 @@
             </b-col>
           </b-row>
           <div v-if="this.conversionDirection === 'convertToRaw'">
-            <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
+            <output-filename
+              v-model="outputFilename"
+              :leaveRoomForHelpIcon="true"
+              :disabled="true"
+              helpText="The filename for an individual save contains important information that the game needs to find this save data. Please do not modify it after downloading the save."
+            />
           </div>
           <div v-else>
             <input-file
