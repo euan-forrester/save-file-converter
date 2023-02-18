@@ -101,6 +101,11 @@ const routes = [
     component: () => import(/* webpackChunkName: "sega-cd" */ '../views/SegaCd.vue'),
   },
   {
+    path: '/nintendo-switch-online',
+    name: 'Nintendo Switch Online',
+    component: () => import(/* webpackChunkName: "nintendo-switch-online" */ '../views/NintendoSwitchOnline.vue'),
+  },
+  {
     path: '/utilities',
     redirect: '/utilities/troubleshooting',
   },
