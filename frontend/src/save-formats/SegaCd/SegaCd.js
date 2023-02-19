@@ -320,7 +320,10 @@ function checkCrc(deinterleavedBlockArrayBuffer) {
 // and https://github.com/superctr/buram/blob/master/buram.c#L377
 //
 // Note that it works differently than the reference implemnentation by first checking the CRC
-// and only if that fails then trying to use error-correction on the data
+// and only if that fails then trying to use error-correction on the data.
+//
+// It was that way in the reference implementation because apparently that's how it works
+// in the BIOS: https://github.com/superctr/buram/issues/1
 function decodeBlock(arrayBuffer, offset) {
   const alignedOffset = offset & -(BLOCK_SIZE);
 
@@ -422,11 +425,12 @@ function getRequiredBlocks(saveFile) {
 }
 
 function getEmptyDirectoryEntry() {
-  // I've noticed that both this tool and the reference tool create data that differs from the files created
-  // by the BIOS in the topmost directory entry only, when there are an odd number of saves. i.e. it seems that perhaps the BIOS
-  // does not fill the other half of that block with 0x00 as we do here. I tried a few values and wasn't able to
-  // replicate the output of the BIOS. Maybe there's a value that matches the BIOS output? Regardless the BIOS is able to
-  // read the files that we create.
+  // Apparently the BIOS uses uninitialized memory when creating a new block, and the result is that
+  // in the topmost directory entry only, when there are an odd number of saves, our output
+  // will not match that of the BIOS. It does match that of our reference implementation, and
+  // the BIOS is able to read and write our files.
+  // https://github.com/superctr/buram/issues/1
+
   return Util.getFilledArrayBuffer(DIRECTORY_ENTRY_SIZE_PLAINTEXT, 0);
 }
 
