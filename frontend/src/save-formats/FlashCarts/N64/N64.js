@@ -5,21 +5,15 @@ Swaps the endianness of N64 save data for SRAM and FlashRAM files. EEPROM files 
 import N64Util from '../../../util/N64';
 import SaveFilesUtil from '../../../util/SaveFiles';
 
-const EEPROM_SIZES = [512, 2 * 1024]; // From http://micro-64.com/database/gamesave.shtml
-
-function needsEndianSwap(arrayBuffer) {
-  return (EEPROM_SIZES.indexOf(arrayBuffer.byteLength) < 0);
-}
-
 export default class N64FlashCartSaveData {
   static createFromFlashCartData(flashCartArrayBuffer) {
-    const rawArrayBuffer = needsEndianSwap(flashCartArrayBuffer) ? N64Util.endianSwap(flashCartArrayBuffer, 'bigToLittleEndian') : flashCartArrayBuffer;
+    const rawArrayBuffer = N64Util.needsEndianSwap(flashCartArrayBuffer) ? N64Util.endianSwap(flashCartArrayBuffer, 'bigToLittleEndian') : flashCartArrayBuffer;
 
     return new N64FlashCartSaveData(flashCartArrayBuffer, rawArrayBuffer);
   }
 
   static createFromRawData(rawArrayBuffer) {
-    const flashCartArrayBuffer = needsEndianSwap(rawArrayBuffer) ? N64Util.endianSwap(rawArrayBuffer, 'littleToBigEndian') : rawArrayBuffer;
+    const flashCartArrayBuffer = N64Util.needsEndianSwap(rawArrayBuffer) ? N64Util.endianSwap(rawArrayBuffer, 'littleToBigEndian') : rawArrayBuffer;
 
     return new N64FlashCartSaveData(flashCartArrayBuffer, rawArrayBuffer);
   }
