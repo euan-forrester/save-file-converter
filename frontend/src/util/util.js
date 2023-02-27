@@ -76,6 +76,17 @@ export default class Util {
     }
   }
 
+  static setMagicBytes(arrayBuffer, offset, magic) {
+    const outputArrayBuffer = Util.copyArrayBuffer(arrayBuffer);
+    const dataView = new DataView(outputArrayBuffer);
+
+    for (let i = 0; i < magic.length; i += 1) {
+      dataView.setUint8(offset + i, magic[i]);
+    }
+
+    return outputArrayBuffer;
+  }
+
   static trimNull(s) {
     return s.replace(/\0[\s\S]*$/g, ''); // https://stackoverflow.com/questions/22809401/removing-a-null-character-from-a-string-in-javascript
   }

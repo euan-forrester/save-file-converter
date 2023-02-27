@@ -17,6 +17,9 @@ const HASH_ALGORITHM = 'sha1';
 const HASH_LENGTH = 40; // The SHA-1 digest is converted to hex and encoded as ASCII
 const HASH_ENCODING = 'US-ASCII';
 
+const HASH_OFFSET = 0;
+const DATA_BEGIN_OFFSET = HASH_OFFSET + HASH_LENGTH;
+
 function padArrayBuffer(inputArrayBuffer) {
   const padding = {
     value: NSO_NES_PADDING_VALUE,
@@ -46,7 +49,7 @@ export default class NsoNesSaveData {
   }
 
   static createFromNsoData(nsoArrayBuffer) {
-    return new NsoNesSaveData(nsoArrayBuffer.slice(HASH_LENGTH, HASH_LENGTH + NES_FILE_SIZE), nsoArrayBuffer);
+    return new NsoNesSaveData(nsoArrayBuffer.slice(DATA_BEGIN_OFFSET, DATA_BEGIN_OFFSET + NES_FILE_SIZE), nsoArrayBuffer);
   }
 
   static createFromRawData(rawArrayBuffer) {
