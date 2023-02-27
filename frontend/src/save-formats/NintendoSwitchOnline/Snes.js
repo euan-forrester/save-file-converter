@@ -1,3 +1,5 @@
+// SNES saves on NSO are just raw save files
+
 import SaveFilesUtil from '../../util/SaveFiles';
 
 export default class SnesNsoSaveData {

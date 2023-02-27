@@ -1,6 +1,4 @@
-/*
-Swaps the endianness of N64 save data for SRAM and FlashRAM files. EEPROM files do not need to be endian swapped
-*/
+// N64 saves on NSO have opposite endianness to emulator saves for SRAM and FlashRAM files. EEPROM files do not need to be endian swapped
 
 import N64Util from '../../util/N64';
 import SaveFilesUtil from '../../util/SaveFiles';
