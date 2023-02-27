@@ -6,21 +6,21 @@
           <b-row no-gutters align-h="center" align-v="start">
             <b-col cols=12>
               <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })">
-                <template v-slot:header>MiSTer</template>
+                <template v-slot:header>Switch</template>
               </b-jumbotron>
             </b-col>
           </b-row>
           <div v-if="this.conversionDirection === 'convertToRaw'">
             <input-file
-              @load="readMisterSaveData($event)"
+              @load="readNsoSaveData($event)"
               :errorMessage="this.errorMessage"
               placeholderText="Choose a file to convert"
               :leaveRoomForHelpIcon="false"
             />
-            <mister-platform
-              v-model="misterPlatform"
+            <nintendo-switch-online-platform
+              v-model="nsoPlatform"
               id="platform"
-              v-on:input="misterPlatformChanged()"
+              v-on:input="nsoPlatformChanged()"
               :disabled="false"
             />
           </div>
@@ -46,46 +46,22 @@
           </b-row>
           <div v-if="this.conversionDirection === 'convertToRaw'">
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
-            <div v-if="this.isSegaCd">
-              <sega-cd-save-type-selector
-                :value="this.segaCdSaveType"
-                @change="changeSegaCdSaveType($event)"
-              />
-            </div>
             <div v-if="this.displayOutputFileSize">
-              <output-filesize v-model="outputFilesize" id="output-filesize" :platform="this.misterPlatformClass.adjustOutputSizesPlatform()"/>
+              <output-filesize v-model="outputFilesize" id="output-filesize" :platform="this.nsoPlatformClass.adjustOutputSizesPlatform()"/>
             </div>
           </div>
           <div v-else>
-            <div v-if="this.isSegaCd">
-              <input-file
-                @load="readEmulatorSaveData($event, 'rawInternalSaveArrayBuffer')"
-                :errorMessage="this.errorMessage"
-                placeholderText="Choose an internal memory save file to convert"
-                :leaveRoomForHelpIcon="false"
-                ref="inputFileSegaCdInternalMemory"
-              />
-              <input-file
-                @load="readEmulatorSaveData($event, 'rawRamCartSaveArrayBuffer')"
-                :errorMessage="this.errorMessage"
-                placeholderText="Choose a RAM cartridge save file to convert"
-                :leaveRoomForHelpIcon="false"
-                ref="inputFileSegaCdRamCart"
-              />
-            </div>
-            <div v-else>
-              <input-file
-                @load="readEmulatorSaveData($event)"
-                :errorMessage="this.errorMessage"
-                placeholderText="Choose a file to convert"
-                :leaveRoomForHelpIcon="false"
-                ref="inputFileEmulator"
-              />
-            </div>
-            <mister-platform
-              v-model="misterPlatform"
+            <input-file
+              @load="readEmulatorSaveData($event)"
+              :errorMessage="this.errorMessage"
+              placeholderText="Choose a file to convert"
+              :leaveRoomForHelpIcon="false"
+              ref="inputFileEmulator"
+            />
+            <nintendo-switch-online-platform
+              v-model="nsoPlatform"
               id="platform"
-              v-on:input="misterPlatformChanged()"
+              v-on:input="nsoPlatformChanged()"
               :disabled="false"
             />
           </div>
@@ -94,10 +70,10 @@
       <b-row class="justify-content-md-center" align-h="center">
         <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
           <b-button
-            class="mister-convert-button"
+            class="nintendo-switch-online-convert-button"
             variant="success"
             block
-            :disabled="!this.misterSaveData || !this.misterPlatform || !outputFilename"
+            :disabled="!this.nsoSaveData || !this.nsoPlatform || !outputFilename"
             @click="convertFile()"
           >
           Convert!
@@ -111,7 +87,7 @@
 <style scoped>
 
 /* Separate class for each different button to enable tracking in google tag manager */
-.mister-convert-button {
+.nintendo-switch-online-convert-button {
   margin-top: 1em;
 }
 
@@ -127,29 +103,22 @@ import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import OutputFilesize from './OutputFilesize.vue';
 import ConversionDirection from './ConversionDirection.vue';
-import MisterPlatform from './MisterPlatform.vue';
-import SegaCdSaveTypeSelector from './SegaCdSaveTypeSelector.vue';
+import NintendoSwitchOnlinePlatform from './NintendoSwitchOnlinePlatform.vue';
 
-import MisterNesSaveData from '../save-formats/Mister/Nes';
-import MisterSnesSaveData from '../save-formats/Mister/Snes';
-import MisterGameboySaveData from '../save-formats/Mister/Gameboy';
-import MisterGameboyAdvanceSaveData from '../save-formats/Mister/GameboyAdvance';
-import MisterGameGearSaveData from '../save-formats/Mister/GameGear';
-import MisterSmsSaveData from '../save-formats/Mister/Sms';
-import MisterGenesisSaveData from '../save-formats/Mister/Genesis';
-import MisterSegaCdSaveData from '../save-formats/Mister/SegaCd';
-import MisterPcEngineSaveData from '../save-formats/Mister/PcEngine';
-import MisterPs1SaveData from '../save-formats/Mister/Ps1';
-import MisterWonderSwanSaveData from '../save-formats/Mister/WonderSwan';
+import NsoNesSaveData from '../save-formats/NintendoSwitchOnline/Nes';
+import NsoSnesSaveData from '../save-formats/NintendoSwitchOnline/Snes';
+import NsoGameboySaveData from '../save-formats/NintendoSwitchOnline/Gameboy';
+import NsoGameboyAdvanceSaveData from '../save-formats/NintendoSwitchOnline/GameboyAdvance';
+import NsoGenesisSaveData from '../save-formats/NintendoSwitchOnline/Genesis';
+import NsoN64SaveData from '../save-formats/NintendoSwitchOnline/N64';
 
 export default {
-  name: 'ConvertMister',
+  name: 'ConvertNintendoSwitchOnline',
   data() {
     return {
-      misterSaveData: null,
-      misterPlatform: null,
-      misterPlatformPrevious: null,
-      misterPlatformClass: null,
+      nsoSaveData: null,
+      nsoPlatform: null,
+      nsoPlatformClass: null,
       errorMessage: null,
       outputFilename: null,
       outputFilesize: null,
@@ -157,8 +126,6 @@ export default {
       inputArrayBuffer: null,
       inputFilename: null,
       inputFileType: null,
-      inputSegaCd: {},
-      segaCdSaveType: 'internal-memory',
     };
   },
   components: {
@@ -166,235 +133,122 @@ export default {
     InputFile,
     OutputFilename,
     OutputFilesize,
-    MisterPlatform,
-    SegaCdSaveTypeSelector,
+    NintendoSwitchOnlinePlatform,
   },
   computed: {
-    isSegaCd: {
-      get() { return (this.misterPlatform === 'Mister-MCD'); },
-    },
     displayOutputFileSize: {
       get() {
-        if ((this.misterPlatformClass !== null) && (this.misterPlatformClass.adjustOutputSizesPlatform() !== null)) {
-          if (this.isSegaCd) {
-            return (this.segaCdSaveType === 'ram-cart');
-          }
-
-          return true;
-        }
-
-        return false;
+        return ((this.nsoPlatformClass !== null) && (this.nsoPlatformClass.adjustOutputSizesPlatform() !== null));
       },
     },
   },
   methods: {
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
-      this.misterSaveData = null;
-      this.misterPlatform = null;
-      this.misterPlatformPrevious = null;
-      this.misterPlatformClass = null;
+      this.nsoSaveData = null;
+      this.nsoPlatform = null;
+      this.nsoPlatformClass = null;
       this.errorMessage = null;
       this.outputFilename = null;
       this.outputFilesize = null;
       this.inputArrayBuffer = null;
       this.inputFilename = null;
       this.inputFileType = null;
-      this.inputSegaCd = {};
-      this.segaCdSaveType = 'internal-memory';
     },
-    changeSegaCdSaveType(newSaveType) {
-      this.segaCdSaveType = newSaveType;
-      if ((this.inputFilename !== null) && (this.misterPlatformClass !== null)) {
-        this.outputFilename = this.getSegaCdRawFileName();
-      }
-    },
-    getSegaCdRawFileName() {
-      const filenameSuffix = (this.segaCdSaveType === 'internal-memory') ? ' - internal memory' : ' - ram cartridge';
-
-      return `${Util.removeFilenameExtension(this.inputFilename)}${filenameSuffix}.${this.misterPlatformClass.getRawFileExtension()}`;
-    },
-    misterPlatformChanged() {
-      if (this.misterPlatform !== null) {
-        switch (this.misterPlatform) {
-          case 'Mister-NES': {
-            this.misterPlatformClass = MisterNesSaveData;
+    nsoPlatformChanged() {
+      if (this.nsoPlatform !== null) {
+        switch (this.nsoPlatform) {
+          case 'NSO-NES': {
+            this.nsoPlatformClass = NsoNesSaveData;
             break;
           }
 
-          case 'Mister-SNES': {
-            this.misterPlatformClass = MisterSnesSaveData;
+          case 'NSO-SNES': {
+            this.nsoPlatformClass = NsoSnesSaveData;
             break;
           }
 
-          case 'Mister-GB': {
-            this.misterPlatformClass = MisterGameboySaveData;
+          case 'NSO-GB': {
+            this.nsoPlatformClass = NsoGameboySaveData;
             break;
           }
 
-          case 'Mister-GBA': {
-            this.misterPlatformClass = MisterGameboyAdvanceSaveData;
+          case 'NSO-GBA': {
+            this.nsoPlatformClass = NsoGameboyAdvanceSaveData;
             break;
           }
 
-          case 'Mister-GG': {
-            this.misterPlatformClass = MisterGameGearSaveData;
+          case 'NSO-MD': {
+            this.nsoPlatformClass = NsoGenesisSaveData;
             break;
           }
 
-          case 'Mister-SMS': {
-            this.misterPlatformClass = MisterSmsSaveData;
-            break;
-          }
-
-          case 'Mister-MD': {
-            this.misterPlatformClass = MisterGenesisSaveData;
-            break;
-          }
-
-          case 'Mister-MCD': {
-            this.misterPlatformClass = MisterSegaCdSaveData;
-            break;
-          }
-
-          case 'Mister-PCE': {
-            this.misterPlatformClass = MisterPcEngineSaveData;
-            break;
-          }
-
-          case 'Mister-PS1': {
-            this.misterPlatformClass = MisterPs1SaveData;
-            break;
-          }
-
-          case 'Mister-WS': {
-            this.misterPlatformClass = MisterWonderSwanSaveData;
+          case 'NSO-N64': {
+            this.nsoPlatformClass = NsoN64SaveData;
             break;
           }
 
           default: {
-            this.misterPlatformClass = null;
+            this.nsoPlatformClass = null;
             break;
           }
         }
       } else {
-        this.misterPlatformClass = null;
+        this.nsoPlatformClass = null;
       }
 
-      // We use different input boxes in the UI depending on whether there are 1 or 2 raw files to read,
-      // and so we want to wipe out any input file info that may be lurking internally when we switch to showing a different input box
-      // because it's not clear which box we would assign that to
-      //
-      // Additionally, there's a browser optimization/bug where when we swap out a different file input that's
-      // in the same location as a previous one, then the contents of the file box in the DOM carry over to the new box
-      // even though it's a different element. So, we call reset() here
-
-      const currentlySegaCd = this.isSegaCd;
-      const previouslySegaCd = (this.misterPlatformPrevious === 'Mister-MCD');
-
-      if ((currentlySegaCd !== previouslySegaCd) && (this.conversionDirection !== 'convertToRaw')) {
-        this.inputFileType = null;
-        this.inputArrayBuffer = null;
-        this.inputFilename = null;
-        this.inputSegaCd = {};
-        // The refs become undefined when the components are removed using a v-if
-        if (this.$refs.inputFileSegaCdInternalMemory) {
-          this.$refs.inputFileSegaCdInternalMemory.reset();
-        }
-        if (this.$refs.inputFileSegaCdRamCart) {
-          this.$refs.inputFileSegaCdRamCart.reset();
-        }
-        if (this.$refs.inputFileEmulator) {
-          this.$refs.inputFileEmulator.reset();
-        }
-      }
-
-      this.misterPlatformPrevious = this.misterPlatform;
-
-      this.updateMisterSaveData();
+      this.updateNsoSaveData();
     },
-    updateMisterSaveData() {
+    updateNsoSaveData() {
       this.errorMessage = null;
       this.outputFilesize = null;
 
-      if ((this.misterPlatformClass !== null) && (this.inputArrayBuffer !== null) && (this.inputFilename !== null) && (this.inputFileType !== null)) {
+      if ((this.nsoPlatformClass !== null) && (this.inputArrayBuffer !== null) && (this.inputFilename !== null) && (this.inputFileType !== null)) {
         try {
-          if (this.inputFileType === 'mister') {
-            this.misterSaveData = this.misterPlatformClass.createFromMisterData(this.inputArrayBuffer);
-            if (this.isSegaCd) {
-              this.outputFilename = this.getSegaCdRawFileName();
-            } else {
-              this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.misterPlatformClass.getRawFileExtension());
-            }
+          if (this.inputFileType === 'nso') {
+            this.nsoSaveData = this.nsoPlatformClass.createFromNsoData(this.inputArrayBuffer);
+            this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.nsoPlatformClass.getRawFileExtension());
           } else {
-            if (this.isSegaCd) {
-              this.misterSaveData = this.misterPlatformClass.createFromRawData(this.inputSegaCd); // It can take up to 2 input array buffers to create this data
-            } else {
-              this.misterSaveData = this.misterPlatformClass.createFromRawData(this.inputArrayBuffer);
-            }
-            this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.misterPlatformClass.getMisterFileExtension());
+            this.nsoSaveData = this.nsoPlatformClass.createFromRawData(this.inputArrayBuffer);
+            this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.nsoPlatformClass.getNsoFileExtension());
           }
-          if (this.isSegaCd) {
-            // The internal memory save buffer size can't be changed; only the RAM cart size
-            this.outputFilesize = this.misterSaveData.getRawArrayBuffer(MisterSegaCdSaveData.RAM_CART).byteLength;
-          } else {
-            this.outputFilesize = this.misterSaveData.getRawArrayBuffer().byteLength;
-          }
+
+          this.outputFilesize = this.nsoSaveData.getRawArrayBuffer().byteLength;
         } catch (e) {
           this.errorMessage = 'This file does not seem to be in the correct format';
-          this.misterSaveData = null;
+          this.nsoSaveData = null;
         }
       } else {
-        this.misterSaveData = null;
+        this.nsoSaveData = null;
         this.outputFilename = null;
         this.outputFilesize = null;
-        this.segaCdSaveType = 'internal-memory';
       }
     },
-    readMisterSaveData(event) {
-      this.inputFileType = 'mister';
+    readNsoSaveData(event) {
+      this.inputFileType = 'nso';
       this.inputArrayBuffer = event.arrayBuffer;
       this.inputFilename = event.filename;
-      this.inputSegaCd = {};
 
-      this.updateMisterSaveData();
+      this.updateNsoSaveData();
     },
-    readEmulatorSaveData(event, inputSegaCdType = null) {
+    readEmulatorSaveData(event) {
       this.inputFileType = 'raw';
       this.inputArrayBuffer = event.arrayBuffer;
       this.inputFilename = event.filename;
 
-      if (inputSegaCdType !== null) {
-        this.inputSegaCd[inputSegaCdType] = event.arrayBuffer;
-      } else {
-        this.inputSegaCd = {};
-      }
-
-      this.updateMisterSaveData();
+      this.updateNsoSaveData();
     },
     convertFile() {
-      let needsResize = false;
-
-      if (this.isSegaCd) {
-        needsResize = this.misterSaveData.getRawArrayBuffer(MisterSegaCdSaveData.RAM_CART).byteLength !== this.outputFilesize;
-      } else {
-        needsResize = this.misterSaveData.getRawArrayBuffer().byteLength !== this.outputFilesize;
-      }
-
-      if (needsResize) {
-        this.misterSaveData = this.misterPlatformClass.createWithNewSize(this.misterSaveData, this.outputFilesize);
+      if (this.nsoSaveData.getRawArrayBuffer().byteLength !== this.outputFilesize) {
+        this.nsoSaveData = this.nsoPlatformClass.createWithNewSize(this.nsoSaveData, this.outputFilesize);
       }
 
       let output = null;
 
       if (this.conversionDirection === 'convertToRaw') {
-        if (this.isSegaCd) {
-          output = this.misterSaveData.getRawArrayBuffer(this.segaCdSaveType);
-        } else {
-          output = this.misterSaveData.getRawArrayBuffer();
-        }
+        output = this.nsoSaveData.getRawArrayBuffer();
       } else {
-        output = this.misterSaveData.getMisterArrayBuffer();
+        output = this.nsoSaveData.getNsoArrayBuffer();
       }
 
       const outputBlob = new Blob([output], { type: 'application/octet-stream' });

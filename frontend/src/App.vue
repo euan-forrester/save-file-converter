@@ -14,7 +14,7 @@
       </b-row>
       <b-row>
         <b-col class="nav-row">
-          <router-link to="/nintendo-switch-online">Nintendo{{'\xa0'}}Switch{{'\xa0'}}Online<span class="new-text">(New!)</span></router-link> |
+          <router-link to="/nintendo-switch-online">Nintendo{{'\xa0'}}Switch{{'\xa0'}}Online{{'\xa0'}}<span class="new-text">(New!)</span></router-link> |
           <router-link to="/wii">Wii{{'\xa0'}}Virtual{{'\xa0'}}Console</router-link>
         </b-col>
       </b-row>
@@ -54,7 +54,6 @@
       <b-row class="nav-row">
         <b-col>
           <router-link to="/other-converters">Other{{'\xa0'}}converters</router-link> |
-          <router-link to="/utilities/troubleshooting">Troubleshooting{{'\xa0'}}(Beta)</router-link> |
           <router-link to="/utilities/erase-save">Erase{{'\xa0'}}save from cartridge</router-link>
         </b-col>
       </b-row>
