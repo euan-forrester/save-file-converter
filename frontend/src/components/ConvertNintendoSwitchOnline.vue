@@ -157,12 +157,12 @@ export default {
     },
     requiresExampleSaveData: {
       get() {
-        return ((this.nsoPlatformClass !== null) && this.nsoPlatformClass.nsoDataRequiresRomInfo());
+        return ((this.conversionDirection === 'convertToFormat') && (this.nsoPlatformClass !== null) && this.nsoPlatformClass.nsoDataRequiresRomInfo());
       },
     },
     missingRequiredExampleData: {
       get() {
-        return ((this.nsoPlatformClass !== null) && this.nsoPlatformClass.nsoDataRequiresRomInfo() && (this.exampleNsoData === null));
+        return ((this.conversionDirection === 'convertToFormat') && (this.nsoPlatformClass !== null) && this.nsoPlatformClass.nsoDataRequiresRomInfo() && (this.exampleNsoData === null));
       },
     },
   },
@@ -227,6 +227,9 @@ export default {
         this.$refs.inputFileExampleSaveData.reset();
       }
 
+      this.outputFilename = null;
+      this.outputFilesize = null;
+
       this.updateNsoSaveData();
     },
     updateNsoSaveData() {
@@ -237,7 +240,8 @@ export default {
         try {
           if (this.inputFileType === 'nso') {
             this.nsoSaveData = this.nsoPlatformClass.createFromNsoData(this.inputArrayBuffer);
-            this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.nsoPlatformClass.getRawFileExtension());
+            this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.nsoPlatformClass.getRawFileExtension(this.nsoSaveData.getRawArrayBuffer()));
+            this.outputFilesize = this.nsoSaveData.getRawArrayBuffer().byteLength;
           } else {
             if (this.requiresExampleSaveData) {
               if (this.exampleNsoData !== null) {
@@ -252,6 +256,7 @@ export default {
             this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.nsoPlatformClass.getNsoFileExtension());
           }
         } catch (e) {
+          console.log('Encountered error', e);
           this.errorMessage = 'This file does not seem to be in the correct format';
           this.nsoSaveData = null;
         }
@@ -276,6 +281,8 @@ export default {
       this.updateNsoSaveData();
     },
     readExampleSaveData(event) {
+      this.exampleFileErrorMessage = null;
+
       try {
         this.exampleNsoData = this.nsoPlatformClass.createFromNsoData(event.arrayBuffer);
       } catch (e) {
