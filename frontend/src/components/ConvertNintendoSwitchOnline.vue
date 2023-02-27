@@ -16,6 +16,7 @@
               :errorMessage="this.errorMessage"
               placeholderText="Choose a file to convert"
               :leaveRoomForHelpIcon="false"
+              acceptExtension=".sram"
             />
             <nintendo-switch-online-platform
               v-model="nsoPlatform"
@@ -64,6 +65,17 @@
               v-on:input="nsoPlatformChanged()"
               :disabled="false"
             />
+            <div v-if="this.requiresExampleSaveData">
+              <input-file
+                @load="readExampleSaveData($event)"
+                :errorMessage="this.exampleFileErrorMessage"
+                placeholderText="Choose an example NSO save file"
+                acceptExtension=".sram"
+                :leaveRoomForHelpIcon="true"
+                helpText="These save files require additional information about the game. Please create an example save file for this game on your Switch and supply it here."
+                ref="inputFileExampleSaveData"
+              />
+            </div>
           </div>
         </b-col>
       </b-row>
@@ -73,7 +85,7 @@
             class="nintendo-switch-online-convert-button"
             variant="success"
             block
-            :disabled="!this.nsoSaveData || !this.nsoPlatform || !outputFilename"
+            :disabled="!this.nsoSaveData || !this.nsoPlatform || !outputFilename || this.missingRequiredExampleData"
             @click="convertFile()"
           >
           Convert!
@@ -120,12 +132,14 @@ export default {
       nsoPlatform: null,
       nsoPlatformClass: null,
       errorMessage: null,
+      exampleFileErrorMessage: null,
       outputFilename: null,
       outputFilesize: null,
       conversionDirection: 'convertToRaw',
       inputArrayBuffer: null,
       inputFilename: null,
       inputFileType: null,
+      exampleNsoData: null,
     };
   },
   components: {
@@ -141,6 +155,16 @@ export default {
         return ((this.nsoPlatformClass !== null) && (this.nsoPlatformClass.adjustOutputSizesPlatform() !== null));
       },
     },
+    requiresExampleSaveData: {
+      get() {
+        return ((this.nsoPlatformClass !== null) && this.nsoPlatformClass.nsoDataRequiresRomInfo());
+      },
+    },
+    missingRequiredExampleData: {
+      get() {
+        return ((this.nsoPlatformClass !== null) && this.nsoPlatformClass.nsoDataRequiresRomInfo() && (this.exampleNsoData === null));
+      },
+    },
   },
   methods: {
     changeConversionDirection(newDirection) {
@@ -149,11 +173,13 @@ export default {
       this.nsoPlatform = null;
       this.nsoPlatformClass = null;
       this.errorMessage = null;
+      this.exampleFileErrorMessage = null;
       this.outputFilename = null;
       this.outputFilesize = null;
       this.inputArrayBuffer = null;
       this.inputFilename = null;
       this.inputFileType = null;
+      this.exampleNsoData = null;
     },
     nsoPlatformChanged() {
       if (this.nsoPlatform !== null) {
@@ -197,6 +223,10 @@ export default {
         this.nsoPlatformClass = null;
       }
 
+      if (this.$refs.inputFileExampleSaveData) {
+        this.$refs.inputFileExampleSaveData.reset();
+      }
+
       this.updateNsoSaveData();
     },
     updateNsoSaveData() {
@@ -209,11 +239,18 @@ export default {
             this.nsoSaveData = this.nsoPlatformClass.createFromNsoData(this.inputArrayBuffer);
             this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.nsoPlatformClass.getRawFileExtension());
           } else {
-            this.nsoSaveData = this.nsoPlatformClass.createFromRawData(this.inputArrayBuffer);
+            if (this.requiresExampleSaveData) {
+              if (this.exampleNsoData !== null) {
+                this.nsoSaveData = this.nsoPlatformClass.createFromRawData(this.inputArrayBuffer, this.exampleNsoData.getEncodedRomHash());
+                this.outputFilesize = this.nsoSaveData.getRawArrayBuffer().byteLength;
+              }
+            } else {
+              this.nsoSaveData = this.nsoPlatformClass.createFromRawData(this.inputArrayBuffer);
+              this.outputFilesize = this.nsoSaveData.getRawArrayBuffer().byteLength;
+            }
+
             this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.nsoPlatformClass.getNsoFileExtension());
           }
-
-          this.outputFilesize = this.nsoSaveData.getRawArrayBuffer().byteLength;
         } catch (e) {
           this.errorMessage = 'This file does not seem to be in the correct format';
           this.nsoSaveData = null;
@@ -235,6 +272,16 @@ export default {
       this.inputFileType = 'raw';
       this.inputArrayBuffer = event.arrayBuffer;
       this.inputFilename = event.filename;
+
+      this.updateNsoSaveData();
+    },
+    readExampleSaveData(event) {
+      try {
+        this.exampleNsoData = this.nsoPlatformClass.createFromNsoData(event.arrayBuffer);
+      } catch (e) {
+        this.exampleFileErrorMessage = 'This file does not seem to be in the correct format';
+        this.exampleNsoData = null;
+      }
 
       this.updateNsoSaveData();
     },

@@ -29,6 +29,10 @@ export default class SnesNsoSaveData {
     return 'snes';
   }
 
+  static nsoDataRequiresRomInfo() {
+    return false;
+  }
+
   constructor(nsoArrayBuffer, rawArrayBuffer) {
     this.nsoArrayBuffer = nsoArrayBuffer;
     this.rawArrayBuffer = rawArrayBuffer;

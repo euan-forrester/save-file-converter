@@ -29,6 +29,10 @@ export default class GbaNsoSaveData {
     return 'gba';
   }
 
+  static nsoDataRequiresRomInfo() {
+    return false;
+  }
+
   constructor(nsoArrayBuffer, rawArrayBuffer) {
     this.nsoArrayBuffer = nsoArrayBuffer;
     this.rawArrayBuffer = rawArrayBuffer;

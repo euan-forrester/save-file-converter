@@ -46,6 +46,10 @@ export default class GenesisNsoSaveData {
     return 'genesis';
   }
 
+  static nsoDataRequiresRomInfo() {
+    return false;
+  }
+
   constructor(nsoArrayBuffer, rawArrayBuffer) {
     this.nsoArrayBuffer = nsoArrayBuffer;
     this.rawArrayBuffer = rawArrayBuffer;

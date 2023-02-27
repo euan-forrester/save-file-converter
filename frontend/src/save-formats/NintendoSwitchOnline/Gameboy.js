@@ -45,6 +45,10 @@ export default class NsoGameboySaveData {
     return 'gb';
   }
 
+  static nsoDataRequiresRomInfo() {
+    return true;
+  }
+
   static createWithNewSize(nsoSaveData, newSize) {
     const newRawSaveData = SaveFilesUtil.resizeRawSave(nsoSaveData.getRawArrayBuffer(), newSize);
 

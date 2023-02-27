@@ -34,6 +34,10 @@ export default class NsoN64SaveData {
     return 'n64';
   }
 
+  static nsoDataRequiresRomInfo() {
+    return false;
+  }
+
   constructor(nsoArrayBuffer, rawArrayBuffer) {
     this.nsoArrayBuffer = nsoArrayBuffer;
     this.rawArrayBuffer = rawArrayBuffer;

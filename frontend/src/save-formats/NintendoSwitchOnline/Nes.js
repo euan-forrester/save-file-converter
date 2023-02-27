@@ -42,6 +42,10 @@ export default class NsoNesSaveData {
     return 'nes';
   }
 
+  static nsoDataRequiresRomInfo() {
+    return false;
+  }
+
   static createWithNewSize(nsoSaveData, newSize) {
     const newRawSaveData = SaveFilesUtil.resizeRawSave(nsoSaveData.getRawArrayBuffer(), newSize);
 
