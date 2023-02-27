@@ -3,11 +3,10 @@ The Nintendo Switch Online save format for NES games is the same as those on the
 and has a 40-byte SHA-1 digest encoded in ASCII prepended to the beginning
 */
 
-import createHash from 'create-hash';
-
 import PaddingUtil from '../../util/Padding';
 import SaveFilesUtil from '../../util/SaveFiles';
 import Util from '../../util/util';
+import HashUtil from '../../util/Hash';
 
 const NSO_NES_FILE_SIZE = 32768;
 const NSO_NES_PADDING_VALUE = 0x00;
@@ -54,18 +53,7 @@ export default class NsoNesSaveData {
     const rawArrayBufferTruncated = rawArrayBuffer.slice(0, NES_FILE_SIZE);
     const rawArrayBufferPadded = padArrayBuffer(rawArrayBufferTruncated);
 
-    // Calculate the hash
-
-    const hash = createHash(HASH_ALGORITHM);
-    hash.update(Buffer.from(rawArrayBufferPadded));
-    const hashOutput = hash.digest();
-
-    const hashString = Buffer.from(hashOutput).toString('hex').toLowerCase();
-
-    // Encode the hash and prepend it to the save
-
-    const textEncoder = new TextEncoder(HASH_ENCODING);
-    const hashEncodedArrayBuffer = Util.bufferToArrayBuffer(textEncoder.encode(hashString));
+    const hashEncodedArrayBuffer = HashUtil.getEncodedHash(rawArrayBufferPadded, HASH_ALGORITHM, HASH_ENCODING);
 
     const nsoArrayBuffer = Util.concatArrayBuffers([hashEncodedArrayBuffer, rawArrayBufferPadded]);
 
