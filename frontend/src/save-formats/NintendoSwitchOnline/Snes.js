@@ -9,8 +9,8 @@ export default class SnesNsoSaveData {
     return new SnesNsoSaveData(rawArrayBuffer, rawArrayBuffer);
   }
 
-  static createWithNewSize(snesNsoSaveData, newSize) {
-    const newRawSaveData = SaveFilesUtil.resizeRawSave(snesNsoSaveData.getRawArrayBuffer(), newSize);
+  static createWithNewSize(nsoSaveData, newSize) {
+    const newRawSaveData = SaveFilesUtil.resizeRawSave(nsoSaveData.getRawArrayBuffer(), newSize);
 
     return SnesNsoSaveData.createFromRawData(newRawSaveData);
   }
