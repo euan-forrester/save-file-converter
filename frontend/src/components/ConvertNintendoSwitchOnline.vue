@@ -92,6 +92,13 @@
           </b-button>
         </b-col>
       </b-row>
+      <b-row>
+        <b-col>
+          <div class="help">
+            Please note that you must have access to homebrew software on your Switch in order to be able to read or write save files
+          </div>
+        </b-col>
+      </b-row>
     </b-container>
   </div>
 </template>
