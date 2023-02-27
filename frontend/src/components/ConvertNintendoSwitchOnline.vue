@@ -256,7 +256,6 @@ export default {
             this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.nsoPlatformClass.getNsoFileExtension());
           }
         } catch (e) {
-          console.log('Encountered error', e);
           this.errorMessage = 'This file does not seem to be in the correct format';
           this.nsoSaveData = null;
         }
