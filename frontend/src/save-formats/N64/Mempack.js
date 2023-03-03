@@ -357,13 +357,18 @@ function readNoteTable(inodePageArrayBuffer, noteTableArrayBuffer) {
       );
 
       if (noteTableArray[currentByte + NOTE_TABLE_NOTE_NAME_EXTENSION_OFFSET] !== 0) {
-        noteName += '.';
-        noteName += N64TextDecoder.decode(
+        const extension = N64TextDecoder.decode(
           noteTableArray.slice(
             currentByte + NOTE_TABLE_NOTE_NAME_EXTENSION_OFFSET,
             currentByte + NOTE_TABLE_NOTE_NAME_EXTENSION_OFFSET + NOTE_TABLE_NOTE_NAME_EXTENSION_LENGTH,
           ),
         );
+
+        if (noteName.endsWith('.')) {
+          noteName += extension;
+        } else {
+          noteName += '.' + extension;
+        }
       }
 
       notes.push({
