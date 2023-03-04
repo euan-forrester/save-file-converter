@@ -124,12 +124,7 @@ function setNextPageNumber(inodePageDataView, pageNumber, nextPageNumber) {
 }
 
 function createEmptyBlock(size) {
-  const arrayBuffer = new ArrayBuffer(size);
-  const array = new Uint8Array(arrayBuffer);
-
-  array.fill(0);
-
-  return arrayBuffer;
+  return Util.getFilledArrayBuffer(size, 0x00);
 }
 
 // See comments above: cart saves can be stored in a controller pak file, but the cheat
@@ -395,13 +390,25 @@ function createNoteTablePage(saveFilesWithStartingPage) {
 
     const noteNameParts = saveFile.noteName.split('.');
 
-    if (noteNameParts.length > 1) {
+    let noteName = saveFile.noteName; // eslint-disable-line prefer-destructuring
+
+    // It's a bit unclear how to parse a note name that contains a .
+    // It may indicate an extension to the file, such as in the case of "T2-WAREHOUSE.P" for Tony Hawk, and "BK6.SRAM" for a cartridge save made with the Black Bag manager
+    // Or it may be part of the filename, such as in the case of "S.F. RUSH" for San Francisco Rush
+    //
+    // So our idea here is to consider a single dot as indicating an extension, and 0 or >= 2 dots as just being the filename
+    //
+    // It may be smarter to use a different character to delineate the extension. We copied the same character that MPKEdit uses.
+
+    if (noteNameParts.length === 2) {
       const noteNameExtensionEncoded = N64TextDecoder.encode(noteNameParts[1], NOTE_TABLE_NOTE_NAME_EXTENSION_LENGTH);
 
       noteBlockArray.set(noteNameExtensionEncoded, NOTE_TABLE_NOTE_NAME_EXTENSION_OFFSET);
+
+      noteName = noteNameParts[0]; // eslint-disable-line prefer-destructuring
     }
 
-    const noteNameEncoded = N64TextDecoder.encode(noteNameParts[0], NOTE_TABLE_NOTE_NAME_LENGTH);
+    const noteNameEncoded = N64TextDecoder.encode(noteName, NOTE_TABLE_NOTE_NAME_LENGTH);
     const gameSerialEncoded = encodeString(saveFile.gameSerialCode, NOTE_TABLE_GAME_SERIAL_CODE_LENGTH);
     const publisherCodeEncoded = encodeString(saveFile.publisherCode, NOTE_TABLE_PUBLISHER_CODE_LENGTH);
 

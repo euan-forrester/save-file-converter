@@ -58,6 +58,10 @@ const RAW_FIXED_FILENAME = `${DIR}/Ready 2 Rumble Boxing (U) [!]-fixed.mpk`;
 const RAW_FIXED_NOTE_1_FILENAME = `${DIR}/Ready 2 Rumble Boxing (U) [!]-fixed-1`;
 const RAW_FIXED_NOTE_2_FILENAME = `${DIR}/Ready 2 Rumble Boxing (U) [!]-fixed-2`;
 
+const DEXDRIVE_PERIODS_IN_NOTENAME_FILENAME = `${DIR}/san-francisco-rush-extreme-racing.1103.n64`;
+const RAW_PERIODS_IN_NOTENAME_FILENAME = `${DIR}/san-francisco-rush-extreme-racing.1103.mpk`;
+const RAW_PERIODS_IN_NOTENAME_NOTE_FILENAME = `${DIR}/san-francisco-rush-extreme-racing.1103-1`;
+
 describe('N64 - DexDrive save format', () => {
   let randomNumberGenerator = null;
 
@@ -447,5 +451,44 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[1].regionName).to.equal('Europe');
     expect(dexDriveSaveData.getSaveFiles()[1].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[1].rawData, rawNote2ArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a file a note with multiple periods in its name', async () => {
+    const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_PERIODS_IN_NOTENAME_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_PERIODS_IN_NOTENAME_FILENAME);
+    const rawNote1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_PERIODS_IN_NOTENAME_NOTE_FILENAME);
+
+    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer, randomNumberGenerator);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getMempack().getArrayBuffer(), rawArrayBuffer)).to.equal(true);
+
+    expect(dexDriveSaveData.getSaveFiles().length).to.equal(1);
+
+    expect(dexDriveSaveData.getSaveFiles()[0].startingPage).to.equal(5);
+    expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(16);
+    expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('S.F. RUSH');
+    expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('Every Thing in the game complete, All Keys, and The special Track 7, and all Cars');
+    expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NSFE');
+    expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('5D');
+    expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal('E');
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('North America');
+    expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal('N');
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNote1ArrayBuffer)).to.equal(true);
+
+    // We saw an issue where the N64DexDriveSaveData has the correct note name, but the internal N64MempackSaveData has an incorrect note name
+
+    const mempackSaveData = dexDriveSaveData.getMempack();
+
+    expect(mempackSaveData.getSaveFiles().length).to.equal(1);
+
+    expect(mempackSaveData.getSaveFiles()[0].startingPage).to.equal(5);
+    expect(mempackSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(16);
+    expect(mempackSaveData.getSaveFiles()[0].noteName).to.equal('S.F. RUSH');
+    expect(mempackSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NSFE');
+    expect(mempackSaveData.getSaveFiles()[0].publisherCode).to.equal('5D');
+    expect(mempackSaveData.getSaveFiles()[0].region).to.equal('E');
+    expect(mempackSaveData.getSaveFiles()[0].regionName).to.equal('North America');
+    expect(mempackSaveData.getSaveFiles()[0].media).to.equal('N');
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNote1ArrayBuffer)).to.equal(true);
   });
 });
