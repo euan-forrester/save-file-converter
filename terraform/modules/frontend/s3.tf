@@ -116,6 +116,7 @@ resource "aws_s3_bucket" "frontend_access_logs" {
     }
   }
 
+  # It looks like service side encryption has become the default, and this is no long needed: https://docs.aws.amazon.com/AmazonS3/latest/userguide/default-encryption-faq.html
   server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
