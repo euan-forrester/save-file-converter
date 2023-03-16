@@ -1,5 +1,7 @@
 import path from 'path';
 
+// Comment to trigger build
+
 export default class Util {
   static clampValue(value, min, max) {
     return Math.min(Math.max(value, min), max);
