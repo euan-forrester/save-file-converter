@@ -1,6 +1,6 @@
 # Based on https://docs.aws.amazon.com/codebuild/latest/userguide/sample-build-notifications.html
 
-resource "aws_cloudwatch_event_rule" "builds" {
+resource "aws_cloudwatch_event_rule" "build_complete" {
   name        = "${var.application_name}-frontend-${var.environment}-codebuild"
   description = "Capture each codebuild success or failure event"
 
@@ -26,18 +26,31 @@ resource "aws_cloudwatch_event_rule" "builds" {
 EOF
 }
 
-resource "aws_cloudwatch_event_target" "sns" {
-  rule      = aws_cloudwatch_event_rule.builds.name
-  target_id = "SendToSNS"
-  arn       = var.build_sns_topic_arn
+# Here is an example output object from CodeBuild, to see the structure:
+# https://github.com/awsdocs/aws-codebuild-user-guide/blob/main/doc_source/sample-build-notifications.md#sample-build-notifications-ref
+
+resource "aws_cloudwatch_event_target" "sqs" {
+  rule      = aws_cloudwatch_event_rule.build_complete.name
+  target_id = "SendToSQS"
+  arn       = aws_sqs_queue.build_complete_queue.arn
 
   input_transformer {
     input_paths = {
       build-id = "$.detail.build-id",
       project-name = "$.detail.project-name",
       build-status = "$.detail.build-status",
+      logs-guid = "$.detail.additional-information.logs.stream-name",
     }
-    input_template = "\"<project-name> build <build-status> Build ID: <build-id>\"" # I can't get newlines to work here. \n results in terraform barfing, and \\n as suggested in the docs just inserts the characters "\n" into the email: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target#input_template
+    input_template = <<EOF
+{
+  "ProjectName": "<project-name>",
+  "BuildStatus": "<build-status>",
+  "BuildId": "<build-id>",
+  "LogsBucketId": "${var.build_logs_bucket_id}",
+  "LogsDirectory": "${var.build_logs_directory}", 
+  "LogsGuid": "<logs-guid>"
+}
+EOF
   }
 }
 
@@ -51,12 +64,12 @@ resource "aws_cloudwatch_metric_alarm" "codebuild_eventbridge_failedinvocations"
   statistic                 = "Sum"
   threshold                 = "1"
   treat_missing_data        = "notBreaching"
-  alarm_description         = "Alerts if there is a failure to publish a codebuild event to SNS"
+  alarm_description         = "Alerts if there is a failure to publish a codebuild event to SQS"
   alarm_actions             = [var.alarms_sns_topic_arn]
   insufficient_data_actions = [var.alarms_sns_topic_arn]
   ok_actions                = [var.alarms_sns_topic_arn]
 
   dimensions = {
-    RuleName = aws_cloudwatch_event_rule.builds.name
+    RuleName = aws_cloudwatch_event_rule.build_complete.name
   }
 }
