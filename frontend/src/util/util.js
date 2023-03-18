@@ -71,7 +71,7 @@ export default class Util {
     for (let i = 0; i < magic.length; i += 1) {
       const magicFound = dataView.getUint8(offset + i);
       if (magicFound !== magic[i]) {
-        throw new Error(`Save appears corrupted: found '${magicFound}' instead of '${magic[i]}'`);
+        throw new Error(`Save appears corrupted: found 0x${magicFound.toString(16)} instead of 0x${magic[i].toString(16)}`);
       }
     }
   }
