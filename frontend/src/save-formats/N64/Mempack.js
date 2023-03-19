@@ -707,7 +707,7 @@ export default class N64MempackSaveData {
   static createFilename(saveFile) {
     if (N64MempackSaveData.isCartSave(saveFile)) {
       // Here we want to make a user-friendly name, meaning having the correct extension for an emulator to load
-      
+
       // NOTE: if we get into trouble again here with having a . in between the note name and the note name extension,
       // we'll again need to deal with the issue of users having legacy filenames on their machines
 

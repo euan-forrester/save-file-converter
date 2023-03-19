@@ -13,6 +13,8 @@ const RAW_TWO_FILES_NOTE_1_FILENAME = `${DIR}/tony-hawks-pro-skater-2.1077-1`;
 const RAW_TWO_FILES_NOTE_2_FILENAME = `${DIR}/tony-hawks-pro-skater-2.1077-2`;
 
 const RAW_PERIODS_IN_NOTENAME_NOTE_FILENAME = `${DIR}/san-francisco-rush-extreme-racing.1103-1`;
+const RAW_CART_SAVE_WITH_NOTE_NAME_EXTENSION = `${DIR}/banjokaz-1`;
+const RAW_CART_SAVE_WITHOUT_NOTE_NAME_EXTENSION = `${DIR}/super-mario-64.1091-1`;
 
 describe('N64 - Mempack save format', () => {
   let randomNumberGenerator = null;
@@ -200,17 +202,49 @@ describe('N64 - Mempack save format', () => {
     expect(saveFile.publisherCode).to.equal('5D');
   });
 
-  it('should create a new-style filename for a game with periods in its note name', async () => {
-    const rawNoteArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_PERIODS_IN_NOTENAME_NOTE_FILENAME);
+  it('should create a filename for a cart save with a note name extension in its name', async () => {
+    const rawNoteArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_CART_SAVE_WITH_NOTE_NAME_EXTENSION);
 
     const saveFile = {
-      noteName: 'S.F. RUSH',
-      noteNameExtension: '',
-      gameSerialCode: 'NSFE',
-      publisherCode: '5D',
+      noteName: 'BK6',
+      noteNameExtension: 'SRAM',
+      gameSerialCode: N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE,
+      publisherCode: N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE,
       rawData: rawNoteArrayBuffer,
     };
 
-    expect(N64MempackSaveData.createFilename(saveFile)).to.equal('RAW-532e462e2052555348--4e534645-3544');
+    expect(N64MempackSaveData.createFilename(saveFile)).to.equal('BK6.SRAM.eep');
+  });
+
+  it('should parse a filename filename for a cart save with a note name extension in its name', async () => {
+    const saveFile = N64MempackSaveData.parseFilename('BK6.SRAM.eep');
+
+    expect(saveFile.noteName).to.equal('BK6');
+    expect(saveFile.noteNameExtension).to.equal('SRAM');
+    expect(saveFile.gameSerialCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
+    expect(saveFile.publisherCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE);
+  });
+
+  it('should create a filename for a cart save without a note name extension in its name', async () => {
+    const rawNoteArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_CART_SAVE_WITHOUT_NOTE_NAME_EXTENSION);
+
+    const saveFile = {
+      noteName: 'SMSM',
+      noteNameExtension: '',
+      gameSerialCode: N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE,
+      publisherCode: N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE,
+      rawData: rawNoteArrayBuffer,
+    };
+
+    expect(N64MempackSaveData.createFilename(saveFile)).to.equal('SMSM.eep');
+  });
+
+  it('should parse a filename filename for a cart save without a note name extension in its name', async () => {
+    const saveFile = N64MempackSaveData.parseFilename('SMSM.eep');
+
+    expect(saveFile.noteName).to.equal('SMSM');
+    expect(saveFile.noteNameExtension).to.equal('');
+    expect(saveFile.gameSerialCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
+    expect(saveFile.publisherCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE);
   });
 });
