@@ -12,6 +12,8 @@ const RAW_TWO_FILES_FILENAME = `${DIR}/tony-hawks-pro-skater-2.1077.mpk`;
 const RAW_TWO_FILES_NOTE_1_FILENAME = `${DIR}/tony-hawks-pro-skater-2.1077-1`;
 const RAW_TWO_FILES_NOTE_2_FILENAME = `${DIR}/tony-hawks-pro-skater-2.1077-2`;
 
+const RAW_PERIODS_IN_NOTENAME_NOTE_FILENAME = `${DIR}/san-francisco-rush-extreme-racing.1103-1`;
+
 describe('N64 - Mempack save format', () => {
   let randomNumberGenerator = null;
 
@@ -100,5 +102,115 @@ describe('N64 - Mempack save format', () => {
     expect(mempackSaveData.getSaveFiles()[1].regionName).to.equal('North America');
     expect(mempackSaveData.getSaveFiles()[1].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(mempackSaveData.getSaveFiles()[1].rawData, rawNote2ArrayBuffer)).to.equal(true);
+  });
+
+  it('should create a new-style filename for a game without a note name extension', async () => {
+    const rawNoteArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_ONE_FILE_NOTE_FILENAME);
+
+    const saveFile = {
+      noteName: 'MARIOKART64',
+      noteNameExtension: '',
+      gameSerialCode: 'NKTJ',
+      publisherCode: '01',
+      rawData: rawNoteArrayBuffer,
+    };
+
+    expect(N64MempackSaveData.createFilename(saveFile)).to.equal('RAW-4d4152494f4b4152543634--4e4b544a-3031');
+  });
+
+  it('should parse a new-style filename for a game without a note name extension', async () => {
+    const saveFile = N64MempackSaveData.parseFilename('RAW-4d4152494f4b4152543634--4e4b544a-3031');
+
+    expect(saveFile.noteName).to.equal('MARIOKART64');
+    expect(saveFile.noteNameExtension).to.equal('');
+    expect(saveFile.gameSerialCode).to.equal('NKTJ');
+    expect(saveFile.publisherCode).to.equal('01');
+  });
+
+  it('should parse an old-style filename for a game without a note name extension', async () => {
+    const saveFile = N64MempackSaveData.parseFilename('RAW-4d4152494f4b4152543634-4e4b544a-3031');
+
+    expect(saveFile.noteName).to.equal('MARIOKART64');
+    expect(saveFile.noteNameExtension).to.equal('');
+    expect(saveFile.gameSerialCode).to.equal('NKTJ');
+    expect(saveFile.publisherCode).to.equal('01');
+  });
+
+  it('should create a new-style filename for a game with a note name extension', async () => {
+    const rawNoteArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_TWO_FILES_NOTE_1_FILENAME);
+
+    const saveFile = {
+      noteName: 'T2-\'',
+      noteNameExtension: 'G',
+      gameSerialCode: 'NTQE',
+      publisherCode: '52',
+      rawData: rawNoteArrayBuffer,
+    };
+
+    expect(N64MempackSaveData.createFilename(saveFile)).to.equal('RAW-54322d27-47-4e545145-3532');
+  });
+
+  it('should parse a new-style filename for a game with a note name extension', async () => {
+    const saveFile = N64MempackSaveData.parseFilename('RAW-54322d27-47-4e545145-3532');
+
+    expect(saveFile.noteName).to.equal('T2-\'');
+    expect(saveFile.noteNameExtension).to.equal('G');
+    expect(saveFile.gameSerialCode).to.equal('NTQE');
+    expect(saveFile.publisherCode).to.equal('52');
+  });
+
+  it('should parse an old-style filename for a game with a note name extension', async () => {
+    const saveFile = N64MempackSaveData.parseFilename('RAW-54322d272e47-4e545145-3532');
+
+    expect(saveFile.noteName).to.equal('T2-\'');
+    expect(saveFile.noteNameExtension).to.equal('G');
+    expect(saveFile.gameSerialCode).to.equal('NTQE');
+    expect(saveFile.publisherCode).to.equal('52');
+  });
+
+  it('should create a new-style filename for a game with periods in its note name', async () => {
+    const rawNoteArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_PERIODS_IN_NOTENAME_NOTE_FILENAME);
+
+    const saveFile = {
+      noteName: 'S.F. RUSH',
+      noteNameExtension: '',
+      gameSerialCode: 'NSFE',
+      publisherCode: '5D',
+      rawData: rawNoteArrayBuffer,
+    };
+
+    expect(N64MempackSaveData.createFilename(saveFile)).to.equal('RAW-532e462e2052555348--4e534645-3544');
+  });
+
+  it('should parse an new-style filename for a game with periods in its note name', async () => {
+    const saveFile = N64MempackSaveData.parseFilename('RAW-532e462e2052555348--4e534645-3544');
+
+    expect(saveFile.noteName).to.equal('S.F. RUSH');
+    expect(saveFile.noteNameExtension).to.equal('');
+    expect(saveFile.gameSerialCode).to.equal('NSFE');
+    expect(saveFile.publisherCode).to.equal('5D');
+  });
+
+  it('should parse an old-style filename for a game with periods in its note name', async () => {
+    const saveFile = N64MempackSaveData.parseFilename('RAW-532e462e2052555348-4e534645-3544');
+
+    expect(saveFile.noteName).to.equal('S.F. RUSH');
+    expect(saveFile.noteNameExtension).to.equal('');
+    expect(saveFile.gameSerialCode).to.equal('NSFE');
+    expect(saveFile.publisherCode).to.equal('5D');
+  });
+
+  it('should create a new-style filename for a game with periods in its note name', async () => {
+    const rawNoteArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_PERIODS_IN_NOTENAME_NOTE_FILENAME);
+
+    const saveFile = {
+      noteName: 'S.F. RUSH',
+      noteNameExtension: '',
+      gameSerialCode: 'NSFE',
+      publisherCode: '5D',
+      rawData: rawNoteArrayBuffer,
+    };
+
+    expect(N64MempackSaveData.createFilename(saveFile)).to.equal('RAW-532e462e2052555348--4e534645-3544');
   });
 });
