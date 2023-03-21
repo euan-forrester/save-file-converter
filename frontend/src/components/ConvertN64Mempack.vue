@@ -151,7 +151,11 @@ export default {
   methods: {
     getFileListNames() {
       if ((this.mempackSaveData !== null) && (this.mempackSaveData.getSaveFiles() !== null)) {
-        return this.mempackSaveData.getSaveFiles().map((x) => ({ displayText: N64MempackSaveData.isCartSave(x) ? `Cartridge save: ${x.noteName}` : `${x.noteName} (${x.regionName})` }));
+        return this.mempackSaveData.getSaveFiles().map(
+          (x) => ({
+            displayText: N64MempackSaveData.isCartSave(x) ? `Cartridge save: ${N64MempackSaveData.getDisplayName(x)}` : `${N64MempackSaveData.getDisplayName(x)} (${x.regionName})`,
+          }),
+        );
       }
 
       return [];
@@ -195,6 +199,7 @@ export default {
 
         saveFiles = saveFiles.map((f) => ({
           noteName: f.parsedFilename.noteName,
+          noteNameExtension: f.parsedFilename.noteNameExtension,
           gameSerialCode: f.parsedFilename.gameSerialCode,
           publisherCode: f.parsedFilename.publisherCode,
           rawData: f.rawData,

@@ -58,6 +58,10 @@ const RAW_FIXED_FILENAME = `${DIR}/Ready 2 Rumble Boxing (U) [!]-fixed.mpk`;
 const RAW_FIXED_NOTE_1_FILENAME = `${DIR}/Ready 2 Rumble Boxing (U) [!]-fixed-1`;
 const RAW_FIXED_NOTE_2_FILENAME = `${DIR}/Ready 2 Rumble Boxing (U) [!]-fixed-2`;
 
+const DEXDRIVE_PERIODS_IN_NOTENAME_FILENAME = `${DIR}/san-francisco-rush-extreme-racing.1103.n64`;
+const RAW_PERIODS_IN_NOTENAME_FILENAME = `${DIR}/san-francisco-rush-extreme-racing.1103.mpk`;
+const RAW_PERIODS_IN_NOTENAME_NOTE_FILENAME = `${DIR}/san-francisco-rush-extreme-racing.1103-1`;
+
 describe('N64 - DexDrive save format', () => {
   let randomNumberGenerator = null;
 
@@ -83,6 +87,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].startingPage).to.equal(5);
     expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(121);
     expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('MARIOKART64');
+    expect(dexDriveSaveData.getSaveFiles()[0].noteNameExtension).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NKTJ');
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('01');
@@ -106,6 +111,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].startingPage).to.equal(5);
     expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(28);
     expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('PERFECT DARK');
+    expect(dexDriveSaveData.getSaveFiles()[0].noteNameExtension).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('All missions completed on all difficulties, all challenges, most cheats');
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NPDE');
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('4Y');
@@ -131,7 +137,8 @@ describe('N64 - DexDrive save format', () => {
 
     expect(dexDriveSaveData.getSaveFiles()[0].startingPage).to.equal(5);
     expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(27);
-    expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('T2-\'.G');
+    expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('T2-\'');
+    expect(dexDriveSaveData.getSaveFiles()[0].noteNameExtension).to.equal('G');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NTQE');
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('52');
@@ -142,7 +149,8 @@ describe('N64 - DexDrive save format', () => {
 
     expect(dexDriveSaveData.getSaveFiles()[1].startingPage).to.equal(32);
     expect(dexDriveSaveData.getSaveFiles()[1].pageNumbers.length).to.equal(20);
-    expect(dexDriveSaveData.getSaveFiles()[1].noteName).to.equal('T2-WAREHOUSE.P');
+    expect(dexDriveSaveData.getSaveFiles()[1].noteName).to.equal('T2-WAREHOUSE');
+    expect(dexDriveSaveData.getSaveFiles()[1].noteNameExtension).to.equal('P');
     expect(dexDriveSaveData.getSaveFiles()[1].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[1].gameSerialCode).to.equal('NTQE');
     expect(dexDriveSaveData.getSaveFiles()[1].publisherCode).to.equal('52');
@@ -158,14 +166,16 @@ describe('N64 - DexDrive save format', () => {
     const rawNote2ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_TWO_FILES_NOTE_2_FILENAME);
 
     const saveFiles = [{
-      noteName: 'T2-\'.G',
+      noteName: 'T2-\'',
+      noteNameExtension: 'G',
       gameSerialCode: 'NTQE',
       publisherCode: '52',
       comment: 'Comment 1',
       rawData: rawNote1ArrayBuffer,
     },
     {
-      noteName: 'T2-WAREHOUSE.P',
+      noteName: 'T2-WAREHOUSE',
+      noteNameExtension: 'P',
       gameSerialCode: 'NTQE',
       publisherCode: '52',
       comment: 'Comment 2',
@@ -180,7 +190,8 @@ describe('N64 - DexDrive save format', () => {
 
     expect(dexDriveSaveData.getSaveFiles()[0].startingPage).to.equal(5);
     expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(27);
-    expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('T2-\'.G');
+    expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('T2-\'');
+    expect(dexDriveSaveData.getSaveFiles()[0].noteNameExtension).to.equal('G');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('Comment 1');
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NTQE');
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('52');
@@ -191,7 +202,8 @@ describe('N64 - DexDrive save format', () => {
 
     expect(dexDriveSaveData.getSaveFiles()[1].startingPage).to.equal(32);
     expect(dexDriveSaveData.getSaveFiles()[1].pageNumbers.length).to.equal(20);
-    expect(dexDriveSaveData.getSaveFiles()[1].noteName).to.equal('T2-WAREHOUSE.P');
+    expect(dexDriveSaveData.getSaveFiles()[1].noteName).to.equal('T2-WAREHOUSE');
+    expect(dexDriveSaveData.getSaveFiles()[1].noteNameExtension).to.equal('P');
     expect(dexDriveSaveData.getSaveFiles()[1].comment).to.equal('Comment 2');
     expect(dexDriveSaveData.getSaveFiles()[1].gameSerialCode).to.equal('NTQE');
     expect(dexDriveSaveData.getSaveFiles()[1].publisherCode).to.equal('52');
@@ -215,6 +227,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].startingPage).to.equal(5);
     expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(2);
     expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('SMSM');
+    expect(dexDriveSaveData.getSaveFiles()[0].noteNameExtension).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('100% Completed');
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE);
@@ -238,7 +251,8 @@ describe('N64 - DexDrive save format', () => {
 
     expect(dexDriveSaveData.getSaveFiles()[0].startingPage).to.equal(5);
     expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(2);
-    expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('BK6.SRAM');
+    expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('BK6');
+    expect(dexDriveSaveData.getSaveFiles()[0].noteNameExtension).to.equal('SRAM');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('Save spot 3 contains a save with 63 jigsaws and 563 notes (time: 13:43:23)');
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal(N64MempackSaveData.BLACKBAG_CART_SAVE_GAME_SERIAL_CODE);
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal(N64MempackSaveData.BLACKBAG_CART_SAVE_PUBLISHER_CODE);
@@ -249,7 +263,8 @@ describe('N64 - DexDrive save format', () => {
 
     expect(dexDriveSaveData.getSaveFiles()[1].startingPage).to.equal(7);
     expect(dexDriveSaveData.getSaveFiles()[1].pageNumbers.length).to.equal(2);
-    expect(dexDriveSaveData.getSaveFiles()[1].noteName).to.equal('BK7.SRAM');
+    expect(dexDriveSaveData.getSaveFiles()[1].noteName).to.equal('BK7');
+    expect(dexDriveSaveData.getSaveFiles()[1].noteNameExtension).to.equal('SRAM');
     expect(dexDriveSaveData.getSaveFiles()[1].comment).to.equal('not working?');
     expect(dexDriveSaveData.getSaveFiles()[1].gameSerialCode).to.equal(N64MempackSaveData.BLACKBAG_CART_SAVE_GAME_SERIAL_CODE);
     expect(dexDriveSaveData.getSaveFiles()[1].publisherCode).to.equal(N64MempackSaveData.BLACKBAG_CART_SAVE_PUBLISHER_CODE);
@@ -274,6 +289,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(7);
     expect(dexDriveSaveData.getSaveFiles()[0].rawData.byteLength).to.equal(2048); // Only 7 pages, but 2048 bytes: that reflects the extra padding we're adding to the end of truncated cart saves
     expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('DODO');
+    expect(dexDriveSaveData.getSaveFiles()[0].noteNameExtension).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('101% Compleat, but I did not beat the game yet on this file.  '
       + 'Some stages have all 500 bananas collected, but others are missing some.  Try to find those if you want, but I\'ll try to update this file once I get those');
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
@@ -303,6 +319,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].startingPage).to.equal(5);
     expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(2);
     expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('ARMY MEN SARGE');
+    expect(dexDriveSaveData.getSaveFiles()[0].noteNameExtension).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NAME');
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('5H');
@@ -314,6 +331,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[1].startingPage).to.equal(7);
     expect(dexDriveSaveData.getSaveFiles()[1].pageNumbers.length).to.equal(12);
     expect(dexDriveSaveData.getSaveFiles()[1].noteName).to.equal('A BUG\'S LIFE');
+    expect(dexDriveSaveData.getSaveFiles()[1].noteNameExtension).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[1].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[1].gameSerialCode).to.equal('NBYE');
     expect(dexDriveSaveData.getSaveFiles()[1].publisherCode).to.equal('52');
@@ -324,7 +342,8 @@ describe('N64 - DexDrive save format', () => {
 
     expect(dexDriveSaveData.getSaveFiles()[2].startingPage).to.equal(19);
     expect(dexDriveSaveData.getSaveFiles()[2].pageNumbers.length).to.equal(2);
-    expect(dexDriveSaveData.getSaveFiles()[2].noteName).to.equal('SMSM.1');
+    expect(dexDriveSaveData.getSaveFiles()[2].noteName).to.equal('SMSM');
+    expect(dexDriveSaveData.getSaveFiles()[2].noteNameExtension).to.equal('1');
     expect(dexDriveSaveData.getSaveFiles()[2].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[2].gameSerialCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
     expect(dexDriveSaveData.getSaveFiles()[2].publisherCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE);
@@ -335,7 +354,8 @@ describe('N64 - DexDrive save format', () => {
 
     expect(dexDriveSaveData.getSaveFiles()[3].startingPage).to.equal(25); // There are 4 unused pages after the previous save. I assume something was deleted
     expect(dexDriveSaveData.getSaveFiles()[3].pageNumbers.length).to.equal(2);
-    expect(dexDriveSaveData.getSaveFiles()[3].noteName).to.equal('BKBK.1');
+    expect(dexDriveSaveData.getSaveFiles()[3].noteName).to.equal('BKBK');
+    expect(dexDriveSaveData.getSaveFiles()[3].noteNameExtension).to.equal('1');
     expect(dexDriveSaveData.getSaveFiles()[3].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[3].gameSerialCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
     expect(dexDriveSaveData.getSaveFiles()[3].publisherCode).to.equal(N64MempackSaveData.GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE);
@@ -359,6 +379,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].startingPage).to.equal(5);
     expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(1);
     expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('ECW');
+    expect(dexDriveSaveData.getSaveFiles()[0].noteNameExtension).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('All Hidden Wrestlers and Cheats Unlocked');
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NWIE');
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('51');
@@ -382,6 +403,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].startingPage).to.equal(5);
     expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(1);
     expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('ECW');
+    expect(dexDriveSaveData.getSaveFiles()[0].noteNameExtension).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NWIE');
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('51');
@@ -405,6 +427,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].startingPage).to.equal(5);
     expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(1);
     expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('ECW');
+    expect(dexDriveSaveData.getSaveFiles()[0].noteNameExtension).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NWIE');
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('51');
@@ -429,6 +452,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].startingPage).to.equal(5);
     expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(9);
     expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('READY2RUMBLE');
+    expect(dexDriveSaveData.getSaveFiles()[0].noteNameExtension).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NRDP');
     expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('5D');
@@ -440,6 +464,7 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[1].startingPage).to.equal(14);
     expect(dexDriveSaveData.getSaveFiles()[1].pageNumbers.length).to.equal(9);
     expect(dexDriveSaveData.getSaveFiles()[1].noteName).to.equal('READY2RUMBLE');
+    expect(dexDriveSaveData.getSaveFiles()[1].noteNameExtension).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[1].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[1].gameSerialCode).to.equal('NRDP');
     expect(dexDriveSaveData.getSaveFiles()[1].publisherCode).to.equal('5D');
@@ -447,5 +472,46 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[1].regionName).to.equal('Europe');
     expect(dexDriveSaveData.getSaveFiles()[1].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[1].rawData, rawNote2ArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a file a note with multiple periods in its name', async () => {
+    const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_PERIODS_IN_NOTENAME_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_PERIODS_IN_NOTENAME_FILENAME);
+    const rawNote1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_PERIODS_IN_NOTENAME_NOTE_FILENAME);
+
+    const dexDriveSaveData = N64DexDriveSaveData.createFromDexDriveData(dexDriveArrayBuffer, randomNumberGenerator);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getMempack().getArrayBuffer(), rawArrayBuffer)).to.equal(true);
+
+    expect(dexDriveSaveData.getSaveFiles().length).to.equal(1);
+
+    expect(dexDriveSaveData.getSaveFiles()[0].startingPage).to.equal(5);
+    expect(dexDriveSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(16);
+    expect(dexDriveSaveData.getSaveFiles()[0].noteName).to.equal('S.F. RUSH');
+    expect(dexDriveSaveData.getSaveFiles()[0].noteNameExtension).to.equal('');
+    expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('Every Thing in the game complete, All Keys, and The special Track 7, and all Cars');
+    expect(dexDriveSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NSFE');
+    expect(dexDriveSaveData.getSaveFiles()[0].publisherCode).to.equal('5D');
+    expect(dexDriveSaveData.getSaveFiles()[0].region).to.equal('E');
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('North America');
+    expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal('N');
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNote1ArrayBuffer)).to.equal(true);
+
+    // We saw an issue where the N64DexDriveSaveData has the correct note name, but the internal N64MempackSaveData has an incorrect note name
+
+    const mempackSaveData = dexDriveSaveData.getMempack();
+
+    expect(mempackSaveData.getSaveFiles().length).to.equal(1);
+
+    expect(mempackSaveData.getSaveFiles()[0].startingPage).to.equal(5);
+    expect(mempackSaveData.getSaveFiles()[0].pageNumbers.length).to.equal(16);
+    expect(mempackSaveData.getSaveFiles()[0].noteName).to.equal('S.F. RUSH');
+    expect(mempackSaveData.getSaveFiles()[0].noteNameExtension).to.equal('');
+    expect(mempackSaveData.getSaveFiles()[0].gameSerialCode).to.equal('NSFE');
+    expect(mempackSaveData.getSaveFiles()[0].publisherCode).to.equal('5D');
+    expect(mempackSaveData.getSaveFiles()[0].region).to.equal('E');
+    expect(mempackSaveData.getSaveFiles()[0].regionName).to.equal('North America');
+    expect(mempackSaveData.getSaveFiles()[0].media).to.equal('N');
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNote1ArrayBuffer)).to.equal(true);
   });
 });
