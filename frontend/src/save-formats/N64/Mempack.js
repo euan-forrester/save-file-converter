@@ -553,14 +553,6 @@ function createInodeTablePage(saveFiles) {
   };
 }
 
-function getDisplayName(saveFile) {
-  if (saveFile.noteNameExtension.length > 0) {
-    return `${saveFile.noteName}.${saveFile.noteNameExtension}`;
-  }
-
-  return saveFile.noteName;
-}
-
 function parseNoteNameAndExtension(noteNameAndExtension) {
   // Here we are going to assume that if there's one . then it's intended to split the name from the extension (e.g. "T2-WAREHOUSE.P" for Tony Hawk)
   // and if there are 0 or > 1 .'s then it's just all the filename (e.g. "S.F. RUSH" for San Francisco Rush)
@@ -624,7 +616,7 @@ export default class N64MempackSaveData {
       }
 
       if (x.rawData.byteLength % PAGE_SIZE !== 0) {
-        throw new Error(`All saves must be multiples of ${PAGE_SIZE} bytes, but save '${getDisplayName(x)}' is ${x.rawData.byteLength} bytes`);
+        throw new Error(`All saves must be multiples of ${PAGE_SIZE} bytes, but save '${N64MempackSaveData.getDisplayName(x)}' is ${x.rawData.byteLength} bytes`);
       }
     });
 
@@ -704,6 +696,14 @@ export default class N64MempackSaveData {
     return ((saveFile.gameSerialCode === GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE) || (saveFile.gameSerialCode === BLACKBAG_CART_SAVE_GAME_SERIAL_CODE));
   }
 
+  static getDisplayName(saveFile) {
+    if (saveFile.noteNameExtension.length > 0) {
+      return `${saveFile.noteName}.${saveFile.noteNameExtension}`;
+    }
+
+    return saveFile.noteName;
+  }
+
   static createFilename(saveFile) {
     if (N64MempackSaveData.isCartSave(saveFile)) {
       // Here we want to make a user-friendly name, meaning having the correct extension for an emulator to load
@@ -711,7 +711,7 @@ export default class N64MempackSaveData {
       // NOTE: if we get into trouble again here with having a . in between the note name and the note name extension,
       // we'll again need to deal with the issue of users having legacy filenames on their machines
 
-      return `${getDisplayName(saveFile)}.${N64Util.getFileExtension(saveFile.rawData)}`; // It's always going to be .eep because that's all that can fit in a mempack image: the next size up is the size of an entire mempack, which doesn't leave room for the system information
+      return `${N64MempackSaveData.getDisplayName(saveFile)}.${N64Util.getFileExtension(saveFile.rawData)}`; // It's always going to be .eep because that's all that can fit in a mempack image: the next size up is the size of an entire mempack, which doesn't leave room for the system information
     }
 
     // We need to encode all the stuff that goes into the note table into our file name.
