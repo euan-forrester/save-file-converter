@@ -46,12 +46,19 @@
             </b-col>
           </b-row>
           <div v-if="this.conversionDirection === 'convertToRaw'">
-            <output-filename
-              v-model="outputFilename"
-              :leaveRoomForHelpIcon="true"
-              :disabled="true"
-              helpText="The filename for an individual save contains important information that the game needs to find this save data. Please do not modify it after downloading the save."
-            />
+            <div v-if="this.userAllowedToChangeFilename">
+              <output-filename
+                v-model="outputFilename"
+              />
+            </div>
+            <div v-else>
+              <output-filename
+                v-model="outputFilename"
+                :leaveRoomForHelpIcon="true"
+                :disabled="true"
+                helpText="The filename for an individual save contains important information that the game needs to find this save data. Please do not modify it after downloading the save."
+              />
+            </div>
           </div>
           <div v-else>
             <input-file
@@ -146,6 +153,10 @@ export default {
       const haveDataSelected = (this.conversionDirection === 'convertToRaw') ? true : this.selectedSaveData === null;
 
       return !this.mempackSaveData || this.mempackSaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
+    },
+    userAllowedToChangeFilename() {
+      return !this.mempackSaveData
+        || ((this.mempackSaveData.getSaveFiles().length > 0) && (this.selectedSaveData !== null) && N64MempackSaveData.isCartSave(this.mempackSaveData.getSaveFiles()[this.selectedSaveData]));
     },
   },
   methods: {
