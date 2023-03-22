@@ -47,12 +47,19 @@
           </b-row>
           <div v-if="this.conversionDirection === 'convertToRaw'">
             <div v-if="this.individualSavesOrMemoryCard === 'individual-saves'">
-              <output-filename
-                v-model="outputFilename"
-                :leaveRoomForHelpIcon="true"
-                :disabled="true"
-                helpText="The filename for an individual save contains important information that the game needs to find this save data. Please do not modify it after downloading the save."
-              />
+              <div v-if="this.userAllowedToChangeFilename">
+                <output-filename
+                  v-model="outputFilename"
+                />
+              </div>
+              <div v-else>
+                <output-filename
+                  v-model="outputFilename"
+                  :leaveRoomForHelpIcon="true"
+                  :disabled="true"
+                  helpText="The filename for an individual save contains important information that the game needs to find this save data. Please do not modify it after downloading the save."
+                />
+              </div>
             </div>
             <div v-else>
              <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
@@ -166,6 +173,10 @@ export default {
     },
     individualSavesOrMemoryCardText() {
       return (this.individualSavesOrMemoryCard === 'individual-saves') ? this.individualSavesText : this.memoryCardText;
+    },
+    userAllowedToChangeFilename() {
+      return !this.dexDriveSaveData
+        || ((this.dexDriveSaveData.getSaveFiles().length > 0) && (this.selectedSaveData !== null) && N64MempackSaveData.isCartSave(this.dexDriveSaveData.getSaveFiles()[this.selectedSaveData]));
     },
   },
   methods: {
