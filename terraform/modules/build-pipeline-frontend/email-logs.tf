@@ -15,14 +15,16 @@ resource "aws_sqs_queue" "build_complete_queue" {
 }
 
 resource "aws_sqs_queue_policy" "build-complete-queue-policy" {
-  queue_url = aws_sqs_queue.build_complete_queue.id
+  queue_url = aws_sqs_queue.build_complete_queue.url
   policy = <<EOF
 {
   "Version": "2012-10-17",
   "Statement": [
     {
       "Principal": {
-        "AWS": "*"
+        "Service": [
+          "events.amazonaws.com"
+        ]
       },
       "Effect": "Allow",
       "Action": [

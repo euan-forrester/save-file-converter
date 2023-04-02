@@ -39,16 +39,10 @@ resource "aws_cloudwatch_event_target" "sqs" {
       build-id = "$.detail.build-id",
       project-name = "$.detail.project-name",
       build-status = "$.detail.build-status",
-      logs-guid = "$.detail.additional-information.logs.stream-name",
     }
     input_template = <<EOF
 {
-  "ProjectName": "<project-name>",
-  "BuildStatus": "<build-status>",
-  "BuildId": "<build-id>",
-  "LogsBucketId": "${var.build_logs_bucket_id}",
-  "LogsDirectory": "${var.build_logs_directory}", 
-  "LogsGuid": "<logs-guid>"
+  "MessageBody": "Hello"
 }
 EOF
   }
