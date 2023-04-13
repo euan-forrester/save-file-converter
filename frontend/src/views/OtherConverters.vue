@@ -47,10 +47,10 @@
     <div class="blank-line"/>
     <b-row align-h="center">
       <b-col cols=12 md=5 lg=5 xl=4>
-        <b-link href="https://github.com/bucanero/apollo-psp">Apollo Save Tool</b-link>
+        Apollo Save Tool
       </b-col>
       <b-col cols=12 md=5 lg=5 xl=4>
-        Manage PSP/PS1 saves directly on PSP. <b-link href="https://github.com/bucanero/apollo-psp/releases">Download{{'\xa0'}}here</b-link>
+        Manage saves directly on <b-link href="https://github.com/bucanero/apollo-psp/releases">PSP</b-link>, <b-link href="https://github.com/bucanero/apollo-vita/releases">PS Vita</b-link>, <b-link href="https://github.com/bucanero/apollo-ps3/releases">PS3</b-link>, or <b-link href="https://github.com/bucanero/apollo-ps4/releases">PS4</b-link>
       </b-col>
     </b-row>
     <div class="blank-line"/>
