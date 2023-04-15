@@ -46,7 +46,6 @@ Everything on this site is free and open source with no advertising. If you find
 - Convert to Wii VC
 - Convert to/from Wii U VC
 - Convert to/from 3DS VC
-- Split/recombine Sega CD save files
 - Split/recombine GBA emulator save files (Goomba/PocketNES/SmsAdvance)
 
 ## Save file formats
@@ -122,9 +121,12 @@ Everything on this site is free and open source with no advertising. If you find
     - https://meanwhileblog.wordpress.com/n64-game-code-list/
 - 3DS Virtual Console
   - SNES games: https://github.com/manuGMG/3ds-snes-sc
-  - The tool above apparently works on some WiiU VC games as well: https://gbatemp.net/threads/release-3ds-snes-save-converter.574927/
+    - This tool above apparently works on some WiiU VC games as well: https://gbatemp.net/threads/release-3ds-snes-save-converter.574927/
   - Pokemon saves: https://sav2vc.fm1337.com/
   - https://github.com/mstan/SaveAIO
+  - List of emulators on the 3DS: https://wiki.gbatemp.net/wiki/List_of_3DS_homebrew_emulators
+  - open_agb_firm: https://github.com/profi200/open_agb_firm allows usage of the build-in GBA hardware
+    - Save files from here need to be 64-bit endian-swapped to work in a regular emulator: https://github.com/exelotl/gba-eeprom-save-fix
 - Sega Saturn
   - https://github.com/hitomi2500/ss-save-parser
 - Gamecube
@@ -148,6 +150,9 @@ Everything on this site is free and open source with no advertising. If you find
   - https://segaretro.org/CD_BackUp_RAM_Cart
   - https://github.com/ekeeke/Genesis-Plus-GX/issues/449
   - savesplitter tool here: https://krikzz.com/pub/support/mega-everdrive/pro-series/
+- Analogue Pocket:
+  - List of available cores: https://openfpga-cores-inventory.github.io/analogue-pocket/
+    - Note that there are sometimes multiple cores for a particular platform (e.g. Genesis)
 
 ## Cart reader notes
  
