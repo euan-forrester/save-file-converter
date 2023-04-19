@@ -33,14 +33,14 @@ export default class PspSaveData {
     return new PspSaveData(pspArrayBuffer);
   }
 
-  static createFromSaveFiles(saveFiles) {
+  static createFromMemoryCardData(memcardArrayBuffer) {
     // The PSP image is the PSP header then the regular memcard data
 
     // First, construct the basic header from the magic and the initial salt seed
 
     const headerArrayBuffer = new ArrayBuffer(HEADER_LENGTH);
     const headerArray = new Uint8Array(headerArrayBuffer);
-    const memcardSaveData = Ps1MemcardSaveData.createFromSaveFiles(saveFiles);
+    const memcardSaveData = Ps1MemcardSaveData.createFromPs1MemcardData(memcardArrayBuffer);
 
     headerArray.set(HEADER_MAGIC, 0);
 
@@ -63,6 +63,12 @@ export default class PspSaveData {
     const finalArrayBuffer = Util.setArrayBufferPortion(combinedArrayBuffer, signatureCalculated, SIGNATURE_OFFSET, 0, SIGNATURE_LENGTH);
 
     return PspSaveData.createFromPspData(finalArrayBuffer);
+  }
+
+  static createFromSaveFiles(saveFiles) {
+    const memcardSaveData = Ps1MemcardSaveData.createFromSaveFiles(saveFiles);
+
+    return PspSaveData.createFromMemoryCardData(memcardSaveData.getArrayBuffer());
   }
 
   // This constructor creates a new object from a binary representation of a PSP PS1 save data file
