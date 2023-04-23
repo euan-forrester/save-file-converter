@@ -25,6 +25,10 @@ const RAW_EMPTY_HEADER_FILENAME = `${DIR}/digimon-world.21133-BASLUS-01032DMR0.s
 const DEXDRIVE_NO_HEADER_FILENAME = `${DIR}/tony-hawks-pro-skater-4.24197.gme`;
 const RAW_NO_HEADER_FILENAME = `${DIR}/tony-hawks-pro-skater-4.24197-BASLUS-01485PNMOG01.srm`;
 
+const RAW_MEMCARD_FILENAME = `${DIR}/Castlevania - Symphony of the Night (USA).0.mcr`;
+const RAW_MEMCARD_FILENAMES = [`${DIR}/Castlevania - Symphony of the Night (USA).0.BASLUS-00067DRAX00.srm`];
+const DEXDRIVE_MEMCARD_FILENAME = `${DIR}/Castlevania - Symphony of the Night (USA).0.gme`;
+
 const COMMENTS = [
   'I used to have a DexDrive but then I foolishly gave it away when I was purging old stuff. Now I have regret.',
   'I thought it was useless without a serial port, and that the included software was too old, but you can get a USB adaptor and memcardrex can talk to it.',
@@ -174,5 +178,23 @@ describe('PS1 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].comment).to.equal('');
     expect(dexDriveSaveData.getSaveFiles()[0].description).to.equal('THPS4 CAREERー PHELIPE E RENATO');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawArrayBuffer)).to.equal(true);
+  });
+
+  it('should correctly create a DexDrive memcard image from a raw memcard image', async () => {
+    const rawMemcardArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_MEMCARD_FILENAME);
+    const saveFilesArrayBuffers = await Promise.all(RAW_MEMCARD_FILENAMES.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
+    const dexDriveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DEXDRIVE_MEMCARD_FILENAME);
+
+    const dexDriveSaveData = Ps1DexDriveSaveData.createFromMemoryCardData(rawMemcardArrayBuffer);
+
+    expect(dexDriveSaveData.getSaveFiles().length).to.equal(RAW_MEMCARD_FILENAMES.length);
+
+    expect(dexDriveSaveData.getSaveFiles()[0].startingBlock).to.equal(0);
+    expect(dexDriveSaveData.getSaveFiles()[0].filename).to.equal('BASLUS-00067DRAX00');
+    expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('North America');
+    expect(dexDriveSaveData.getSaveFiles()[0].description).to.equal('CASTLEVANIA-1 EUAN 2%');
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, saveFilesArrayBuffers[0])).to.equal(true);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getArrayBuffer(), dexDriveArrayBuffer)).to.equal(true);
   });
 });

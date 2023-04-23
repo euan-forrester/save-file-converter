@@ -23,6 +23,10 @@ const RAW_SEVEN_FILES_FILENAMES = [
 const RAW_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME = [`${DIR}/gran-turismo.26537-BASCUS-94194GT.srm`, `${DIR}/gran-turismo.26537-BASCUS-94194RT.srm`];
 const OUTPUT_PSP_FIVE_BLOCK_PLUS_OTHER_STUFF_FILENAME = `${DIR}/gran-turismo.26537-output.vmp`;
 
+const RAW_MEMCARD_FILENAME = `${DIR}/Castlevania - Symphony of the Night (USA).0.mcr`;
+const RAW_MEMCARD_FILENAMES = [`${DIR}/Castlevania - Symphony of the Night (USA).0.BASLUS-00067DRAX00.srm`];
+const PSP_MEMCARD_FILENAME = `${DIR}/Castlevania - Symphony of the Night (USA).0.VMP`;
+
 describe('PS1 - PSP save format', () => {
   it('should correctly verify the signature of a file written by a PSP', async () => {
     const pspArrayBuffer = await ArrayBufferUtil.readArrayBuffer(PSP_SIGNATURE_FILENAME);
@@ -124,6 +128,24 @@ describe('PS1 - PSP save format', () => {
     expect(pspSaveData.getSaveFiles()[1].regionName).to.equal('North America');
     expect(pspSaveData.getSaveFiles()[1].description).to.equal('GT replay data');
     expect(ArrayBufferUtil.arrayBuffersEqual(pspSaveData.getSaveFiles()[1].rawData, saveFilesArrayBuffers[1])).to.equal(true);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(pspSaveData.getArrayBuffer(), pspArrayBuffer)).to.equal(true);
+  });
+
+  it('should correctly create a PSP memcard image from a raw memcard image', async () => {
+    const rawMemcardArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_MEMCARD_FILENAME);
+    const saveFilesArrayBuffers = await Promise.all(RAW_MEMCARD_FILENAMES.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
+    const pspArrayBuffer = await ArrayBufferUtil.readArrayBuffer(PSP_MEMCARD_FILENAME);
+
+    const pspSaveData = PspSaveData.createFromMemoryCardData(rawMemcardArrayBuffer);
+
+    expect(pspSaveData.getSaveFiles().length).to.equal(RAW_MEMCARD_FILENAMES.length);
+
+    expect(pspSaveData.getSaveFiles()[0].startingBlock).to.equal(0);
+    expect(pspSaveData.getSaveFiles()[0].filename).to.equal('BASLUS-00067DRAX00');
+    expect(pspSaveData.getSaveFiles()[0].regionName).to.equal('North America');
+    expect(pspSaveData.getSaveFiles()[0].description).to.equal('CASTLEVANIA-1 EUAN 2%');
+    expect(ArrayBufferUtil.arrayBuffersEqual(pspSaveData.getSaveFiles()[0].rawData, saveFilesArrayBuffers[0])).to.equal(true);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(pspSaveData.getArrayBuffer(), pspArrayBuffer)).to.equal(true);
   });

@@ -54,6 +54,14 @@ export default class Ps1DexDriveSaveData {
     return new Ps1DexDriveSaveData(dexDriveArrayBuffer);
   }
 
+  static createFromMemoryCardData(memcardArrayBuffer, comment) {
+    const memcardSaveData = Ps1MemcardSaveData.createFromPs1MemcardData(memcardArrayBuffer);
+
+    const memcardSaveDataFilesWithComments = memcardSaveData.getSaveFiles().map((file) => ({ ...file, comment }));
+
+    return Ps1DexDriveSaveData.createFromSaveFiles(memcardSaveDataFilesWithComments);
+  }
+
   static createFromSaveFiles(saveFiles) {
     // The DexDrive image is the DexDrive header then the regular memcard data
 

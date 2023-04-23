@@ -1,9 +1,9 @@
 <template>
   <b-collapse appear :visible="display">
-    <b-alert variant="info" :show="this.files.length === 0">
+    <b-alert variant="info" :show="(this.files !== null) && (this.files.length === 0)">
       No saves found in file
     </b-alert>
-    <div v-show="this.files.length > 0">
+    <div v-show="(this.files !== null) && (this.files.length > 0)">
       <b-form-group v-slot="{ ariaDescribedby }">
         <b-form-radio-group
           v-model="valueLocal"
@@ -35,7 +35,7 @@ export default {
     files: {
       type: Array,
       default() {
-        return [];
+        return null;
       },
     },
     display: {
@@ -57,6 +57,10 @@ export default {
   },
   computed: {
     options() {
+      if (this.files === null) {
+        return null;
+      }
+
       const optionsEnabled = this.enabled;
       return this.files.map((f, i) => ({ value: i, text: f.displayText, disabled: !optionsEnabled }));
     },
