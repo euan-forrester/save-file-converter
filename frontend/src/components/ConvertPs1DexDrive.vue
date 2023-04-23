@@ -69,12 +69,31 @@
             />
           </div>
           <div v-else>
-            <input-file
-              @load="readEmulatorSaveData($event)"
-              :errorMessage="this.errorMessage"
-              placeholderText="Choose files to add"
-              :leaveRoomForHelpIcon="false"
-              :allowMultipleFiles="true"
+            <div v-if="this.individualSavesOrMemoryCard === 'individual-saves'">
+              <input-file
+                @load="readEmulatorSaveData($event)"
+                :errorMessage="this.errorMessage"
+                placeholderText="Choose files to add"
+                :leaveRoomForHelpIcon="false"
+                :allowMultipleFiles="true"
+                ref="inputFileEmulator"
+              />
+            </div>
+            <div v-else>
+              <input-file
+                @load="readEmulatorMemcardSaveData($event)"
+                :errorMessage="this.errorMessage"
+                placeholderText="Choose a file to convert (*.mcr)"
+                acceptExtension=".mcr"
+                :leaveRoomForHelpIcon="false"
+                ref="inputFileEmulatorMemcard"
+              />
+            </div>
+            <individual-saves-or-memory-card-selector
+              :value="this.individualSavesOrMemoryCard"
+              @change="changeIndividualSavesOrMemoryCard($event)"
+              :individualSavesText="this.individualSavesText"
+              :memoryCardText="this.memoryCardText"
             />
             <file-list
               :display="this.dexDriveSaveData !== null"
@@ -179,7 +198,18 @@ export default {
       if (this.individualSavesOrMemoryCard !== newValue) {
         this.individualSavesOrMemoryCard = newValue;
 
-        if (newValue === 'individual-saves') {
+        if (this.conversionDirection === 'convertToFormat') {
+          this.selectedSaveData = null;
+          this.dexDriveSaveData = null;
+          this.outputFilename = null;
+          // The refs become undefined when the components are removed using a v-if
+          if (this.$refs.inputFileEmulator) {
+            this.$refs.inputFileEmulator.reset();
+          }
+          if (this.$refs.inputFileEmulatorMemcard) {
+            this.$refs.inputFileEmulatorMemcard.reset();
+          }
+        } else if (newValue === 'individual-saves') {
           if (this.selectedSaveData === null) {
             this.changeSelectedSaveData(0);
           }
@@ -187,6 +217,7 @@ export default {
           if (this.inputFilename !== null) {
             this.outputFilename = Util.changeFilenameExtension(this.inputFilename, 'mcr');
           }
+
           this.selectedSaveData = null;
         }
       }
@@ -196,7 +227,7 @@ export default {
         return this.dexDriveSaveData.getSaveFiles().map((x) => ({ displayText: `${x.description} (${x.regionName})` }));
       }
 
-      return [];
+      return null;
     },
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
@@ -206,10 +237,6 @@ export default {
       this.outputFilename = null;
       this.selectedSaveData = null;
       this.individualSavesOrMemoryCard = 'memory-card';
-
-      if (newDirection === 'convertToFormat') {
-        this.individualSavesOrMemoryCard = 'individual-saves';
-      }
     },
     changeSelectedSaveData(newSaveData) {
       if (newSaveData !== null) {
@@ -255,6 +282,20 @@ export default {
         }
       } catch (e) {
         this.errorMessage = e.message;
+        this.dexDriveSaveData = null;
+        this.selectedSaveData = null;
+      }
+    },
+    readEmulatorMemcardSaveData(event) {
+      this.errorMessage = null;
+      this.selectedSaveData = null;
+      this.inputFilename = event.filename;
+      this.outputFilename = Util.changeFilenameExtension(event.filename, 'gme');
+      try {
+        this.dexDriveSaveData = PS1DexDriveSaveData.createFromMemoryCardData(event.arrayBuffer, 'Created with savefileconverter.com');
+        this.changeIndividualSavesOrMemoryCard('memory-card');
+      } catch (e) {
+        this.errorMessage = 'File appears to not be in the correct format';
         this.dexDriveSaveData = null;
         this.selectedSaveData = null;
       }
