@@ -51,7 +51,7 @@ export default class GameSharkSpSaveData {
     const startMarker = getText(arrayBuffer, HEADER_START_MARKER_POS, HEADER_START_MARKER.length, textDecoder);
 
     if (startMarker !== HEADER_START_MARKER) {
-      throw new Error(`This does not appear to be a GameShark SP file: found ${startMarker} instead of ${HEADER_START_MARKER} at start of header`);
+      throw new Error('This does not appear to be a GameShark SP file');
     }
 
     // Read the header end marker
@@ -59,7 +59,7 @@ export default class GameSharkSpSaveData {
     const endMarker = dataView.getUint32(HEADER_END_MARKER_POS, LITTLE_ENDIAN);
 
     if (endMarker !== HEADER_END_MARKER) {
-      throw new Error(`This does not appear to be a GameShark SP file: found 0x${endMarker.toString(16)} instead of 0x${HEADER_END_MARKER.toString(16)} at end of header`);
+      throw new Error('This does not appear to be a GameShark SP file');
     }
 
     // Read the game title and notes

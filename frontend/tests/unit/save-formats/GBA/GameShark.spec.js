@@ -18,6 +18,8 @@ const RAW_SIZE = 8192; // Bytes
 
 const IGNORE_CHECKSUM_SIZE = 4; // Bytes - size of the checksum at the end of the GameShark file. Various sources of these files use various algorithms for this checksum, and it's not checked by various emulators. So ours won't match (it was copied from a particular emulator) and we can safely ignore it
 
+const CORRUPTED_GAMESHARK_FILENAME = `${DIR}/mario-and-luigi-superstar-saga.25949.sps`;
+
 describe('GameShark save format', () => {
   it('should convert a GameShark file to a raw file', async () => {
     const gameSharkArrayBuffer = await ArrayBufferUtil.readArrayBuffer(GAMESHARK_FILENAME);
@@ -40,5 +42,15 @@ describe('GameShark save format', () => {
     const resizedGameSharkSaveData = GameSharkSaveData.createWithNewSize(gameSharkSaveData, GAMESHARK_SIZE);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(resizedGameSharkSaveData.getArrayBuffer(), gameSharkArrayBuffer, IGNORE_CHECKSUM_SIZE)).to.equal(true);
+  });
+
+  it('should recognize a corrupted save file', async () => {
+    const gameSharkArrayBuffer = await ArrayBufferUtil.readArrayBuffer(CORRUPTED_GAMESHARK_FILENAME);
+
+    expect(() => GameSharkSaveData.createFromGameSharkData(gameSharkArrayBuffer)).to.throw(
+      // Passing in a specific instance of an Error triggers a comparison of the references: https://github.com/chaijs/chai/issues/430
+      Error,
+      'This file appears to be corrupted',
+    );
   });
 });

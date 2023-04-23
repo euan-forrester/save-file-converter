@@ -268,60 +268,66 @@ export default class GameSharkSaveData {
     currentByte += 4;
 
     if (platformCode !== CODE_GBA) {
-      throw new Error(`This does not appear to be a GBA GameShark file: found '${platformCode}' instead of '${CODE_GBA}'`);
+      throw new Error('This does not appear to be a GBA GameShark file');
     }
 
-    // Read the title
+    try {
+      // Read the title
 
-    const titleInfo = getText(arrayBuffer, dataView, textDecoder, currentByte);
+      const titleInfo = getText(arrayBuffer, dataView, textDecoder, currentByte);
 
-    this.title = titleInfo.text;
-    currentByte = titleInfo.nextByte;
+      this.title = titleInfo.text;
+      currentByte = titleInfo.nextByte;
 
-    // Read the date
+      // Read the date
 
-    const dateInfo = getText(arrayBuffer, dataView, textDecoder, currentByte);
+      const dateInfo = getText(arrayBuffer, dataView, textDecoder, currentByte);
 
-    this.date = dateInfo.text;
-    currentByte = dateInfo.nextByte;
+      this.date = dateInfo.text;
+      currentByte = dateInfo.nextByte;
 
-    // Read the notes
+      // Read the notes
 
-    const notesInfo = getText(arrayBuffer, dataView, textDecoder, currentByte);
+      const notesInfo = getText(arrayBuffer, dataView, textDecoder, currentByte);
 
-    this.notes = notesInfo.text;
-    currentByte = notesInfo.nextByte;
+      this.notes = notesInfo.text;
+      currentByte = notesInfo.nextByte;
 
-    // Next grab the second header and raw save
+      // Next grab the second header and raw save
 
-    const secondHeaderAndRawSaveLength = dataView.getUint32(currentByte, LITTLE_ENDIAN);
-    currentByte += 4;
+      const secondHeaderAndRawSaveLength = dataView.getUint32(currentByte, LITTLE_ENDIAN);
+      currentByte += 4;
 
-    const secondHeaderAndRawSave = arrayBuffer.slice(currentByte, currentByte + secondHeaderAndRawSaveLength);
+      const secondHeaderAndRawSave = arrayBuffer.slice(currentByte, currentByte + secondHeaderAndRawSaveLength);
 
-    const rawSaveLength = secondHeaderAndRawSaveLength - SECOND_HEADER_LENGTH;
+      const rawSaveLength = secondHeaderAndRawSaveLength - SECOND_HEADER_LENGTH;
 
-    const secondHeaderData = arrayBuffer.slice(currentByte, currentByte + SECOND_HEADER_LENGTH);
-    currentByte += SECOND_HEADER_LENGTH;
+      const secondHeaderData = arrayBuffer.slice(currentByte, currentByte + SECOND_HEADER_LENGTH);
+      currentByte += SECOND_HEADER_LENGTH;
 
-    this.secondHeader = parseSecondHeader(secondHeaderData, textDecoder);
+      this.secondHeader = parseSecondHeader(secondHeaderData, textDecoder);
 
-    const rawSaveData = arrayBuffer.slice(currentByte, currentByte + rawSaveLength);
-    currentByte += 4;
+      const rawSaveData = arrayBuffer.slice(currentByte, currentByte + rawSaveLength);
+      currentByte += 4;
 
-    // And lastly the CRC
+      // And lastly the CRC
 
-    this.crcFromFile = dataView.getUint32(currentByte, LITTLE_ENDIAN);
-    currentByte += 4;
+      this.crcFromFile = dataView.getUint32(currentByte, LITTLE_ENDIAN);
+      currentByte += 4;
 
-    this.calculatedCrc = calculateCrc(secondHeaderAndRawSave);
+      this.calculatedCrc = calculateCrc(secondHeaderAndRawSave);
 
-    // Some files found on the Internet do not set the CRC (e.g. its 0x00000000 or oxFFFFFFFF) so there's
-    // no point in rejecting a file if the CRC doesn't match.
+      // Some files found on the Internet do not set the CRC (e.g. its 0x00000000 or oxFFFFFFFF) so there's
+      // no point in rejecting a file if the CRC doesn't match.
 
-    // Everything looks good
+      // Everything looks good
 
-    this.rawSaveData = rawSaveData;
+      this.rawSaveData = rawSaveData;
+    } catch (e) {
+      // The header length is variable, so having bad values for the length of the various strings
+      // results in a file that isn't readable
+      throw new Error('This file appears to be corrupted');
+    }
   }
 
   getTitle() {
