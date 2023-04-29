@@ -155,7 +155,9 @@ Everything on this site is free and open source with no advertising. If you find
     - Note that there are sometimes multiple cores for a particular platform (e.g. Genesis)
 - Visual Boy Advance emulator
   - Explanation of its format: https://emulation.gametechwiki.com/index.php/Game_Boy_Advance_emulators#Save_formats
-  - Code that does the conversion: https://github.com/libretro/vbam-libretro/blob/25fefc1b3dcdc6362c44845687bea70dd350c33a/src/libretro/gbaconv/gbaconv.c
+  - Code that does the conversion: 
+    - https://github.com/Thysbelon/gbaconv-web
+    - https://github.com/libretro/vbam-libretro/blob/25fefc1b3dcdc6362c44845687bea70dd350c33a/src/libretro/gbaconv/gbaconv.c
   - Online converter: https://thysbelon.github.io/gbaconv-web/
   - Info on some ports of this emulator: https://thysbelon.github.io/2023/03/07/How-to-Convert-4GS-and-DSZ-save-files-to-SAV
 
