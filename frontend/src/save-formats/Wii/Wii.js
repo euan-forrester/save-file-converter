@@ -81,6 +81,11 @@ function parseFile(arrayBuffer, currentByte, asciiDecoder) {
     size,
     name,
     data: decryptedData,
+    containsSaveData: (
+      (name === 'savedata.bin') // Most games have this filename
+      || (name === 'pcengine.bup') // TG-16/PCE games have this filename
+      || name.startsWith('RAM_') // SRAM games on the N64 (Mario Golf, F-Zero) start with 'RAM_' then the game ID
+      || name.startsWith('EEP_')), // All non-SRAM N64 games (EEPROM, Flash RAM) start with 'EEP_' then the game ID
   };
 }
 
@@ -130,7 +135,7 @@ export default class WiiSaveData {
 
     const gameTitleDecoder = new TextDecoder(GAME_TITLE_ENCODING);
     this.gameTitle = getString(banner, 0x20, 64, gameTitleDecoder);
-    this.gameSubtitle = getString(banner, 0x40, 64, gameTitleDecoder);
+    this.gameSubtitle = getString(banner, 0x60, 64, gameTitleDecoder);
 
     // Parse the backup header
 

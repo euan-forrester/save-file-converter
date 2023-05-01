@@ -58,8 +58,13 @@ function convertEeprom(arrayBuffer) {
 export default (arrayBuffer, fileName) => {
   let truncatedArrayBuffer = arrayBuffer;
 
-  // Some N64 saves have this strange internal filename. We need to truncate the file to
-  // the nearest legit size:
+  // All N64 games are prefixed either 'EEP_' or 'RAM_' with the game ID afterward
+  //
+  // RAM_ is for SRAM games
+  // EEP_ is for everything else (2 sizes of EEPROM, and also FLashRAM)
+  //
+  // For Mario Golf specifically, we need to truncate the file size. Other SRAM games like F-Zero X are fine.
+  //
   // https://forums.dolphin-emu.org/archive/index.php?thread-35067-95.html
   //
   // NMFE is the game ID for Mario Golf 64 in North America. This game was released on Wii VC
