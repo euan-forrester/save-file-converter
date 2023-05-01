@@ -87,10 +87,12 @@ const REGION_CODE_TO_NAME = {
   D: 'Germany',
   E: 'North America',
   F: 'France',
+  G: 'Gateway 64 (NTSC)',
   H: 'Netherlands', // Unused. GC/Wii only.
   I: 'Italy',
   J: 'Japan',
   K: 'South Korea', // Unused. GC/Wii only.
+  L: 'Gateway 64 (PAL)',
   P: 'Europe',
   R: 'Russia', // Unused. Wii only.
   S: 'Spain',
