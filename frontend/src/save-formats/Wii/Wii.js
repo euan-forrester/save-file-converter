@@ -81,6 +81,7 @@ function parseFile(arrayBuffer, currentByte, asciiDecoder) {
     size,
     name,
     data: decryptedData,
+    containsSaveData: ((name === 'savedata.bin') || name.startsWith('RAM_')), // Mario Golf on N64 has the filename 'RAM_NMFE' -- not sure if there are others
   };
 }
 

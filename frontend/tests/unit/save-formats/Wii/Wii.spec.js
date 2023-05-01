@@ -41,6 +41,7 @@ describe('Wii save format', () => {
     expect(file.size).to.equal(8256);
     expect(file.name).to.equal('savedata.bin');
     expect(file.data.byteLength).to.equal(file.size);
+    expect(file.containsSaveData).to.equal(true);
 
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_FILENAME);
 
@@ -68,14 +69,17 @@ describe('Wii save format', () => {
     expect(fileList[0].size).to.equal(0);
     expect(fileList[0].name).to.equal('nocopy');
     expect(fileList[0].data.byteLength).to.equal(fileList[0].size);
+    expect(fileList[0].containsSaveData).to.equal(false);
 
     expect(fileList[1].size).to.equal(23616); // Whatever this file is for, it's just all zeros
     expect(fileList[1].name).to.equal('nocopy/savework.bin');
     expect(fileList[1].data.byteLength).to.equal(fileList[1].size);
+    expect(fileList[1].containsSaveData).to.equal(false);
 
     expect(fileList[2].size).to.equal(8256);
     expect(fileList[2].name).to.equal('savedata.bin');
     expect(fileList[2].data.byteLength).to.equal(fileList[2].size);
+    expect(fileList[2].containsSaveData).to.equal(true);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(fileList[1].data, rawArrayBuffer1)).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(fileList[2].data, rawArrayBuffer2)).to.equal(true);
@@ -101,6 +105,7 @@ describe('Wii save format', () => {
     expect(file.size).to.equal(49152);
     expect(file.name).to.equal('savedata.bin');
     expect(file.data.byteLength).to.equal(file.size);
+    expect(file.containsSaveData).to.equal(true);
 
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GENESIS_EEPROM_FILENAME);
 
@@ -127,6 +132,7 @@ describe('Wii save format', () => {
     expect(file.size).to.equal(49152);
     expect(file.name).to.equal('savedata.bin');
     expect(file.data.byteLength).to.equal(file.size);
+    expect(file.containsSaveData).to.equal(true);
 
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GENESIS_FRAM_FILENAME);
 
@@ -151,6 +157,7 @@ describe('Wii save format', () => {
     expect(file.size).to.equal(49152);
     expect(file.name).to.equal('RAM_NMFE');
     expect(file.data.byteLength).to.equal(file.size);
+    expect(file.containsSaveData).to.equal(true);
 
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_MARIO_GOLF_FILENAME);
 
