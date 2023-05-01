@@ -130,7 +130,7 @@ export default class WiiSaveData {
 
     const gameTitleDecoder = new TextDecoder(GAME_TITLE_ENCODING);
     this.gameTitle = getString(banner, 0x20, 64, gameTitleDecoder);
-    this.gameSubtitle = getString(banner, 0x40, 64, gameTitleDecoder);
+    this.gameSubtitle = getString(banner, 0x60, 64, gameTitleDecoder);
 
     // Parse the backup header
 

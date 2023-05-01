@@ -55,7 +55,7 @@ describe('Wii save format', () => {
     const wiiSaveData = new WiiSaveData(wiiArrayBuffer);
 
     expect(wiiSaveData.getGameTitle()).to.equal('The Legend of Zelda');
-    expect(wiiSaveData.getGameSubtitle()).to.equal('lda ');
+    expect(wiiSaveData.getGameSubtitle()).to.equal(' ');
     expect(wiiSaveData.getGameId()).to.equal('FAKE'); // Surprisingly this is the correct game ID for Zelda
     expect(wiiSaveData.getNumberOfFiles()).to.equal(3);
     expect(wiiSaveData.getSizeOfFiles()).to.equal(32256);
@@ -112,7 +112,7 @@ describe('Wii save format', () => {
     const wiiSaveData = new WiiSaveData(wiiArrayBuffer);
 
     expect(wiiSaveData.getGameTitle()).to.equal('Sonic the Hedgehog 3');
-    expect(wiiSaveData.getGameSubtitle()).to.equal('og 3GENESIS');
+    expect(wiiSaveData.getGameSubtitle()).to.equal('GENESIS');
     expect(wiiSaveData.getGameId()).to.equal('MBME');
     expect(wiiSaveData.getNumberOfFiles()).to.equal(1);
     expect(wiiSaveData.getSizeOfFiles()).to.equal(49280);
