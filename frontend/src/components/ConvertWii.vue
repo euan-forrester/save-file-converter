@@ -217,8 +217,19 @@ export default {
     outputPlatformChanged() {
       this.platformErrorMessage = null;
       if ((this.wiiSaveData !== null) && (this.outputPlatform !== null)) {
+        const potentialSaveFiles = this.wiiSaveData.getFiles().filter((f) => f.containsSaveData);
+
+        if (potentialSaveFiles.length === 0) {
+          this.platformErrorMessage = 'This file does not appear to contain any save data';
+          this.outputSaveData = null;
+          this.outputFilename = null;
+          return;
+        }
+
+        // I've never seen a Wii VC file that contains more than 1 file that has save data in it, so just return the first one
+
         try {
-          const convertedSaveData = ConvertFromPlatform(this.wiiSaveData.getFiles()[0].data, this.wiiSaveData.getFiles()[0].name, this.outputPlatform, this.wiiSaveData.getGameId()); // Potentially there are more files within the file the user gave us. But, what do we name them if we're going to upload them? Maybe just punt on this and only upload the first one and see if there's ever an example where this is a problem
+          const convertedSaveData = ConvertFromPlatform(potentialSaveFiles[0].data, potentialSaveFiles[0].name, this.outputPlatform, this.wiiSaveData.getGameId()); // Potentially there are more files within the file the user gave us. But, what do we name them if we're going to upload them? Maybe just punt on this and only upload the first one and see if there's ever an example where this is a problem
 
           this.outputSaveData = convertedSaveData.saveData;
           this.outputFilename = Util.changeFilenameExtension(this.inputFilename, convertedSaveData.fileExtension);
