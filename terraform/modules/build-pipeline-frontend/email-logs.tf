@@ -3,40 +3,6 @@ variable "lambda_function_name" {
   default = "email_build_logs"
 }
 
-# Infra to invoke our lamdba function:
-# CodeBuild an event and we use eventbridge to put it on a queue, which then is mapped as input to the lambda function
-
-resource "aws_sqs_queue" "build_complete_queue" {
-  name = "build_complete_queue"
-  max_message_size = 65536 # 64kB -- probably still much more than we need
-  message_retention_seconds = 1209600 # 14 days
-  receive_wait_time_seconds = 1 # Enable long polling
-  visibility_timeout_seconds = 30 # Wait 30s after a consumer takes a message off the queue until another consumer can see it
-}
-
-resource "aws_sqs_queue_policy" "build-complete-queue-policy" {
-  queue_url = aws_sqs_queue.build_complete_queue.url
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Principal": {
-        "Service": [
-          "events.amazonaws.com"
-        ]
-      },
-      "Effect": "Allow",
-      "Action": [
-        "SQS:SendMessage"
-      ],
-      "Resource": "${aws_cloudwatch_event_rule.build_complete.arn}"
-    }
-  ]
-}
-EOF
-}
-
 # Infra to support our lambda function:
 # Policies for it to assume a role and to be able to trigger events based on success/failure,
 # and also the source file and the lambda function itself
@@ -65,18 +31,6 @@ resource "aws_iam_role" "iam_for_lambda" {
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "SQSBuildCompleteAccessPolicy",
-      "Effect": "Allow",
-      "Action": [
-        "sqs:ReceiveMessage",
-        "sqs:DeleteMessage",
-        "sqs:GetQueueAttributes"
-      ],
-      "Resource": [
-        "${aws_sqs_queue.build_complete_queue.arn}"
-      ]
-    },
-    {
       "Sid": "SQSDeadLetterAccessPolicy",
       "Effect": "Allow",
       "Action": [
@@ -102,6 +56,14 @@ POLICY
   }
 }
 
+resource "aws_lambda_permission" "allow_cloudwatch_events" {
+  statement_id  = "AllowExecutionFromCloudWatchEvents"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.email_build_logs.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.build_complete.arn
+}
+
 data "archive_file" "email_logs_lambda_function" {
   type        = "zip"
   source_file = "${path.module}/python/email-logs.py"
@@ -123,12 +85,6 @@ resource "aws_lambda_function" "email_build_logs" {
     aws_iam_role_policy_attachment.lambda_logs,
     aws_cloudwatch_log_group.build_logs,
   ]
-}
-
-resource "aws_lambda_event_source_mapping" "email_logs" {
-  batch_size = 1
-  event_source_arn = aws_sqs_queue.build_complete_queue.arn
-  function_name = aws_lambda_function.email_build_logs.arn
 }
 
 # Infra to respond to our lamdba function:

@@ -29,10 +29,13 @@ EOF
 # Here is an example output object from CodeBuild, to see the structure:
 # https://github.com/awsdocs/aws-codebuild-user-guide/blob/main/doc_source/sample-build-notifications.md#sample-build-notifications-ref
 
-resource "aws_cloudwatch_event_target" "sqs" {
+# Supposedly we can grab the guid for the logs from $.detail.additional-information.logs.stream-name, but it doesn't seem to be populated.
+# We'll just have to parse it out of the build-id instead
+
+resource "aws_cloudwatch_event_target" "lambda" {
   rule      = aws_cloudwatch_event_rule.build_complete.name
-  target_id = "SendToSQS"
-  arn       = aws_sqs_queue.build_complete_queue.arn
+  target_id = "SendToLambda"
+  arn       = aws_lambda_function.email_build_logs.arn
 
   input_transformer {
     input_paths = {
@@ -42,7 +45,11 @@ resource "aws_cloudwatch_event_target" "sqs" {
     }
     input_template = <<EOF
 {
-  "MessageBody": "Hello"
+  "ProjectName": "<project-name>",
+  "BuildStatus": "<build-status>",
+  "BuildId": "<build-id>",
+  "LogsBucketId": "${var.build_logs_bucket_id}",
+  "LogsDirectory": "${var.build_logs_directory}"
 }
 EOF
   }
