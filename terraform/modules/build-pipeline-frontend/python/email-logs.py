@@ -1,6 +1,7 @@
 import boto3
 import urllib.parse
 import logging
+import sys
 from botocore.exceptions import ClientError
 
 if logging.getLogger().hasHandlers():
@@ -78,7 +79,9 @@ def send_email(build_logs):
         
     # Log success
     logger.info(f'Successfully sent email: {response["MessageId"]}')
-        
+    sys.exit(0)    
+
   except ClientError as e:
     # Log any errors
     logger.error(f'Error sending email: {e.response["Error"]["Message"]}')
+    sys.exit(1)

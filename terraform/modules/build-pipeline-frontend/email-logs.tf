@@ -122,13 +122,17 @@ resource "aws_cloudwatch_metric_alarm" "build_dead_letter_queue_items" {
   metric_name               = "ApproximateNumberOfMessagesVisible"
   namespace                 = "AWS/SQS"
   period                    = "300"
-  statistic                 = "Sum"
+  statistic                 = "Maximum"
   threshold                 = "1"
   treat_missing_data        = "ignore" # Maintain alarm state on missing data - sometimes data will just be missing for queues for some reason
   alarm_description         = "Alerts if the build dead-letter queue has items in it"
   alarm_actions             = [var.alarms_sns_topic_arn]
   insufficient_data_actions = [var.alarms_sns_topic_arn]
   ok_actions                = [var.alarms_sns_topic_arn]
+
+  dimensions = {
+    QueueName = aws_sqs_queue.build_dead_letter_queue.name
+  }
 }
 
 # Lambda function automatically write to cloudwatch logs if we give them permission
