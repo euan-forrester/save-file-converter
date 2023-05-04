@@ -27,6 +27,7 @@ module "frontend" {
   build_service_role_arn  = module.build-common-infrastructure.build_service_role_arn
   build_sns_topic_arn     = module.build-common-infrastructure.sns_topic_arn
   alarms_sns_topic_arn    = module.alarms.sns_topic_arn
+  notifications_email     = var.notifications_email
 }
 
 module "build-common-infrastructure" {

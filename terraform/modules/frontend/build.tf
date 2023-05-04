@@ -15,4 +15,5 @@ module "build" {
   build_service_role_arn   = var.build_service_role_arn
   build_sns_topic_arn      = var.build_sns_topic_arn
   alarms_sns_topic_arn     = var.alarms_sns_topic_arn
+  notifications_email      = var.notifications_email
 }

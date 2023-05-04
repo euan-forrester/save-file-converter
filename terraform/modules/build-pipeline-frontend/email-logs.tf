@@ -49,6 +49,16 @@ resource "aws_iam_role" "iam_for_lambda" {
       "Resource": [
         "${var.build_sns_topic_arn}"
       ]
+    },
+    {
+      "Sid": "S3AccessPolicy",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::${var.build_logs_bucket_id}${var.build_logs_directory}/*"
+      ]
     }
   ]
 }
@@ -80,6 +90,12 @@ resource "aws_lambda_function" "email_build_logs" {
   source_code_hash = data.archive_file.email_logs_lambda_function.output_base64sha256
 
   runtime = "python3.9"
+
+  environment {
+    variables = {
+      EMAIL_ADDRESS = var.notifications_email
+    }
+  }
 
   depends_on = [
     aws_iam_role_policy_attachment.lambda_logs,
