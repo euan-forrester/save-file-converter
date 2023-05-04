@@ -136,6 +136,8 @@ Everything on this site is free and open source with no advertising. If you find
     - https://github.com/libertyernie/goombasav (save converter)
     - https://github.com/masterhou/goombacolor/blob/master/src/sram.c
     - https://www.reddit.com/r/everdrive/comments/qcgus7/using_a_gba_x5_goomba_sram_save_file_on_a_gbc_x7/****
+    - It seems that uncompressed save data may be available at `0x6000` rather than `0xe000`? Was there a bug in Goomba Save Converter?
+      - https://www.reddit.com/r/everdrive/comments/1368o8d/converting_goomba_gbc_saves_for_use_on_other/
   - N64 Everdrive
     - https://github.com/ssokolow/saveswap
     - GB/C emulator: https://github.com/lambertjamesd/gb64/blob/master/src/save.c
