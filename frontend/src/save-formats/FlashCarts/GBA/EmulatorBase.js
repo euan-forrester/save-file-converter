@@ -45,7 +45,17 @@ const STATE_HEADER_LENGTH = GAME_TITLE_OFFSET + GAME_TITLE_LENGTH;
 
 const LARGEST_GBC_SAVE_SIZE = 0x10000; // This is just used as a hint to the decompression algorithm so it can allocate memory. Value copied from https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L349
 
-const GOOMBA_COLOR_AVAILABLE_SIZE = 0xE000; // Not sure why this is named this, but when a file is "unclean" then there's uncompressed data here: Value copied from https://github.com/libertyernie/goombasav/blob/master/goombasav.h#L29
+// Not sure why this is named this, but when a file is "unclean" then there's uncompressed data here:
+// Value copied from https://github.com/libertyernie/goombasav/blob/master/goombasav.h#L29
+//
+// Note that different builds of Goomba use different offsets here:
+// https://github.com/masterhou/goombacolor/blob/master/src/sram.c#L22
+// The default is 0xE000: https://github.com/masterhou/goombacolor/blob/82505813da728bfe88902e48096246a61fbccf79/src/config.h#L6
+// This may be related to difficulties re save sizes on an Everdrive? https://www.dwedit.org/dwedit_board/viewtopic.php?pid=3736#p3736
+// I have no idea how you would tell which build of Goomba was used for a particular save file, and thus which offset you should be
+// looking at for uncompresses sram data
+const GOOMBA_COLOR_AVAILABLE_SIZE = 0xE000;
+
 const GOOMBA_COLOR_SRAM_SIZE = 0x10000; // Value copied from https://github.com/libertyernie/goombasav/blob/master/goombasav.h#L28
 
 function lzoDecompress(arrayBuffer, uncompressedSize) {
