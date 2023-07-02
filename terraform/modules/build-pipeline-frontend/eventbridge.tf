@@ -65,7 +65,7 @@ resource "aws_cloudwatch_metric_alarm" "codebuild_eventbridge_failedinvocations"
   statistic                 = "Sum"
   threshold                 = "1"
   treat_missing_data        = "notBreaching"
-  alarm_description         = "Alerts if there is a failure to publish a codebuild event to SQS"
+  alarm_description         = "Alerts if EventBridge fails to publish a codebuild event to lambda"
   alarm_actions             = [var.alarms_sns_topic_arn]
   insufficient_data_actions = [var.alarms_sns_topic_arn]
   ok_actions                = [var.alarms_sns_topic_arn]

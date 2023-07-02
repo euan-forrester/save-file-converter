@@ -21,7 +21,7 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 resource "aws_iam_role" "iam_for_lambda" {
-  name               = "iam_for_lambda"
+  name               = "${var.application_name}-${var.environment}-iam_for_lambda"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 
   inline_policy {
@@ -57,6 +57,7 @@ resource "aws_iam_role" "iam_for_lambda" {
         "s3:GetObject"
       ],
       "Resource": [
+        "arn:aws:s3:::${var.build_logs_bucket_id}${var.build_logs_directory}"
         "arn:aws:s3:::${var.build_logs_bucket_id}${var.build_logs_directory}/*"
       ]
     }
@@ -174,7 +175,7 @@ data "aws_iam_policy_document" "lambda_logging" {
 }
 
 resource "aws_iam_policy" "lambda_logging" {
-  name        = "lambda_logging"
+  name        = "${var.application_name}-${var.environment}-lambda_logging"
   path        = "/"
   description = "IAM policy for logging from a lambda"
   policy      = data.aws_iam_policy_document.lambda_logging.json
