@@ -42,7 +42,7 @@
       </b-col>
       <b-col cols=12 md=5 lg=5 xl=4>
         Has saves for some specific systems:
-        <b-link href="https://www.cheatcc.com/n64/sgf/index.html">N64</b-link>,{{'\xa0'}}<b-link href="https://cheatcc.com/pc/sgf/">PC</b-link>,{{'\xa0'}}<b-link href="https://www.cheatcc.com/psx/sgf/index.html">PS1</b-link>
+        <b-link href="http://news1.cheatcc.com/n64/sgf/index.html">N64</b-link>,{{'\xa0'}}<b-link href="http://news1.cheatcc.com/pc/sgf/index.html">PC</b-link>,{{'\xa0'}}<b-link href="http://news1.cheatcc.com/psx/sgf/index.html">PS1</b-link>
       </b-col>
     </b-row>
     <div class="blank-line"/>
