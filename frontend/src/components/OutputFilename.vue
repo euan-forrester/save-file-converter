@@ -2,12 +2,31 @@
   <b-row no-gutters align-h="start" align-v="center">
     <b-col :cols="this.leaveRoomForHelpIcon ? 11 : 12" sm="12">
       <div>
-        <b-form-input
-          v-bind:value="value"
-          v-on:input="$emit('input', $event)"
-          placeholder="Output filename"
-          :disabled="this.disabled"
-        />
+        <b-row>
+          <b-col :sm="this.displayFileExtensionList ? 9 : 12">
+            <b-form-input
+              v-bind:value="value"
+              v-on:input="$emit('input', $event)"
+              placeholder="Output filename"
+              :disabled="this.disabled"
+            />
+          </b-col>
+          <div v-if="this.displayFileExtensionList">
+            <b-col :sm="3">
+              <!--
+              <b-form-select
+
+                v-model="fileExtension"
+                v-on:input="$emit('input', $event)"
+                :options="this.fileExtensions"
+              />
+              -->
+              <b-form-select
+                :options="this.fileExtensions"
+              />
+            </b-col>
+          </div>
+        </b-row>
         <div v-if="this.helpText !== null">
           <help-button
             :popover-text="this.helpText"
@@ -42,6 +61,14 @@ export default {
   components: {
     HelpButton,
   },
+  computed: {
+    fileExtensions() {
+      return [
+        { value: 'sav', text: '.sav' },
+        { value: 'srm', text: '.srm' },
+      ];
+    },
+  },
   props: {
     value: {
       type: String,
@@ -62,6 +89,10 @@ export default {
     helpText: {
       type: String,
       default: null,
+    },
+    displayFileExtensionList: {
+      type: Boolean,
+      default: true,
     },
   },
   data() {
