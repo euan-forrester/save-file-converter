@@ -252,7 +252,12 @@ export default {
           } else {
             if (this.requiresExampleSaveData) {
               if (this.exampleNsoData !== null) {
-                this.nsoSaveData = this.nsoPlatformClass.createFromRawData(this.inputArrayBuffer, this.exampleNsoData.getEncodedRomHash(), this.exampleNsoData.getEncodedVersion());
+                this.nsoSaveData = this.nsoPlatformClass.createFromRawData(
+                  this.inputArrayBuffer,
+                  this.exampleNsoData.getEncodedRomHash(),
+                  this.exampleNsoData.getEncodedVersion(),
+                  this.exampleNsoData.getMagic2Type(),
+                );
                 this.outputFilesize = this.nsoSaveData.getRawArrayBuffer().byteLength;
               }
             } else {
