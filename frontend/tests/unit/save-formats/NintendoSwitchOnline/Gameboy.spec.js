@@ -28,6 +28,11 @@ const RAW_GB_NEWER_VERSION_FILENAME = `${DIR}/Kirbys_Dreamland_2.sav`;
 const GB_NEWER_VERSION_ROM_HASH = Util.bufferToArrayBuffer(textEncoder.encode('8a2898ffa17e25f43793f40c88421d840d372d3c'));
 const GB_NEWER_VERSION_NUMBER = Util.bufferToArrayBuffer(textEncoder.encode('184.0'));
 
+const NSO_GBC_MASTER_VERSION_FILENAME = `${DIR}/Pokemon_TCG.sram`;
+const RAW_GBC_MASTER_VERSION_FILENAME = `${DIR}/Pokemon_TCG.sav`;
+const GBC_MASTER_VERSION_ROM_HASH = Util.bufferToArrayBuffer(textEncoder.encode('0f8670a583255cff3e5b7ca71b5d7454d928fc48'));
+const GBC_MASTER_VERSION_NUMBER = Util.bufferToArrayBuffer(textEncoder.encode('196.0'));
+
 describe('Nintendo Switch Online - Gameboy', () => {
   it('should convert a raw GB save to NSO format', async () => {
     const nsoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NSO_GB_FILENAME);
@@ -67,6 +72,30 @@ describe('Nintendo Switch Online - Gameboy', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getEncodedRomHash(), GB_NEWER_VERSION_ROM_HASH)).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getEncodedVersion(), GB_NEWER_VERSION_NUMBER)).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
+  });
+
+  /*
+  it('should convert a raw master version GBC save to NSO format', async () => {
+    const nsoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NSO_GBC_MASTER_VERSION_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_MASTER_VERSION_FILENAME);
+
+    const nsoSaveData = NsoGameboySaveData.createFromRawData(rawArrayBuffer, GBC_MASTER_VERSION_ROM_HASH, GBC_MASTER_VERSION_NUMBER);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getNsoArrayBuffer(), nsoArrayBuffer)).to.equal(true);
+  });
+  */
+
+  it('should convert a NSO master version GBC save to raw format', async () => {
+    const nsoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NSO_GBC_MASTER_VERSION_FILENAME);
+    // const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_MASTER_VERSION_FILENAME);
+
+    const nsoSaveData = NsoGameboySaveData.createFromNsoData(nsoArrayBuffer);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getEncodedRomHash(), GBC_MASTER_VERSION_ROM_HASH)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getEncodedVersion(), GBC_MASTER_VERSION_NUMBER)).to.equal(true);
+    // expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
+
+    ArrayBufferUtil.writeArrayBuffer(RAW_GBC_MASTER_VERSION_FILENAME, nsoSaveData.getRawArrayBuffer());
   });
 
   it('should convert a raw dual compatibility GB/GBC save to NSO format', async () => {
