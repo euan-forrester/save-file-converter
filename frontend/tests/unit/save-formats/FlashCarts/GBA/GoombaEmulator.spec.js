@@ -24,6 +24,10 @@ const GOOMBA_WARIO_FILENAME = `${DIR}/Wario Land 3.srm`;
 
 const WARIO_ROM_CHECKSUM = 0xb2380b51;
 
+const GOOMBA_COMPRESSED_32KB_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (USA, Europe) (32k - compressed save data).srm`;
+const RAW_COMPRESSED_32KB_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (USA, Europe) (32k - compressed save data).sav`;
+const COMPRESSED_ROM_CHECKSUM = 0xFB11D9B8;
+
 describe('Flash cart - GBA - Goomba emulator save format', () => {
   it('should convert a Goomba emulator save made with an EZ Flash ODE to raw format', async () => {
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_ZELDA_FILENAME);
@@ -51,6 +55,19 @@ describe('Flash cart - GBA - Goomba emulator save format', () => {
     expect(goombaEmulatorSaveData.getGameTitle()).to.equal('WARIOLAND3');
     expect(goombaEmulatorSaveData.getCompressedSize()).to.equal(5368);
     expect(goombaEmulatorSaveData.getUncompressedSize()).to.equal(rawArrayBuffer.byteLength);
+  });
+
+  it('should convert a Goomba emulator save that\'s 32kB containing compressed data to raw format', async () => {
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_COMPRESSED_32KB_FILENAME);
+    const goombaArrayBuffer = await ArrayBufferUtil.readArrayBuffer(GOOMBA_COMPRESSED_32KB_FILENAME);
+
+    const goombaEmulatorSaveData = GoombaEmulatorSaveData.createFromFlashCartData(goombaArrayBuffer);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(goombaEmulatorSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
+    expect(goombaEmulatorSaveData.getRomChecksum()).to.equal(COMPRESSED_ROM_CHECKSUM);
+    expect(goombaEmulatorSaveData.getFrameCount()).to.equal(0); // Number of ingame frames that has passed doesn't seem to be set in Goomba
+    expect(goombaEmulatorSaveData.getGameTitle()).to.equal(ZELDA_INTERNAL_NAME);
+    expect(goombaEmulatorSaveData.getCompressedSize()).to.equal(924);
   });
 
   it('should convert a save from a cartridge to the Goomba save format', async () => {
