@@ -28,6 +28,10 @@ const GOOMBA_COMPRESSED_32KB_FILENAME = `${DIR}/Legend of Zelda, The - Link's Aw
 const RAW_COMPRESSED_32KB_FILENAME = `${DIR}/Legend of Zelda, The - Link's Awakening (USA, Europe) (32k - compressed save data).sav`;
 const COMPRESSED_ROM_CHECKSUM = 0xFB11D9B8;
 
+const GOOMBA_UNCOMPRESSED_32KB_FILENAME = `${DIR}/Legend of Zelda, The - Oracle of Seasons (USA, Australia) (32kB - uncompressed save data).srm`;
+const RAW_UNCOMPRESSED_32KB_FILENAME = `${DIR}/Legend of Zelda, The - Oracle of Seasons (USA, Australia) (32kB - uncompressed save data).sav`;
+const UNCOMPRESSED_ROM_CHECKSUM = 0x91AF9A29;
+
 describe('Flash cart - GBA - Goomba emulator save format', () => {
   it('should convert a Goomba emulator save made with an EZ Flash ODE to raw format', async () => {
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_ZELDA_FILENAME);
@@ -68,6 +72,19 @@ describe('Flash cart - GBA - Goomba emulator save format', () => {
     expect(goombaEmulatorSaveData.getFrameCount()).to.equal(0); // Number of ingame frames that has passed doesn't seem to be set in Goomba
     expect(goombaEmulatorSaveData.getGameTitle()).to.equal(ZELDA_INTERNAL_NAME);
     expect(goombaEmulatorSaveData.getCompressedSize()).to.equal(924);
+  });
+
+  it('should convert a Goomba emulator save that\'s 32kB containing uncompressed data to raw format', async () => {
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_UNCOMPRESSED_32KB_FILENAME);
+    const goombaArrayBuffer = await ArrayBufferUtil.readArrayBuffer(GOOMBA_UNCOMPRESSED_32KB_FILENAME);
+
+    const goombaEmulatorSaveData = GoombaEmulatorSaveData.createFromFlashCartData(goombaArrayBuffer);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(goombaEmulatorSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
+    expect(goombaEmulatorSaveData.getRomChecksum()).to.equal(UNCOMPRESSED_ROM_CHECKSUM);
+    expect(goombaEmulatorSaveData.getFrameCount()).to.equal(0); // Number of ingame frames that has passed doesn't seem to be set in Goomba
+    expect(goombaEmulatorSaveData.getGameTitle()).to.equal('ZELDA DIN');
+    expect(goombaEmulatorSaveData.getCompressedSize()).to.equal(464);
   });
 
   it('should convert a save from a cartridge to the Goomba save format', async () => {

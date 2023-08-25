@@ -52,9 +52,10 @@ const LARGEST_GBC_SAVE_SIZE = 0x10000; // This is just used as a hint to the dec
 // https://github.com/masterhou/goombacolor/blob/master/src/sram.c#L22
 // The default is 0xE000: https://github.com/masterhou/goombacolor/blob/82505813da728bfe88902e48096246a61fbccf79/src/config.h#L6
 // This may be related to difficulties re save sizes on an Everdrive? https://www.dwedit.org/dwedit_board/viewtopic.php?pid=3736#p3736
-// I have no idea how you would tell which build of Goomba was used for a particular save file, and thus which offset you should be
-// looking at for uncompresses sram data
+//
+// Some save files are 32kB long, which is 0x8000 bytes. So, if the filesize is < 0xE000 then we use 0x6000 as the offset.
 const GOOMBA_COLOR_AVAILABLE_SIZE = 0xE000;
+const GOOMBA_COLOR_SMALLER_AVAILABLE_SIZE = 0x6000;
 
 const GOOMBA_COLOR_SRAM_SIZE = 0x10000; // Value copied from https://github.com/libertyernie/goombasav/blob/master/goombasav.h#L28
 
@@ -286,7 +287,8 @@ export default class EmulatorBaseSaveData {
     const compressedDataOffset = offset + STATE_HEADER_LENGTH;
 
     if (needsCleaning) {
-      this.rawArrayBuffer = emulatorArrayBuffer.slice(GOOMBA_COLOR_AVAILABLE_SIZE, GOOMBA_COLOR_SRAM_SIZE); // Based on https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L308
+      const uncompressedDataOffset = (emulatorArrayBuffer.byteLength < GOOMBA_COLOR_AVAILABLE_SIZE) ? GOOMBA_COLOR_SMALLER_AVAILABLE_SIZE : GOOMBA_COLOR_AVAILABLE_SIZE;
+      this.rawArrayBuffer = emulatorArrayBuffer.slice(uncompressedDataOffset, GOOMBA_COLOR_SRAM_SIZE); // Based on https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L308
     } else {
       this.rawArrayBuffer = lzoDecompress(emulatorArrayBuffer.slice(compressedDataOffset/* , compressedDataOffset + this.compressedSize */), LARGEST_GBC_SAVE_SIZE/* this.uncompressedSize */);
     }
