@@ -256,7 +256,7 @@ export default {
                   this.inputArrayBuffer,
                   this.exampleNsoData.getEncodedRomHash(),
                   this.exampleNsoData.getEncodedVersion(),
-                  this.exampleNsoData.getMagic2Type(),
+                  this.exampleNsoData.getFileFormat(),
                 );
                 this.outputFilesize = this.nsoSaveData.getRawArrayBuffer().byteLength;
               }
