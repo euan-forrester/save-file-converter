@@ -8,7 +8,7 @@ The format is:
 
 0x00: Magic 1: "SRAM" + 0x03
 0x08: Encoded SHA-1 hash of the ROM
-0x30: Magic2: Either 0x0B000000 + "HEAD-vXXX.X" or 0x0D000000 + "master-v-XXX.X"
+0x30: Magic 2: Either 0x0B000000 + "HEAD-vXXX.X" or 0x0D000000 + "master-vXXX.X"
 0x40 or 0x42: Encoded SHA-1 hash of the raw save data
 0x68 or 0x70: Raw save data
 
@@ -77,7 +77,7 @@ export default class NsoGameboySaveData {
   static createWithNewSize(nsoSaveData, newSize) {
     const newRawSaveData = SaveFilesUtil.resizeRawSave(nsoSaveData.getRawArrayBuffer(), newSize);
 
-    return NsoGameboySaveData.createFromRawData(newRawSaveData);
+    return NsoGameboySaveData.createFromRawData(newRawSaveData, nsoSaveData.getEncodedRomHash(), nsoSaveData.getEncodedVersion(), nsoSaveData.getMagic2Type());
   }
 
   static createFromNsoData(nsoArrayBuffer) {
