@@ -46,38 +46,53 @@ import HashUtil from '../../util/Hash';
 const MAGIC1_OFFSET = 0;
 const MAGIC1 = [0x53, 0x52, 0x41, 0x4D, 0x03]; // 'SRAM';
 
+const ROM_HASH_OFFSET = 0x08;
+
+const HASH_ALGORITHM = 'sha1';
+const HASH_LENGTH = 40; // The SHA-1 digest is converted to hex and encoded as ASCII
+const HASH_ENCODING = 'US-ASCII';
+
 const MAGIC2_OFFSET = 0x30;
 const MAGIC2 = {
   A: [0x0B, 0x00, 0x00, 0x00, 0x48, 0x45, 0x41, 0x44, 0x2D, 0x76], // 'HEAD-v';
   B: [0x0D, 0x00, 0x00, 0x00, 0x6D, 0x61, 0x73, 0x74, 0x65, 0x72, 0x2D, 0x76], // 'master-v'
+  C: [0x0D, 0x00, 0x00, 0x00, 0x6D, 0x61, 0x73, 0x74, 0x65, 0x72, 0x2D, 0x76], // 'master-v'
 };
 
 const MAGIC3_OFFSET = {
   A: 0x3F,
   B: 0x41,
+  C: 0x41,
 };
 const MAGIC3 = {
+  A: 0x00,
   B: 0x00,
   C: 0x01,
+};
+
+const UNKNOWN_DATA_OFFSET = {
+  A: 0x40,
+  B: 0x42,
+  C: 0x42,
+};
+const UNKNOWN_DATA_LENGTH = {
+  A: 0x00,
+  B: 0x00,
+  C: 0x20,
 };
 
 const VERSION_NUMBER_OFFSET = {
   A: MAGIC2_OFFSET + MAGIC2.A.length,
   B: MAGIC2_OFFSET + MAGIC2.B.length,
-  C: MAGIC2_OFFSET + MAGIC2.B.length, // Not a typo: file formats B and C both have a magic2 type of B
+  C: MAGIC2_OFFSET + MAGIC2.C.length,
 };
 const VERSION_NUMBER_LENGTH = 5;
 
-const ROM_HASH_OFFSET = 0x08;
 const SAVE_DATA_HASH_OFFSET = {
   A: 0x40,
   B: 0x42,
   C: 0x62,
 };
-
-const HASH_ALGORITHM = 'sha1';
-const HASH_LENGTH = 40; // The SHA-1 digest is converted to hex and encoded as ASCII
-const HASH_ENCODING = 'US-ASCII';
 
 const DATA_BEGIN_OFFSET = {
   A: SAVE_DATA_HASH_OFFSET.A + HASH_LENGTH,
@@ -127,6 +142,8 @@ function getFileFormat(nsoArrayBuffer) {
   let magic3Type = null;
   const magic3Keys = Object.keys(MAGIC3);
 
+  magic3Keys.shift(); // We know we're not format A, so remove it from the list of possibilities
+
   for (let i = 0; i < magic3Keys.length; i += 1) { // linter doesn't like "for (const key of magic3Keys)": too heavyweight
     const key = magic3Keys[i];
 
@@ -165,7 +182,7 @@ export default class NsoGameboySaveData {
   static createWithNewSize(nsoSaveData, newSize) {
     const newRawSaveData = SaveFilesUtil.resizeRawSave(nsoSaveData.getRawArrayBuffer(), newSize);
 
-    return NsoGameboySaveData.createFromRawData(newRawSaveData, nsoSaveData.getEncodedRomHash(), nsoSaveData.getEncodedVersion(), nsoSaveData.getFileFormat());
+    return NsoGameboySaveData.createFromRawData(newRawSaveData, nsoSaveData.getEncodedRomHash(), nsoSaveData.getEncodedVersion(), nsoSaveData.getUnknownData(), nsoSaveData.getFileFormat());
   }
 
   static createFromNsoData(nsoArrayBuffer) {
@@ -177,15 +194,25 @@ export default class NsoGameboySaveData {
 
     const encodedVersionArrayBuffer = nsoArrayBuffer.slice(VERSION_NUMBER_OFFSET[fileFormat], VERSION_NUMBER_OFFSET[fileFormat] + VERSION_NUMBER_LENGTH);
 
-    return new NsoGameboySaveData(nsoArrayBuffer.slice(DATA_BEGIN_OFFSET[fileFormat]), nsoArrayBuffer, encodedRomHashArrayBuffer, encodedVersionArrayBuffer, fileFormat);
+    const unknownData = nsoArrayBuffer.slice(UNKNOWN_DATA_OFFSET[fileFormat], UNKNOWN_DATA_OFFSET[fileFormat] + UNKNOWN_DATA_LENGTH[fileFormat]);
+
+    return new NsoGameboySaveData(nsoArrayBuffer.slice(DATA_BEGIN_OFFSET[fileFormat]), nsoArrayBuffer, encodedRomHashArrayBuffer, encodedVersionArrayBuffer, unknownData, fileFormat);
   }
 
-  static createFromRawData(rawArrayBuffer, encodedRomHashArrayBuffer, encodedVersionArrayBuffer, fileFormat) {
+  static createFromRawData(rawArrayBuffer, encodedRomHashArrayBuffer, encodedVersionArrayBuffer, unknownData, fileFormat) {
     let headerArrayBuffer = Util.getFilledArrayBuffer(HEADER_LENGTH[fileFormat], HEADER_FILL_VALUE);
+
+    const headerDataView = new DataView(headerArrayBuffer);
+
+    headerDataView.setUint8(MAGIC3_OFFSET[fileFormat], MAGIC3[fileFormat]); // We can't interleave this line with lines that mess with headerArrayBuffer below, otherwise this change gets stomped
 
     headerArrayBuffer = Util.setMagicBytes(headerArrayBuffer, MAGIC1_OFFSET, MAGIC1);
     headerArrayBuffer = Util.setMagicBytes(headerArrayBuffer, MAGIC2_OFFSET, MAGIC2[fileFormat]);
     headerArrayBuffer = Util.setArrayBufferPortion(headerArrayBuffer, encodedVersionArrayBuffer, VERSION_NUMBER_OFFSET[fileFormat], 0, VERSION_NUMBER_LENGTH);
+
+    if (UNKNOWN_DATA_LENGTH[fileFormat] > 0) {
+      headerArrayBuffer = Util.setArrayBufferPortion(headerArrayBuffer, unknownData, UNKNOWN_DATA_OFFSET[fileFormat], 0, UNKNOWN_DATA_LENGTH[fileFormat]);
+    }
 
     const encodedSaveDataHashArrayBuffer = HashUtil.getEncodedHash(rawArrayBuffer, HASH_ALGORITHM, HASH_ENCODING);
 
@@ -198,11 +225,12 @@ export default class NsoGameboySaveData {
   }
 
   // This constructor creates a new object from a binary representation of a NSO save data file
-  constructor(rawArrayBuffer, nsoArrayBuffer, encodedRomHash, encodedVersion, fileFormat) {
+  constructor(rawArrayBuffer, nsoArrayBuffer, encodedRomHash, encodedVersion, unknownData, fileFormat) {
     this.rawArrayBuffer = rawArrayBuffer;
     this.nsoArrayBuffer = nsoArrayBuffer;
     this.encodedRomHash = encodedRomHash;
     this.encodedVersion = encodedVersion;
+    this.unknownData = unknownData;
     this.fileFormat = fileFormat;
   }
 
@@ -220,6 +248,10 @@ export default class NsoGameboySaveData {
 
   getEncodedVersion() {
     return this.encodedVersion;
+  }
+
+  getUnknownData() {
+    return this.unknownData;
   }
 
   getFileFormat() {
