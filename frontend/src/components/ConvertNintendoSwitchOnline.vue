@@ -305,16 +305,18 @@ export default {
       this.updateNsoSaveData();
     },
     convertFile() {
+      let finalNsoSaveData = this.nsoSaveData;
+
       if (this.nsoSaveData.getRawArrayBuffer().byteLength !== this.outputFilesize) {
-        this.nsoSaveData = this.nsoPlatformClass.createWithNewSize(this.nsoSaveData, this.outputFilesize);
+        finalNsoSaveData = this.nsoPlatformClass.createWithNewSize(this.nsoSaveData, this.outputFilesize);
       }
 
       let output = null;
 
       if (this.conversionDirection === 'convertToRaw') {
-        output = this.nsoSaveData.getRawArrayBuffer();
+        output = finalNsoSaveData.getRawArrayBuffer();
       } else {
-        output = this.nsoSaveData.getNsoArrayBuffer();
+        output = finalNsoSaveData.getNsoArrayBuffer();
       }
 
       const outputBlob = new Blob([output], { type: 'application/octet-stream' });
