@@ -193,11 +193,13 @@ export default {
       }
     },
     convertFile() {
+      let finalGameSharkSaveData = this.gameSharkSaveData;
+
       if (this.gameSharkSaveData.getRawSaveData().byteLength !== this.outputFilesize) {
-        this.gameSharkSaveData = GameSharkSaveData.createWithNewSize(this.gameSharkSaveData, this.outputFilesize);
+        finalGameSharkSaveData = GameSharkSaveData.createWithNewSize(this.gameSharkSaveData, this.outputFilesize);
       }
 
-      const outputArrayBuffer = (this.conversionDirection === 'convertToRaw') ? this.gameSharkSaveData.getRawSaveData() : this.gameSharkSaveData.getArrayBuffer();
+      const outputArrayBuffer = (this.conversionDirection === 'convertToRaw') ? finalGameSharkSaveData.getRawSaveData() : finalGameSharkSaveData.getArrayBuffer();
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 
