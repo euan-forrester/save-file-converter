@@ -149,11 +149,13 @@ export default {
       }
     },
     convertFile() {
+      let finalActionReplaySaveData = this.actionReplaySaveData;
+
       if (this.actionReplaySaveData.getRawSaveData().byteLength !== this.outputFilesize) {
-        this.actionReplaySaveData = ActionReplaySaveData.createWithNewSize(this.actionReplaySaveData, this.outputFilesize);
+        finalActionReplaySaveData = ActionReplaySaveData.createWithNewSize(this.actionReplaySaveData, this.outputFilesize);
       }
 
-      const outputArrayBuffer = (this.conversionDirection === 'convertToRaw') ? this.actionReplaySaveData.getRawSaveData() : this.actionReplaySaveData.getArrayBuffer();
+      const outputArrayBuffer = (this.conversionDirection === 'convertToRaw') ? finalActionReplaySaveData.getRawSaveData() : finalActionReplaySaveData.getArrayBuffer();
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 
