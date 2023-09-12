@@ -373,6 +373,8 @@ export default {
       this.updateMisterSaveData();
     },
     convertFile() {
+      let finalMisterSaveData = this.misterSaveData;
+
       let needsResize = false;
 
       if (this.isSegaCd) {
@@ -382,19 +384,19 @@ export default {
       }
 
       if (needsResize) {
-        this.misterSaveData = this.misterPlatformClass.createWithNewSize(this.misterSaveData, this.outputFilesize);
+        finalMisterSaveData = this.misterPlatformClass.createWithNewSize(this.misterSaveData, this.outputFilesize);
       }
 
       let output = null;
 
       if (this.conversionDirection === 'convertToRaw') {
         if (this.isSegaCd) {
-          output = this.misterSaveData.getRawArrayBuffer(this.segaCdSaveType);
+          output = finalMisterSaveData.getRawArrayBuffer(this.segaCdSaveType);
         } else {
-          output = this.misterSaveData.getRawArrayBuffer();
+          output = finalMisterSaveData.getRawArrayBuffer();
         }
       } else {
-        output = this.misterSaveData.getMisterArrayBuffer();
+        output = finalMisterSaveData.getMisterArrayBuffer();
       }
 
       const outputBlob = new Blob([output], { type: 'application/octet-stream' });
