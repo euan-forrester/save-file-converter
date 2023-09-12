@@ -586,6 +586,8 @@ export default {
       this.updateFlashCartSaveData();
     },
     convertFile() {
+      let finalFlashCartSaveData = this.flashCartSaveData;
+
       let needsResize = false;
 
       if (this.isSegaCd) {
@@ -595,22 +597,22 @@ export default {
       }
 
       if (needsResize) {
-        this.flashCartSaveData = this.flashCartTypeClass.createWithNewSize(this.flashCartSaveData, this.outputFilesize);
+        finalFlashCartSaveData = this.flashCartTypeClass.createWithNewSize(this.flashCartSaveData, this.outputFilesize);
       }
 
       let output = null;
 
       if (this.conversionDirection === 'convertToRaw') {
         if (this.isSegaCd) {
-          output = this.flashCartSaveData.getRawArrayBuffer(this.segaCdSaveType);
+          output = finalFlashCartSaveData.getRawArrayBuffer(this.segaCdSaveType);
         } else {
-          output = this.flashCartSaveData.getRawArrayBuffer();
+          output = finalFlashCartSaveData.getRawArrayBuffer();
         }
       } else {
         if (this.isSegaCd) { // eslint-disable-line no-lonely-if
-          output = this.flashCartSaveData.getFlashCartArrayBuffer(this.segaCdSaveType);
+          output = finalFlashCartSaveData.getFlashCartArrayBuffer(this.segaCdSaveType);
         } else {
-          output = this.flashCartSaveData.getFlashCartArrayBuffer();
+          output = finalFlashCartSaveData.getFlashCartArrayBuffer();
         }
       }
 
