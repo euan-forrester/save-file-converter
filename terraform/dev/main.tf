@@ -31,21 +31,5 @@ module "alarms" {
   topic_name        = var.application_name
   notifications_email = var.notifications_email
 
-  bucket_name       = module.frontend.bucket_name
-  bucket_metrics_filter_id = module.frontend.bucket_metrics_filter_id
-  s3_access_alarm_threshold = 1
-
   enable_alarms     = false
-}
-
-module "dashboard" {
-  source = "../modules/dashboard"
-
-  environment       = var.environment
-  region            = var.region
-
-  application_name  = var.application_name
-
-  bucket_name       = module.frontend.bucket_name
-  bucket_metrics_filter_id = module.frontend.bucket_metrics_filter_id
 }
