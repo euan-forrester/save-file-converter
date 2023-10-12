@@ -70,3 +70,6 @@ variable "build_sns_topic_arn" {
 variable "alarms_sns_topic_arn" {
   default = ""
 }
+
+variable "lambda_function_name" {
+}

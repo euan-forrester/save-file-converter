@@ -7,6 +7,7 @@ module "build" {
   environment_long_name    = var.environment_long_name
   region                   = var.region
   application_name         = var.application_name
+  lambda_function_name     = var.lambda_function_name
   project_github_location  = var.project_github_location
   build_logs_bucket_id     = var.build_logs_bucket_id
   s3_deployment_bucket_arn = aws_s3_bucket.frontend.arn

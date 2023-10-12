@@ -1,7 +1,7 @@
 # Based on https://docs.aws.amazon.com/codebuild/latest/userguide/sample-build-notifications.html
 
 resource "aws_cloudwatch_event_rule" "build_complete" {
-  name        = "${var.application_name}-frontend-${var.environment}-codebuild"
+  name        = "${var.application_name}-frontend-codebuild-${var.environment}"
   description = "Capture each codebuild success or failure event"
 
   event_pattern = <<EOF
@@ -52,25 +52,5 @@ resource "aws_cloudwatch_event_target" "lambda" {
   "LogsDirectory": "${var.build_logs_directory}"
 }
 EOF
-  }
-}
-
-resource "aws_cloudwatch_metric_alarm" "codebuild_eventbridge_failedinvocations" {
-  alarm_name                = "${var.application_name} CodeBuild EventBridge FailedInvocations - ${var.environment}"
-  comparison_operator       = "GreaterThanOrEqualToThreshold"
-  evaluation_periods        = "1"
-  metric_name               = "FailedInvocations"
-  namespace                 = "AWS/Events"
-  period                    = "300"
-  statistic                 = "Sum"
-  threshold                 = "1"
-  treat_missing_data        = "notBreaching"
-  alarm_description         = "Alerts if EventBridge fails to publish a codebuild event to lambda"
-  alarm_actions             = [var.alarms_sns_topic_arn]
-  insufficient_data_actions = [var.alarms_sns_topic_arn]
-  ok_actions                = [var.alarms_sns_topic_arn]
-
-  dimensions = {
-    RuleName = aws_cloudwatch_event_rule.build_complete.name
   }
 }

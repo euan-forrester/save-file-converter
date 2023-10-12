@@ -4,6 +4,7 @@ import logging
 import sys
 import os
 import gzip
+from io import BytesIO
 from botocore.exceptions import ClientError
 
 if logging.getLogger().hasHandlers():
@@ -16,7 +17,7 @@ else:
 logger = logging.getLogger()
 
 # AWS SDK Clients
-s3 = boto3.resource('s3')
+s3 = boto3.client('s3')
 ses = boto3.client('ses')
 
 # Email address to send logs to
@@ -35,7 +36,7 @@ def download_logs_and_send_email(event, context):
   build_id = event['BuildId']
   build_guid = build_id.split(':')[-1]
   bucket = event['LogsBucketId']
-  key_prefix = event['LogsDirectory']
+  key_prefix = event['LogsDirectory'].removeprefix('/') # S3 Object keys don't start with "/"
 
   logger.info(f'Build status: {build_status}')
   logger.info(f'Project name: {project_name}')
@@ -43,63 +44,47 @@ def download_logs_and_send_email(event, context):
   logger.info(f'Bucket:       {bucket}')
   logger.info(f'Key prefix:   {key_prefix}')
 
+  s3_object_key = key_prefix + '/' + build_guid + '.gz'
+
+  logger.info(f'S3 object key: {s3_object_key}')
+
+  s3_object = s3.get_object(Bucket=bucket, Key=s3_object_key)
+  s3_stream = BytesIO(s3_object['Body'].read())
+
+  logger.info("Read build log data from S3")
+
+  with gzip.GzipFile(fileobj=s3_stream, mode='rb') as f_in:
+    build_logs = f_in.read().decode('utf-8')
+
+  logger.info("Decompressed build log data")
+
+  # Send the build logs via email
+
+  subject_line = f"{project_name} Build failure"
+  body_text = f"Build logs:\n{build_logs}"
+        
+  send_email(recipient_email, recipient_email, subject_line, body_text)
+        
+  # Log success
+  logger.info(f'Successfully finished execution for build {build_id}')
+        
+def send_email(from_email_address, to_email_address, subject_line, body_text):
+  # Object structure described at https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ses/client/send_email.html#
+  send_args = {
+    'Source': from_email_address,
+    'Destination': {
+      'ToAddresses': [to_email_address],
+    },
+    'Message': {
+      'Subject': {'Data': subject_line},
+      'Body': {'Text': {'Data': body_text}}
+    }
+  }
+    
   try:
-    s3_object_key = key_prefix + '/' + build_guid + '.gz'
-
-    logger.info(f'S3 object key: {s3_object_key}')
-
-    s3_object = s3.Object(bucket, s3_object_key)
-    s3_stream = s3_object.get()['Body']
-
-    with gzip.GzipFile(fileobj=s3_stream, mode='rb') as f_in:
-      build_logs = f_in.read()
-        
-    # Send the build logs via email using Amazon SES
-    send_email(event, build_logs)
-        
-    # Log success
-    logger.info(f'Successfully sent CodeBuild logs for build {build_id}')
-        
-  except Exception as e:
-    # Log any errors
-    logger.error(f'Error: {str(e)}')
-    sys.exit(1)
-
-def send_email(event, build_logs):
-  try:
-    # Construct the email message
-    #message = f"""Subject: CodeBuild Build Failed - Build Logs
-    #    
-    #Build logs:
-    #{build_logs}"""
-     
-    '''   
-    # Send the email
-    response = ses.send_email(
-      Source=recipient_email,
-      Destination={
-        'ToAddresses': [recipient_email]
-      },
-      Message={
-        'Subject': {
-          'Data': 'CodeBuild Build Failed - Build Logs'
-        },
-        'Body': {
-          'Text': {
-            'Data': message
-          }
-        }
-      }
-    )
-    '''
-     
-    logger.info(f'Found build log: {build_logs}')
-
-    # Log success
-    #logger.info(f'Successfully sent email: {response["MessageId"]}')
-    sys.exit(0)    
-
-  except ClientError as e:
-    # Log any errors
-    logger.error(f'Error sending email: {e.response["Error"]["Message"]}')
-    sys.exit(1)
+    response = ses.send_email(**send_args)
+    message_id = response['MessageId']
+    logging.info(f"Sent email '{message_id}' with subject '{subject_line}' from '{from_email_address}' to '{to_email_address}'")
+  except ClientError:
+    logging.exception(f"Could not send mail from '{from_email_address}' to '{to_email_address}'")
+    raise

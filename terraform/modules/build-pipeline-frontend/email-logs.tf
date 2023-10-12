@@ -1,11 +1,10 @@
-# This prevents a circular dependency between aws_lambda_function.email_build_logs and aws_cloudwatch_log_group.build_logs
-variable "lambda_function_name" {
-  default = "email_build_logs"
-}
-
 # Infra to support our lambda function:
 # Policies for it to assume a role and to be able to trigger events based on success/failure,
 # and also the source file and the lambda function itself
+
+resource "aws_ses_email_identity" "from_email" {
+  email = var.notifications_email
+}
 
 data "aws_iam_policy_document" "assume_role" {
   statement {
@@ -20,8 +19,9 @@ data "aws_iam_policy_document" "assume_role" {
   }
 }
 
+# We have the ListBucket premission because otherwise NoSuchKey errors become AccessDenied errors
 resource "aws_iam_role" "iam_for_lambda" {
-  name               = "${var.application_name}-${var.environment}-iam_for_lambda"
+  name               = "${var.lambda_function_name}-iam_for_lambda"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 
   inline_policy {
@@ -51,14 +51,32 @@ resource "aws_iam_role" "iam_for_lambda" {
       ]
     },
     {
+      "Sid": "SESSendPolicy",
+      "Effect": "Allow",
+      "Action": [
+        "ses:SendEmail"
+      ],
+      "Resource": "*"
+    },
+    {
       "Sid": "S3AccessPolicy",
       "Effect": "Allow",
       "Action": [
         "s3:GetObject"
       ],
       "Resource": [
-        "arn:aws:s3:::${var.build_logs_bucket_id}${var.build_logs_directory}"
+        "arn:aws:s3:::${var.build_logs_bucket_id}${var.build_logs_directory}/",
         "arn:aws:s3:::${var.build_logs_bucket_id}${var.build_logs_directory}/*"
+      ]
+    },
+    {
+      "Sid": "S3ListBucketPolicy",
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::${var.build_logs_bucket_id}"
       ]
     }
   ]
@@ -130,26 +148,6 @@ resource "aws_sqs_queue" "build_dead_letter_queue" {
   max_message_size          = 262144  # 256kB
   message_retention_seconds = 1209600 # 14 days
   receive_wait_time_seconds = 0
-}
-
-resource "aws_cloudwatch_metric_alarm" "build_dead_letter_queue_items" {
-  alarm_name                = "${aws_sqs_queue.build_dead_letter_queue.name} items"
-  comparison_operator       = "GreaterThanOrEqualToThreshold"
-  evaluation_periods        = "1"
-  metric_name               = "ApproximateNumberOfMessagesVisible"
-  namespace                 = "AWS/SQS"
-  period                    = "300"
-  statistic                 = "Maximum"
-  threshold                 = "1"
-  treat_missing_data        = "ignore" # Maintain alarm state on missing data - sometimes data will just be missing for queues for some reason
-  alarm_description         = "Alerts if the build dead-letter queue has items in it"
-  alarm_actions             = [var.alarms_sns_topic_arn]
-  insufficient_data_actions = [var.alarms_sns_topic_arn]
-  ok_actions                = [var.alarms_sns_topic_arn]
-
-  dimensions = {
-    QueueName = aws_sqs_queue.build_dead_letter_queue.name
-  }
 }
 
 # Lambda function automatically write to cloudwatch logs if we give them permission

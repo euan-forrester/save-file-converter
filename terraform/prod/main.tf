@@ -28,6 +28,7 @@ module "frontend" {
   build_sns_topic_arn     = module.build-common-infrastructure.sns_topic_arn
   alarms_sns_topic_arn    = module.alarms.sns_topic_arn
   notifications_email     = var.notifications_email
+  lambda_function_name    = "email_build_logs-${var.application_name}-${var.environment}"
 }
 
 module "build-common-infrastructure" {

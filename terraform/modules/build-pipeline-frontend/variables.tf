@@ -36,3 +36,6 @@ variable "build_sns_topic_arn" {
 
 variable "alarms_sns_topic_arn" {
 }
+
+variable "lambda_function_name" {
+}
