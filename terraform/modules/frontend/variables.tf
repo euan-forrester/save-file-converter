@@ -63,10 +63,6 @@ variable "build_service_role_arn" {
 variable "notifications_email" {
 }
 
-variable "build_sns_topic_arn" {
-  default = ""
-}
-
 variable "alarms_sns_topic_arn" {
   default = ""
 }

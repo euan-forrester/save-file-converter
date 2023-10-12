@@ -14,7 +14,6 @@ module "build" {
   buildspec_location       = var.buildspec_location
   file_path                = var.file_path
   build_service_role_arn   = var.build_service_role_arn
-  build_sns_topic_arn      = var.build_sns_topic_arn
   alarms_sns_topic_arn     = var.alarms_sns_topic_arn
   notifications_email      = var.notifications_email
 }

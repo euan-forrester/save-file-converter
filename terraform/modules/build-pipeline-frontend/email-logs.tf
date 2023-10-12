@@ -41,16 +41,6 @@ resource "aws_iam_role" "iam_for_lambda" {
       ]
     },
     {
-      "Sid": "SNSBucketIdentity",
-      "Effect": "Allow",
-      "Action": [
-        "sns:Publish"
-      ],
-      "Resource": [
-        "${var.build_sns_topic_arn}"
-      ]
-    },
-    {
       "Sid": "SESSendPolicy",
       "Effect": "Allow",
       "Action": [
@@ -134,10 +124,6 @@ resource "aws_lambda_function_event_invoke_config" "email_build_logs" {
   destination_config {
     on_failure {
       destination = aws_sqs_queue.build_dead_letter_queue.arn
-    }
-
-    on_success {
-      destination = var.build_sns_topic_arn
     }
   }
 }
