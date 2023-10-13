@@ -28,8 +28,11 @@ variable "file_path" {
 variable "build_service_role_arn" {
 }
 
-variable "build_sns_topic_arn" {
+variable "notifications_email" {
 }
 
 variable "alarms_sns_topic_arn" {
+}
+
+variable "lambda_function_name" {
 }

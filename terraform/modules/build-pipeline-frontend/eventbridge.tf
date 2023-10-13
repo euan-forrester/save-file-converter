@@ -1,7 +1,7 @@
 # Based on https://docs.aws.amazon.com/codebuild/latest/userguide/sample-build-notifications.html
 
-resource "aws_cloudwatch_event_rule" "builds" {
-  name        = "${var.application_name}-frontend-${var.environment}-codebuild"
+resource "aws_cloudwatch_event_rule" "build_complete" {
+  name        = "${var.application_name}-frontend-codebuild-${var.environment}"
   description = "Capture each codebuild success or failure event"
 
   event_pattern = <<EOF
@@ -26,10 +26,16 @@ resource "aws_cloudwatch_event_rule" "builds" {
 EOF
 }
 
-resource "aws_cloudwatch_event_target" "sns" {
-  rule      = aws_cloudwatch_event_rule.builds.name
-  target_id = "SendToSNS"
-  arn       = var.build_sns_topic_arn
+# Here is an example output object from CodeBuild, to see the structure:
+# https://github.com/awsdocs/aws-codebuild-user-guide/blob/main/doc_source/sample-build-notifications.md#sample-build-notifications-ref
+
+# Supposedly we can grab the guid for the logs from $.detail.additional-information.logs.stream-name, but it doesn't seem to be populated.
+# We'll just have to parse it out of the build-id instead
+
+resource "aws_cloudwatch_event_target" "lambda" {
+  rule      = aws_cloudwatch_event_rule.build_complete.name
+  target_id = "SendToLambda"
+  arn       = aws_lambda_function.email_build_logs.arn
 
   input_transformer {
     input_paths = {
@@ -37,26 +43,14 @@ resource "aws_cloudwatch_event_target" "sns" {
       project-name = "$.detail.project-name",
       build-status = "$.detail.build-status",
     }
-    input_template = "\"<project-name> build <build-status> Build ID: <build-id>\"" # I can't get newlines to work here. \n results in terraform barfing, and \\n as suggested in the docs just inserts the characters "\n" into the email: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target#input_template
-  }
+    input_template = <<EOF
+{
+  "ProjectName": "<project-name>",
+  "BuildStatus": "<build-status>",
+  "BuildId": "<build-id>",
+  "LogsBucketId": "${var.build_logs_bucket_id}",
+  "LogsDirectory": "${var.build_logs_directory}"
 }
-
-resource "aws_cloudwatch_metric_alarm" "codebuild_eventbridge_failedinvocations" {
-  alarm_name                = "${var.application_name} CodeBuild EventBridge FailedInvocations - ${var.environment}"
-  comparison_operator       = "GreaterThanOrEqualToThreshold"
-  evaluation_periods        = "1"
-  metric_name               = "FailedInvocations"
-  namespace                 = "AWS/Events"
-  period                    = "300"
-  statistic                 = "Sum"
-  threshold                 = "1"
-  treat_missing_data        = "notBreaching"
-  alarm_description         = "Alerts if there is a failure to publish a codebuild event to SNS"
-  alarm_actions             = [var.alarms_sns_topic_arn]
-  insufficient_data_actions = [var.alarms_sns_topic_arn]
-  ok_actions                = [var.alarms_sns_topic_arn]
-
-  dimensions = {
-    RuleName = aws_cloudwatch_event_rule.builds.name
+EOF
   }
 }

@@ -1,3 +1,7 @@
+variable "build_logs_directory" {
+  default = "/frontend"
+}
+
 resource "aws_codebuild_project" "frontend" {
   name          = "${var.application_name}-frontend-${var.environment}"
   description   = "Builds the ${var.environment} frontend"
@@ -33,7 +37,7 @@ resource "aws_codebuild_project" "frontend" {
 
     s3_logs {
       status   = "ENABLED"
-      location = "${var.build_logs_bucket_id}/frontend"
+      location = "${var.build_logs_bucket_id}${var.build_logs_directory}"
     }
   }
 

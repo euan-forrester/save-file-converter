@@ -60,10 +60,14 @@ variable "build_service_role_arn" {
   default = ""
 }
 
-variable "build_sns_topic_arn" {
+variable "notifications_email" {
   default = ""
 }
 
 variable "alarms_sns_topic_arn" {
+  default = ""
+}
+
+variable "lambda_function_name" {
   default = ""
 }
