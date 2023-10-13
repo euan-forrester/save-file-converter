@@ -1,16 +1,6 @@
 resource "aws_s3_bucket" "frontend" {
   bucket        = "${var.application_name}${var.bucketname_user_string}-${var.environment}"
-  acl           = "public-read"
   force_destroy = true
-
-  versioning {
-    enabled = true
-  }
-
-  website {
-    index_document = "index.html"
-    error_document = "index.html"
-  }
 
   logging {
     target_bucket = aws_s3_bucket.frontend_access_logs.id
@@ -47,6 +37,31 @@ resource "aws_s3_bucket_metric" "frontend" {
   filter {
     prefix = "index.html"
   }
+}
+
+resource "aws_s3_bucket_versioning" "frontend" {
+  bucket = aws_s3_bucket.frontend.id
+  
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_website_configuration" "frontend" {
+  bucket = aws_s3_bucket.frontend.id
+
+  index_document {
+    suffix = "index.html"
+  }
+
+  error_document {
+    key = "index.html"
+  }
+}
+
+resource "aws_s3_bucket_acl" "frontend" {
+  bucket = aws_s3_bucket.frontend.id
+  acl    = "public-read"
 }
 
 resource "aws_s3_bucket_public_access_block" "frontend" {
@@ -102,7 +117,6 @@ resource "aws_s3_bucket_policy" "frontend_cloudfront_current_user" {
 
 resource "aws_s3_bucket" "frontend_access_logs" {
   bucket        = "${var.frontend_access_logs_bucket}${var.bucketname_user_string}-${var.environment}"
-  acl           = "log-delivery-write"
   force_destroy = false == var.retain_frontend_access_logs_after_destroy
 
   lifecycle_rule {
@@ -115,14 +129,21 @@ resource "aws_s3_bucket" "frontend_access_logs" {
       days = var.days_to_keep_frontend_access_logs
     }
   }
+}
 
-  # It looks like service side encryption has become the default, and this is no long needed: https://docs.aws.amazon.com/AmazonS3/latest/userguide/default-encryption-faq.html
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        # Keep this as AES for consistency with the load balancer access logs (see note there)
-        sse_algorithm = "AES256"
-      }
+resource "aws_s3_bucket_acl" "frontend_access_logs" {
+  bucket = aws_s3_bucket.frontend_access_logs.id
+  acl    = "log-delivery-write"
+}
+
+# It looks like service side encryption has become the default, and this is no long needed: https://docs.aws.amazon.com/AmazonS3/latest/userguide/default-encryption-faq.html
+resource "aws_s3_bucket_server_side_encryption_configuration" "frontend_access_logs" {
+  bucket = aws_s3_bucket.frontend_access_logs.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      # Keep this as AES for consistency with the load balancer access logs (see note there)
+      sse_algorithm = "AES256"
     }
   }
 }
