@@ -69,6 +69,7 @@ Everything on this site is free and open source with no advertising. If you find
   - Memory card format: http://www.csclub.uwaterloo.ca:11068/mymc/ps2mcfs.html
   - Use PS2 files on PS3: https://github.com/bucanero/apollo-ps3
   - Convert PS2 formats: https://github.com/bucanero/psv-save-converter
+  - Manage PS2 memory cards: https://github.com/bucanero/ps2vmc-tool
 - Wii Virtual Console save game format (note that the files are encrypted)
   - https://wiibrew.org/wiki/Wii_Savegame_Parser
   - https://wiibrew.org/wiki/Savegame_Files
