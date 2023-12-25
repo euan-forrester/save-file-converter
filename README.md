@@ -117,6 +117,7 @@ Everything on this site is free and open source with no advertising. If you find
   - https://www.reddit.com/r/n64/comments/ezhleg/guide_how_to_backup_your_n64_saves_to_your_pc/
   - https://www.youtube.com/watch?v=PpolokImIeU (convert individual note to .eep format)
   - https://github.com/ssokolow/saveswap Swap endianness of N64 saves to move between Everdrive/emulators/etc
+  - https://github.com/Ninjiteu/N64SaveConverter Does endian swaps, padding/trimming of files, and parses retroarch files that store n64 cart saves at various offsets
   - Game serial codes:
     - https://niwanetwork.org/wiki/List_of_Nintendo_64_games_by_serial_code
     - https://meanwhileblog.wordpress.com/n64-game-code-list/
