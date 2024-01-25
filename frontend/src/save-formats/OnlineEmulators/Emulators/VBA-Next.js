@@ -21,6 +21,8 @@ These found by creating the same save file in both the online emulator and a sta
 128kB Flash RAM: 0x93010
 */
 
+import SaveFilesUtil from '../../../util/SaveFiles';
+
 const EEPROM_OFFSET = 0x91000;
 const SRAM_OFFSET = 0x93010;
 const FLASH_RAM_OFFSET = 0x93010;
@@ -33,20 +35,30 @@ const SAVE_OFFSET = {
   131072: FLASH_RAM_OFFSET,
 };
 
+function getRawArrayBufferFromSaveStateArrayBuffer(emulatorSaveStateArrayBuffer, saveSize) {
+  if (!(saveSize in SAVE_OFFSET)) {
+    throw new Error(`${saveSize} is not a valid save size for a GBA game`);
+  }
+
+  const rawSaveOffset = SAVE_OFFSET[saveSize];
+
+  return emulatorSaveStateArrayBuffer.slice(rawSaveOffset, rawSaveOffset + saveSize);
+}
+
 export default class VbaNextSaveStateData {
   static createFromSaveStateData(emulatorSaveStateArrayBuffer, saveSize) {
-    if (!(saveSize in SAVE_OFFSET)) {
-      throw new Error(`${saveSize} is not a valid save size for a GBA game`);
-    }
+    const rawArrayBuffer = getRawArrayBufferFromSaveStateArrayBuffer(emulatorSaveStateArrayBuffer, saveSize);
 
-    const rawSaveOffset = SAVE_OFFSET[saveSize];
-    const rawArrayBuffer = emulatorSaveStateArrayBuffer.slice(rawSaveOffset, rawSaveOffset + saveSize);
-
-    return new VbaNextSaveStateData(emulatorSaveStateArrayBuffer, rawArrayBuffer);
+    return new VbaNextSaveStateData(emulatorSaveStateArrayBuffer, rawArrayBuffer, saveSize);
   }
 
   static createWithNewSize(emulatorSaveStateData, newSize) {
-    return VbaNextSaveStateData.createFromSaveStateData(emulatorSaveStateData.getEmulatorSaveStateArrayBuffer(), newSize);
+    // The user's emulator etc may require a different file size than the "true" size.
+    // We need to make sure that if the user resizes multiple times they don't lose data.
+    const originalRawArrayBuffer = getRawArrayBufferFromSaveStateArrayBuffer(emulatorSaveStateData.getEmulatorSaveStateArrayBuffer(), emulatorSaveStateData.getOriginalSaveSize());
+    const newRawSaveData = SaveFilesUtil.resizeRawSave(originalRawArrayBuffer, newSize);
+
+    return new VbaNextSaveStateData(emulatorSaveStateData.getEmulatorSaveStateArrayBuffer(), newRawSaveData, emulatorSaveStateData.getOriginalSaveSize());
   }
 
   static getRawFileExtension() {
@@ -57,9 +69,10 @@ export default class VbaNextSaveStateData {
     return 'gba';
   }
 
-  constructor(emulatorSaveStateArrayBuffer, rawArrayBuffer) {
+  constructor(emulatorSaveStateArrayBuffer, rawArrayBuffer, saveSize) {
     this.emulatorSaveStateArrayBuffer = emulatorSaveStateArrayBuffer;
     this.rawArrayBuffer = rawArrayBuffer;
+    this.originalSaveSize = saveSize;
   }
 
   getRawArrayBuffer() {
@@ -68,5 +81,9 @@ export default class VbaNextSaveStateData {
 
   getEmulatorSaveStateArrayBuffer() {
     return this.emulatorSaveStateArrayBuffer;
+  }
+
+  getOriginalSaveSize() {
+    return this.originalSaveSize;
   }
 }
