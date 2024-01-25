@@ -9,3 +9,5 @@
 /frontend/tests/data/save-formats/flashcarts/gba/smsadvanceemulator/retail/*
 /frontend/tests/data/save-formats/flashcarts/n64/gb64emulator/retail/*
 /frontend/tests/config.local.js
+/frontend/tests/data/save-formats/online-emulators/arcadespot.com/genesis/*.save
+/frontend/tests/data/save-formats/online-emulators/myemulator.online/genesis/*.ggz
