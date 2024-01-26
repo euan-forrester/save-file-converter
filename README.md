@@ -107,6 +107,7 @@ Everything on this site is free and open source with no advertising. If you find
   - DexDrive format: https://github.com/ShendoXT/memcardrex/blob/master/MemcardRex/ps1card.cs
   - Signing a PSP .VMP file: https://github.com/dots-tb/vita-mcr2vmp
   - PS3 format: https://psdevwiki.com/ps3/PS1_Savedata#PS1_Single_Save_.3F_.28.PSV.29
+  - Command line tool for PS1 memcards: https://github.com/G4Vi/psx_mc_cli
 - N64:
   - https://github.com/bryc/mempak
     - https://bryc.github.io/mempak/ (online preview)
