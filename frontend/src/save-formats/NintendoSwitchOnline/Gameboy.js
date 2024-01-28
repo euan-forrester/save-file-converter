@@ -4,6 +4,8 @@ one for the ROM used and the other for the save data itself
 
 There are (at least!) 3 different possible file formats, denoted by the data around the emulator version number embedded in the file.
 
+Magic 3 appears to denote whether there is RTC data next.
+
 Format A:
 
 0x00: Magic 1: "SRAM" + 0x03
@@ -17,24 +19,35 @@ Format B:
 
 0x00: Magic 1: "SRAM" + 0x03
 0x08: Encoded SHA-1 hash of the ROM
-0x30: Magic 2: 0x0D000000 + "master-vXXX.X"
-0x41: Magic 3: 0x00
-0x42: Encoded SHA-1 hash of the raw save data
-0x70: Raw save data
+0x30: Magic 2: 0x0B000000 + "HEAD-vXXX.X"
+0x3F: Magic 3: 0x01
+0x40-0x5F: RTC data?
+0x60: Encoded SHA-1 hash of the raw save data
+0x88: Raw save data
 
 Format C:
 
 0x00: Magic 1: "SRAM" + 0x03
 0x08: Encoded SHA-1 hash of the ROM
 0x30: Magic 2: 0x0D000000 + "master-vXXX.X"
+0x41: Magic 3: 0x00
+0x42: Encoded SHA-1 hash of the raw save data
+0x70: Raw save data
+
+Format D:
+
+0x00: Magic 1: "SRAM" + 0x03
+0x08: Encoded SHA-1 hash of the ROM
+0x30: Magic 2: 0x0D000000 + "master-vXXX.X"
 0x41: Magic 3: 0x01
-0x42-0x61: Unknown data
+0x42-0x61: RTC data?
 0x62: Encoded SHA-1 hash of the raw save data
 0x90: Raw save data
 
-It appears there's at least 4 versions of magic 2:
+It appears there's at least 5 versions of magic 2:
 - HEAD-v178.0 (the initial batch of NSO games)
 - HEAD-v184.0 (Kirby's Dreamland 2)
+- HEAD-v203.0 (Spanish versions of Pokemon Red/Blue/Yellow/Gold/Silver/Crystal)
 - master-v196.0 (Pokemon TCG)
 - master-v199.0 (Pokemon - Crystal Version)
 */
@@ -55,54 +68,54 @@ const HASH_ENCODING = 'US-ASCII';
 const MAGIC2_OFFSET = 0x30;
 const MAGIC2 = {
   A: [0x0B, 0x00, 0x00, 0x00, 0x48, 0x45, 0x41, 0x44, 0x2D, 0x76], // 'HEAD-v';
-  B: [0x0D, 0x00, 0x00, 0x00, 0x6D, 0x61, 0x73, 0x74, 0x65, 0x72, 0x2D, 0x76], // 'master-v'
   C: [0x0D, 0x00, 0x00, 0x00, 0x6D, 0x61, 0x73, 0x74, 0x65, 0x72, 0x2D, 0x76], // 'master-v'
+  D: [0x0D, 0x00, 0x00, 0x00, 0x6D, 0x61, 0x73, 0x74, 0x65, 0x72, 0x2D, 0x76], // 'master-v'
 };
 
 const MAGIC3_OFFSET = {
   A: 0x3F,
-  B: 0x41,
   C: 0x41,
+  D: 0x41,
 };
 const MAGIC3 = {
   A: 0x00,
-  B: 0x00,
-  C: 0x01,
+  C: 0x00,
+  D: 0x01,
 };
 
 const UNKNOWN_DATA_OFFSET = {
   A: 0x40,
-  B: 0x42,
   C: 0x42,
+  D: 0x42,
 };
 const UNKNOWN_DATA_LENGTH = {
   A: 0x00,
-  B: 0x00,
-  C: 0x20,
+  C: 0x00,
+  D: 0x20,
 };
 
 const VERSION_NUMBER_OFFSET = {
   A: MAGIC2_OFFSET + MAGIC2.A.length,
-  B: MAGIC2_OFFSET + MAGIC2.B.length,
   C: MAGIC2_OFFSET + MAGIC2.C.length,
+  D: MAGIC2_OFFSET + MAGIC2.D.length,
 };
 const VERSION_NUMBER_LENGTH = 5;
 
 const SAVE_DATA_HASH_OFFSET = {
   A: 0x40,
-  B: 0x42,
-  C: 0x62,
+  C: 0x42,
+  D: 0x62,
 };
 
 const DATA_BEGIN_OFFSET = {
   A: SAVE_DATA_HASH_OFFSET.A + HASH_LENGTH,
-  B: SAVE_DATA_HASH_OFFSET.B + HASH_LENGTH,
   C: SAVE_DATA_HASH_OFFSET.C + HASH_LENGTH,
+  D: SAVE_DATA_HASH_OFFSET.D + HASH_LENGTH,
 };
 const HEADER_LENGTH = {
   A: DATA_BEGIN_OFFSET.A,
-  B: DATA_BEGIN_OFFSET.B,
   C: DATA_BEGIN_OFFSET.C,
+  D: DATA_BEGIN_OFFSET.D,
 };
 
 const HEADER_FILL_VALUE = 0x00; // There are some misc 0x00 bytes after the magics
