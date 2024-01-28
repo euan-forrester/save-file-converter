@@ -36,6 +36,18 @@ const GB_NEWER_VERSION_NUMBER = Util.bufferToArrayBuffer(textEncoder.encode('184
 const GB_NEWER_VERSION_UNKNOWN_DATA = null;
 const GB_NEWER_VERSION_FILE_FORMAT = 'A';
 
+const NSO_GBC_FORMAT_B_FILENAME = `${DIR}/Pokemon Cristal.sram`;
+const RAW_GBC_FORMAT_B_FILENAME = `${DIR}/Pokemon Cristal.sav`;
+const GBC_FORMAT_B_ROM_HASH = Util.bufferToArrayBuffer(textEncoder.encode('889a06fc0bb863666865aa69def0adf97945ac2a'));
+const GBC_FORMAT_B_VERSION_NUMBER = Util.bufferToArrayBuffer(textEncoder.encode('203.0'));
+const GBC_FORMAT_B_UNKNOWN_DATA = Util.bufferToArrayBuffer(
+  new Uint8Array(
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x09, 0x0A, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x09, 0x0A, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00],
+  ),
+);
+const GB_FORMAT_B_FILE_FORMAT = 'B';
+
 const NSO_GBC_FORMAT_C_FILENAME = `${DIR}/Pokemon_TCG.sram`;
 const RAW_GBC_FORMAT_C_FILENAME = `${DIR}/Pokemon_TCG.sav`;
 const GBC_FORMAT_C_ROM_HASH = Util.bufferToArrayBuffer(textEncoder.encode('0f8670a583255cff3e5b7ca71b5d7454d928fc48'));
@@ -95,6 +107,28 @@ describe('Nintendo Switch Online - Gameboy', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getEncodedRomHash(), GB_NEWER_VERSION_ROM_HASH)).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getEncodedVersion(), GB_NEWER_VERSION_NUMBER)).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getFileFormat(), GB_NEWER_VERSION_FILE_FORMAT)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a raw format B GBC save to NSO format', async () => {
+    const nsoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NSO_GBC_FORMAT_B_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_FORMAT_B_FILENAME);
+
+    const nsoSaveData = NsoGameboySaveData.createFromRawData(rawArrayBuffer, GBC_FORMAT_B_ROM_HASH, GBC_FORMAT_B_VERSION_NUMBER, GBC_FORMAT_B_UNKNOWN_DATA, GB_FORMAT_B_FILE_FORMAT);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getNsoArrayBuffer(), nsoArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a NSO format B GBC save to raw format', async () => {
+    const nsoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NSO_GBC_FORMAT_B_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_FORMAT_B_FILENAME);
+
+    const nsoSaveData = NsoGameboySaveData.createFromNsoData(nsoArrayBuffer);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getEncodedRomHash(), GBC_FORMAT_B_ROM_HASH)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getEncodedVersion(), GBC_FORMAT_B_VERSION_NUMBER)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getUnknownData(), GBC_FORMAT_B_UNKNOWN_DATA)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getFileFormat(), GB_FORMAT_B_FILE_FORMAT)).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
 

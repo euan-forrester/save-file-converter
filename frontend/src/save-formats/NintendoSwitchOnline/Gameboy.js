@@ -68,34 +68,41 @@ const HASH_ENCODING = 'US-ASCII';
 const MAGIC2_OFFSET = 0x30;
 const MAGIC2 = {
   A: [0x0B, 0x00, 0x00, 0x00, 0x48, 0x45, 0x41, 0x44, 0x2D, 0x76], // 'HEAD-v';
+  B: [0x0B, 0x00, 0x00, 0x00, 0x48, 0x45, 0x41, 0x44, 0x2D, 0x76], // 'HEAD-v';
   C: [0x0D, 0x00, 0x00, 0x00, 0x6D, 0x61, 0x73, 0x74, 0x65, 0x72, 0x2D, 0x76], // 'master-v'
   D: [0x0D, 0x00, 0x00, 0x00, 0x6D, 0x61, 0x73, 0x74, 0x65, 0x72, 0x2D, 0x76], // 'master-v'
 };
 
 const MAGIC3_OFFSET = {
   A: 0x3F,
+  B: 0x3F,
   C: 0x41,
   D: 0x41,
 };
 const MAGIC3 = {
   A: 0x00,
+  B: 0x01,
   C: 0x00,
   D: 0x01,
 };
 
+// This is likely RTC data (it's found in Pokemon Gold/Silver/Crystal and not in Pokemon Red/Blue/Yellow)
 const UNKNOWN_DATA_OFFSET = {
   A: 0x40,
+  B: 0x40,
   C: 0x42,
   D: 0x42,
 };
 const UNKNOWN_DATA_LENGTH = {
   A: 0x00,
+  B: 0x20,
   C: 0x00,
   D: 0x20,
 };
 
 const VERSION_NUMBER_OFFSET = {
   A: MAGIC2_OFFSET + MAGIC2.A.length,
+  B: MAGIC2_OFFSET + MAGIC2.B.length,
   C: MAGIC2_OFFSET + MAGIC2.C.length,
   D: MAGIC2_OFFSET + MAGIC2.D.length,
 };
@@ -103,17 +110,20 @@ const VERSION_NUMBER_LENGTH = 5;
 
 const SAVE_DATA_HASH_OFFSET = {
   A: 0x40,
+  B: 0x60,
   C: 0x42,
   D: 0x62,
 };
 
 const DATA_BEGIN_OFFSET = {
   A: SAVE_DATA_HASH_OFFSET.A + HASH_LENGTH,
+  B: SAVE_DATA_HASH_OFFSET.B + HASH_LENGTH,
   C: SAVE_DATA_HASH_OFFSET.C + HASH_LENGTH,
   D: SAVE_DATA_HASH_OFFSET.D + HASH_LENGTH,
 };
 const HEADER_LENGTH = {
   A: DATA_BEGIN_OFFSET.A,
+  B: DATA_BEGIN_OFFSET.B,
   C: DATA_BEGIN_OFFSET.C,
   D: DATA_BEGIN_OFFSET.D,
 };
@@ -121,6 +131,8 @@ const HEADER_LENGTH = {
 const HEADER_FILL_VALUE = 0x00; // There are some misc 0x00 bytes after the magics
 
 function getFileFormat(nsoArrayBuffer) {
+  let potentialFileFormats = [];
+
   // First, figure out which magic2 matches
 
   let magic2Type = null;
@@ -141,38 +153,38 @@ function getFileFormat(nsoArrayBuffer) {
     throw new Error('This does not appear to be a Nintendo Switch Online Gameboy save file');
   }
 
-  // If magic2 is of type A, then the file format is type A
+  // If magic2 is of type A, then the file format is type A or B
+  // If magic2 is of type C, then the file format is type C or D
 
   if (magic2Type === 'A') {
-    return magic2Type;
+    potentialFileFormats = ['A', 'B'];
+  } else if (magic2Type === 'C') {
+    potentialFileFormats = ['C', 'D'];
+  } else {
+    throw new Error('This does not appear to be a Nintendo Switch Online Gameboy save file');
   }
 
-  // If magic2 is of type B, then we need to look at magic3
+  // Now we need to look at magic3
 
   const nsoDataView = new DataView(nsoArrayBuffer);
   const magic3 = nsoDataView.getUint8(MAGIC3_OFFSET[magic2Type]);
 
-  let magic3Type = null;
-  const magic3Keys = Object.keys(MAGIC3);
+  let fileFormat = null;
 
-  magic3Keys.shift(); // We know we're not format A, so remove it from the list of possibilities
-
-  for (let i = 0; i < magic3Keys.length; i += 1) { // linter doesn't like "for (const key of magic3Keys)": too heavyweight
-    const key = magic3Keys[i];
+  for (let i = 0; i < potentialFileFormats.length; i += 1) { // linter doesn't like "for (const key of magic3Keys)": too heavyweight
+    const key = potentialFileFormats[i];
 
     if (magic3 === MAGIC3[key]) {
-      magic3Type = key;
+      fileFormat = key;
       break;
     }
   }
 
-  if (magic3Type === null) {
+  if (fileFormat === null) {
     throw new Error('This does not appear to be a Nintendo Switch Online Gameboy save file');
   }
 
-  // Our magic3 type will be either B or C, which now corresponds to our file type
-
-  return magic3Type;
+  return fileFormat;
 }
 
 export default class NsoGameboySaveData {
