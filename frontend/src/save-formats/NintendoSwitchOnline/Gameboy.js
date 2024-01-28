@@ -66,19 +66,19 @@ const HASH_LENGTH = 40; // The SHA-1 digest is converted to hex and encoded as A
 const HASH_ENCODING = 'US-ASCII';
 
 const MAGIC2_OFFSET = 0x30;
-const MAGIC2 = {
-  A: [0x0B, 0x00, 0x00, 0x00, 0x48, 0x45, 0x41, 0x44, 0x2D, 0x76], // 'HEAD-v';
-  B: [0x0B, 0x00, 0x00, 0x00, 0x48, 0x45, 0x41, 0x44, 0x2D, 0x76], // 'HEAD-v';
-  C: [0x0D, 0x00, 0x00, 0x00, 0x6D, 0x61, 0x73, 0x74, 0x65, 0x72, 0x2D, 0x76], // 'master-v'
-  D: [0x0D, 0x00, 0x00, 0x00, 0x6D, 0x61, 0x73, 0x74, 0x65, 0x72, 0x2D, 0x76], // 'master-v'
-};
+const MAGIC2 = [
+  {
+    magic: [0x0B, 0x00, 0x00, 0x00, 0x48, 0x45, 0x41, 0x44, 0x2D, 0x76], // 'HEAD-v'
+    fileFormats: ['A', 'B'],
+    magic3Offset: 0x3F,
+  },
+  {
+    magic: [0x0D, 0x00, 0x00, 0x00, 0x6D, 0x61, 0x73, 0x74, 0x65, 0x72, 0x2D, 0x76], // 'master-v'
+    fileFormats: ['C', 'D'],
+    magic3Offset: 0x41,
+  },
+];
 
-const MAGIC3_OFFSET = {
-  A: 0x3F,
-  B: 0x3F,
-  C: 0x41,
-  D: 0x41,
-};
 const MAGIC3 = {
   A: 0x00,
   B: 0x01,
@@ -101,10 +101,10 @@ const UNKNOWN_DATA_LENGTH = {
 };
 
 const VERSION_NUMBER_OFFSET = {
-  A: MAGIC2_OFFSET + MAGIC2.A.length,
-  B: MAGIC2_OFFSET + MAGIC2.B.length,
-  C: MAGIC2_OFFSET + MAGIC2.C.length,
-  D: MAGIC2_OFFSET + MAGIC2.D.length,
+  A: MAGIC2_OFFSET + MAGIC2[0].magic.length,
+  B: MAGIC2_OFFSET + MAGIC2[0].magic.length,
+  C: MAGIC2_OFFSET + MAGIC2[1].magic.length,
+  D: MAGIC2_OFFSET + MAGIC2[1].magic.length,
 };
 const VERSION_NUMBER_LENGTH = 5;
 
@@ -131,13 +131,11 @@ const HEADER_LENGTH = {
 const HEADER_FILL_VALUE = 0x00; // There are some misc 0x00 bytes after the magics
 
 function getFileFormat(nsoArrayBuffer) {
-  let potentialFileFormats = [];
-
   // First, figure out which magic2 matches
 
-  const magic2Type = Object.keys(MAGIC2).find((key) => {
+  const magic2Type = MAGIC2.find((potentialMagic2Type) => {
     try {
-      Util.checkMagicBytes(nsoArrayBuffer, MAGIC2_OFFSET, MAGIC2[key]);
+      Util.checkMagicBytes(nsoArrayBuffer, MAGIC2_OFFSET, potentialMagic2Type.magic);
       return true;
     } catch (e) {
       return false;
@@ -148,21 +146,12 @@ function getFileFormat(nsoArrayBuffer) {
     throw new Error('This does not appear to be a Nintendo Switch Online Gameboy save file');
   }
 
-  // If magic2 is of type A, then the file format is type A or B
-  // If magic2 is of type C, then the file format is type C or D
-
-  if (magic2Type === 'A') {
-    potentialFileFormats = ['A', 'B'];
-  } else if (magic2Type === 'C') {
-    potentialFileFormats = ['C', 'D'];
-  } else {
-    throw new Error('This does not appear to be a Nintendo Switch Online Gameboy save file');
-  }
+  const potentialFileFormats = magic2Type.fileFormats;
 
   // Now we need to look at magic3
 
   const nsoDataView = new DataView(nsoArrayBuffer);
-  const magic3 = nsoDataView.getUint8(MAGIC3_OFFSET[magic2Type]);
+  const magic3 = nsoDataView.getUint8(magic2Type.magic3Offset);
   const fileFormat = potentialFileFormats.find((potentialFileFormat) => (magic3 === MAGIC3[potentialFileFormat]));
 
   if (fileFormat === undefined) {
@@ -214,10 +203,12 @@ export default class NsoGameboySaveData {
 
     const headerDataView = new DataView(headerArrayBuffer);
 
-    headerDataView.setUint8(MAGIC3_OFFSET[fileFormat], MAGIC3[fileFormat]); // We can't interleave this line with lines that mess with headerArrayBuffer below, otherwise this change gets stomped
+    const magic2Type = MAGIC2.find((potentialMagic2Type) => (potentialMagic2Type.fileFormats.indexOf(fileFormat) >= 0));
+
+    headerDataView.setUint8(magic2Type.magic3Offset, MAGIC3[fileFormat]); // We can't interleave this line with lines that mess with headerArrayBuffer below, otherwise this change gets stomped
 
     headerArrayBuffer = Util.setMagicBytes(headerArrayBuffer, MAGIC1_OFFSET, MAGIC1);
-    headerArrayBuffer = Util.setMagicBytes(headerArrayBuffer, MAGIC2_OFFSET, MAGIC2[fileFormat]);
+    headerArrayBuffer = Util.setMagicBytes(headerArrayBuffer, MAGIC2_OFFSET, magic2Type.magic);
     headerArrayBuffer = Util.setArrayBufferPortion(headerArrayBuffer, encodedVersionArrayBuffer, VERSION_NUMBER_OFFSET[fileFormat], 0, VERSION_NUMBER_LENGTH);
 
     if (UNKNOWN_DATA_LENGTH[fileFormat] > 0) {
