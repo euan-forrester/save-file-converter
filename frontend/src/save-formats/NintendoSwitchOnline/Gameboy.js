@@ -135,21 +135,16 @@ function getFileFormat(nsoArrayBuffer) {
 
   // First, figure out which magic2 matches
 
-  let magic2Type = null;
-  const magic2Keys = Object.keys(MAGIC2);
-
-  for (let i = 0; i < magic2Keys.length; i += 1) { // linter doesn't like "for (const key of magic2Keys)": too heavyweight
-    const key = magic2Keys[i];
+  const magic2Type = Object.keys(MAGIC2).find((key) => {
     try {
       Util.checkMagicBytes(nsoArrayBuffer, MAGIC2_OFFSET, MAGIC2[key]);
-      magic2Type = key;
-      break;
+      return true;
     } catch (e) {
-      // Next iteration
+      return false;
     }
-  }
+  });
 
-  if (magic2Type === null) {
+  if (magic2Type === undefined) {
     throw new Error('This does not appear to be a Nintendo Switch Online Gameboy save file');
   }
 
@@ -168,19 +163,9 @@ function getFileFormat(nsoArrayBuffer) {
 
   const nsoDataView = new DataView(nsoArrayBuffer);
   const magic3 = nsoDataView.getUint8(MAGIC3_OFFSET[magic2Type]);
+  const fileFormat = potentialFileFormats.find((potentialFileFormat) => (magic3 === MAGIC3[potentialFileFormat]));
 
-  let fileFormat = null;
-
-  for (let i = 0; i < potentialFileFormats.length; i += 1) { // linter doesn't like "for (const key of magic3Keys)": too heavyweight
-    const key = potentialFileFormats[i];
-
-    if (magic3 === MAGIC3[key]) {
-      fileFormat = key;
-      break;
-    }
-  }
-
-  if (fileFormat === null) {
+  if (fileFormat === undefined) {
     throw new Error('This does not appear to be a Nintendo Switch Online Gameboy save file');
   }
 
