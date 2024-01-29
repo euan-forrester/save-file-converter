@@ -7,7 +7,7 @@ It matches having the ROM internal name at the start of the file, and having the
 
 My tenuous belief that it's VBA-next comes from this: https://github.com/liriliri/luna/blob/master/src/retro-emulator/story.js#L20
 
-And my tenuous belief that that package is relevant is because the sites I looked at seem to get their emulation from retroemulator.com (which in turn appears to get its ROMs from playroms.net)
+And my tenuous belief that that package is relevant is because the sites I looked at seem to get their emulation from retroemulator[.]com (which in turn appears to get its ROMs from playroms[.]net)
 
 In-game save data offsets
 =========================
