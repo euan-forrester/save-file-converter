@@ -58,12 +58,20 @@ export default class OnlineEmulatorWrapper {
 
     switch (platform) {
       case 'snes': {
-        files = saveStates.map((saveState) => ({ name: saveState.name, emulatorSaveStateData: Snes9xSaveStateData.createFromSaveStateData(saveState.arrayBuffer) }));
+        files = saveStates.map((saveState) => ({
+          name: saveState.name,
+          clazz: Snes9xSaveStateData,
+          emulatorSaveStateData: Snes9xSaveStateData.createFromSaveStateData(saveState.arrayBuffer),
+        }));
         break;
       }
 
       case 'gba': {
-        files = saveStates.map((saveState) => ({ name: saveState.name, emulatorSaveStateData: VbaNextSaveStateData.createFromSaveStateData(saveState.arrayBuffer, saveSize) }));
+        files = saveStates.map((saveState) => ({
+          name: saveState.name,
+          clazz: VbaNextSaveStateData,
+          emulatorSaveStateData: VbaNextSaveStateData.createFromSaveStateData(saveState.arrayBuffer, saveSize),
+        }));
         break;
       }
 
@@ -76,7 +84,12 @@ export default class OnlineEmulatorWrapper {
   }
 
   static createWithNewSize(onlineEmulatorWrapperData, newSize) {
-    console.log(`onlineEmulatorWrapperData: ${onlineEmulatorWrapperData}, newSize: ${newSize}`);
+    const files = onlineEmulatorWrapperData.getFiles().map((file) => ({
+      ...file,
+      emulatorSaveStateData: file.clazz.createWithNewSize(file.emulatorSaveStateData, newSize),
+    }));
+
+    return new OnlineEmulatorWrapper(files, onlineEmulatorWrapperData.getPlatform());
   }
 
   static getRawFileExtension() {
@@ -94,5 +107,9 @@ export default class OnlineEmulatorWrapper {
 
   getFiles() {
     return this.files;
+  }
+
+  getPlatform() {
+    return this.platform;
   }
 }

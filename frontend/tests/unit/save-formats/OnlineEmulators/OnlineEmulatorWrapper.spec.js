@@ -89,4 +89,46 @@ describe('OnlineEmulators - Wrapper', () => {
     expect(onlineEmulatorWrapper.getFiles()[0].name).to.equal(Util.getFilename(EMULATOR_SINGLE_SAVE_GBA_FILENAME));
     expect(ArrayBufferUtil.arrayBuffersEqual(onlineEmulatorWrapper.getFiles()[0].emulatorSaveStateData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
+
+  it('should resize saves within an online emulator file containing multiple GBA save states', async () => {
+    const emulatorArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_MULTIPLE_SAVE_GBA_FILENAME);
+    const rawArrayBuffers = await Promise.all(RAW_MULTIPLE_SAVE_GBA_FILENAMES.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
+
+    const onlineEmulatorWrapper = await OnlineEmulatorWrapper.createFromEmulatorData(emulatorArrayBuffer, Util.getFilename(EMULATOR_MULTIPLE_SAVE_GBA_FILENAME), 'gba', 8192);
+
+    const resizedOnlineEmulatorWrapper = OnlineEmulatorWrapper.createWithNewSize(onlineEmulatorWrapper, 512);
+
+    // These arraybuffers will be truncated versions of the correct in-game saves. They won't be valid to load in an emulator
+
+    expect(resizedOnlineEmulatorWrapper.getFiles().length).to.equal(4);
+    expect(resizedOnlineEmulatorWrapper.getFiles()[0].emulatorSaveStateData.getRawArrayBuffer().byteLength).to.equal(512);
+    expect(resizedOnlineEmulatorWrapper.getFiles()[1].emulatorSaveStateData.getRawArrayBuffer().byteLength).to.equal(512);
+    expect(resizedOnlineEmulatorWrapper.getFiles()[2].emulatorSaveStateData.getRawArrayBuffer().byteLength).to.equal(512);
+    expect(resizedOnlineEmulatorWrapper.getFiles()[3].emulatorSaveStateData.getRawArrayBuffer().byteLength).to.equal(512);
+
+    const rawArrayBuffersTruncated = rawArrayBuffers.map((i) => i.slice(0, 512));
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(resizedOnlineEmulatorWrapper.getFiles()[0].emulatorSaveStateData.getRawArrayBuffer(), rawArrayBuffersTruncated[0])).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(resizedOnlineEmulatorWrapper.getFiles()[1].emulatorSaveStateData.getRawArrayBuffer(), rawArrayBuffersTruncated[1])).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(resizedOnlineEmulatorWrapper.getFiles()[2].emulatorSaveStateData.getRawArrayBuffer(), rawArrayBuffersTruncated[2])).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(resizedOnlineEmulatorWrapper.getFiles()[3].emulatorSaveStateData.getRawArrayBuffer(), rawArrayBuffersTruncated[3])).to.equal(true);
+  });
+
+  it('should resize saves within an online emulator file containing multiple SNES save states', async () => {
+    const emulatorArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_SINGLE_SAVE_SNES_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_SINGLE_SAVE_SNES_FILENAME);
+
+    const onlineEmulatorWrapper = await OnlineEmulatorWrapper.createFromEmulatorData(emulatorArrayBuffer, Util.getFilename(EMULATOR_SINGLE_SAVE_SNES_FILENAME), 'snes');
+
+    const resizedOnlineEmulatorWrapper = OnlineEmulatorWrapper.createWithNewSize(onlineEmulatorWrapper, 512);
+
+    // These arraybuffers will be truncated versions of the correct in-game saves. They won't be valid to load in an emulator
+
+    expect(resizedOnlineEmulatorWrapper.getFiles().length).to.equal(1);
+    expect(resizedOnlineEmulatorWrapper.getFiles()[0].emulatorSaveStateData.getRawArrayBuffer().byteLength).to.equal(512);
+
+    const rawArrayBufferTruncated = rawArrayBuffer.slice(0, 512);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(resizedOnlineEmulatorWrapper.getFiles()[0].emulatorSaveStateData.getRawArrayBuffer(), rawArrayBufferTruncated)).to.equal(true);
+  });
 });
