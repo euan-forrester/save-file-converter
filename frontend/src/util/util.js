@@ -19,6 +19,10 @@ export default class Util {
     return path.basename(filename);
   }
 
+  static getExtension(filename) {
+    return path.extname(filename);
+  }
+
   static appendToFilename(filename, stringToAppend) {
     return `${Util.removeFilenameExtension(filename)}${stringToAppend}${path.extname(filename)}`;
   }
