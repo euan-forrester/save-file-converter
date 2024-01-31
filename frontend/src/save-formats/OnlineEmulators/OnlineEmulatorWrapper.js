@@ -16,21 +16,43 @@ import VbaNextSaveStateData from './Emulators/VBA-Next';
 
 const IMAGE_FILE_TYPES = ['.png', '.jpg', '.jpeg', '.tif', '.tiff', '.gif', '.bmp'];
 
+async function getSaveStatesFromZip(zipContents) {
+  const compressedSaveStateFiles = zipContents.filter((relativePath, file) => (IMAGE_FILE_TYPES.indexOf(Util.getExtension(file.name)) < 0));
+
+  const saveStateData = await Promise.all(compressedSaveStateFiles.map((file) => file.async('arraybuffer')));
+
+  return compressedSaveStateFiles.map((file, i) => ({ name: file.name, arrayBuffer: saveStateData[i] }));
+}
+
+function getSaveStateFromSingleFile(arrayBuffer, filename) {
+  return [{ name: filename, arrayBuffer }];
+}
+
 export default class OnlineEmulatorWrapper {
-  static async createFromEmulatorData(emulatorSaveStateArrayBuffer, platform, saveSize) {
+  static async createFromEmulatorData(emulatorSaveStateArrayBuffer, emulatorSaveStateFilename, platform, saveSize) {
     // First we need to determine whether we've been given a compressed file containing save states,
     // or just given a save state directly
 
     const zip = new JSZip();
 
-    const zipContents = await zip.loadAsync(emulatorSaveStateArrayBuffer, { checkCRC32: true });
+    let saveStates = [];
 
-    const compressedSaveStateFiles = zipContents.filter((relativePath, file) => (IMAGE_FILE_TYPES.indexOf(Util.getExtension(file.name)) < 0));
+    try {
+      const zipContents = await zip.loadAsync(emulatorSaveStateArrayBuffer, { checkCRC32: true });
+      saveStates = await getSaveStatesFromZip(zipContents);
+    } catch (e) {
+      // According to wikipedia, the correct way to determine whether a file is a zip file is to look
+      // for an end of central directory record. There's also a byte signature at the start of the file,
+      // but apparently this is optional and not always present
+      // https://en.wikipedia.org/wiki/ZIP_(file_format)#Structure
+      if (e.message.startsWith('Can\'t find end of central directory')) {
+        saveStates = getSaveStateFromSingleFile(emulatorSaveStateArrayBuffer, emulatorSaveStateFilename);
+      } else {
+        throw e;
+      }
+    }
 
-    const saveStateDataPromises = compressedSaveStateFiles.map((file) => file.async('arraybuffer'));
-    const saveStateData = await Promise.all(saveStateDataPromises);
-
-    const saveStates = compressedSaveStateFiles.map((file, i) => ({ name: file.name, arrayBuffer: saveStateData[i] }));
+    // Now that we have our save state data, turn it into raw in-game saves
 
     let files = null;
 
