@@ -96,6 +96,11 @@ const routes = [
     component: () => import(/* webpackChunkName: "flash-carts" */ '../views/FlashCarts.vue'),
   },
   {
+    path: '/online-emulators',
+    name: 'Online emulators',
+    component: () => import(/* webpackChunkName: "online-emulators" */ '../views/OnlineEmulators.vue'),
+  },
+  {
     path: '/sega-cd',
     name: 'Sega CD',
     component: () => import(/* webpackChunkName: "sega-cd" */ '../views/SegaCd.vue'),
