@@ -82,6 +82,7 @@ Everything on this site is free and open source with no advertising. If you find
 - Wii U Virtual Console:
   - https://github.com/mstan/SaveAIO
 - PSP save file decryption/encryption (note that some files require a per-game key):
+  - KIRK engine reverse-engineering: https://github.com/ProximaV/kirk-engine-full/tree/master
   - https://www.psdevwiki.com/ps3/PSP_Savedata
   - https://github.com/BrianBTB/SED-PC (PC application that decrypts/encrypts saves)
   - https://github.com/cielavenir/psp-savedata-endecrypter (improvement to SED-PC that works with "mode 4" (whatever that is???))
