@@ -28,8 +28,21 @@ function getSaveStateFromSingleFile(arrayBuffer, filename) {
   return [{ name: filename, arrayBuffer }];
 }
 
+function getClass(platform) {
+  switch (platform) {
+    case 'snes':
+      return Snes9xSaveStateData;
+
+    case 'gba':
+      return VbaNextSaveStateData;
+
+    default:
+      throw new Error(`Unrecognized platform type: '${platform}'`);
+  }
+}
+
 export default class OnlineEmulatorWrapper {
-  static async createFromEmulatorData(emulatorSaveStateArrayBuffer, emulatorSaveStateFilename, platform, saveSize) {
+  static async createFromEmulatorData(emulatorSaveStateArrayBuffer, emulatorSaveStateFilename, platform, saveSize = null) {
     // First we need to determine whether we've been given a compressed file containing save states,
     // or just given a save state directly
 
@@ -54,55 +67,42 @@ export default class OnlineEmulatorWrapper {
 
     // Now that we have our save state data, turn it into raw in-game saves
 
-    let files = null;
-
-    switch (platform) {
-      case 'snes': {
-        files = saveStates.map((saveState) => ({
-          name: saveState.name,
-          clazz: Snes9xSaveStateData,
-          emulatorSaveStateData: Snes9xSaveStateData.createFromSaveStateData(saveState.arrayBuffer),
-        }));
-        break;
-      }
-
-      case 'gba': {
-        files = saveStates.map((saveState) => ({
-          name: saveState.name,
-          clazz: VbaNextSaveStateData,
-          emulatorSaveStateData: VbaNextSaveStateData.createFromSaveStateData(saveState.arrayBuffer, saveSize),
-        }));
-        break;
-      }
-
-      default: {
-        throw new Error(`Unrecognized platform type: '${platform}'`);
-      }
-    }
-
-    return new OnlineEmulatorWrapper(files, platform);
-  }
-
-  static createWithNewSize(onlineEmulatorWrapperData, newSize) {
-    const files = onlineEmulatorWrapperData.getFiles().map((file) => ({
-      ...file,
-      emulatorSaveStateData: file.clazz.createWithNewSize(file.emulatorSaveStateData, newSize),
+    const clazz = getClass(platform);
+    const files = saveStates.map((saveState) => ({
+      name: saveState.name,
+      emulatorSaveStateData: clazz.createFromSaveStateData(saveState.arrayBuffer, saveSize),
     }));
 
-    return new OnlineEmulatorWrapper(files, onlineEmulatorWrapperData.getPlatform());
+    return new OnlineEmulatorWrapper(files, platform, clazz);
   }
 
   static getRawFileExtension() {
     return 'sav';
   }
 
-  static adjustOutputSizesPlatform() {
-    return this.platform;
+  static createWithNewSize(onlineEmulatorWrapperData, newSize) {
+    const files = onlineEmulatorWrapperData.getFiles().map((file) => ({
+      ...file,
+      emulatorSaveStateData: onlineEmulatorWrapperData.getClass().createWithNewSize(file.emulatorSaveStateData, newSize),
+    }));
+
+    return new OnlineEmulatorWrapper(files, onlineEmulatorWrapperData.getPlatform(), onlineEmulatorWrapperData.getClass());
   }
 
-  constructor(files, platform) {
+  static fileSizeIsRequiredToConvert(platform) {
+    const clazz = getClass(platform);
+
+    return clazz.fileSizeIsRequiredToConvert();
+  }
+
+  constructor(files, platform, clazz) {
     this.files = files;
     this.platform = platform;
+    this.clazz = clazz;
+  }
+
+  adjustOutputSizesPlatform() {
+    return this.platform;
   }
 
   getFiles() {
@@ -111,5 +111,9 @@ export default class OnlineEmulatorWrapper {
 
   getPlatform() {
     return this.platform;
+  }
+
+  getClass() {
+    return this.clazz;
   }
 }

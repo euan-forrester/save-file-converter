@@ -69,6 +69,10 @@ export default class VbaNextSaveStateData {
     return 'gba';
   }
 
+  static fileSizeIsRequiredToConvert() {
+    return true;
+  }
+
   constructor(emulatorSaveStateArrayBuffer, rawArrayBuffer, saveSize) {
     this.emulatorSaveStateArrayBuffer = emulatorSaveStateArrayBuffer;
     this.rawArrayBuffer = rawArrayBuffer;

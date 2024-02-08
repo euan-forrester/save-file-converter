@@ -52,6 +52,10 @@ export default class Snes9xSaveStateData {
     return 'snes';
   }
 
+  static fileSizeIsRequiredToConvert() {
+    return false;
+  }
+
   constructor(emulatorSaveStateArrayBuffer, rawArrayBuffer) {
     this.emulatorSaveStateArrayBuffer = emulatorSaveStateArrayBuffer;
     this.rawArrayBuffer = rawArrayBuffer;
