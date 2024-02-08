@@ -19,6 +19,10 @@ export default class Util {
     return path.basename(filename);
   }
 
+  static getExtension(filename) {
+    return path.extname(filename);
+  }
+
   static appendToFilename(filename, stringToAppend) {
     return `${Util.removeFilenameExtension(filename)}${stringToAppend}${path.extname(filename)}`;
   }
@@ -87,6 +91,20 @@ export default class Util {
     }
 
     return outputArrayBuffer;
+  }
+
+  static findMagic(arrayBuffer, magic, magicEncoding, startOffset = 0) {
+    const magicTextDecoder = new TextDecoder(magicEncoding);
+
+    for (let offset = startOffset; offset < (arrayBuffer.byteLength - magic.length); offset += 1) {
+      const magicFound = magicTextDecoder.decode(arrayBuffer.slice(offset, offset + magic.length));
+
+      if (magicFound === magic) {
+        return offset;
+      }
+    }
+
+    throw new Error(`Save appears corrupted: could not find magic '${magic}'`);
   }
 
   static trimNull(s) {

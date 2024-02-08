@@ -1,0 +1,1 @@
+This appears to use the Genesis Plus GX emulator (somehow ported to the browser), judging by the header in the save state. I looked through a save state for Phantasy Star IV and couldn't see the SRAM data in any obvious location (SRAM data for this game has a recognizable header)

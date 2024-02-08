@@ -8,8 +8,9 @@
           :options="options"
         />
         <help-button
-          popover-text="Some cartridges, flash carts, or emulators may not accept saves of a particular size for a particular game.
-          Try creating a test save with your cartridge, flash cart, or emulator to find what size it expects, then adjust the value here if necessary."
+          :popover-text="this.overrideHelpText !== null ? this.overrideHelpText :
+            'Some cartridges, flash carts, or emulators may not accept saves of a particular size for a particular game. \
+            Try creating a test save with your cartridge, flash cart, or emulator to find what size it expects, then adjust the value here if necessary.'"
           :id="this.id"
           class="help-button"
         />
@@ -48,6 +49,10 @@ export default {
     valuesToRemove: {
       type: Array,
       default: () => [],
+    },
+    overrideHelpText: {
+      type: String,
+      default: null,
     },
   },
   components: {

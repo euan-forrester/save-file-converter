@@ -55,7 +55,7 @@ export default {
         { value: null, text: 'Choose platform', disabled: true },
         { value: 'Mister-NES', text: 'NES' },
         { value: 'Mister-SNES', text: 'Super NES' },
-        // { value: 'Mister-N64', text: 'Nintendo 64', disabled: true }, // MiSTer hardware not powerful enough
+        // { value: 'Mister-N64', text: 'Nintendo 64', disabled: true }, // Coming soon
         // { value: 'Mister-GCN', text: 'GameCube', disabled: true }, // MiSTer hardware not powerful enough
         { value: 'Mister-GB', text: 'Game Boy/Game Boy Color' },
         { value: 'Mister-GBA', text: 'Game Boy Advance' },
