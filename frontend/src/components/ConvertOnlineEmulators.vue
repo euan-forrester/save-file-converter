@@ -212,7 +212,12 @@ export default {
         try {
           // If we already have one, don't remake it. This can happen when loading a snes file, then selecting a different size.
           // Remaking the OnlineEmulatorWrapper will result in resetting out outputFilesize to be the default
-          if (this.onlineEmulatorWrapper === null) {
+
+          // Except that we need to continually remake it if the size is necessary, like the gba, because it means gettig the data
+          // from a different part of the save state. If the user keeps selecting different file sizes it's almost certainly because
+          // they picked the wrong one initially. We have the ability to resize the save (to pad or truncate it) after the user selects
+          // the correct one, but we'd need to make a different user flow to support that.
+          if ((this.onlineEmulatorWrapper === null) || ((this.platformType !== null) && OnlineEmulatorWrapper.fileSizeIsRequiredToConvert(this.platformType))) {
             this.onlineEmulatorWrapper = await OnlineEmulatorWrapper.createFromEmulatorData(this.inputArrayBuffer, this.inputFilename, this.platformType, this.outputFilesize);
 
             if ((this.selectedSaveData === null) || (this.selectedSaveData < 0) || (this.selectedSaveData > this.onlineEmulatorWrapper.getFiles().length)) {
