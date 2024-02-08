@@ -226,10 +226,9 @@ export default {
             this.outputFilename = this.getOutputFilename(OnlineEmulatorWrapper.getRawFileExtension());
 
             this.outputFilesize = this.getDefaultOutputFilesize();
-            console.log(`Just set outputFilesize to ${this.outputFilesize}`);
           }
         } catch (e) {
-          this.errorMessage = `This file does not seem to be in the correct format: ${e.message}`;
+          this.errorMessage = 'This file does not seem to be in the correct format';
           this.onlineEmulatorWrapper = null;
           this.outputFilename = null;
           this.selectedSaveData = null;
@@ -262,8 +261,6 @@ export default {
     },
     convertFile() {
       let finalOnlineEmulatorWrapper = this.onlineEmulatorWrapper;
-
-      console.log(`raw array buffer length ${this.getSelectedSaveData().getRawArrayBuffer().byteLength} outputFilesize: ${this.outputFilesize}`);
 
       const needsResize = (this.getSelectedSaveData().getRawArrayBuffer().byteLength !== this.outputFilesize);
 
