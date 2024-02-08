@@ -57,6 +57,8 @@
               id="output-filesize"
               :platform="this.platformType"
               @input="changeSelectedOutputFileSize($event)"
+              overrideHelpText="To determine the correct file size please create a test save with the emulator, flash cart, core, etc. that you wish to use.
+                For some platforms, incorrect data will be pulled from the save state if the size is not set correctly."
             />
           </div>
         </b-col>
