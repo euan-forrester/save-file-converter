@@ -4,6 +4,8 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 import OnlineEmulatorWrapper from '@/save-formats/OnlineEmulators/OnlineEmulatorWrapper';
 
+const TIMEOUT_MS = 10000;
+
 const MULTIPLE_SAVE_DIR = './tests/data/save-formats/online-emulators/myemulator.online';
 const SINGLE_SAVE_DIR = './tests/data/save-formats/online-emulators/arcadespot.com';
 
@@ -30,7 +32,9 @@ const RAW_SINGLE_SAVE_SNES_FILENAME = `${SINGLE_SAVE_SNES_DIR}/Legend-of-Zelda-T
 const EMULATOR_SINGLE_SAVE_GBA_FILENAME = `${SINGLE_SAVE_GBA_DIR}/the-legend-of-zelda-the-minish-cap.save`;
 const RAW_SINGLE_SAVE_GBA_FILENAME = `${SINGLE_SAVE_GBA_DIR}/the-legend-of-zelda-the-minish-cap.sav`;
 
-describe('OnlineEmulators - Wrapper', () => {
+describe('OnlineEmulators - Wrapper', function () { // eslint-disable-line func-names, no-unused-expressions
+  this.timeout(TIMEOUT_MS); // Can't use arrow function above if referencing 'this' here
+
   it('should convert an online emulator file containing multiple SNES save states to raw format', async () => {
     const emulatorArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_MULTIPLE_SAVE_SNES_FILENAME);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_MULTIPLE_SAVE_SNES_FILENAME);
