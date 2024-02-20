@@ -133,6 +133,8 @@ Everything on this site is free and open source with no advertising. If you find
     - Save files from here need to be 64-bit endian-swapped to work in a regular emulator: https://github.com/exelotl/gba-eeprom-save-fix
 - Sega Saturn
   - https://github.com/hitomi2500/ss-save-parser
+- TG-16/PCE:
+  - https://github.com/Widdiful/PCE_BRAM_Manager
 - Gamecube
   - https://github.com/kwsch/PKHeX (Save editor for Pokemon games. Can apparently parse GCN files among others. Needs a closer look)
 - Flash carts:
@@ -167,7 +169,7 @@ Everything on this site is free and open source with no advertising. If you find
   - Online converter: https://thysbelon.github.io/gbaconv-web/
   - Info on some ports of this emulator: https://thysbelon.github.io/2023/03/07/How-to-Convert-4GS-and-DSZ-save-files-to-SAV
 - Online emulators
-  - `.ggz` files when unzipped apparently contain a `.gba` and a `.png` file, so they do not appear to be save files but instead a ROM plus a thumbnail image
+  - `.ggz` files when unzipped apparently contain one or more pairs of `.gba`/`.snes`/etc and `.png` file: a save state and a thumbnail
 
 ## Cart reader notes
  
