@@ -117,7 +117,7 @@ const routes = [
   },
   {
     path: '/utilities',
-    redirect: '/utilities/troubleshooting',
+    redirect: '/utilities/advanced',
   },
   {
     path: '/utilities/troubleshooting',
@@ -128,6 +128,12 @@ const routes = [
     path: '/utilities/erase-save',
     name: 'Erase save',
     component: () => import(/* webpackChunkName: "erase-save" */ '../views/EraseSaveView.vue'),
+  },
+  {
+    path: '/utilities/advanced',
+    name: 'Advanced',
+    component: () => import(/* webpackChunkName: "advanced" */ '../views/AdvancedView.vue'),
+    props: (route) => ({ initialTab: route.query.tab }),
   },
   {
     path: '/other-converters',
