@@ -9,7 +9,7 @@
       </div>
 
       <b-tabs v-model="tabIndex" content-class="mt-3" justified>
-        <b-tab title="Endianness" active>
+        <b-tab title="Endianness">
           <p>Endianness</p>
           <endianness-word-size
             model="endiannessSize"
@@ -84,11 +84,10 @@ export default {
       errorMessage: null,
       outputFilename: null,
       endiannessSize: null,
-      tabIndex: 1,
+      tabIndex: 2,
     };
   },
-  /*
-  mounted() {
+  beforeMount() {
     // Need to keep these in sync with the template above. Is there a way to get these programmatically?
     const possibleTabNames = [
       'endianness',
@@ -101,11 +100,8 @@ export default {
 
     const initialTabIndex = possibleTabNames.indexOf(this.initialTab);
 
-    console.log(`initlalTab: '${this.initialTab}', index: ${initialTabIndex}`);
-
     this.tabIndex = (initialTabIndex >= 0) ? initialTabIndex : 0;
   },
-  */
   components: {
     InputFile,
     EndiannessWordSize,
