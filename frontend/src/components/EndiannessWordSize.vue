@@ -10,7 +10,7 @@
             :disabled="disabled"
           />
           <help-button
-            popover-text="The word size is the number of bytes the computers internal registers can process in a single instruction"
+            popover-text="The word size is the number of bytes the machine's internal registers can process in a single instruction"
             :id="this.id"
             class="help-button"
           />
@@ -23,7 +23,7 @@
 <style scoped>
   .help-button {
     position: absolute;
-    right: -1.2em;
+    right: -1.6em;
     top: 0em;
   }
 </style>
@@ -35,7 +35,7 @@ export default {
   name: 'EndiannessWordSize',
   props: {
     value: {
-      type: String,
+      type: Number,
       default: null,
     },
     id: String,
