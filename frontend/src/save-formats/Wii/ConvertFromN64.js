@@ -43,7 +43,7 @@ function convertSram(arrayBuffer) {
   // Byte swap from big endian to little endian
 
   return {
-    saveData: N64Util.endianSwap(arrayBuffer, 'bigToLittleEndian'),
+    saveData: N64Util.endianSwap(arrayBuffer),
     fileExtension,
   };
 }

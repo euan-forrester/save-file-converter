@@ -94,7 +94,7 @@ export default {
         this.outputFilename = Util.getFilename(event.filename);
       } catch (e) {
         this.errorMessage = e.message;
-        this.retron5SaveData = null;
+        this.saveData = null;
       }
     },
     convertFile() {

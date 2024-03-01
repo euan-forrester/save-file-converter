@@ -1,20 +1,42 @@
 <template>
   <div>
     <b-container>
-      <div class="text-center">
-        <b-button @click="tabIndex--">Previous</b-button>
-        <b-button @click="tabIndex++">Next</b-button>
-
-        <div class="text-muted">Current Tab: {{ tabIndex }}</div>
-      </div>
-
       <b-tabs v-model="tabIndex" content-class="mt-3" justified>
-        <b-tab title="Endianness">
-          <p>Endianness</p>
-          <endianness-word-size
-            model="endiannessSize"
-          />
+        <b-tab :title="'Endian\xa0swap'">
+          <b-row no-gutters align-h="center" align-v="start">
+            <b-col sm=12 md=6 align-self="center">
+              <endianness-word-size
+                class="top-row"
+                v-model="endianWordSize"
+                @input="changeEndianWordSize($event)"
+              />
+            </b-col>
+          </b-row>
+          <b-row no-gutters align-h="center" align-v="start">
+            <b-col sm=12 md=6 align-self="center">
+              <input-file
+                @load="readDataToEndianSwap($event)"
+                :errorMessage="this.errorMessage"
+                placeholderText="Choose a file to convert"
+                :leaveRoomForHelpIcon="false"
+              />
+            </b-col>
+          </b-row>
+          <b-row class="justify-content-md-center" align-h="center">
+            <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
+              <b-button
+                class="utilities-advanced-endian-swap-convert-button"
+                variant="success"
+                block
+                :disabled="!this.canEndianSwap() || !this.outputFilename"
+                @click="endianSwapData()"
+              >
+              Convert!
+              </b-button>
+            </b-col>
+          </b-row>
         </b-tab>
+
         <b-tab title="Compression"><p>Compression</p></b-tab>
         <b-tab :title="'Byte\xa0expansion'"><p>Byte&nbsp;expansion</p></b-tab>
         <b-tab title="Slice"><p>Slice</p></b-tab>
@@ -23,44 +45,18 @@
 
       </b-tabs>
 
-      <b-row no-gutters align-h="center" align-v="start">
-        <b-col sm=12 md=5 align-self="center">
-          <b-row no-gutters align-h="center" align-v="start">
-            <b-col cols=12>
-              <b-jumbotron fluid :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })">
-                <template v-slot:header>Erase save</template>
-              </b-jumbotron>
-            </b-col>
-          </b-row>
-          <input-file
-            @load="readSaveData($event)"
-            :errorMessage="this.errorMessage"
-            placeholderText="Choose a file to convert"
-            :leaveRoomForHelpIcon="false"
-          />
-        </b-col>
-      </b-row>
-      <b-row class="justify-content-md-center" align-h="center">
-        <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
-          <b-button
-            class="utilities-advanced-save-convert-button"
-            variant="success"
-            block
-            :disabled="!this.saveData || !outputFilename"
-            @click="convertFile()"
-          >
-          Convert!
-          </b-button>
-        </b-col>
-      </b-row>
     </b-container>
   </div>
 </template>
 
 <style scoped>
 
+.top-row {
+  margin-top: 1em;
+}
+
 /* Separate class for each different button to enable tracking in google tag manager */
-.utilities-advanced-convert-button {
+.utilities-advanced-endian-swap-convert-button {
   margin-top: 1em;
 }
 
@@ -71,26 +67,36 @@
 
 <script>
 import { saveAs } from 'file-saver';
-import SaveFilesUtil from '../util/SaveFiles';
 import Util from '../util/util';
+import EndianUtil from '../util/Endian';
 import InputFile from './InputFile.vue';
 import EndiannessWordSize from './EndiannessWordSize.vue';
 
 export default {
   name: 'AdvancedUtils',
+  components: {
+    InputFile,
+    EndiannessWordSize,
+  },
+  props: {
+    initialTab: {
+      type: String,
+      default: 'endian-swap',
+    },
+  },
   data() {
     return {
       saveData: null,
       errorMessage: null,
       outputFilename: null,
-      endiannessSize: null,
-      tabIndex: 2,
+      endianWordSize: null,
+      tabIndex: 0,
     };
   },
   beforeMount() {
     // Need to keep these in sync with the template above. Is there a way to get these programmatically?
     const possibleTabNames = [
-      'endianness',
+      'endian-swap',
       'compression',
       'byte-expansion',
       'slice',
@@ -102,34 +108,49 @@ export default {
 
     this.tabIndex = (initialTabIndex >= 0) ? initialTabIndex : 0;
   },
-  components: {
-    InputFile,
-    EndiannessWordSize,
-  },
-  props: {
-    initialTab: {
-      type: String,
-      default: 'endianness',
+  watch: {
+    tabIndex() {
+      this.saveData = null;
+      this.errorMessage = null;
+      this.outputFilename = null;
+      this.endianWordSize = null;
     },
   },
   methods: {
-    readSaveData(event) {
+    readDataToEndianSwap(event) {
       this.errorMessage = null;
       this.outputFilename = null;
       try {
         this.saveData = event.arrayBuffer;
-        this.outputFilename = Util.getFilename(event.filename);
+        this.outputFilename = `${Util.removeFilenameExtension(event.filename)} (converted)${Util.getExtension(event.filename)}`;
+
+        this.checkEndianWordSize();
       } catch (e) {
         this.errorMessage = e.message;
-        this.retron5SaveData = null;
+        this.saveData = null;
+        this.outputFilename = null;
       }
     },
-    convertFile() {
-      const outputArrayBuffer = SaveFilesUtil.getEraseCartridgeSave(this.saveData);
+    changeEndianWordSize() {
+      this.checkEndianWordSize();
+    },
+    checkEndianWordSize() {
+      if ((this.saveData !== null) && (this.endianWordSize !== null) && ((this.saveData.byteLength % this.endianWordSize) !== 0)) {
+        this.errorMessage = `File size must be a multiple of ${this.endianWordSize}. However, file size is ${this.saveData.byteLength} bytes.`;
+      }
+    },
+    canEndianSwap() {
+      return ((this.saveData !== null) && (this.endianWordSize !== null) && ((this.saveData.byteLength % this.endianWordSize) === 0));
+    },
+    endianSwapData() {
+      const outputArrayBuffer = EndianUtil.swap(this.saveData, this.endianWordSize);
 
+      this.sendArrayBuffer(outputArrayBuffer, this.outputFilename);
+    },
+    sendArrayBuffer(outputArrayBuffer, outputFilename) {
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 
-      saveAs(outputBlob, this.outputFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
+      saveAs(outputBlob, outputFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
     },
   },
 };
