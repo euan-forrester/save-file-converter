@@ -5,13 +5,13 @@ import SaveFilesUtil from '../../util/SaveFiles';
 
 export default class NsoN64SaveData {
   static createFromNsoData(nsoArrayBuffer) {
-    const rawArrayBuffer = N64Util.needsEndianSwap(nsoArrayBuffer) ? N64Util.endianSwap(nsoArrayBuffer, 'bigToLittleEndian') : nsoArrayBuffer;
+    const rawArrayBuffer = N64Util.needsEndianSwap(nsoArrayBuffer) ? N64Util.endianSwap(nsoArrayBuffer) : nsoArrayBuffer;
 
     return new NsoN64SaveData(nsoArrayBuffer, rawArrayBuffer);
   }
 
   static createFromRawData(rawArrayBuffer) {
-    const nsoArrayBuffer = N64Util.needsEndianSwap(rawArrayBuffer) ? N64Util.endianSwap(rawArrayBuffer, 'littleToBigEndian') : rawArrayBuffer;
+    const nsoArrayBuffer = N64Util.needsEndianSwap(rawArrayBuffer) ? N64Util.endianSwap(rawArrayBuffer) : rawArrayBuffer;
 
     return new NsoN64SaveData(nsoArrayBuffer, rawArrayBuffer);
   }
