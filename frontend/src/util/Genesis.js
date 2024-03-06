@@ -24,9 +24,9 @@ const LITTLE_ENDIAN = false;
 
 const SMALLEST_SRAM_SAVE = 512; // Final Fantasy Legend on Gameboy is 512B and is SRAM, but I'm not aware of any Genesis SRAM games that small
 
-const FILL_BYTE_REPEAT = 'repeat';
-
 export default class GenesisUtil {
+  static FILL_BYTE_REPEAT = 'repeat';
+
   static isEepromSave(inputArrayBuffer) {
     // Hacky check for EEPROM saves that shouldn't be byte expanded
     // Wonder Boy in Monster World's save is 128 bytes. 512 bytes is the smallest SRAM save I've seen (Final Fantasy Legend on Gameboy)
@@ -36,6 +36,8 @@ export default class GenesisUtil {
     return (inputArrayBuffer.byteLength < SMALLEST_SRAM_SAVE);
   }
 
+  // This will return true for a file that is empty: all 0x00 or all 0xFF
+  // Consider using the function below to check for this case
   static isByteExpanded(inputArrayBuffer) {
     const inputDataView = new DataView(inputArrayBuffer);
 
@@ -51,6 +53,20 @@ export default class GenesisUtil {
     return true;
   }
 
+  static isEmpty(inputArrayBuffer) {
+    const inputDataView = new DataView(inputArrayBuffer);
+
+    for (let i = 0; i < inputArrayBuffer.byteLength; i += 1) {
+      const byte = inputDataView.getUint8(i);
+
+      if ((byte !== 0x00) && (byte !== 0xFF)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   // fillByte can either be the value you want put into upper byte of each word,
   // or it can be 'repeat'
   static byteExpand(inputArrayBuffer, fillByte) {
@@ -59,7 +75,7 @@ export default class GenesisUtil {
     const inputDataView = new DataView(inputArrayBuffer);
     const outputDataView = new DataView(outputArrayBuffer);
 
-    const repeatByte = (fillByte === FILL_BYTE_REPEAT);
+    const repeatByte = (fillByte === GenesisUtil.FILL_BYTE_REPEAT);
 
     for (let i = 0; i < inputDataView.byteLength; i += 1) {
       const inputByte = inputDataView.getUint8(i);
@@ -95,7 +111,7 @@ export default class GenesisUtil {
 
     const padding = PaddingUtil.getPadFromEndValueAndCount(inputArrayBuffer);
 
-    const needToChangePadding = (fillByte !== FILL_BYTE_REPEAT) && (padding.value !== fillByte); // Check if padding was 0xFF and we're trying to fill with 0x00, or vice versa
+    const needToChangePadding = (fillByte !== GenesisUtil.FILL_BYTE_REPEAT) && (padding.value !== fillByte); // Check if padding was 0xFF and we're trying to fill with 0x00, or vice versa
 
     const unpaddedInputArrayBuffer = PaddingUtil.removePaddingFromEnd(inputArrayBuffer, padding.count);
 
