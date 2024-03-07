@@ -4,7 +4,7 @@
       <b-tabs v-model="tabIndex" content-class="mt-3" justified>
         <b-tab :title="'Endian\xa0swap'">
           <b-row no-gutters align-h="center" align-v="start">
-            <b-col sm=12 md=7 align-self="center">
+            <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
               <endianness-word-size
                 id="endianness-word-size"
                 class="top-row"
@@ -14,7 +14,7 @@
             </b-col>
           </b-row>
           <b-row no-gutters align-h="center" align-v="start">
-            <b-col sm=12 md=7 align-self="center">
+            <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
               <input-file
                 @load="readDataToEndianSwap($event)"
                 :errorMessage="this.errorMessage"
@@ -41,7 +41,7 @@
         <b-tab title="Compression"><p>Compression</p></b-tab>
         <b-tab :title="'Byte\xa0expansion'">
           <b-row no-gutters align-h="center" align-v="start">
-            <b-col sm=12 md=7 align-self="center">
+            <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
               <byte-expand-contract
                 id="byte-expand-contract"
                 class="top-row"
@@ -51,7 +51,7 @@
             </b-col>
           </b-row>
           <b-row no-gutters align-h="center" align-v="start">
-            <b-col sm=12 md=7 align-self="center">
+            <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
               <input-file
                 @load="readDataToByteExpandContract($event)"
                 :errorMessage="this.errorMessage"
