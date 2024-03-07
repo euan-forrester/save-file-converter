@@ -10,7 +10,7 @@
             :disabled="disabled"
           />
           <help-button
-            popover-text="Different emulators, cores, flash carts, and cart readers store Sega Genesis/Mega Drive files in different ways.
+            popover-text="Different emulators, cores, flash carts, and cart readers store Sega Genesis/Mega Drive save files in different ways.
             Some store each 8-bit byte as a 16-bit word with 0x00 as the high byte, some use 0xFF as the high byte,
             some duplicate each byte into a 16-bit word, and some store the individual bytes as-is with no expansion."
             :id="this.id"
