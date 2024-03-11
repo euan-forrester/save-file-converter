@@ -2,6 +2,7 @@
   <div>
     <b-container>
       <b-tabs v-model="tabIndex" content-class="mt-3" justified>
+
         <b-tab :title="'Endian\xa0swap'">
           <b-row no-gutters align-h="center" align-v="start">
             <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
@@ -39,6 +40,7 @@
         </b-tab>
 
         <b-tab title="Compression"><p>Compression</p></b-tab>
+
         <b-tab :title="'Byte\xa0expansion'">
           <b-row no-gutters align-h="center" align-v="start">
             <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
@@ -73,10 +75,57 @@
               </b-button>
             </b-col>
           </b-row>
-
         </b-tab>
-        <b-tab title="Slice"><p>Slice</p></b-tab>
+
+        <b-tab title="Slice">
+          <b-row no-gutters align-h="center" align-v="start">
+            <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
+              <input-number
+                id="input-slice-start-offset"
+                class="top-row"
+                placeholderText="Starting offset"
+                helpText="The offset in bytes from the beginning of the file to begin the slice. Can be in decimal, or hexadecimal beginning with 0x"
+                @input="changeSliceStartOffset($event)"
+              />
+            </b-col>
+          </b-row>
+          <b-row no-gutters align-h="center" align-v="start">
+            <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
+              <input-number
+                id="input-slice-length"
+                placeholderText="Length"
+                helpText="The length of data to slice, in bytes. Can be in decimal, or hexadecimal beginning with 0x"
+                @input="changeSliceLength($event)"
+              />
+            </b-col>
+          </b-row>
+          <b-row no-gutters align-h="center" align-v="start">
+            <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
+              <input-file
+                @load="readDataToSlice($event)"
+                :errorMessage="this.errorMessage"
+                placeholderText="Choose a file to convert"
+                :leaveRoomForHelpIcon="false"
+              />
+            </b-col>
+          </b-row>
+          <b-row class="justify-content-md-center" align-h="center">
+            <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
+              <b-button
+                class="utilities-advanced-slice-button"
+                variant="success"
+                block
+                :disabled="!this.canSliceFile() || !this.outputFilename"
+                @click="sliceFile()"
+              >
+              Convert!
+              </b-button>
+            </b-col>
+          </b-row>
+        </b-tab>
+
         <b-tab title="Resize"><p>Resize</p></b-tab>
+
         <b-tab title="Header/footer"><p>Add/remove header/footer</p></b-tab>
 
       </b-tabs>
@@ -100,6 +149,10 @@
   margin-top: 1em;
 }
 
+.utilities-advanced-slice-button {
+  margin-top: 1em;
+}
+
 .help {
   margin-top: 1em;
 }
@@ -111,6 +164,7 @@ import Util from '../util/util';
 import EndianUtil from '../util/Endian';
 import GenesisUtil from '../util/Genesis';
 import InputFile from './InputFile.vue';
+import InputNumber from './InputNumber.vue';
 import EndiannessWordSize from './EndiannessWordSize.vue';
 import ByteExpandContract from './ByteExpandContract.vue';
 
@@ -118,6 +172,7 @@ export default {
   name: 'AdvancedUtils',
   components: {
     InputFile,
+    InputNumber,
     EndiannessWordSize,
     ByteExpandContract,
   },
@@ -134,6 +189,8 @@ export default {
       outputFilename: null,
       endianWordSize: null,
       byteExpandContractSelection: null,
+      sliceStartOffset: null,
+      sliceLength: null,
       tabIndex: 0,
     };
   },
@@ -159,7 +216,12 @@ export default {
       this.outputFilename = null;
       this.endianWordSize = null;
       this.byteExpandContractSelection = null;
+      this.sliceStartOffset = null;
+      this.sliceLength = null;
     },
+  },
+  computed: {
+
   },
   methods: {
     //
@@ -277,6 +339,70 @@ export default {
           return;
         }
       }
+
+      this.sendArrayBuffer(outputArrayBuffer, this.outputFilename);
+    },
+    //
+    // *** Slice
+    //
+    readDataToSlice(event) {
+      this.errorMessage = null;
+      this.outputFilename = null;
+      try {
+        this.saveData = event.arrayBuffer;
+        this.outputFilename = `${Util.removeFilenameExtension(event.filename)} (converted)${Util.getExtension(event.filename)}`;
+
+        this.checkSliceFile();
+      } catch (e) {
+        this.errorMessage = e.message;
+      }
+    },
+    changeSliceStartOffset(value) {
+      this.sliceStartOffset = value;
+      this.changeSliceOffsetOrLength();
+    },
+    changeSliceLength(value) {
+      this.sliceLength = value;
+      this.changeSliceOffsetOrLength();
+    },
+    changeSliceOffsetOrLength() {
+      this.errorMessage = null;
+      try {
+        this.checkSliceFile();
+      } catch (e) {
+        this.errorMessage = e.message;
+      }
+    },
+    checkSliceFile() {
+      if (this.saveData !== null) {
+        if ((this.sliceStartOffset !== null) && (this.sliceStartOffset > this.saveData.byteLength)) {
+          throw new Error(`Specified a starting offset of ${this.sliceStartOffset} bytes, but the file is only ${this.saveData.byteLength} bytes long`);
+        }
+
+        if ((this.sliceLength !== null) && (this.sliceLength > this.saveData.byteLength)) {
+          throw new Error(`Specified a length of ${this.sliceLength} bytes, but the file is only ${this.saveData.byteLength} bytes long`);
+        }
+
+        if ((this.sliceStartOffset !== null) && (this.sliceLength !== null) && ((this.sliceStartOffset + this.sliceLength) > this.saveData.byteLength)) {
+          throw new Error(`Specified a starting offset of ${this.sliceStartOffset} and a length of ${this.sliceLength} bytes, `
+            + `which is a total of ${this.sliceStartOffset + this.sliceLength} bytes but the file is only ${this.saveData.byteLength} bytes long`);
+        }
+      }
+    },
+    canSliceFile() {
+      if ((this.saveData !== null) && (this.sliceStartOffset !== null) && (this.sliceLength !== null)) {
+        try {
+          this.checkSliceFile();
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      return false;
+    },
+    sliceFile() {
+      const outputArrayBuffer = this.saveData.slice(this.sliceStartOffset, this.sliceStartOffset + this.sliceLength);
 
       this.sendArrayBuffer(outputArrayBuffer, this.outputFilename);
     },
