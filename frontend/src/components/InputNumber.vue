@@ -35,7 +35,7 @@
 
 .help-button {
   position: absolute;
-  right: -1.2em;
+  right: -1.6em;
   top: 0em;
 }
 
