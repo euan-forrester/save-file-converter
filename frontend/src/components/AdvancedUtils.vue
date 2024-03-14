@@ -20,7 +20,7 @@
                 @load="readDataToEndianSwap($event)"
                 :errorMessage="this.errorMessage"
                 placeholderText="Choose a file to convert"
-                :leaveRoomForHelpIcon="false"
+                :leaveRoomForHelpIcon="true"
               />
             </b-col>
           </b-row>
@@ -58,7 +58,7 @@
                 @load="readDataToByteExpandContract($event)"
                 :errorMessage="this.errorMessage"
                 placeholderText="Choose a file to convert"
-                :leaveRoomForHelpIcon="false"
+                :leaveRoomForHelpIcon="true"
               />
             </b-col>
           </b-row>
@@ -83,7 +83,7 @@
               <input-number
                 id="input-slice-start-offset"
                 class="top-row"
-                placeholderText="Starting offset"
+                labelText="Starting offset:"
                 helpText="The offset in bytes from the beginning of the file to begin the slice. Can be in decimal, or hexadecimal beginning with 0x"
                 @input="changeSliceStartOffset($event)"
               />
@@ -93,7 +93,7 @@
             <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
               <input-number
                 id="input-slice-length"
-                placeholderText="Length"
+                labelText="Length:"
                 helpText="The length of data to slice, in bytes. Can be in decimal, or hexadecimal beginning with 0x"
                 @input="changeSliceLength($event)"
               />
@@ -105,7 +105,7 @@
                 @load="readDataToSlice($event)"
                 :errorMessage="this.errorMessage"
                 placeholderText="Choose a file to convert"
-                :leaveRoomForHelpIcon="false"
+                :leaveRoomForHelpIcon="true"
               />
             </b-col>
           </b-row>
@@ -130,7 +130,7 @@
               <input-number
                 id="input-new-size"
                 class="top-row"
-                placeholderText="New size"
+                labelText="New size:"
                 helpText="The new size of the file, in bytes. Can be in decimal, or hexadecimal beginning with 0x"
                 @input="changeNewSize($event)"
               />
@@ -151,7 +151,7 @@
                 @load="readDataToResize($event)"
                 :errorMessage="this.errorMessage"
                 placeholderText="Choose a file to convert"
-                :leaveRoomForHelpIcon="false"
+                :leaveRoomForHelpIcon="true"
               />
             </b-col>
           </b-row>

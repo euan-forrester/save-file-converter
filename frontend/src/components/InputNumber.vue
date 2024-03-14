@@ -1,12 +1,18 @@
 <template>
   <div>
     <b-row no-gutters>
-      <b-col :cols="this.leaveRoomForHelpIcon ? 11 : 12" sm="12">
+      <b-col v-if="this.labelText !== null" cols="3" sm="3" align-self="center">
+        <!-- Is this a bug? Not sure why this lint rule fires here: the <label> tag has a "for" set, and it matches the <b-form-input>'s "id" below -->
+        <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+        <label :for="this.id" class="label">{{ labelText }}</label>
+      </b-col>
+      <b-col :cols="(this.labelText !== null) ? 8 : 11" :sm="(this.labelText !== null) ? 9 : 12">
         <div>
           <b-form-input
             v-on:input="checkInput($event)"
             :placeholder="this.placeholderText"
             :state="this.isValid"
+            :id="this.id"
           />
           <help-button
             v-if="this.helpText !== null"
@@ -39,6 +45,12 @@
   top: 0em;
 }
 
+.label {
+  position: absolute;
+  top: -0.77em;
+  left: 0.8em;
+}
+
 </style>
 
 <script>
@@ -48,7 +60,7 @@ const DECIMAL_REGEX = /^[0-9]+$/;
 const HEXADECIMAL_REGEX = /^[0-9a-f]+$/;
 
 export default {
-  name: 'InputFile',
+  name: 'InputNumber',
   components: {
     HelpButton,
   },
@@ -57,7 +69,14 @@ export default {
       type: String,
       default: null,
     },
-    placeholderText: String,
+    labelText: {
+      type: String,
+      default: null,
+    },
+    placeholderText: {
+      type: String,
+      default: null,
+    },
     helpText: {
       type: String,
       default: null,
