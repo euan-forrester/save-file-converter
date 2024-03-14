@@ -9,7 +9,7 @@ Based on the Goomba Save Manager, specifically:
 
 import Util from '../../../util/util';
 import PaddingUtil from '../../../util/Padding';
-import lzo from '../../../../lib/minlzo-js/lzo1x';
+import CompressionLzoUtil from '../../../util/CompressionLzo';
 
 const LITTLE_ENDIAN = true;
 
@@ -67,38 +67,6 @@ const GOOMBA_COLOR_AVAILABLE_SIZE = 0xE000;
 const GOOMBA_COLOR_SMALLER_AVAILABLE_SIZE = 0x6000;
 
 const GOOMBA_COLOR_SRAM_SIZE = 0x10000; // Value copied from https://github.com/libertyernie/goombasav/blob/master/goombasav.h#L28
-
-function lzoDecompress(arrayBuffer, uncompressedSize) {
-  const state = {
-    inputBuffer: new Uint8Array(arrayBuffer),
-    outputBuffer: null,
-  };
-
-  lzo.setOutputEstimate(uncompressedSize);
-
-  const returnVal = lzo.decompress(state);
-
-  if (returnVal === lzo.OK) {
-    return Util.bufferToArrayBuffer(state.outputBuffer);
-  }
-
-  throw new Error(`Encountered error ${returnVal} when trying to decompress LZO buffer`);
-}
-
-function lzoCompress(arrayBuffer) {
-  const state = {
-    inputBuffer: new Uint8Array(arrayBuffer),
-    outputBuffer: null,
-  };
-
-  const returnVal = lzo.compress(state);
-
-  if (returnVal === lzo.OK) {
-    return Util.bufferToArrayBuffer(state.outputBuffer);
-  }
-
-  throw new Error(`Encountered error ${returnVal} when trying to compress buffer with LZO`);
-}
 
 function readStateHeader(arrayBuffer) {
   const dataView = new DataView(arrayBuffer);
@@ -172,7 +140,7 @@ function createMagicArrayBuffer(magic, length) {
 
 function createEmulatorArrayBuffer(rawArrayBuffer, romInternalName, romChecksum, clazz) {
   const magicArrayBuffer = createMagicArrayBuffer(clazz.getMagic(), MAGIC_LENGTH);
-  const compressedSaveDataArrayBuffer = lzoCompress(rawArrayBuffer);
+  const compressedSaveDataArrayBuffer = CompressionLzoUtil.compress(rawArrayBuffer);
 
   const stateHeader = {
     size: compressedSaveDataArrayBuffer.byteLength + STATE_HEADER_LENGTH,
@@ -299,7 +267,13 @@ export default class EmulatorBaseSaveData {
       const uncompressedDataOffset = (emulatorArrayBuffer.byteLength < GOOMBA_COLOR_AVAILABLE_SIZE) ? GOOMBA_COLOR_SMALLER_AVAILABLE_SIZE : GOOMBA_COLOR_AVAILABLE_SIZE;
       this.rawArrayBuffer = emulatorArrayBuffer.slice(uncompressedDataOffset, GOOMBA_COLOR_SRAM_SIZE); // Based on https://github.com/libertyernie/goombasav/blob/master/goombasav.c#L308
     } else {
-      this.rawArrayBuffer = lzoDecompress(emulatorArrayBuffer.slice(compressedDataOffset/* , compressedDataOffset + this.compressedSize */), LARGEST_GBC_SAVE_SIZE/* this.uncompressedSize */);
+      this.rawArrayBuffer = CompressionLzoUtil.decompress(
+        emulatorArrayBuffer.slice(
+          compressedDataOffset,
+          // compressedDataOffset + this.compressedSize,
+        ),
+        LARGEST_GBC_SAVE_SIZE, // this.uncompressedSize,
+      );
     }
 
     this.flashCartArrayBuffer = emulatorArrayBuffer;
