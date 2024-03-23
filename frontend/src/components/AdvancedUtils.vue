@@ -39,7 +39,48 @@
           </b-row>
         </b-tab>
 
-        <b-tab title="Compression"><p>Compression</p></b-tab>
+        <b-tab title="Compression">
+          <b-row no-gutters align-h="center" align-v="start">
+            <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
+              <compression-type
+                id="compression-type"
+                class="top-row"
+                v-model="compressionType"
+              />
+            </b-col>
+          </b-row>
+          <b-row no-gutters align-h="center" align-v="start">
+            <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
+              <compression-decompression
+                id="compression-decompression"
+                v-model="compressionDecompression"
+              />
+            </b-col>
+          </b-row>
+          <b-row no-gutters align-h="center" align-v="start">
+            <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
+              <input-file
+                @load="readDataToCompressDecompress($event)"
+                :errorMessage="this.errorMessage"
+                placeholderText="Choose a file to convert"
+                :leaveRoomForHelpIcon="true"
+              />
+            </b-col>
+          </b-row>
+          <b-row class="justify-content-md-center" align-h="center">
+            <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
+              <b-button
+                class="utilities-advanced-compression-convert-button"
+                variant="success"
+                block
+                :disabled="!this.canCompressDecompress() || !this.outputFilename"
+                @click="compressDecompressFile()"
+              >
+              Convert!
+              </b-button>
+            </b-col>
+          </b-row>
+        </b-tab>
 
         <b-tab :title="'Byte\xa0expansion'">
           <b-row no-gutters align-h="center" align-v="start">
@@ -112,7 +153,7 @@
           <b-row class="justify-content-md-center" align-h="center">
             <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
               <b-button
-                class="utilities-advanced-slice-button"
+                class="utilities-advanced-slice-convert-button"
                 variant="success"
                 block
                 :disabled="!this.canSliceFile() || !this.outputFilename"
@@ -158,7 +199,7 @@
           <b-row class="justify-content-md-center" align-h="center">
             <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
               <b-button
-                class="utilities-advanced-resize-button"
+                class="utilities-advanced-resize-convert-button"
                 variant="success"
                 block
                 :disabled="!this.canResizeFile() || !this.outputFilename"
@@ -168,7 +209,6 @@
               </b-button>
             </b-col>
           </b-row>
-
         </b-tab>
 
         <b-tab title="Header/footer"><p>Add/remove header/footer</p></b-tab>
@@ -190,15 +230,19 @@
   margin-top: 1em;
 }
 
+.utilities-advanced-compression-convert-button {
+  margin-top: 1em;
+}
+
 .utilities-advanced-byte-expand-convert-button {
   margin-top: 1em;
 }
 
-.utilities-advanced-slice-button {
+.utilities-advanced-slice-convert-button {
   margin-top: 1em;
 }
 
-.utilities-advanced-resize-button {
+.utilities-advanced-resize-convert-button {
   margin-top: 1em;
 }
 
@@ -209,15 +253,25 @@
 
 <script>
 import { saveAs } from 'file-saver';
+
 import Util from '../util/util';
 import EndianUtil from '../util/Endian';
 import GenesisUtil from '../util/Genesis';
 import SaveFilesUtil from '../util/SaveFiles';
+import CompressionZlib from '../util/CompressionZlib';
+import CompressionLzo from '../util/CompressionLzo';
+
 import InputFile from './InputFile.vue';
 import InputNumber from './InputNumber.vue';
 import EndiannessWordSize from './EndiannessWordSize.vue';
 import ByteExpandContract from './ByteExpandContract.vue';
 import PadFillByte from './PadFillByte.vue';
+import CompressionType from './CompressionType.vue';
+import CompressionDecompression from './CompressionDecompression.vue';
+
+const DEFAULT_PAD_FILL_BYTE = 0x00; // Most users won't have an opinion here, so set the default to be the simplest one (instead of 0xFF)
+const DEFAULT_COMPRESSION_TYPE = 'zlib'; // I think the most common use here will be decompressing retroarch files, which uses zlib
+const DEFAULT_COMPRESSION_DECOMPRESSION = 'decompress';
 
 export default {
   name: 'AdvancedUtils',
@@ -227,6 +281,8 @@ export default {
     EndiannessWordSize,
     ByteExpandContract,
     PadFillByte,
+    CompressionType,
+    CompressionDecompression,
   },
   props: {
     initialTab: {
@@ -244,7 +300,9 @@ export default {
       sliceStartOffset: null,
       sliceLength: null,
       newSize: null,
-      padFillByte: 0,
+      padFillByte: DEFAULT_PAD_FILL_BYTE,
+      compressionType: DEFAULT_COMPRESSION_TYPE,
+      compressionDecompression: DEFAULT_COMPRESSION_DECOMPRESSION,
       tabIndex: 0,
     };
   },
@@ -273,7 +331,8 @@ export default {
       this.sliceStartOffset = null;
       this.sliceLength = null;
       this.newSize = null;
-      this.padFillByte = 0;
+      this.padFillByte = DEFAULT_PAD_FILL_BYTE;
+      this.compressionType = DEFAULT_COMPRESSION_TYPE;
     },
   },
   computed: {
@@ -313,6 +372,105 @@ export default {
     },
     endianSwapData() {
       const outputArrayBuffer = EndianUtil.swap(this.saveData, this.endianWordSize);
+
+      this.sendArrayBuffer(outputArrayBuffer, this.outputFilename);
+    },
+    //
+    // *** Compress/decompress
+    //
+    readDataToCompressDecompress(event) {
+      this.errorMessage = null;
+      this.outputFilename = null;
+      try {
+        this.saveData = event.arrayBuffer;
+        this.outputFilename = `${Util.removeFilenameExtension(event.filename)} (converted)${Util.getExtension(event.filename)}`;
+
+        console.log('Started checkCompressDecompress()');
+        this.checkCompressDecompress();
+        console.log('Finished checkCompressDecompress()');
+      } catch (e) {
+        this.errorMessage = e.message;
+      }
+    },
+    getCompressedDecompressedData() {
+      if (this.saveData !== null) {
+        switch (this.compressionDecompression) {
+          case 'compress': {
+            switch (this.compressionType) {
+              case 'zlib': {
+                try {
+                  return CompressionZlib.compress(this.saveData);
+                } catch (e) {
+                  throw new Error('Unable to compress the specified data using zlib compression');
+                }
+              }
+
+              case 'lzo': {
+                try {
+                  return CompressionLzo.compress(this.saveData);
+                } catch (e) {
+                  throw new Error('Unable to compress the specified data using LZO compression');
+                }
+              }
+
+              default: {
+                throw new Error('Unknown compression type');
+              }
+            }
+          }
+
+          case 'decompress': {
+            switch (this.compressionType) {
+              case 'zlib': {
+                try {
+                  console.log('About to try and decompress zlib');
+                  return CompressionZlib.decompress(this.saveData);
+                } catch (e) {
+                  throw new Error('Unable to decompress the specified data using zlib compression');
+                }
+              }
+
+              case 'lzo': {
+                try {
+                  console.log('About to try and decompress LZO');
+                  return CompressionLzo.decompress(this.saveData);
+                } catch (e) {
+                  throw new Error('Unable to decompress the specified data using LZO compression');
+                }
+              }
+
+              default: {
+                throw new Error('Unknown compression type');
+              }
+            }
+          }
+
+          default: {
+            throw new Error('Unknown compression/decompression selection');
+          }
+        }
+      }
+
+      throw new Error('No save data specified');
+    },
+    checkCompressDecompress() {
+      console.log('Started inside checkCompressDecompress()');
+      if (this.saveData !== null) {
+        // If this throws an Error, just let it through to the caller
+        this.getCompressedDecompressedData();
+      }
+      console.log('Finished inside checkCompressDecompress()');
+    },
+    canCompressDecompress() {
+      try {
+        this.checkCompressDecompress();
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+    compressDecompressFile() {
+      const outputArrayBuffer = this.getCompressedDecompressedData();
 
       this.sendArrayBuffer(outputArrayBuffer, this.outputFilename);
     },

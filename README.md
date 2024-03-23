@@ -28,14 +28,9 @@ Everything on this site is free and open source with no advertising. If you find
 
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/donate/?hosted_button_id=DHDERHCQVLGPJ)
 
-## Usecases for further thought
-
-- Automatically add/remove header added by some flash carts (e.g. EZ Flash) given an example file
-- Be able to change the size of a raw GBA save to help move between emulators
-
 ## Emulators with incompatible save formats
 
-- (GBA) Pizza Boy GBA files incompatible with mGBA (believe mGBA uses raw files)
+- (GBA) Pizza Boy GBA files incompatible with mGBA (believe mGBA uses raw files). Note that Pizza Boy has now be removed from the Play Store: https://www.reddit.com/r/emulation/comments/1b97uus/emulator_pizza_boy_for_gba_and_gbc_removed_from/
 - (PS1) Beetle HW incompatible with DuckStation
 - (Saturn) SSF incompatible with Mednafen/Beetle Saturn
 - (N64) Mupen64Plus Next files incompatible with Wii64
@@ -176,6 +171,8 @@ Everything on this site is free and open source with no advertising. If you find
 - Online emulators
   - `.ggz` files when unzipped apparently contain one or more pairs of `.gba`/`.snes`/etc and `.png` file: a save state and a thumbnail
   - There's a port of Retroarch available online here: https://binbashbanana.github.io/webretro/ with code here: https://github.com/BinBashBanana/webretro . Its save file compatibility is the same as regular Retroarch and the emulators therein
+- Retroarch
+  - Some save files are compressed with ZLIB compression. I'm not sure the circumstances under which this happens: https://github.com/libretro/RetroArch/issues/14031#issuecomment-1159400581
 
 ## Cart reader notes
  
