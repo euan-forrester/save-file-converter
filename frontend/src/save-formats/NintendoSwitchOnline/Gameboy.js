@@ -2,52 +2,25 @@
 The Nintendo Switch Online save format for Gameboy games is the similar to its format for NES except that there's 2 hashes:
 one for the ROM used and the other for the save data itself
 
-There are (at least!) 3 different possible file formats, denoted by the data around the emulator version number embedded in the file.
-
-Magic 3 appears to denote whether there is RTC data next.
-
-Format A:
+There may or may not be RTC data present in the header
 
 0x00: Magic 1: "SRAM" + 0x03
 0x08: Encoded SHA-1 hash of the ROM
-0x30: Magic 2: 0x0B000000 + "HEAD-vXXX.X"
-0x3F: Magic 3: 0x00
-0x40: Encoded SHA-1 hash of the raw save data
-0x68: Raw save data
+0x30: Length of git revision number in bytes
+0x34: Git revision number: "HEAD-vXXX.X", or "master-vXXX.X", or "HEAD-vXXX.X-X-XXXXXXXXX"
 
-Format B:
+The rest isn't at fixed offsets:
 
-0x00: Magic 1: "SRAM" + 0x03
-0x08: Encoded SHA-1 hash of the ROM
-0x30: Magic 2: 0x0B000000 + "HEAD-vXXX.X"
-0x3F: Magic 3: 0x01
-0x40-0x5F: RTC data?
-0x60: Encoded SHA-1 hash of the raw save data
-0x88: Raw save data
+1 byte indicating whether RTC data is present
+(optional) 0x20 bytes of RTC data
+0x28 bytes of encoded SHA-1 hash of the raw save data
+Raw save data
 
-Format C:
-
-0x00: Magic 1: "SRAM" + 0x03
-0x08: Encoded SHA-1 hash of the ROM
-0x30: Magic 2: 0x0D000000 + "master-vXXX.X"
-0x41: Magic 3: 0x00
-0x42: Encoded SHA-1 hash of the raw save data
-0x70: Raw save data
-
-Format D:
-
-0x00: Magic 1: "SRAM" + 0x03
-0x08: Encoded SHA-1 hash of the ROM
-0x30: Magic 2: 0x0D000000 + "master-vXXX.X"
-0x41: Magic 3: 0x01
-0x42-0x61: RTC data?
-0x62: Encoded SHA-1 hash of the raw save data
-0x90: Raw save data
-
-It appears there's at least 5 versions of magic 2:
+It appears there's at least 6 versions of the git revision number:
 - HEAD-v178.0 (the initial batch of NSO games)
 - HEAD-v184.0 (Kirby's Dreamland 2)
 - HEAD-v203.0 (Spanish versions of Pokemon Red/Blue/Yellow/Gold/Silver/Crystal)
+- HEAD-v213.0-1-g59d2e63b (Europe version of Pokemon TCG)
 - master-v196.0 (Pokemon TCG)
 - master-v199.0 (Pokemon - Crystal Version)
 */
@@ -56,109 +29,56 @@ import SaveFilesUtil from '../../util/SaveFiles';
 import Util from '../../util/util';
 import HashUtil from '../../util/Hash';
 
-const MAGIC1_OFFSET = 0;
-const MAGIC1 = [0x53, 0x52, 0x41, 0x4D, 0x03]; // 'SRAM';
+const MAGIC_OFFSET = 0;
+const MAGIC = [0x53, 0x52, 0x41, 0x4D, 0x03]; // 'SRAM';
 
 const ROM_HASH_OFFSET = 0x08;
 
 const HASH_ALGORITHM = 'sha1';
-const HASH_LENGTH = 40; // The SHA-1 digest is converted to hex and encoded as ASCII
+const HASH_LENGTH = 0x28; // The SHA-1 digest is converted to hex and encoded as ASCII
 const HASH_ENCODING = 'US-ASCII';
 
-const MAGIC2_OFFSET = 0x30;
-const MAGIC2 = [
-  {
-    magic: [0x0B, 0x00, 0x00, 0x00, 0x48, 0x45, 0x41, 0x44, 0x2D, 0x76], // 'HEAD-v'
-    fileFormats: ['A', 'B'],
-    magic3Offset: 0x3F,
-  },
-  {
-    magic: [0x0D, 0x00, 0x00, 0x00, 0x6D, 0x61, 0x73, 0x74, 0x65, 0x72, 0x2D, 0x76], // 'master-v'
-    fileFormats: ['C', 'D'],
-    magic3Offset: 0x41,
-  },
-];
-
-const MAGIC3 = {
-  A: 0x00,
-  B: 0x01,
-  C: 0x00,
-  D: 0x01,
-};
+const GIT_REVISION_NUMBER_LENGTH_OFFSET = 0x30;
+const GIT_REVISION_NUMBER_OFFSET = 0x34;
 
 // This is likely RTC data (it's found in Pokemon Gold/Silver/Crystal and not in Pokemon Red/Blue/Yellow)
-const UNKNOWN_DATA_OFFSET = {
-  A: 0x40,
-  B: 0x40,
-  C: 0x42,
-  D: 0x42,
-};
-const UNKNOWN_DATA_LENGTH = {
-  A: 0x00,
-  B: 0x20,
-  C: 0x00,
-  D: 0x20,
-};
-
-const VERSION_NUMBER_OFFSET = {
-  A: MAGIC2_OFFSET + MAGIC2[0].magic.length,
-  B: MAGIC2_OFFSET + MAGIC2[0].magic.length,
-  C: MAGIC2_OFFSET + MAGIC2[1].magic.length,
-  D: MAGIC2_OFFSET + MAGIC2[1].magic.length,
-};
-const VERSION_NUMBER_LENGTH = 5;
-
-const SAVE_DATA_HASH_OFFSET = {
-  A: 0x40,
-  B: 0x60,
-  C: 0x42,
-  D: 0x62,
-};
-
-const DATA_BEGIN_OFFSET = {
-  A: SAVE_DATA_HASH_OFFSET.A + HASH_LENGTH,
-  B: SAVE_DATA_HASH_OFFSET.B + HASH_LENGTH,
-  C: SAVE_DATA_HASH_OFFSET.C + HASH_LENGTH,
-  D: SAVE_DATA_HASH_OFFSET.D + HASH_LENGTH,
-};
-const HEADER_LENGTH = {
-  A: DATA_BEGIN_OFFSET.A,
-  B: DATA_BEGIN_OFFSET.B,
-  C: DATA_BEGIN_OFFSET.C,
-  D: DATA_BEGIN_OFFSET.D,
-};
+const NO_RTC_DATA = 0x00;
+const HAS_RTC_DATA = 0x01;
+const HAS_RTC_DATA_POTENTIAL_VALUES = [NO_RTC_DATA, HAS_RTC_DATA];
+const RTC_DATA_LENGTH = 0x20;
 
 const HEADER_FILL_VALUE = 0x00; // There are some misc 0x00 bytes after the magics
 
-function getFileFormat(nsoArrayBuffer) {
-  // First, figure out which magic2 matches
-
-  const magic2Type = MAGIC2.find((potentialMagic2Type) => {
-    try {
-      Util.checkMagicBytes(nsoArrayBuffer, MAGIC2_OFFSET, potentialMagic2Type.magic);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  });
-
-  if (magic2Type === undefined) {
-    throw new Error('This does not appear to be a Nintendo Switch Online Gameboy save file');
-  }
-
-  const potentialFileFormats = magic2Type.fileFormats;
-
-  // Now we need to look at magic3
+function getFileInfo(nsoArrayBuffer) {
+  // First, get the git revision number
 
   const nsoDataView = new DataView(nsoArrayBuffer);
-  const magic3 = nsoDataView.getUint8(magic2Type.magic3Offset);
-  const fileFormat = potentialFileFormats.find((potentialFileFormat) => (magic3 === MAGIC3[potentialFileFormat]));
+  const gitRevisionNumberLength = nsoDataView.getUint8(GIT_REVISION_NUMBER_LENGTH_OFFSET);
+  const gitRevisionNumberArrayBuffer = nsoArrayBuffer.slice(GIT_REVISION_NUMBER_OFFSET, GIT_REVISION_NUMBER_OFFSET + gitRevisionNumberLength);
 
-  if (fileFormat === undefined) {
+  // Now we need to look for potential RTC data
+
+  const hasRtcDataOffset = GIT_REVISION_NUMBER_OFFSET + gitRevisionNumberLength;
+  const hasRtcData = nsoDataView.getUint8(hasRtcDataOffset);
+
+  if (HAS_RTC_DATA_POTENTIAL_VALUES.indexOf(hasRtcData) < 0) {
     throw new Error('This does not appear to be a Nintendo Switch Online Gameboy save file');
   }
 
-  return fileFormat;
+  let rtcDataArrayBuffer = null;
+  let saveDataHashOffset = hasRtcDataOffset + 1;
+
+  if (hasRtcData === HAS_RTC_DATA) {
+    rtcDataArrayBuffer = nsoArrayBuffer.slice(hasRtcDataOffset + 1, hasRtcDataOffset + 1 + RTC_DATA_LENGTH);
+    saveDataHashOffset += RTC_DATA_LENGTH;
+  }
+
+  return {
+    gitRevisionNumberArrayBuffer,
+    rtcDataArrayBuffer,
+    saveDataHashOffset,
+    dataBeginOffset: saveDataHashOffset + HASH_LENGTH,
+  };
 }
 
 export default class NsoGameboySaveData {
@@ -185,54 +105,54 @@ export default class NsoGameboySaveData {
   }
 
   static createFromNsoData(nsoArrayBuffer) {
-    Util.checkMagicBytes(nsoArrayBuffer, MAGIC1_OFFSET, MAGIC1);
+    Util.checkMagicBytes(nsoArrayBuffer, MAGIC_OFFSET, MAGIC);
 
-    const fileFormat = getFileFormat(nsoArrayBuffer);
+    const fileInfo = getFileInfo(nsoArrayBuffer);
 
-    const encodedRomHashArrayBuffer = nsoArrayBuffer.slice(ROM_HASH_OFFSET, ROM_HASH_OFFSET + HASH_LENGTH);
+    const romHashArrayBuffer = nsoArrayBuffer.slice(ROM_HASH_OFFSET, ROM_HASH_OFFSET + HASH_LENGTH);
 
-    const encodedVersionArrayBuffer = nsoArrayBuffer.slice(VERSION_NUMBER_OFFSET[fileFormat], VERSION_NUMBER_OFFSET[fileFormat] + VERSION_NUMBER_LENGTH);
-
-    const unknownData = nsoArrayBuffer.slice(UNKNOWN_DATA_OFFSET[fileFormat], UNKNOWN_DATA_OFFSET[fileFormat] + UNKNOWN_DATA_LENGTH[fileFormat]);
-
-    return new NsoGameboySaveData(nsoArrayBuffer.slice(DATA_BEGIN_OFFSET[fileFormat]), nsoArrayBuffer, encodedRomHashArrayBuffer, encodedVersionArrayBuffer, unknownData, fileFormat);
+    return new NsoGameboySaveData(nsoArrayBuffer.slice(fileInfo.dataBeginOffset), nsoArrayBuffer, romHashArrayBuffer, fileInfo.gitRevisionNumberArrayBuffer, fileInfo.rtcDataArrayBuffer);
   }
 
-  static createFromRawData(rawArrayBuffer, encodedRomHashArrayBuffer, encodedVersionArrayBuffer, unknownData, fileFormat) {
-    let headerArrayBuffer = Util.getFilledArrayBuffer(HEADER_LENGTH[fileFormat], HEADER_FILL_VALUE);
+  static createFromRawData(rawArrayBuffer, romHashArrayBuffer, gitRevisionNumberArrayBuffer, rtcDataArrayBuffer) {
+    const rtcDataLength = (rtcDataArrayBuffer !== null) ? rtcDataArrayBuffer.byteLength : 0;
+    const hasRtcDataOffset = GIT_REVISION_NUMBER_OFFSET + gitRevisionNumberArrayBuffer.byteLength;
+    const rtcDataOffset = hasRtcDataOffset + 1;
+    const saveDataHashOffset = rtcDataOffset + rtcDataLength;
+    const headerLength = saveDataHashOffset + HASH_LENGTH;
+
+    let headerArrayBuffer = Util.getFilledArrayBuffer(headerLength, HEADER_FILL_VALUE);
 
     const headerDataView = new DataView(headerArrayBuffer);
 
-    const magic2Type = MAGIC2.find((potentialMagic2Type) => (potentialMagic2Type.fileFormats.indexOf(fileFormat) >= 0));
+    // We can't interleave these line with lines that mess with headerArrayBuffer below, otherwise this change gets stomped
+    headerDataView.setUint8(GIT_REVISION_NUMBER_LENGTH_OFFSET, gitRevisionNumberArrayBuffer.byteLength);
+    headerDataView.setUint8(hasRtcDataOffset, (rtcDataArrayBuffer !== null) ? HAS_RTC_DATA : NO_RTC_DATA);
 
-    headerDataView.setUint8(magic2Type.magic3Offset, MAGIC3[fileFormat]); // We can't interleave this line with lines that mess with headerArrayBuffer below, otherwise this change gets stomped
+    headerArrayBuffer = Util.setMagicBytes(headerArrayBuffer, MAGIC_OFFSET, MAGIC);
+    headerArrayBuffer = Util.setArrayBufferPortion(headerArrayBuffer, romHashArrayBuffer, ROM_HASH_OFFSET, 0, HASH_LENGTH);
+    headerArrayBuffer = Util.setArrayBufferPortion(headerArrayBuffer, gitRevisionNumberArrayBuffer, GIT_REVISION_NUMBER_OFFSET, 0, gitRevisionNumberArrayBuffer.byteLength);
 
-    headerArrayBuffer = Util.setMagicBytes(headerArrayBuffer, MAGIC1_OFFSET, MAGIC1);
-    headerArrayBuffer = Util.setMagicBytes(headerArrayBuffer, MAGIC2_OFFSET, magic2Type.magic);
-    headerArrayBuffer = Util.setArrayBufferPortion(headerArrayBuffer, encodedVersionArrayBuffer, VERSION_NUMBER_OFFSET[fileFormat], 0, VERSION_NUMBER_LENGTH);
-
-    if (UNKNOWN_DATA_LENGTH[fileFormat] > 0) {
-      headerArrayBuffer = Util.setArrayBufferPortion(headerArrayBuffer, unknownData, UNKNOWN_DATA_OFFSET[fileFormat], 0, UNKNOWN_DATA_LENGTH[fileFormat]);
+    if (rtcDataLength > 0) {
+      headerArrayBuffer = Util.setArrayBufferPortion(headerArrayBuffer, rtcDataArrayBuffer, rtcDataOffset, 0, rtcDataArrayBuffer.byteLength);
     }
 
     const encodedSaveDataHashArrayBuffer = HashUtil.getEncodedHash(rawArrayBuffer, HASH_ALGORITHM, HASH_ENCODING);
 
-    headerArrayBuffer = Util.setArrayBufferPortion(headerArrayBuffer, encodedRomHashArrayBuffer, ROM_HASH_OFFSET, 0, HASH_LENGTH);
-    headerArrayBuffer = Util.setArrayBufferPortion(headerArrayBuffer, encodedSaveDataHashArrayBuffer, SAVE_DATA_HASH_OFFSET[fileFormat], 0, HASH_LENGTH);
+    headerArrayBuffer = Util.setArrayBufferPortion(headerArrayBuffer, encodedSaveDataHashArrayBuffer, saveDataHashOffset, 0, HASH_LENGTH);
 
     const nsoArrayBuffer = Util.concatArrayBuffers([headerArrayBuffer, rawArrayBuffer]);
 
-    return new NsoGameboySaveData(rawArrayBuffer, nsoArrayBuffer, encodedRomHashArrayBuffer, encodedVersionArrayBuffer, fileFormat);
+    return new NsoGameboySaveData(rawArrayBuffer, nsoArrayBuffer, romHashArrayBuffer, gitRevisionNumberArrayBuffer, rtcDataArrayBuffer);
   }
 
   // This constructor creates a new object from a binary representation of a NSO save data file
-  constructor(rawArrayBuffer, nsoArrayBuffer, encodedRomHash, encodedVersion, unknownData, fileFormat) {
+  constructor(rawArrayBuffer, nsoArrayBuffer, romHashArrayBuffer, gitRevisionNumberArrayBuffer, rtcDataArrayBuffer) {
     this.rawArrayBuffer = rawArrayBuffer;
     this.nsoArrayBuffer = nsoArrayBuffer;
-    this.encodedRomHash = encodedRomHash;
-    this.encodedVersion = encodedVersion;
-    this.unknownData = unknownData;
-    this.fileFormat = fileFormat;
+    this.romHashArrayBuffer = romHashArrayBuffer;
+    this.gitRevisionNumberArrayBuffer = gitRevisionNumberArrayBuffer;
+    this.rtcDataArrayBuffer = rtcDataArrayBuffer;
   }
 
   getRawArrayBuffer() {
@@ -243,19 +163,15 @@ export default class NsoGameboySaveData {
     return this.nsoArrayBuffer;
   }
 
-  getEncodedRomHash() {
-    return this.encodedRomHash;
+  getRomHashArrayBuffer() {
+    return this.romHashArrayBuffer;
   }
 
-  getEncodedVersion() {
-    return this.encodedVersion;
+  getGitRevisionNumberArrayBuffer() {
+    return this.gitRevisionNumberArrayBuffer;
   }
 
-  getUnknownData() {
-    return this.unknownData;
-  }
-
-  getFileFormat() {
-    return this.fileFormat;
+  getRtcDataArrayBuffer() {
+    return this.rtcDataArrayBuffer;
   }
 }
