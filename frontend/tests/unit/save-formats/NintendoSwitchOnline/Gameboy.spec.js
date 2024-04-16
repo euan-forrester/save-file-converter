@@ -20,34 +20,34 @@ const GB_NEWER_VERSION_ROM_HASH = Util.bufferToArrayBuffer(textEncoder.encode('8
 const GB_NEWER_VERSION_GIT_REVISION_NUMBER = Util.bufferToArrayBuffer(textEncoder.encode('HEAD-v184.0'));
 const GB_NEWER_VERSION_RTC_DATA = null;
 
-const NSO_GBC_FORMAT_B_FILENAME = `${DIR}/Pokemon Cristal.sram`;
-const RAW_GBC_FORMAT_B_FILENAME = `${DIR}/Pokemon Cristal.sav`;
-const GBC_FORMAT_B_ROM_HASH = Util.bufferToArrayBuffer(textEncoder.encode('889a06fc0bb863666865aa69def0adf97945ac2a'));
-const GBC_FORMAT_B_GIT_REVISION_NUMBER = Util.bufferToArrayBuffer(textEncoder.encode('HEAD-v203.0'));
-const GBC_FORMAT_B_RTC_DATA = Util.bufferToArrayBuffer(
+const NSO_GBC_WITH_RTC_DATA_FILENAME = `${DIR}/Pokemon Cristal.sram`;
+const RAW_GBC_WITH_RTC_DATA_FILENAME = `${DIR}/Pokemon Cristal.sav`;
+const GBC_WITH_RTC_DATA_ROM_HASH = Util.bufferToArrayBuffer(textEncoder.encode('889a06fc0bb863666865aa69def0adf97945ac2a'));
+const GBC_WITH_RTC_DATA_GIT_REVISION_NUMBER = Util.bufferToArrayBuffer(textEncoder.encode('HEAD-v203.0'));
+const GBC_WITH_RTC_DATA_RTC_DATA = Util.bufferToArrayBuffer(
   new Uint8Array(
     [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x09, 0x0A, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x09, 0x0A, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00],
   ),
 );
 
-const NSO_GBC_FORMAT_C_FILENAME = `${DIR}/Pokemon_TCG.sram`;
-const RAW_GBC_FORMAT_C_FILENAME = `${DIR}/Pokemon_TCG.sav`;
-const GBC_FORMAT_C_ROM_HASH = Util.bufferToArrayBuffer(textEncoder.encode('0f8670a583255cff3e5b7ca71b5d7454d928fc48'));
-const GBC_FORMAT_C_GIT_REVISION_NUMBER = Util.bufferToArrayBuffer(textEncoder.encode('master-v196.0'));
-const GBC_FORMAT_C_RTC_DATA = null;
+const NSO_GBC_WITH_MASTER_GIT_REVISION_FILENAME = `${DIR}/Pokemon_TCG.sram`;
+const RAW_GBC_WITH_MASTER_GIT_REVISION_FILENAME = `${DIR}/Pokemon_TCG.sav`;
+const GBC_WITH_MASTER_GIT_REVISION_ROM_HASH = Util.bufferToArrayBuffer(textEncoder.encode('0f8670a583255cff3e5b7ca71b5d7454d928fc48'));
+const GBC_WITH_MASTER_GIT_REVISION_GIT_REVISION_NUMBER = Util.bufferToArrayBuffer(textEncoder.encode('master-v196.0'));
+const GBC_WITH_MASTER_GIT_REVISION_RTC_DATA = null;
 
-const NSO_GBC_FORMAT_C_WITH_COMMIT_HASH_FILENAME = `${DIR}/Pokemon_TCG_Europe.sram`;
-const RAW_GBC_FORMAT_C_WITH_COMMIT_HASH_FILENAME = `${DIR}/Pokemon_TCG_Europe.sav`;
-const GBC_FORMAT_C_WITH_COMMIT_HASH_ROM_HASH = Util.bufferToArrayBuffer(textEncoder.encode('dffc15f3063a4c2df84c6361406b41aec1696d3e'));
-const GBC_FORMAT_C_WITH_COMMIT_HASH_GIT_REVISION_NUMBER = Util.bufferToArrayBuffer(textEncoder.encode('HEAD-v213.0-1-g59d2e63b'));
-const GBC_FORMAT_C_WITH_COMMIT_HASH_RTC_DATA = null;
+const NSO_GBC_WITH_COMMIT_HASH_FILENAME = `${DIR}/Pokemon_TCG_Europe.sram`;
+const RAW_GBC_WITH_COMMIT_HASH_FILENAME = `${DIR}/Pokemon_TCG_Europe.sav`;
+const GBC_WITH_COMMIT_HASH_ROM_HASH = Util.bufferToArrayBuffer(textEncoder.encode('dffc15f3063a4c2df84c6361406b41aec1696d3e'));
+const GBC_WITH_COMMIT_HASH_GIT_REVISION_NUMBER = Util.bufferToArrayBuffer(textEncoder.encode('HEAD-v213.0-1-g59d2e63b'));
+const GBC_WITH_COMMIT_HASH_RTC_DATA = null;
 
-const NSO_GBC_FORMAT_D_FILENAME = `${DIR}/Pokemon_-_Crystal_Version.sram`;
-const RAW_GBC_FORMAT_D_FILENAME = `${DIR}/Pokemon_-_Crystal_Version.sav`;
-const GBC_FORMAT_D_ROM_HASH = Util.bufferToArrayBuffer(textEncoder.encode('f2f52230b536214ef7c9924f483392993e226cfb'));
-const GBC_FORMAT_D_GIT_REVISION_NUMBER = Util.bufferToArrayBuffer(textEncoder.encode('master-v199.0'));
-const GBC_FORMAT_D_RTC_DATA = Util.bufferToArrayBuffer(
+const NSO_GBC_WITH_MASTER_GIT_REVISION_AND_RTC_DATA_FILENAME = `${DIR}/Pokemon_-_Crystal_Version.sram`;
+const RAW_GBC_WITH_MASTER_GIT_REVISION_AND_RTC_DATA_FILENAME = `${DIR}/Pokemon_-_Crystal_Version.sav`;
+const GBC_WITH_MASTER_GIT_REVISION_AND_RTC_DATA_ROM_HASH = Util.bufferToArrayBuffer(textEncoder.encode('f2f52230b536214ef7c9924f483392993e226cfb'));
+const GBC_WITH_MASTER_GIT_REVISION_AND_RTC_DATA_GIT_REVISION_NUMBER = Util.bufferToArrayBuffer(textEncoder.encode('master-v199.0'));
+const GBC_WITH_MASTER_GIT_REVISION_AND_RTC_DATA_RTC_DATA = Util.bufferToArrayBuffer(
   new Uint8Array(
     [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
@@ -109,92 +109,102 @@ describe('Nintendo Switch Online - Gameboy', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
 
-  it('should convert a raw format B GBC save to NSO format', async () => {
-    const nsoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NSO_GBC_FORMAT_B_FILENAME);
-    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_FORMAT_B_FILENAME);
+  it('should convert a GBC save with RTC data to NSO format', async () => {
+    const nsoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NSO_GBC_WITH_RTC_DATA_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_WITH_RTC_DATA_FILENAME);
 
-    const nsoSaveData = NsoGameboySaveData.createFromRawData(rawArrayBuffer, GBC_FORMAT_B_ROM_HASH, GBC_FORMAT_B_GIT_REVISION_NUMBER, GBC_FORMAT_B_RTC_DATA);
-
-    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getNsoArrayBuffer(), nsoArrayBuffer)).to.equal(true);
-  });
-
-  it('should convert a NSO format B GBC save to raw format', async () => {
-    const nsoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NSO_GBC_FORMAT_B_FILENAME);
-    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_FORMAT_B_FILENAME);
-
-    const nsoSaveData = NsoGameboySaveData.createFromNsoData(nsoArrayBuffer);
-
-    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRomHashArrayBuffer(), GBC_FORMAT_B_ROM_HASH)).to.equal(true);
-    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getGitRevisionNumberArrayBuffer(), GBC_FORMAT_B_GIT_REVISION_NUMBER)).to.equal(true);
-    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRtcDataArrayBuffer(), GBC_FORMAT_B_RTC_DATA)).to.equal(true);
-    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
-  });
-
-  it('should convert a raw format C GBC save to NSO format', async () => {
-    const nsoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NSO_GBC_FORMAT_C_FILENAME);
-    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_FORMAT_C_FILENAME);
-
-    const nsoSaveData = NsoGameboySaveData.createFromRawData(rawArrayBuffer, GBC_FORMAT_C_ROM_HASH, GBC_FORMAT_C_GIT_REVISION_NUMBER, GBC_FORMAT_C_RTC_DATA);
+    const nsoSaveData = NsoGameboySaveData.createFromRawData(rawArrayBuffer, GBC_WITH_RTC_DATA_ROM_HASH, GBC_WITH_RTC_DATA_GIT_REVISION_NUMBER, GBC_WITH_RTC_DATA_RTC_DATA);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getNsoArrayBuffer(), nsoArrayBuffer)).to.equal(true);
   });
 
-  it('should convert a NSO format C GBC save to raw format', async () => {
-    const nsoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NSO_GBC_FORMAT_C_FILENAME);
-    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_FORMAT_C_FILENAME);
+  it('should convert a NSO GBC save with RTC data to raw format', async () => {
+    const nsoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NSO_GBC_WITH_RTC_DATA_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_WITH_RTC_DATA_FILENAME);
 
     const nsoSaveData = NsoGameboySaveData.createFromNsoData(nsoArrayBuffer);
 
-    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRomHashArrayBuffer(), GBC_FORMAT_C_ROM_HASH)).to.equal(true);
-    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getGitRevisionNumberArrayBuffer(), GBC_FORMAT_C_GIT_REVISION_NUMBER)).to.equal(true);
-    expect(nsoSaveData.getRtcDataArrayBuffer()).to.equal(GBC_FORMAT_C_RTC_DATA);
+    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRomHashArrayBuffer(), GBC_WITH_RTC_DATA_ROM_HASH)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getGitRevisionNumberArrayBuffer(), GBC_WITH_RTC_DATA_GIT_REVISION_NUMBER)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRtcDataArrayBuffer(), GBC_WITH_RTC_DATA_RTC_DATA)).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
 
-  it('should convert a raw format C GBC save with a commit hash to NSO format', async () => {
-    const nsoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NSO_GBC_FORMAT_C_WITH_COMMIT_HASH_FILENAME);
-    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_FORMAT_C_WITH_COMMIT_HASH_FILENAME);
+  it('should convert a raw GBC save with master git revision to NSO format', async () => {
+    const nsoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NSO_GBC_WITH_MASTER_GIT_REVISION_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_WITH_MASTER_GIT_REVISION_FILENAME);
 
     const nsoSaveData = NsoGameboySaveData.createFromRawData(
       rawArrayBuffer,
-      GBC_FORMAT_C_WITH_COMMIT_HASH_ROM_HASH,
-      GBC_FORMAT_C_WITH_COMMIT_HASH_GIT_REVISION_NUMBER,
-      GBC_FORMAT_C_WITH_COMMIT_HASH_RTC_DATA,
+      GBC_WITH_MASTER_GIT_REVISION_ROM_HASH,
+      GBC_WITH_MASTER_GIT_REVISION_GIT_REVISION_NUMBER,
+      GBC_WITH_MASTER_GIT_REVISION_RTC_DATA,
     );
 
     expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getNsoArrayBuffer(), nsoArrayBuffer)).to.equal(true);
   });
 
-  it('should convert a NSO format C GBC save with a commit hash to raw format', async () => {
-    const nsoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NSO_GBC_FORMAT_C_WITH_COMMIT_HASH_FILENAME);
-    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_FORMAT_C_WITH_COMMIT_HASH_FILENAME);
+  it('should convert a NSO GBC save with master git revision to raw format', async () => {
+    const nsoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NSO_GBC_WITH_MASTER_GIT_REVISION_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_WITH_MASTER_GIT_REVISION_FILENAME);
 
     const nsoSaveData = NsoGameboySaveData.createFromNsoData(nsoArrayBuffer);
 
-    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRomHashArrayBuffer(), GBC_FORMAT_C_WITH_COMMIT_HASH_ROM_HASH)).to.equal(true);
-    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getGitRevisionNumberArrayBuffer(), GBC_FORMAT_C_WITH_COMMIT_HASH_GIT_REVISION_NUMBER)).to.equal(true);
-    expect(nsoSaveData.getRtcDataArrayBuffer()).to.equal(GBC_FORMAT_C_WITH_COMMIT_HASH_RTC_DATA);
+    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRomHashArrayBuffer(), GBC_WITH_MASTER_GIT_REVISION_ROM_HASH)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getGitRevisionNumberArrayBuffer(), GBC_WITH_MASTER_GIT_REVISION_GIT_REVISION_NUMBER)).to.equal(true);
+    expect(nsoSaveData.getRtcDataArrayBuffer()).to.equal(GBC_WITH_MASTER_GIT_REVISION_RTC_DATA);
     expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
 
-  it('should convert a raw format D GBC save to NSO format', async () => {
-    const nsoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NSO_GBC_FORMAT_D_FILENAME);
-    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_FORMAT_D_FILENAME);
+  it('should convert a raw GBC save with a commit hash to NSO format', async () => {
+    const nsoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NSO_GBC_WITH_COMMIT_HASH_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_WITH_COMMIT_HASH_FILENAME);
 
-    const nsoSaveData = NsoGameboySaveData.createFromRawData(rawArrayBuffer, GBC_FORMAT_D_ROM_HASH, GBC_FORMAT_D_GIT_REVISION_NUMBER, GBC_FORMAT_D_RTC_DATA);
+    const nsoSaveData = NsoGameboySaveData.createFromRawData(
+      rawArrayBuffer,
+      GBC_WITH_COMMIT_HASH_ROM_HASH,
+      GBC_WITH_COMMIT_HASH_GIT_REVISION_NUMBER,
+      GBC_WITH_COMMIT_HASH_RTC_DATA,
+    );
 
     expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getNsoArrayBuffer(), nsoArrayBuffer)).to.equal(true);
   });
 
-  it('should convert a NSO format D GBC save to raw format', async () => {
-    const nsoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NSO_GBC_FORMAT_D_FILENAME);
-    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_FORMAT_D_FILENAME);
+  it('should convert a NSO GBC save with a commit hash to raw format', async () => {
+    const nsoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NSO_GBC_WITH_COMMIT_HASH_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_WITH_COMMIT_HASH_FILENAME);
 
     const nsoSaveData = NsoGameboySaveData.createFromNsoData(nsoArrayBuffer);
 
-    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRomHashArrayBuffer(), GBC_FORMAT_D_ROM_HASH)).to.equal(true);
-    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getGitRevisionNumberArrayBuffer(), GBC_FORMAT_D_GIT_REVISION_NUMBER)).to.equal(true);
-    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRtcDataArrayBuffer(), GBC_FORMAT_D_RTC_DATA)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRomHashArrayBuffer(), GBC_WITH_COMMIT_HASH_ROM_HASH)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getGitRevisionNumberArrayBuffer(), GBC_WITH_COMMIT_HASH_GIT_REVISION_NUMBER)).to.equal(true);
+    expect(nsoSaveData.getRtcDataArrayBuffer()).to.equal(GBC_WITH_COMMIT_HASH_RTC_DATA);
+    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a raw GBC save with master git revision number and RTC data to NSO format', async () => {
+    const nsoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NSO_GBC_WITH_MASTER_GIT_REVISION_AND_RTC_DATA_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_WITH_MASTER_GIT_REVISION_AND_RTC_DATA_FILENAME);
+
+    const nsoSaveData = NsoGameboySaveData.createFromRawData(
+      rawArrayBuffer,
+      GBC_WITH_MASTER_GIT_REVISION_AND_RTC_DATA_ROM_HASH,
+      GBC_WITH_MASTER_GIT_REVISION_AND_RTC_DATA_GIT_REVISION_NUMBER,
+      GBC_WITH_MASTER_GIT_REVISION_AND_RTC_DATA_RTC_DATA,
+    );
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getNsoArrayBuffer(), nsoArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a NSO GBC save with master git revision number and RTC data to raw format', async () => {
+    const nsoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NSO_GBC_WITH_MASTER_GIT_REVISION_AND_RTC_DATA_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GBC_WITH_MASTER_GIT_REVISION_AND_RTC_DATA_FILENAME);
+
+    const nsoSaveData = NsoGameboySaveData.createFromNsoData(nsoArrayBuffer);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRomHashArrayBuffer(), GBC_WITH_MASTER_GIT_REVISION_AND_RTC_DATA_ROM_HASH)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getGitRevisionNumberArrayBuffer(), GBC_WITH_MASTER_GIT_REVISION_AND_RTC_DATA_GIT_REVISION_NUMBER)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRtcDataArrayBuffer(), GBC_WITH_MASTER_GIT_REVISION_AND_RTC_DATA_RTC_DATA)).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(nsoSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
 
