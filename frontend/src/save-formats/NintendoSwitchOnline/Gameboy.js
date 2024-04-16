@@ -143,7 +143,7 @@ export default class NsoGameboySaveData {
 
     const nsoArrayBuffer = Util.concatArrayBuffers([headerArrayBuffer, rawArrayBuffer]);
 
-    return new NsoGameboySaveData(rawArrayBuffer, nsoArrayBuffer, romHashArrayBuffer, gitRevisionNumberArrayBuffer);
+    return new NsoGameboySaveData(rawArrayBuffer, nsoArrayBuffer, romHashArrayBuffer, gitRevisionNumberArrayBuffer, rtcDataArrayBuffer);
   }
 
   // This constructor creates a new object from a binary representation of a NSO save data file
