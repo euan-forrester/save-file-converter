@@ -254,10 +254,9 @@ export default {
               if (this.exampleNsoData !== null) {
                 this.nsoSaveData = this.nsoPlatformClass.createFromRawData(
                   this.inputArrayBuffer,
-                  this.exampleNsoData.getEncodedRomHash(),
-                  this.exampleNsoData.getEncodedVersion(),
-                  this.exampleNsoData.getUnknownData(),
-                  this.exampleNsoData.getFileFormat(),
+                  this.exampleNsoData.getRomHashArrayBuffer(),
+                  this.exampleNsoData.getGitRevisionNumberArrayBuffer(),
+                  this.exampleNsoData.getRtcDataArrayBuffer(),
                 );
                 this.outputFilesize = this.nsoSaveData.getRawArrayBuffer().byteLength;
               }
