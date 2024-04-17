@@ -15,15 +15,6 @@ import SaveFilesUtil from '../../util/SaveFiles';
 const MISTER_FILE_SIZE = 65536;
 const MISTER_PADDING_VALUE = 0xFF;
 
-function padArrayBuffer(inputArrayBuffer) {
-  const padding = {
-    value: MISTER_PADDING_VALUE,
-    count: Math.max(MISTER_FILE_SIZE - inputArrayBuffer.byteLength, 0),
-  };
-
-  return PaddingUtil.addPaddingToEnd(inputArrayBuffer, padding);
-}
-
 export default class MisterGenesisSaveData {
   static getMisterFileExtension() {
     return 'sav';
@@ -91,7 +82,7 @@ export default class MisterGenesisSaveData {
       unpaddedMisterArrayBuffer = GenesisUtil.byteCollapse(rawArrayBuffer);
     }
 
-    return new MisterGenesisSaveData(rawArrayBuffer, padArrayBuffer(unpaddedMisterArrayBuffer));
+    return new MisterGenesisSaveData(rawArrayBuffer, PaddingUtil.padAtEndToMinimumSize(unpaddedMisterArrayBuffer, MISTER_PADDING_VALUE, MISTER_FILE_SIZE));
   }
 
   // This constructor creates a new object from a binary representation of a MiSTer save data file

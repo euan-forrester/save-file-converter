@@ -17,15 +17,6 @@ import SaveFilesUtil from '../../util/SaveFiles';
 const MISTER_MINIMUM_FILE_SIZE = 32768;
 const MISTER_PADDING_VALUE = 0x00; // Not sure what to choose for padding, given that actual MiSTer files are filled with garbage data
 
-function padArrayBuffer(inputArrayBuffer) {
-  const padding = {
-    value: MISTER_PADDING_VALUE,
-    count: Math.max(MISTER_MINIMUM_FILE_SIZE - inputArrayBuffer.byteLength, 0),
-  };
-
-  return PaddingUtil.addPaddingToEnd(inputArrayBuffer, padding);
-}
-
 export default class MisterNesSaveData {
   static getMisterFileExtension() {
     return 'sav';
@@ -52,7 +43,7 @@ export default class MisterNesSaveData {
 
   static createFromRawData(rawArrayBuffer) {
     // Pad our file out to the minimum MiSTer size, just to be nice
-    return new MisterNesSaveData(rawArrayBuffer, padArrayBuffer(rawArrayBuffer));
+    return new MisterNesSaveData(rawArrayBuffer, PaddingUtil.padAtEndToMinimumSize(rawArrayBuffer, MISTER_PADDING_VALUE, MISTER_MINIMUM_FILE_SIZE));
   }
 
   // This constructor creates a new object from a binary representation of a MiSTer save data file

@@ -1,14 +1,21 @@
 /*
-In the test files I was provided for GBA, the mister files looked "too short": the ones I had from a Retron 5 were longer and
-had data past where the mister ones ended.
+MiSTer GBA files are the same as emulator files with 2 exceptions:
 
-But the info for the GBA core seems to indicate that saving works fully and any remaining issues with the core
-are minor and cosmetic: https://github.com/MiSTer-devel/GBA_MiSTer
+- 512B EEPROM files must be padded out to 8192B, otherwise the core does not recognize them. This is because the core is unable to determine the EEPROM size from the ROM
+- MiSTer GBA files may have RTC data appended to the end, which will be ignored by emulators so we can remove it
 
-So I'm just going to assume that no transformation is needed for GBA files until I hear otherwise.
+More information is here: https://misterfpga.org/viewtopic.php?t=2040
+
+When going from a raw 8192B EEPROM save, we can't automatically truncate it for the MiSTer because we don't know whether it should be 512B or 8192B.
+I think most emulators will accept either size, but regardless the user is able to select to truncate it in the interface.
 */
 
 import SaveFilesUtil from '../../util/SaveFiles';
+import PaddingUtil from '../../util/Padding';
+import MathUtil from '../../util/Math';
+
+const MISTER_MINIMUM_FILE_SIZE = 8192;
+const MISTER_PADDING_VALUE = 0x00; // It doesn't matter what we use here: the core doesn't clear the data from the previous game, so it gets left uninitialized
 
 export default class MisterGameboyAdvanceSaveData {
   static getMisterFileExtension() {
@@ -30,11 +37,19 @@ export default class MisterGameboyAdvanceSaveData {
   }
 
   static createFromMisterData(misterArrayBuffer) {
-    return new MisterGameboyAdvanceSaveData(misterArrayBuffer, misterArrayBuffer);
+    // Check if we have any RTC data appended
+    let rawArrayBuffer = misterArrayBuffer;
+    const hasRtcData = !MathUtil.isPowerOf2(misterArrayBuffer.byteLength);
+
+    if (hasRtcData) {
+      rawArrayBuffer = PaddingUtil.removePaddingFromEnd(misterArrayBuffer, misterArrayBuffer.byteLength - MathUtil.getNextSmallestPowerOf2(misterArrayBuffer.byteLength));
+    }
+
+    return new MisterGameboyAdvanceSaveData(rawArrayBuffer, misterArrayBuffer);
   }
 
   static createFromRawData(rawArrayBuffer) {
-    return new MisterGameboyAdvanceSaveData(rawArrayBuffer, rawArrayBuffer);
+    return new MisterGameboyAdvanceSaveData(rawArrayBuffer, PaddingUtil.padAtEndToMinimumSize(rawArrayBuffer, MISTER_PADDING_VALUE, MISTER_MINIMUM_FILE_SIZE));
   }
 
   // This constructor creates a new object from a binary representation of a MiSTer save data file

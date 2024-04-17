@@ -79,6 +79,83 @@ describe('MathUtil', () => {
     expect(MathUtil.getNextLargestPowerOf2(262144)).to.equal(262144);
   });
 
+  it('should find the next smallest power of 2', () => {
+    expect(MathUtil.getNextSmallestPowerOf2(-1)).to.equal(0);
+    expect(MathUtil.getNextSmallestPowerOf2(0)).to.equal(0);
+
+    expect(MathUtil.getNextSmallestPowerOf2(1)).to.equal(1);
+
+    expect(MathUtil.getNextSmallestPowerOf2(2)).to.equal(2);
+    expect(MathUtil.getNextSmallestPowerOf2(3)).to.equal(2);
+
+    expect(MathUtil.getNextSmallestPowerOf2(4)).to.equal(4);
+    expect(MathUtil.getNextSmallestPowerOf2(5)).to.equal(4);
+    expect(MathUtil.getNextSmallestPowerOf2(6)).to.equal(4);
+    expect(MathUtil.getNextSmallestPowerOf2(7)).to.equal(4);
+
+    expect(MathUtil.getNextSmallestPowerOf2(8)).to.equal(8);
+    expect(MathUtil.getNextSmallestPowerOf2(9)).to.equal(8);
+    expect(MathUtil.getNextSmallestPowerOf2(15)).to.equal(8);
+
+    expect(MathUtil.getNextSmallestPowerOf2(16)).to.equal(16);
+    expect(MathUtil.getNextSmallestPowerOf2(17)).to.equal(16);
+    expect(MathUtil.getNextSmallestPowerOf2(31)).to.equal(16);
+
+    expect(MathUtil.getNextSmallestPowerOf2(32)).to.equal(32);
+    expect(MathUtil.getNextSmallestPowerOf2(33)).to.equal(32);
+    expect(MathUtil.getNextSmallestPowerOf2(63)).to.equal(32);
+
+    expect(MathUtil.getNextSmallestPowerOf2(64)).to.equal(64);
+    expect(MathUtil.getNextSmallestPowerOf2(65)).to.equal(64);
+    expect(MathUtil.getNextSmallestPowerOf2(127)).to.equal(64);
+
+    expect(MathUtil.getNextSmallestPowerOf2(128)).to.equal(128);
+    expect(MathUtil.getNextSmallestPowerOf2(129)).to.equal(128);
+    expect(MathUtil.getNextSmallestPowerOf2(255)).to.equal(128);
+
+    expect(MathUtil.getNextSmallestPowerOf2(256)).to.equal(256);
+    expect(MathUtil.getNextSmallestPowerOf2(257)).to.equal(256);
+    expect(MathUtil.getNextSmallestPowerOf2(511)).to.equal(256);
+
+    expect(MathUtil.getNextSmallestPowerOf2(512)).to.equal(512);
+    expect(MathUtil.getNextSmallestPowerOf2(513)).to.equal(512);
+    expect(MathUtil.getNextSmallestPowerOf2(1023)).to.equal(512);
+
+    expect(MathUtil.getNextSmallestPowerOf2(1024)).to.equal(1024);
+    expect(MathUtil.getNextSmallestPowerOf2(1025)).to.equal(1024);
+    expect(MathUtil.getNextSmallestPowerOf2(2047)).to.equal(1024);
+
+    expect(MathUtil.getNextSmallestPowerOf2(2048)).to.equal(2048);
+    expect(MathUtil.getNextSmallestPowerOf2(2049)).to.equal(2048);
+    expect(MathUtil.getNextSmallestPowerOf2(4095)).to.equal(2048);
+
+    expect(MathUtil.getNextSmallestPowerOf2(4096)).to.equal(4096);
+    expect(MathUtil.getNextSmallestPowerOf2(4097)).to.equal(4096);
+    expect(MathUtil.getNextSmallestPowerOf2(8191)).to.equal(4096);
+
+    expect(MathUtil.getNextSmallestPowerOf2(8192)).to.equal(8192);
+    expect(MathUtil.getNextSmallestPowerOf2(8193)).to.equal(8192);
+    expect(MathUtil.getNextSmallestPowerOf2(16383)).to.equal(8192);
+
+    expect(MathUtil.getNextSmallestPowerOf2(16384)).to.equal(16384);
+    expect(MathUtil.getNextSmallestPowerOf2(16385)).to.equal(16384);
+    expect(MathUtil.getNextSmallestPowerOf2(32767)).to.equal(16384);
+
+    expect(MathUtil.getNextSmallestPowerOf2(32768)).to.equal(32768);
+    expect(MathUtil.getNextSmallestPowerOf2(32769)).to.equal(32768);
+    expect(MathUtil.getNextSmallestPowerOf2(65535)).to.equal(32768);
+
+    expect(MathUtil.getNextSmallestPowerOf2(65536)).to.equal(65536);
+    expect(MathUtil.getNextSmallestPowerOf2(65537)).to.equal(65536);
+    expect(MathUtil.getNextSmallestPowerOf2(131071)).to.equal(65536);
+
+    expect(MathUtil.getNextSmallestPowerOf2(131072)).to.equal(131072);
+    expect(MathUtil.getNextSmallestPowerOf2(131073)).to.equal(131072);
+    expect(MathUtil.getNextSmallestPowerOf2(262143)).to.equal(131072);
+
+    expect(MathUtil.getNextSmallestPowerOf2(262144)).to.equal(262144);
+  });
+
   it('should determine whether a number is a power of 2', () => {
     expect(MathUtil.isPowerOf2(-1)).to.equal(false);
     expect(MathUtil.isPowerOf2(0)).to.equal(false);
