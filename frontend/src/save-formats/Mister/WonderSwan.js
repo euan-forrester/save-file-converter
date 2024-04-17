@@ -10,7 +10,7 @@ import MathUtil from '../../util/Math';
 const MISTER_REALTIME_CLOCK_SIZE = 0x200;
 const MISTER_PADDING_VALUE = 0x00;
 
-function padArrayBuffer(inputArrayBuffer) {
+function addUninitializedRealtimeClockData(inputArrayBuffer) {
   const padding = {
     value: MISTER_PADDING_VALUE,
     count: MISTER_REALTIME_CLOCK_SIZE,
@@ -50,7 +50,7 @@ export default class MisterWonderSwanSaveData {
 
   static createFromRawData(rawArrayBuffer) {
     // Pad our file out for the MiSTer clock data, just to be nice
-    return new MisterWonderSwanSaveData(rawArrayBuffer, padArrayBuffer(rawArrayBuffer));
+    return new MisterWonderSwanSaveData(rawArrayBuffer, addUninitializedRealtimeClockData(rawArrayBuffer));
   }
 
   // This constructor creates a new object from a binary representation of a MiSTer save data file
