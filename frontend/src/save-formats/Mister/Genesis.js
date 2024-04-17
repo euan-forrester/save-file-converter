@@ -82,7 +82,7 @@ export default class MisterGenesisSaveData {
       unpaddedMisterArrayBuffer = GenesisUtil.byteCollapse(rawArrayBuffer);
     }
 
-    return new MisterGenesisSaveData(rawArrayBuffer, PaddingUtil.padAtEndToMinimumSize(inputArrayBuffer, MISTER_PADDING_VALUE, MISTER_FILE_SIZE));
+    return new MisterGenesisSaveData(rawArrayBuffer, PaddingUtil.padAtEndToMinimumSize(unpaddedMisterArrayBuffer, MISTER_PADDING_VALUE, MISTER_FILE_SIZE));
   }
 
   // This constructor creates a new object from a binary representation of a MiSTer save data file

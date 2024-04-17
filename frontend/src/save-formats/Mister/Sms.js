@@ -37,7 +37,7 @@ export default class MisterSmsSaveData {
 
   static createFromRawData(rawArrayBuffer) {
     // Pad our file out to the minimum MiSTer size, just to be nice
-    return new MisterSmsSaveData(rawArrayBuffer, PaddingUtil.padAtEndToMinimumSize(inputArrayBuffer, MISTER_PADDING_VALUE, MISTER_MINIMUM_FILE_SIZE));
+    return new MisterSmsSaveData(rawArrayBuffer, PaddingUtil.padAtEndToMinimumSize(rawArrayBuffer, MISTER_PADDING_VALUE, MISTER_MINIMUM_FILE_SIZE));
   }
 
   // This constructor creates a new object from a binary representation of a MiSTer save data file
