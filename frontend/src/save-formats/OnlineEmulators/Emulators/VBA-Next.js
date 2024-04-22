@@ -42,7 +42,7 @@ function getRawArrayBufferFromSaveStateArrayBuffer(emulatorSaveStateArrayBuffer,
 
   const rawSaveOffset = SAVE_OFFSET[saveSize];
 
-  if (rawSaveOffset > emulatorSaveStateArrayBuffer.byteLength) {
+  if ((rawSaveOffset + saveSize) > emulatorSaveStateArrayBuffer.byteLength) {
     throw new Error('This does not appear to be a VBA-Next save state file');
   }
 
