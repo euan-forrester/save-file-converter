@@ -230,11 +230,9 @@ export default {
             this.outputFilesize = this.getDefaultOutputFilesize();
           }
         } catch (e) {
-          this.errorMessage = 'This file does not seem to be in the correct format';
+          this.errorMessage = 'This file does not appear to be a save state that this site is able to currently support. '
+            + 'If this is a save state from an online emulator and you would like to request adding support for it, please visit the Discord / Contact page.';
           this.onlineEmulatorWrapper = null;
-          this.outputFilename = null;
-          this.selectedSaveData = null;
-          this.outputFilesize = null;
         }
       } else {
         this.onlineEmulatorWrapper = null;
