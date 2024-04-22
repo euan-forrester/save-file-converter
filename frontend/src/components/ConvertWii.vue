@@ -44,7 +44,7 @@
           />
           <b-popover target="conversion-direction" triggers="focus hover" placement="bottom">
             We can currently only extract the raw save from Wii Virtual Console files.
-            If converting raw saves to Wii Virtual Console files is important to you, please let us know! Contact info on the About / Contact page.
+            If you need to convert to a Wii Virtual Console file, please google the tool named FE100.
           </b-popover>
         </b-col>
         <b-col sm=12 md=5 align-self="start">
