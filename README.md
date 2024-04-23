@@ -120,6 +120,7 @@ Everything on this site is free and open source with no advertising. If you find
   - https://www.youtube.com/watch?v=PpolokImIeU (convert individual note to .eep format)
   - https://github.com/ssokolow/saveswap Swap endianness of N64 saves to move between Everdrive/emulators/etc
   - https://github.com/Ninjiteu/N64SaveConverter Does endian swaps, padding/trimming of files, and parses retroarch files that store n64 cart saves at various offsets
+  - https://github.com/drehren/ra_mp64_srm_convert Combines/splits retroarch saves. Also has GUI version: https://github.com/drehren/ramp64-convert-gui and web version: https://github.com/drehren/ramp64-convert-web
   - Game serial codes:
     - https://niwanetwork.org/wiki/List_of_Nintendo_64_games_by_serial_code
     - https://meanwhileblog.wordpress.com/n64-game-code-list/
