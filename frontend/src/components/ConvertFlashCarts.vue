@@ -143,6 +143,14 @@
           </b-button>
         </b-col>
       </b-row>
+      <b-row>
+        <b-col>
+          <div class="help">
+            Before copying a save file to or from a flash cart, please launch a different game first.<br>
+            Please see your flash cart documentation for more details, or check #faqs on the <router-link to="/about">Discord</router-link>.
+          </div>
+        </b-col>
+      </b-row>
     </b-container>
   </div>
 </template>
