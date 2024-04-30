@@ -5,6 +5,8 @@ import VbaNextSaveStateData from '@/save-formats/OnlineEmulators/Emulators/VBA-N
 
 const DIR = './tests/data/save-formats/online-emulators/arcadespot.com/gba';
 
+const EMULATOR_INVALID_SAVE_STATE_FILE = `${DIR}/invalid-save-state.save`;
+
 // We have some multiples here because it can be tricky to find the in-game save within a save state file:
 // that file also contains the system's memory which might also contain a copy of the in-game save.
 // So we have a couple of examples of most of the save types to help make sure we're consistently finding the right
@@ -113,6 +115,15 @@ describe('OnlineEmulators - GBA - VBA-Next', () => {
     expect(() => VbaNextSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer, 1234)).to.throw(
       Error,
       '1234 is not a valid save size for a GBA game',
+    );
+  });
+
+  it('should correctly reject a file that is too short', async () => {
+    const emulatorSaveStateArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_INVALID_SAVE_STATE_FILE);
+
+    expect(() => VbaNextSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer, 512)).to.throw(
+      Error,
+      'This does not appear to be a VBA-Next save state file',
     );
   });
 });
