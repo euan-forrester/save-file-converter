@@ -51,6 +51,7 @@ export default {
     return {
       options: [
         { value: null, text: 'Choose platform', disabled: true },
+        { value: 'gb', text: 'Game Boy/Game Boy Color' },
         { value: 'gba', text: 'Game Boy Advance' },
         { value: 'snes', text: 'Super NES' },
         { value: null, text: 'Please use the Contact/Discord page to suggest other platforms', disabled: true },

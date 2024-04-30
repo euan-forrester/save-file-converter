@@ -12,6 +12,7 @@ import JSZip from 'jszip';
 import Util from '../../util/util';
 
 import Snes9xSaveStateData from './Emulators/Snes9x';
+import GbSaveStateData from './Emulators/Gb';
 import VbaNextSaveStateData from './Emulators/VBA-Next';
 
 const IMAGE_FILE_TYPES = ['.png', '.jpg', '.jpeg', '.tif', '.tiff', '.gif', '.bmp'];
@@ -35,6 +36,9 @@ function getClass(platform) {
 
     case 'gba':
       return VbaNextSaveStateData;
+
+    case 'gb':
+      return GbSaveStateData;
 
     default:
       throw new Error(`Unrecognized platform type: '${platform}'`);
