@@ -21,7 +21,7 @@ These found by creating the same save file in both the online emulator and a sta
 128kB Flash RAM: 0x93010
 */
 
-import SaveFilesUtil from '../../../util/SaveFiles';
+import EmulatorBase from './EmulatorBase';
 
 const EEPROM_OFFSET = 0x91000;
 const SRAM_OFFSET = 0x93010;
@@ -35,34 +35,27 @@ const SAVE_OFFSET = {
   131072: FLASH_RAM_OFFSET,
 };
 
-function getRawArrayBufferFromSaveStateArrayBuffer(emulatorSaveStateArrayBuffer, saveSize) {
-  if (!(saveSize in SAVE_OFFSET)) {
-    throw new Error(`${saveSize} is not a valid save size for a GBA game`);
+export default class VbaNextSaveStateData extends EmulatorBase {
+  static getRawArrayBufferFromSaveStateArrayBuffer(emulatorSaveStateArrayBuffer, saveSize) {
+    if (!(saveSize in SAVE_OFFSET)) {
+      throw new Error(`${saveSize} is not a valid save size for a GBA game`);
+    }
+
+    const rawSaveOffset = SAVE_OFFSET[saveSize];
+
+    if ((rawSaveOffset + saveSize) > emulatorSaveStateArrayBuffer.byteLength) {
+      throw new Error('This does not appear to be a VBA-Next save state file');
+    }
+
+    return emulatorSaveStateArrayBuffer.slice(rawSaveOffset, rawSaveOffset + saveSize);
   }
 
-  const rawSaveOffset = SAVE_OFFSET[saveSize];
-
-  if ((rawSaveOffset + saveSize) > emulatorSaveStateArrayBuffer.byteLength) {
-    throw new Error('This does not appear to be a VBA-Next save state file');
-  }
-
-  return emulatorSaveStateArrayBuffer.slice(rawSaveOffset, rawSaveOffset + saveSize);
-}
-
-export default class VbaNextSaveStateData {
   static createFromSaveStateData(emulatorSaveStateArrayBuffer, saveSize) {
-    const rawArrayBuffer = getRawArrayBufferFromSaveStateArrayBuffer(emulatorSaveStateArrayBuffer, saveSize);
-
-    return new VbaNextSaveStateData(emulatorSaveStateArrayBuffer, rawArrayBuffer, saveSize);
+    return super.createFromSaveStateData(emulatorSaveStateArrayBuffer, saveSize, VbaNextSaveStateData);
   }
 
   static createWithNewSize(emulatorSaveStateData, newSize) {
-    // The user's emulator etc may require a different file size than the "true" size.
-    // We need to make sure that if the user resizes multiple times they don't lose data.
-    const originalRawArrayBuffer = getRawArrayBufferFromSaveStateArrayBuffer(emulatorSaveStateData.getEmulatorSaveStateArrayBuffer(), emulatorSaveStateData.getOriginalSaveSize());
-    const newRawSaveData = SaveFilesUtil.resizeRawSave(originalRawArrayBuffer, newSize);
-
-    return new VbaNextSaveStateData(emulatorSaveStateData.getEmulatorSaveStateArrayBuffer(), newRawSaveData, emulatorSaveStateData.getOriginalSaveSize());
+    return super.createWithNewSize(emulatorSaveStateData, newSize, VbaNextSaveStateData);
   }
 
   static getRawFileExtension() {
@@ -75,23 +68,5 @@ export default class VbaNextSaveStateData {
 
   static fileSizeIsRequiredToConvert() {
     return true;
-  }
-
-  constructor(emulatorSaveStateArrayBuffer, rawArrayBuffer, saveSize) {
-    this.emulatorSaveStateArrayBuffer = emulatorSaveStateArrayBuffer;
-    this.rawArrayBuffer = rawArrayBuffer;
-    this.originalSaveSize = saveSize;
-  }
-
-  getRawArrayBuffer() {
-    return this.rawArrayBuffer;
-  }
-
-  getEmulatorSaveStateArrayBuffer() {
-    return this.emulatorSaveStateArrayBuffer;
-  }
-
-  getOriginalSaveSize() {
-    return this.originalSaveSize;
   }
 }
