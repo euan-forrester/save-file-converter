@@ -3,8 +3,12 @@
     <div id="nav">
       <b-row>
         <b-col class="nav-row">
-          <router-link to="/mister">MiSTer</router-link> |
-          <router-link to="/flash-carts">Flash cartridges</router-link>
+          <router-link to="/mister">MiSTer</router-link>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="nav-row">
+          <router-link to="/flash-carts">Flash cartridges / original cartridges</router-link>
         </b-col>
       </b-row>
       <b-row>
@@ -15,8 +19,8 @@
       </b-row>
       <b-row>
         <b-col class="nav-row">
-          <router-link to="/retron-5">Retron{{'\xa0'}}5 / RetroFreak</router-link> |
-          <router-link to="/online-emulators">Online{{'\xa0'}}emulators{{'\xa0'}}<span class="beta-text">(Beta)</span></router-link>
+          <router-link to="/online-emulators">Online{{'\xa0'}}emulators{{'\xa0'}}<span class="beta-text">(Beta)</span></router-link> |
+          <router-link to="/retron-5">Retron{{'\xa0'}}5 / RetroFreak</router-link>
         </b-col>
       </b-row>
       <b-row>
