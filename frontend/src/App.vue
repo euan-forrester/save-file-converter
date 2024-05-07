@@ -8,7 +8,7 @@
       </b-row>
       <b-row>
         <b-col class="nav-row">
-          <router-link to="/flash-carts">Flash cartridges / original cartridges</router-link>
+          <router-link to="/flash-carts">Flash{{'\xa0'}}cartridges{{'\xa0'}}/ original{{'\xa0'}}cartridges</router-link>
         </b-col>
       </b-row>
       <b-row>
