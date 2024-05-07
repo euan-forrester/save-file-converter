@@ -132,6 +132,8 @@ import SegaCdSaveTypeSelector from './SegaCdSaveTypeSelector.vue';
 
 import MisterNesSaveData from '../save-formats/Mister/Nes';
 import MisterSnesSaveData from '../save-formats/Mister/Snes';
+import MisterN64CartSaveData from '../save-formats/Mister/N64Cart';
+import MisterN64MempackSaveData from '../save-formats/Mister/N64Mempack';
 import MisterGameboySaveData from '../save-formats/Mister/Gameboy';
 import MisterGameboyAdvanceSaveData from '../save-formats/Mister/GameboyAdvance';
 import MisterGameGearSaveData from '../save-formats/Mister/GameGear';
@@ -212,7 +214,7 @@ export default {
     getSegaCdRawFileName() {
       const filenameSuffix = (this.segaCdSaveType === 'internal-memory') ? ' - internal memory' : ' - ram cartridge';
 
-      return `${Util.removeFilenameExtension(this.inputFilename)}${filenameSuffix}.${this.misterPlatformClass.getRawFileExtension()}`;
+      return `${Util.removeFilenameExtension(this.inputFilename)}${filenameSuffix}.${this.misterPlatformClass.getRawFileExtension(this.inputArrayBuffer)}`;
     },
     misterPlatformChanged() {
       if (this.misterPlatform !== null) {
@@ -224,6 +226,16 @@ export default {
 
           case 'Mister-SNES': {
             this.misterPlatformClass = MisterSnesSaveData;
+            break;
+          }
+
+          case 'Mister-N64-Cart': {
+            this.misterPlatformClass = MisterN64CartSaveData;
+            break;
+          }
+
+          case 'Mister-N64-Mempack': {
+            this.misterPlatformClass = MisterN64MempackSaveData;
             break;
           }
 
@@ -324,7 +336,7 @@ export default {
             if (this.isSegaCd) {
               this.outputFilename = this.getSegaCdRawFileName();
             } else {
-              this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.misterPlatformClass.getRawFileExtension());
+              this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.misterPlatformClass.getRawFileExtension(this.inputArrayBuffer));
             }
           } else {
             if (this.isSegaCd) {
@@ -332,7 +344,7 @@ export default {
             } else {
               this.misterSaveData = this.misterPlatformClass.createFromRawData(this.inputArrayBuffer);
             }
-            this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.misterPlatformClass.getMisterFileExtension());
+            this.outputFilename = Util.changeFilenameExtension(this.inputFilename, this.misterPlatformClass.getMisterFileExtension(this.inputArrayBuffer));
           }
           if (this.isSegaCd) {
             // The internal memory save buffer size can't be changed; only the RAM cart size

@@ -7,14 +7,15 @@ MiSTer N64 cart saves are stored with the same endianness as emulator saves, so 
 */
 
 import SaveFilesUtil from '../../util/SaveFiles';
+import N64Util from '../../util/N64';
 
 export default class MisterN64CartSaveData {
-  static getMisterFileExtension() {
-    return 'sav';
+  static getMisterFileExtension(arrayBuffer) {
+    return N64Util.getFileExtension(arrayBuffer);
   }
 
-  static getRawFileExtension() {
-    return 'srm';
+  static getRawFileExtension(arrayBuffer) {
+    return N64Util.getFileExtension(arrayBuffer);
   }
 
   static adjustOutputSizesPlatform() {
