@@ -171,6 +171,7 @@ Everything on this site is free and open source with no advertising. If you find
   - Info on some ports of this emulator: https://thysbelon.github.io/2023/03/07/How-to-Convert-4GS-and-DSZ-save-files-to-SAV
 - Online emulators
   - `.ggz` files when unzipped apparently contain one or more pairs of `.gba`/`.snes`/etc and `.png` file: a save state and a thumbnail
+  - There's a port of Retroarch available online here: https://binbashbanana.github.io/webretro/ with code here: https://github.com/BinBashBanana/webretro . Its save file compatibility is the same as regular Retroarch and the emulators therein
 
 ## Cart reader notes
  
