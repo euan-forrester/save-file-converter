@@ -85,7 +85,7 @@
 
 <style scoped>
 
-.action-replay-convert-button {
+.srm-sav-convert-button {
   margin-top: 1em;
 }
 
