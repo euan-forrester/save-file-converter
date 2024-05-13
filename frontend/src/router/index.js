@@ -111,6 +111,11 @@ const routes = [
     component: () => import(/* webpackChunkName: "nintendo-switch-online" */ '../views/NintendoSwitchOnline.vue'),
   },
   {
+    path: '/srm-sav',
+    name: '.srm to/from .sav',
+    component: () => import(/* webpackChunkName: "srm-sav" */ '../views/SrmSav.vue'),
+  },
+  {
     path: '/utilities',
     redirect: '/utilities/troubleshooting',
   },

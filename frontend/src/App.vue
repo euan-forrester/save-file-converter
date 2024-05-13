@@ -8,6 +8,16 @@
       </b-row>
       <b-row>
         <b-col class="nav-row">
+          <router-link to="/srm-sav">
+            .srm{{'\xa0'}}
+            <span class="arrow-spacing"><i class="fa fa-arrow-right-arrow-left"></i></span>
+            {{'\xa0'}}.sav{{'\xa0'}}
+            <span class="beta-text">(Beta)</span>
+          </router-link>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="nav-row">
           <router-link to="/flash-carts">Flash{{'\xa0'}}cartridges{{'\xa0'}}/ original{{'\xa0'}}cartridges</router-link>
         </b-col>
       </b-row>
@@ -94,6 +104,11 @@
 
 #nav a.router-link-exact-active {
   color: #42b983;
+}
+
+.arrow-spacing {
+  padding-left: 0.1em;
+  padding-right: 0.1em;
 }
 
 .nav-row {

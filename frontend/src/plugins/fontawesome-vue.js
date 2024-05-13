@@ -6,6 +6,7 @@ import {
   faArrowCircleRight,
   faArrowCircleUp,
   faArrowCircleDown,
+  faArrowRightArrowLeft,
   faQuestionCircle,
   faCheck,
   faTimes,
@@ -18,6 +19,7 @@ library.add(faArrowCircleLeft);
 library.add(faArrowCircleRight);
 library.add(faArrowCircleUp);
 library.add(faArrowCircleDown);
+library.add(faArrowRightArrowLeft);
 library.add(faQuestionCircle);
 library.add(faCheck);
 library.add(faTimes);
