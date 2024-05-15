@@ -19,6 +19,8 @@ typedef struct
 import pako from 'pako';
 import crc32 from 'crc-32';
 import Util from '../util/util';
+import MathUtil from '../util/Math';
+import PaddingUtil from '../util/Padding';
 
 const LITTLE_ENDIAN = true;
 const MAGIC = 0x354E5452; // "RTN5", except backwards
@@ -95,6 +97,22 @@ export default class Retron5SaveData {
 
     if (checksum !== this.getCrc32()) {
       throw new Error('Sorry this file appears to be corrupted');
+    }
+
+    // Lastly check for extra padding at the beginning
+    //
+    // So far one user has provided a file which decompressed to 0x22000 bytes and the first 0x20000 bytes were
+    // just all 0x00. Slicing out the final 0x2000 bytes resulted in a file that loads correctly in an emulator.
+
+    if (!MathUtil.isPowerOf2(rawSaveData.byteLength)) {
+      const padding = PaddingUtil.getPadFromStartValueAndCount(rawSaveData);
+
+      // Note that this will catch padding values of 0x00 or 0xFF, but we've only seen 1 file in the wild and it
+      // had a padding value of 0x00. Not sure if we should restrict this to only check for that.
+
+      if (padding.count > 0) {
+        rawSaveData = PaddingUtil.removePaddingFromStart(rawSaveData, padding.count);
+      }
     }
 
     // Everything looks good
