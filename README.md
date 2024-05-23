@@ -63,13 +63,17 @@ Everything on this site is free and open source with no advertising. If you find
   - (partial): https://www.ps2savetools.com/documents/xps-format/
 - PS2
   - Save Tools: https://www.ps2savetools.com/
-  - Save tool: 
+  - mymc save tool: 
     - http://www.csclub.uwaterloo.ca:11068/mymc/
     - https://github.com/ps2dev/mymc
-  - Memory card format: http://www.csclub.uwaterloo.ca:11068/mymc/ps2mcfs.html
+    - https://git.sr.ht/~thestr4ng3r/mymcplus (port of mymc with some enhancements)
+  - Memory card format:
+    - http://www.csclub.uwaterloo.ca:11068/mymc/ps2mcfs.html
+    - https://www.ps2savetools.com/ps2memcardformat.html (same info as link above, and that one appears to be newer/more cleaned up)
   - Use PS2 files on PS3: https://github.com/bucanero/apollo-ps3
   - Convert PS2 formats: https://github.com/bucanero/psv-save-converter
   - Manage PS2 memory cards: https://github.com/bucanero/ps2vmc-tool
+  - 3D icon viewer: https://github.com/caol64/ps2mc-browser
 - Wii Virtual Console save game format (note that the files are encrypted)
   - https://wiibrew.org/wiki/Wii_Savegame_Parser
   - https://wiibrew.org/wiki/Savegame_Files
