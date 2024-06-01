@@ -226,7 +226,7 @@ Then proceed to the [Common](https://github.com/euan-forrester/save-file-convert
 #### Common
 
 ```
-git clone git@github.com:euan-forrester/save-file-converter.git
+git clone https://github.com/euan-forrester/save-file-converter
 cd save-file-converter/frontend
 yarn install
 yarn serve
