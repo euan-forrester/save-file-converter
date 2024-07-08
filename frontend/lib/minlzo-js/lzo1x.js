@@ -319,7 +319,10 @@ function _lzo1x() {
 
         for (;;) {
             if(!this.skipToFirstLiteralFun) {
-                // if (this.ip_end - ip < 3) return INPUT_OVERRUN;
+                // EDIT EUAN: I re-enabled the line below because otherwise the function enters an infinite loop when presented with
+                //            unexpected data. this.ip gets incremented forever, and this.t gets set to undefined as it tries to read past the end of the array
+                if (this.ip_end - this.ip < 3) return this.INPUT_OVERRUN;
+
                 this.t = this.buf[this.ip++];
 
                 if (this.t >= 16) {
@@ -348,6 +351,7 @@ function _lzo1x() {
             }
 
             this.t = this.buf[this.ip++];
+
             if (this.t < 16) {
                 this.m_pos = this.op - (1 + 0x0800);
                 this.m_pos -= this.t >> 2;
