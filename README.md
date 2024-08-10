@@ -8,13 +8,9 @@ Available at https://savefileconverter.com
 
 ## Upcoming features
 
-- Be able to autodetect the format of a given save file (note that raw files need their size checked, unrecognized size means invalid file)
 - PS2 formats (check out https://gamefaqs.gamespot.com/ps2/536777-suikoden-iii/saves for a potential list)
 - GameCube formats (check out https://gamefaqs.gamespot.com/gamecube/533008-soulcalibur-ii/saves for a potential list)
 - Saturn formats
-  - Add ability to add/extract a single game's save to/from a RAM backup, similar to how PS1/N64 work
-- What are the 64kB `.srm` files for SNES etc on thetechgame.com? Want to extract a 'normal' `.srm` file from them
-- I need suggestions!
 
 ## Contact
 
@@ -28,25 +24,14 @@ Everything on this site is free and open source with no advertising. If you find
 
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/donate/?hosted_button_id=DHDERHCQVLGPJ)
 
-## Usecases for further thought
-
-- Automatically add/remove header added by some flash carts (e.g. EZ Flash) given an example file
-- Be able to change the size of a raw GBA save to help move between emulators
-
 ## Emulators with incompatible save formats
 
-- (GBA) Pizza Boy GBA files incompatible with mGBA (believe mGBA uses raw files)
+- (GBA) Pizza Boy (support for this emulator has been discontinued) files incompatible with mGBA (believe mGBA uses raw files)
+- (GBA) My Boy appears to use raw files
 - (PS1) Beetle HW incompatible with DuckStation
 - (Saturn) SSF incompatible with Mednafen/Beetle Saturn
 - (N64) Mupen64Plus Next files incompatible with Wii64
 - (32X) Picodrive has its own save format (somewhere around here? https://github.com/notaz/picodrive/blob/1d366b1ad9362fd463c42979c8a687dfc7f46c46/platform/common/emu.c#L873)
-
-## Other feature ideas
-
-- Convert to Wii VC
-- Convert to/from Wii U VC
-- Convert to/from 3DS VC
-- Split/recombine GBA emulator save files (Goomba/PocketNES/SmsAdvance)
 
 ## Save file formats
 
