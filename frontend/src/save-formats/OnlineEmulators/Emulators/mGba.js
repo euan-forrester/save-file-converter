@@ -16,14 +16,14 @@ These found by creating the same save file in both the online emulator and a sta
 64kB Flash RAM: 0x93010
 128kB Flash RAM: 0x93010
 
-Save size may be located at offset 0x61005. Unsure if big or little endian
+Save size appears to be at 0x61004 as a 4 byte little endian int
 */
 
 import EmulatorBase from './EmulatorBase';
 
 const EEPROM_OFFSET = 0x61030;
 const SRAM_OFFSET = 0x61030;
-const FLASH_RAM_OFFSET = 0x93010;
+const FLASH_RAM_OFFSET = 0x61030;
 
 const SAVE_OFFSET = {
   512: EEPROM_OFFSET,
