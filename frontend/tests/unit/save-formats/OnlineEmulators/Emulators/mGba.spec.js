@@ -43,7 +43,7 @@ describe('OnlineEmulators - GBA - mGBA', () => {
     const emulatorSaveStateArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_EEPROM_512B_FILENAME);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_EEPROM_512B_FILENAME);
 
-    const emulatorSaveStateData = MGbaSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer, 512);
+    const emulatorSaveStateData = MGbaSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(emulatorSaveStateData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
@@ -52,7 +52,7 @@ describe('OnlineEmulators - GBA - mGBA', () => {
     const emulatorSaveStateArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_EEPROM_8KB_FILENAME);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_EEPROM_8KB_FILENAME);
 
-    const emulatorSaveStateData = MGbaSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer, 8192);
+    const emulatorSaveStateData = MGbaSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(emulatorSaveStateData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
@@ -61,7 +61,7 @@ describe('OnlineEmulators - GBA - mGBA', () => {
     const emulatorSaveStateArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_SRAM_32KB_FILENAME_1);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_SRAM_32KB_FILENAME_1);
 
-    const emulatorSaveStateData = MGbaSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer, 32768);
+    const emulatorSaveStateData = MGbaSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(emulatorSaveStateData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
@@ -70,7 +70,7 @@ describe('OnlineEmulators - GBA - mGBA', () => {
     const emulatorSaveStateArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_SRAM_32KB_FILENAME_2);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_SRAM_32KB_FILENAME_2);
 
-    const emulatorSaveStateData = MGbaSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer, 32768);
+    const emulatorSaveStateData = MGbaSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(emulatorSaveStateData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
@@ -79,7 +79,7 @@ describe('OnlineEmulators - GBA - mGBA', () => {
     const emulatorSaveStateArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_FLASH_RAM_64KB_FILENAME_1);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_FLASH_RAM_64KB_FILENAME_1);
 
-    const emulatorSaveStateData = MGbaSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer, 65536);
+    const emulatorSaveStateData = MGbaSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(emulatorSaveStateData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
@@ -88,7 +88,7 @@ describe('OnlineEmulators - GBA - mGBA', () => {
     const emulatorSaveStateArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_FLASH_RAM_64KB_FILENAME_2);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_FLASH_RAM_64KB_FILENAME_2);
 
-    const emulatorSaveStateData = MGbaSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer, 65536);
+    const emulatorSaveStateData = MGbaSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(emulatorSaveStateData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
@@ -97,7 +97,7 @@ describe('OnlineEmulators - GBA - mGBA', () => {
     const emulatorSaveStateArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_FLASH_RAM_128KB_FILENAME_1);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_FLASH_RAM_128KB_FILENAME_1);
 
-    const emulatorSaveStateData = MGbaSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer, 131072);
+    const emulatorSaveStateData = MGbaSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(emulatorSaveStateData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
@@ -106,7 +106,7 @@ describe('OnlineEmulators - GBA - mGBA', () => {
     const emulatorSaveStateArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_FLASH_RAM_128KB_FILENAME_2);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_FLASH_RAM_128KB_FILENAME_2);
 
-    const emulatorSaveStateData = MGbaSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer, 131072);
+    const emulatorSaveStateData = MGbaSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(emulatorSaveStateData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
