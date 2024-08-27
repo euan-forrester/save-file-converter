@@ -31,10 +31,10 @@ const RAW_SRAM_32KB_FILENAME_2 = `${DIR}/metroid-fusion.sav`;
 const EMULATOR_FLASH_RAM_64KB_FILENAME_1 = `${DIR}/golden-sun-gmba.state`;
 const RAW_FLASH_RAM_64KB_FILENAME_1 = `${DIR}/golden-sun-gmba.sav`;
 
-/*
-const EMULATOR_FLASH_RAM_64KB_FILENAME_2 = `${DIR}/advance-wars.save`;
-const RAW_FLASH_RAM_64KB_FILENAME_2 = `${DIR}/advance-wars.sav`;
+const EMULATOR_FLASH_RAM_64KB_FILENAME_2 = `${DIR}/advance-wars-gmba.state`;
+const RAW_FLASH_RAM_64KB_FILENAME_2 = `${DIR}/advance-wars-gmba.sav`;
 
+/*
 const EMULATOR_FLASH_RAM_128KB_FILENAME_1 = `${DIR}/pokemon-sapphire.save`;
 const RAW_FLASH_RAM_128KB_FILENAME_1 = `${DIR}/pokemon-sapphire.sav`;
 
@@ -90,7 +90,6 @@ describe('OnlineEmulators - GBA - mGBA', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(emulatorSaveStateData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
 
-  /*
   it('should convert a second emulator save state containing a 64kB Flash RAM save to raw format', async () => {
     const emulatorSaveStateArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_FLASH_RAM_64KB_FILENAME_2);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_FLASH_RAM_64KB_FILENAME_2);
@@ -100,6 +99,7 @@ describe('OnlineEmulators - GBA - mGBA', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(emulatorSaveStateData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
 
+  /*
   it('should convert an emulator save state containing a 128kB Flash RAM save to raw format', async () => {
     const emulatorSaveStateArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_FLASH_RAM_128KB_FILENAME_1);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_FLASH_RAM_128KB_FILENAME_1);
