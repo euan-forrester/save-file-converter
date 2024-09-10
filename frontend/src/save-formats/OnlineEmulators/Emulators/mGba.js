@@ -10,6 +10,7 @@ Save data itself begins at 0x61030
 */
 
 import EmulatorBase from './EmulatorBase';
+import PlatformSaveSizes from '../../PlatformSaveSizes';
 
 const LITTLE_ENDIAN = true;
 
@@ -22,8 +23,12 @@ export default class MGbaSaveStateData extends EmulatorBase {
 
     const saveSize = emulatorSaveStateDataView.getUint32(SAVE_SIZE_OFFSET, LITTLE_ENDIAN);
 
+    if (PlatformSaveSizes.gba.indexOf(saveSize) < 0) {
+      throw new Error(`This does not appear to be an mGBA save state file: ${saveSize} is not a valid GBA save file size`);
+    }
+
     if ((SAVE_OFFSET + saveSize) > emulatorSaveStateArrayBuffer.byteLength) {
-      throw new Error('This does not appear to be a mGBA save state file');
+      throw new Error('This does not appear to be an mGBA save state file: file is too short');
     }
 
     return emulatorSaveStateArrayBuffer.slice(SAVE_OFFSET, SAVE_OFFSET + saveSize);

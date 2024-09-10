@@ -38,6 +38,8 @@ const RAW_FLASH_RAM_128KB_FILENAME_1 = `${DIR}/pokemon-sapphire.sav`;
 const EMULATOR_FLASH_RAM_128KB_FILENAME_2 = `${DIR}/super-mario-advance-4.state`;
 const RAW_FLASH_RAM_128KB_FILENAME_2 = `${DIR}/super-mario-advance-4.sav`;
 
+const EMULATOR_WRONG_SIZE_FILENAME = `${DIR}/wrong-size.state`;
+
 describe('OnlineEmulators - GBA - mGBA', () => {
   it('should convert an emulator save state containing a 512B EEPROM save to raw format', async () => {
     const emulatorSaveStateArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_EEPROM_512B_FILENAME);
@@ -111,16 +113,16 @@ describe('OnlineEmulators - GBA - mGBA', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(emulatorSaveStateData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
 
-  /*
   it('should correctly reject an invalid save size', async () => {
-    const emulatorSaveStateArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_EEPROM_512B_FILENAME);
+    const emulatorSaveStateArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_WRONG_SIZE_FILENAME);
 
-    expect(() => MGbaSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer, 1234)).to.throw(
+    expect(() => MGbaSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer)).to.throw(
       Error,
-      '1234 is not a valid save size for a GBA game',
+      'This does not appear to be an mGBA save state file: 305419896 is not a valid GBA save file size',
     );
   });
 
+  /*
   it('should correctly reject a file that is too short', async () => {
     const emulatorSaveStateArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_INVALID_SAVE_STATE_FILE);
 
