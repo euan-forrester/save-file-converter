@@ -21,14 +21,14 @@ export default class MGbaSaveStateData extends EmulatorBase {
   static getRawArrayBufferFromSaveStateArrayBuffer(emulatorSaveStateArrayBuffer) {
     const emulatorSaveStateDataView = new DataView(emulatorSaveStateArrayBuffer);
 
+    if (SAVE_OFFSET > emulatorSaveStateArrayBuffer.byteLength) {
+      throw new Error('This does not appear to be an mGBA save state file: file is too short');
+    }
+
     const saveSize = emulatorSaveStateDataView.getUint32(SAVE_SIZE_OFFSET, LITTLE_ENDIAN);
 
     if (PlatformSaveSizes.gba.indexOf(saveSize) < 0) {
       throw new Error(`This does not appear to be an mGBA save state file: ${saveSize} is not a valid GBA save file size`);
-    }
-
-    if ((SAVE_OFFSET + saveSize) > emulatorSaveStateArrayBuffer.byteLength) {
-      throw new Error('This does not appear to be an mGBA save state file: file is too short');
     }
 
     return emulatorSaveStateArrayBuffer.slice(SAVE_OFFSET, SAVE_OFFSET + saveSize);

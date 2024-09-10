@@ -10,12 +10,20 @@
 import JSZip from 'jszip';
 
 import Util from '../../util/util';
+import PlatformSaveSizes from '../PlatformSaveSizes';
 
 import Snes9xSaveStateData from './Emulators/Snes9x';
 import GbSaveStateData from './Emulators/Gb';
 import VbaNextSaveStateData from './Emulators/VBA-Next';
+import MGbaSaveStateData from './Emulators/mGba';
 
 const IMAGE_FILE_TYPES = ['.png', '.jpg', '.jpeg', '.tif', '.tiff', '.gif', '.bmp'];
+
+const GBA_SAVE_STATE_TYPES = [
+  // We're just testing based on file size, so go from the largest file to the smallest
+  VbaNextSaveStateData,
+  MGbaSaveStateData,
+];
 
 async function getSaveStatesFromZip(zipContents) {
   const compressedSaveStateFiles = zipContents.filter((relativePath, file) => (IMAGE_FILE_TYPES.indexOf(Util.getExtension(file.name)) < 0));
@@ -29,13 +37,27 @@ function getSaveStateFromSingleFile(arrayBuffer, filename) {
   return [{ name: filename, arrayBuffer }];
 }
 
-function getClass(platform) {
+function getClass(platform, saveStateArrayBuffer) {
   switch (platform) {
     case 'snes':
       return Snes9xSaveStateData;
 
-    case 'gba':
-      return VbaNextSaveStateData;
+    case 'gba': {
+      const saveStateType = GBA_SAVE_STATE_TYPES.find((clazz) => {
+        try {
+          clazz.createFromSaveStateData(saveStateArrayBuffer, PlatformSaveSizes.gba[0]); // Smallest size because if we pick a bigger one we might get a false positive for one of the classes if the save state file is for a smaller sized save state type but with a bigger internal save file
+          return true;
+        } catch (e) {
+          return false;
+        }
+      });
+
+      if (saveStateType === undefined) {
+        throw new Error('Unrecogized GBA save state');
+      }
+
+      return saveStateType;
+    }
 
     case 'gb':
       return GbSaveStateData;
@@ -71,7 +93,7 @@ export default class OnlineEmulatorWrapper {
 
     // Now that we have our save state data, turn it into raw in-game saves
 
-    const clazz = getClass(platform);
+    const clazz = getClass(platform, saveStates[0].arrayBuffer);
     const files = saveStates.map((saveState) => ({
       name: saveState.name,
       emulatorSaveStateData: clazz.createFromSaveStateData(saveState.arrayBuffer, saveSize),

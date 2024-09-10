@@ -39,6 +39,7 @@ const EMULATOR_FLASH_RAM_128KB_FILENAME_2 = `${DIR}/super-mario-advance-4.state`
 const RAW_FLASH_RAM_128KB_FILENAME_2 = `${DIR}/super-mario-advance-4.sav`;
 
 const EMULATOR_WRONG_SIZE_FILENAME = `${DIR}/wrong-size.state`;
+const EMULATOR_INVALID_SAVE_STATE_FILE = `${DIR}/invalid-file.state`;
 
 describe('OnlineEmulators - GBA - mGBA', () => {
   it('should convert an emulator save state containing a 512B EEPROM save to raw format', async () => {
@@ -122,14 +123,12 @@ describe('OnlineEmulators - GBA - mGBA', () => {
     );
   });
 
-  /*
   it('should correctly reject a file that is too short', async () => {
     const emulatorSaveStateArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_INVALID_SAVE_STATE_FILE);
 
-    expect(() => MGbaSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer, 512)).to.throw(
+    expect(() => MGbaSaveStateData.createFromSaveStateData(emulatorSaveStateArrayBuffer)).to.throw(
       Error,
-      'This does not appear to be a VBA-Next save state file',
+      'This does not appear to be an mGBA save state file: file is too short',
     );
   });
-  */
 });
