@@ -1,5 +1,5 @@
 /*
-I'm not 100% sure which emulator GBA game in emulator.js use.
+I'm not 100% sure which emulator GBA games in emulator.js use.
 
 It may be the mGBA emulator: https://github.com/EmulatorJS/EmulatorJS/blob/0bf944370c020f9877ca6701081a1963e160b8b0/data/src/emulator.js#L26
 
@@ -19,11 +19,11 @@ const SAVE_OFFSET = 0x61030;
 
 export default class MGbaSaveStateData extends EmulatorBase {
   static getRawArrayBufferFromSaveStateArrayBuffer(emulatorSaveStateArrayBuffer) {
-    const emulatorSaveStateDataView = new DataView(emulatorSaveStateArrayBuffer);
-
     if (SAVE_OFFSET > emulatorSaveStateArrayBuffer.byteLength) {
       throw new Error('This does not appear to be an mGBA save state file: file is too short');
     }
+
+    const emulatorSaveStateDataView = new DataView(emulatorSaveStateArrayBuffer);
 
     const saveSize = emulatorSaveStateDataView.getUint32(SAVE_SIZE_OFFSET, LITTLE_ENDIAN);
 
