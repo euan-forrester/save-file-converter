@@ -14,10 +14,17 @@ import PlatformSaveSizes from '../PlatformSaveSizes';
 
 import Snes9xSaveStateData from './Emulators/Snes9x';
 import GbSaveStateData from './Emulators/Gb';
+import GambatteSaveStateData from './Emulators/Gambatte';
 import VbaNextSaveStateData from './Emulators/VBA-Next';
 import MGbaSaveStateData from './Emulators/mGba';
 
 const IMAGE_FILE_TYPES = ['.png', '.jpg', '.jpeg', '.tif', '.tiff', '.gif', '.bmp'];
+
+const GB_SAVE_STATE_TYPES = [
+  // Gambatte save states have a magic string that we can test for, and the other doesn't, so check from Gambatte first
+  GambatteSaveStateData,
+  GbSaveStateData,
+];
 
 const GBA_SAVE_STATE_TYPES = [
   // We're just testing based on file size, so go from the largest file to the smallest
@@ -37,30 +44,33 @@ function getSaveStateFromSingleFile(arrayBuffer, filename) {
   return [{ name: filename, arrayBuffer }];
 }
 
+function getSaveStateType(saveStateTypes, arrayBuffer, smallestSaveSize) {
+  const saveStateType = saveStateTypes.find((clazz) => {
+    try {
+      clazz.createFromSaveStateData(arrayBuffer, smallestSaveSize); // Smallest size because if we pick a bigger one we might get a false positive for one of the classes if the save state file is for a smaller sized save state type but with a bigger internal save file
+      return true;
+    } catch (e) {
+      return false;
+    }
+  });
+
+  if (saveStateType === undefined) {
+    throw new Error('Unrecogized save state');
+  }
+
+  return saveStateType;
+}
+
 function getClass(platform, saveStateArrayBuffer) {
   switch (platform) {
     case 'snes':
       return Snes9xSaveStateData;
 
-    case 'gba': {
-      const saveStateType = GBA_SAVE_STATE_TYPES.find((clazz) => {
-        try {
-          clazz.createFromSaveStateData(saveStateArrayBuffer, PlatformSaveSizes.gba[0]); // Smallest size because if we pick a bigger one we might get a false positive for one of the classes if the save state file is for a smaller sized save state type but with a bigger internal save file
-          return true;
-        } catch (e) {
-          return false;
-        }
-      });
-
-      if (saveStateType === undefined) {
-        throw new Error('Unrecogized GBA save state');
-      }
-
-      return saveStateType;
-    }
+    case 'gba':
+      return getSaveStateType(GBA_SAVE_STATE_TYPES, saveStateArrayBuffer, PlatformSaveSizes.gba[0]);
 
     case 'gb':
-      return GbSaveStateData;
+      return getSaveStateType(GB_SAVE_STATE_TYPES, saveStateArrayBuffer, PlatformSaveSizes.gb[0]);
 
     default:
       throw new Error(`Unrecognized platform type: '${platform}'`);
