@@ -12,7 +12,6 @@
             .srm{{'\xa0'}}
             <span class="arrow-spacing"><i class="fa fa-arrow-right-arrow-left"></i></span>
             {{'\xa0'}}.sav{{'\xa0'}}
-            <span class="beta-text">(Beta)</span>
           </router-link>
         </b-col>
       </b-row>
@@ -29,7 +28,7 @@
       </b-row>
       <b-row>
         <b-col class="nav-row">
-          <router-link to="/online-emulators">Online{{'\xa0'}}emulators{{'\xa0'}}<span class="beta-text">(Beta)</span></router-link> |
+          <router-link to="/online-emulators">Online{{'\xa0'}}emulators{{'\xa0'}}</router-link> |
           <router-link to="/retron-5">Retron{{'\xa0'}}5 / RetroFreak</router-link>
         </b-col>
       </b-row>
