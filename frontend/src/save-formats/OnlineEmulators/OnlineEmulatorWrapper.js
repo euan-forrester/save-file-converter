@@ -144,8 +144,6 @@ export default class OnlineEmulatorWrapper {
 
     const clazz = getClass(platform, saveStates[0].arrayBuffer);
 
-    console.log(`Inside fileSizeIsRequiredToConvert(). returning ${clazz.fileSizeIsRequiredToConvert()}`);
-
     return clazz.fileSizeIsRequiredToConvert();
   }
 

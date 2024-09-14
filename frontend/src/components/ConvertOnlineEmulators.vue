@@ -180,9 +180,6 @@ export default {
     async hasRequiredInputFileData() {
       const fileSizeIsRequiredToConvert = await this.fileSizeIsRequiredToConvert();
 
-      console.log(`Inside hasRequiredInputFileData(). inputArrayBuffer: ${this.inputArrayBuffer !== null}, inputFilename: ${this.inputFilename !== null}`
-        + `, platformType: ${this.platformType !== null}, fileSizeIsRequiredToConvert: ${fileSizeIsRequiredToConvert}, outputFilesize: ${this.outputFilesize !== null}`);
-
       return (this.inputArrayBuffer !== null)
         && (this.inputFilename !== null)
         && (this.platformType !== null)
@@ -223,10 +220,8 @@ export default {
     async updateOnlineEmulatorWrapper() {
       this.errorMessage = null;
 
-      console.log('Inside updateOnlineEmulatorWrapper(). Going to check if we have the required input file data');
       const hasRequiredInputFileData = await this.hasRequiredInputFileData();
       if (hasRequiredInputFileData) {
-        console.log('Inside updateOnlineEmulatorWrapper() and we have the required input file data');
         try {
           // If we already have one, don't remake it. This can happen when loading a snes file, then selecting a different size.
           // Remaking the OnlineEmulatorWrapper will result in resetting out outputFilesize to be the default
