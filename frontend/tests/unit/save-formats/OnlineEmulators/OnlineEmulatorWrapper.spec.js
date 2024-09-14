@@ -8,12 +8,15 @@ const TIMEOUT_MS = 10000;
 
 const MULTIPLE_SAVE_DIR = './tests/data/save-formats/online-emulators/myemulator.online';
 const SINGLE_SAVE_DIR = './tests/data/save-formats/online-emulators/arcadespot.com';
+const SINGLE_SAVE_ALTERNATE_FORMAT_DIR = './tests/data/save-formats/online-emulators/retrogames.onl';
 
 const MULTIPLE_SAVE_SNES_DIR = `${MULTIPLE_SAVE_DIR}/snes`;
 const MULTIPLE_SAVE_GBA_DIR = `${MULTIPLE_SAVE_DIR}/gba`;
 
 const SINGLE_SAVE_SNES_DIR = `${SINGLE_SAVE_DIR}/snes`;
 const SINGLE_SAVE_GBA_DIR = `${SINGLE_SAVE_DIR}/gba`;
+const SINGLE_SAVE_ALTERNATE_FORMAT_GBA_DIR = `${SINGLE_SAVE_ALTERNATE_FORMAT_DIR}/gba`;
+const SINGLE_SAVE_ALTERNATE_FORMAT_GB_DIR = `${SINGLE_SAVE_ALTERNATE_FORMAT_DIR}/gb`;
 
 const EMULATOR_MULTIPLE_SAVE_SNES_FILENAME = `${MULTIPLE_SAVE_SNES_DIR}/sneszelda1.ggz`;
 const RAW_MULTIPLE_SAVE_SNES_FILENAME = `${MULTIPLE_SAVE_SNES_DIR}/sneszelda1.sav`;
@@ -31,6 +34,12 @@ const RAW_SINGLE_SAVE_SNES_FILENAME = `${SINGLE_SAVE_SNES_DIR}/Legend-of-Zelda-T
 
 const EMULATOR_SINGLE_SAVE_GBA_FILENAME = `${SINGLE_SAVE_GBA_DIR}/the-legend-of-zelda-the-minish-cap.save`;
 const RAW_SINGLE_SAVE_GBA_FILENAME = `${SINGLE_SAVE_GBA_DIR}/the-legend-of-zelda-the-minish-cap.sav`;
+
+const EMULATOR_SINGLE_SAVE_GBA_ALTERNATE_FORMAT_FILENAME = `${SINGLE_SAVE_ALTERNATE_FORMAT_GBA_DIR}/zelda-minish-cap.state`;
+const RAW_SINGLE_SAVE_GBA_ALTERNATE_FORMAT_FILENAME = `${SINGLE_SAVE_ALTERNATE_FORMAT_GBA_DIR}/zelda-minish-cap.sav`;
+
+const EMULATOR_SINGLE_SAVE_GB_ALTERNATE_FORMAT_FILENAME = `${SINGLE_SAVE_ALTERNATE_FORMAT_GB_DIR}/legend-zelda-link-awakening-dx.state`;
+const RAW_SINGLE_SAVE_GB_ALTERNATE_FORMAT_FILENAME = `${SINGLE_SAVE_ALTERNATE_FORMAT_GB_DIR}/legend-zelda-link-awakening-dx.sav`;
 
 describe('OnlineEmulators - Wrapper', function () { // eslint-disable-line func-names, no-unused-expressions
   this.timeout(TIMEOUT_MS); // Can't use arrow function above if referencing 'this' here
@@ -91,6 +100,42 @@ describe('OnlineEmulators - Wrapper', function () { // eslint-disable-line func-
     expect(onlineEmulatorWrapper.getFiles().length).to.equal(1);
 
     expect(onlineEmulatorWrapper.getFiles()[0].name).to.equal(Util.getFilename(EMULATOR_SINGLE_SAVE_GBA_FILENAME));
+    expect(ArrayBufferUtil.arrayBuffersEqual(onlineEmulatorWrapper.getFiles()[0].emulatorSaveStateData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert an online emulator file containing a single GBA save state to raw format', async () => {
+    const emulatorArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_SINGLE_SAVE_GBA_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_SINGLE_SAVE_GBA_FILENAME);
+
+    const onlineEmulatorWrapper = await OnlineEmulatorWrapper.createFromEmulatorData(emulatorArrayBuffer, Util.getFilename(EMULATOR_SINGLE_SAVE_GBA_FILENAME), 'gba', 8192);
+
+    expect(onlineEmulatorWrapper.getFiles().length).to.equal(1);
+
+    expect(onlineEmulatorWrapper.getFiles()[0].name).to.equal(Util.getFilename(EMULATOR_SINGLE_SAVE_GBA_FILENAME));
+    expect(ArrayBufferUtil.arrayBuffersEqual(onlineEmulatorWrapper.getFiles()[0].emulatorSaveStateData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert an online emulator file containing a single GBA save state in alternate format to raw format', async () => {
+    const emulatorArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_SINGLE_SAVE_GBA_ALTERNATE_FORMAT_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_SINGLE_SAVE_GBA_ALTERNATE_FORMAT_FILENAME);
+
+    const onlineEmulatorWrapper = await OnlineEmulatorWrapper.createFromEmulatorData(emulatorArrayBuffer, Util.getFilename(EMULATOR_SINGLE_SAVE_GBA_ALTERNATE_FORMAT_FILENAME), 'gba', 8192);
+
+    expect(onlineEmulatorWrapper.getFiles().length).to.equal(1);
+
+    expect(onlineEmulatorWrapper.getFiles()[0].name).to.equal(Util.getFilename(EMULATOR_SINGLE_SAVE_GBA_ALTERNATE_FORMAT_FILENAME));
+    expect(ArrayBufferUtil.arrayBuffersEqual(onlineEmulatorWrapper.getFiles()[0].emulatorSaveStateData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert an online emulator file containing a single GB save state in alternate format to raw format', async () => {
+    const emulatorArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMULATOR_SINGLE_SAVE_GB_ALTERNATE_FORMAT_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_SINGLE_SAVE_GB_ALTERNATE_FORMAT_FILENAME);
+
+    const onlineEmulatorWrapper = await OnlineEmulatorWrapper.createFromEmulatorData(emulatorArrayBuffer, Util.getFilename(EMULATOR_SINGLE_SAVE_GB_ALTERNATE_FORMAT_FILENAME), 'gb', 8192);
+
+    expect(onlineEmulatorWrapper.getFiles().length).to.equal(1);
+
+    expect(onlineEmulatorWrapper.getFiles()[0].name).to.equal(Util.getFilename(EMULATOR_SINGLE_SAVE_GB_ALTERNATE_FORMAT_FILENAME));
     expect(ArrayBufferUtil.arrayBuffersEqual(onlineEmulatorWrapper.getFiles()[0].emulatorSaveStateData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
 

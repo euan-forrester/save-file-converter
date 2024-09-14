@@ -35,6 +35,7 @@
     "process": "^0.11.10",
     "stream-browserify": "^3.0.0",
     "vue": "^2.6.12",
+    "vue-async-computed": "^4.0.1",
     "vue-mq": "^1.0.1",
     "vue-router": "^3.2.0",
     "vuex": "^3.4.0"

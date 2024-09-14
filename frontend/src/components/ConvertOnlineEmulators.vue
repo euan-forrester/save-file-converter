@@ -136,15 +136,18 @@ export default {
     OnlineEmulatorPlatform,
     FileList,
   },
-  computed: {
+  asyncComputed: {
     displayOutputFileSize: {
-      get() {
+      async get() {
         return (
           ((this.onlineEmulatorWrapper !== null) && (this.onlineEmulatorWrapper.adjustOutputSizesPlatform() !== null))
-          || ((this.platformType !== null) && OnlineEmulatorWrapper.fileSizeIsRequiredToConvert(this.platformType))
+          || this.fileSizeIsRequiredToConvert()
         );
       },
+      default: false,
     },
+  },
+  computed: {
     displayFileList: {
       get() {
         return ((this.onlineEmulatorWrapper !== null) && (this.onlineEmulatorWrapper.getFiles().length > 1));
@@ -152,8 +155,13 @@ export default {
     },
   },
   methods: {
-    hasSufficientInfoToConvert() {
-      return this.onlineEmulatorWrapper && this.platformType && (!OnlineEmulatorWrapper.fileSizeIsRequiredToConvert(this.platformType) || (this.outputFilesize !== null));
+    async fileSizeIsRequiredToConvert() {
+      return (this.inputArrayBuffer !== null)
+        && (this.platformType !== null)
+        && OnlineEmulatorWrapper.fileSizeIsRequiredToConvert(this.inputArrayBuffer, this.platformType);
+    },
+    async hasSufficientInfoToConvert() {
+      return this.onlineEmulatorWrapper && this.platformType && (!this.fileSizeIsRequiredToConvert() || (this.outputFilesize !== null));
     },
     getFileListNames() {
       if ((this.onlineEmulatorWrapper !== null) && (this.onlineEmulatorWrapper.getFiles() !== null)) {
@@ -169,11 +177,16 @@ export default {
     getFileExtensionsString(romFormatClass) {
       return `(${romFormatClass.getFileExtensions().map((f) => `*${f}`).join(', ')})`;
     },
-    hasRequiredInputFileData() {
+    async hasRequiredInputFileData() {
+      const fileSizeIsRequiredToConvert = await this.fileSizeIsRequiredToConvert();
+
+      console.log(`Inside hasRequiredInputFileData(). inputArrayBuffer: ${this.inputArrayBuffer !== null}, inputFilename: ${this.inputFilename !== null}`
+        + `, platformType: ${this.platformType !== null}, fileSizeIsRequiredToConvert: ${fileSizeIsRequiredToConvert}, outputFilesize: ${this.outputFilesize !== null}`);
+
       return (this.inputArrayBuffer !== null)
         && (this.inputFilename !== null)
         && (this.platformType !== null)
-        && (!OnlineEmulatorWrapper.fileSizeIsRequiredToConvert(this.platformType) || (this.outputFilesize !== null));
+        && (!fileSizeIsRequiredToConvert || (this.outputFilesize !== null));
     },
     getOutputFilename(fileExtension) {
       if ((this.onlineEmulatorWrapper !== null) && (this.onlineEmulatorWrapper.getFiles().length > 0) && (this.selectedSaveData !== null)) {
@@ -194,12 +207,12 @@ export default {
     changeSelectedSaveData() {
       this.outputFilename = this.getOutputFilename(OnlineEmulatorWrapper.getRawFileExtension());
     },
-    changeSelectedOutputFileSize() {
+    async changeSelectedOutputFileSize() {
       // Here we don't reset this.selectedSaveData to null: if we can we want to retain which
       // save data the user has selected, since we're only updating the size
       this.updateOnlineEmulatorWrapper();
     },
-    changePlatformType() {
+    async changePlatformType() {
       this.onlineEmulatorWrapper = null;
       this.selectedSaveData = null; // We don't want to retain which file the user has selected if we're changing platforms
       this.updateOnlineEmulatorWrapper();
@@ -210,23 +223,26 @@ export default {
     async updateOnlineEmulatorWrapper() {
       this.errorMessage = null;
 
-      if (this.hasRequiredInputFileData()) {
+      console.log('Inside updateOnlineEmulatorWrapper(). Going to check if we have the required input file data');
+      const hasRequiredInputFileData = await this.hasRequiredInputFileData();
+      if (hasRequiredInputFileData) {
+        console.log('Inside updateOnlineEmulatorWrapper() and we have the required input file data');
         try {
           // If we already have one, don't remake it. This can happen when loading a snes file, then selecting a different size.
           // Remaking the OnlineEmulatorWrapper will result in resetting out outputFilesize to be the default
 
-          // Except that we need to continually remake it if the size is necessary, like the gba, because it means gettig the data
+          // Except that we need to continually remake it if the size is necessary, like the gba, because it means getting the data
           // from a different part of the save state. If the user keeps selecting different file sizes it's almost certainly because
           // they picked the wrong one initially. We have the ability to resize the save (to pad or truncate it) after the user selects
           // the correct one, but we'd need to make a different user flow to support that.
-          if ((this.onlineEmulatorWrapper === null) || ((this.platformType !== null) && OnlineEmulatorWrapper.fileSizeIsRequiredToConvert(this.platformType))) {
+          if ((this.onlineEmulatorWrapper === null) || this.fileSizeIsRequiredToConvert()) {
             this.onlineEmulatorWrapper = await OnlineEmulatorWrapper.createFromEmulatorData(this.inputArrayBuffer, this.inputFilename, this.platformType, this.outputFilesize);
 
             if ((this.selectedSaveData === null) || (this.selectedSaveData < 0) || (this.selectedSaveData > this.onlineEmulatorWrapper.getFiles().length)) {
               this.selectedSaveData = 0;
             }
-            this.outputFilename = this.getOutputFilename(OnlineEmulatorWrapper.getRawFileExtension());
 
+            this.outputFilename = this.getOutputFilename(OnlineEmulatorWrapper.getRawFileExtension());
             this.outputFilesize = this.getDefaultOutputFilesize();
           }
         } catch (e) {
@@ -241,7 +257,7 @@ export default {
         this.selectedSaveData = null;
       }
     },
-    readOnlineEmulatorData(event) {
+    async readOnlineEmulatorData(event) {
       this.inputArrayBuffer = event.arrayBuffer;
       this.inputFilename = event.filename;
 
