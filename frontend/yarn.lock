@@ -8686,6 +8686,11 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
+vue-async-computed@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/vue-async-computed/-/vue-async-computed-4.0.1.tgz#75d8759ff4d36d0135b6159e9c2b0fce97b88bd8"
+  integrity sha512-INDaMHK7MSkfSLdIDSxmeFCeW+JO+Hj7wO+tVNE4u+W7ixSEPfGi4hlwBnv2pk/NmyDCTqSnmcfgxYZpofE5eQ==
+
 vue-cli-plugin-s3-deploy-cleanup@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/vue-cli-plugin-s3-deploy-cleanup/-/vue-cli-plugin-s3-deploy-cleanup-1.1.0.tgz#8f362a86377520d66321df86e50d67955f543907"

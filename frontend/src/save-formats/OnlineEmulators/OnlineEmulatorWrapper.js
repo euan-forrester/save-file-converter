@@ -44,6 +44,32 @@ function getSaveStateFromSingleFile(arrayBuffer, filename) {
   return [{ name: filename, arrayBuffer }];
 }
 
+async function getSaveStates(arrayBuffer, filename) {
+  // We need to determine whether we've been given a compressed file containing save states,
+  // or just given a save state directly
+
+  const zip = new JSZip();
+
+  let saveStates = [];
+
+  try {
+    const zipContents = await zip.loadAsync(arrayBuffer, { checkCRC32: true });
+    saveStates = await getSaveStatesFromZip(zipContents);
+  } catch (e) {
+    // According to wikipedia, the correct way to determine whether a file is a zip file is to look
+    // for an end of central directory record. There's also a byte signature at the start of the file,
+    // but apparently this is optional and not always present
+    // https://en.wikipedia.org/wiki/ZIP_(file_format)#Structure
+    if (e.message.startsWith('Can\'t find end of central directory')) {
+      saveStates = getSaveStateFromSingleFile(arrayBuffer, filename);
+    } else {
+      throw e;
+    }
+  }
+
+  return saveStates;
+}
+
 function getSaveStateType(saveStateTypes, arrayBuffer, smallestSaveSize) {
   const saveStateType = saveStateTypes.find((clazz) => {
     try {
@@ -79,29 +105,13 @@ function getClass(platform, saveStateArrayBuffer) {
 
 export default class OnlineEmulatorWrapper {
   static async createFromEmulatorData(emulatorSaveStateArrayBuffer, emulatorSaveStateFilename, platform, saveSize = null) {
-    // First we need to determine whether we've been given a compressed file containing save states,
-    // or just given a save state directly
-
-    const zip = new JSZip();
-
-    let saveStates = [];
-
-    try {
-      const zipContents = await zip.loadAsync(emulatorSaveStateArrayBuffer, { checkCRC32: true });
-      saveStates = await getSaveStatesFromZip(zipContents);
-    } catch (e) {
-      // According to wikipedia, the correct way to determine whether a file is a zip file is to look
-      // for an end of central directory record. There's also a byte signature at the start of the file,
-      // but apparently this is optional and not always present
-      // https://en.wikipedia.org/wiki/ZIP_(file_format)#Structure
-      if (e.message.startsWith('Can\'t find end of central directory')) {
-        saveStates = getSaveStateFromSingleFile(emulatorSaveStateArrayBuffer, emulatorSaveStateFilename);
-      } else {
-        throw e;
-      }
-    }
+    const saveStates = await getSaveStates(emulatorSaveStateArrayBuffer, emulatorSaveStateFilename);
 
     // Now that we have our save state data, turn it into raw in-game saves
+
+    if (saveStates.length === 0) {
+      return new OnlineEmulatorWrapper([], platform, undefined);
+    }
 
     const clazz = getClass(platform, saveStates[0].arrayBuffer);
     const files = saveStates.map((saveState) => ({
@@ -125,8 +135,16 @@ export default class OnlineEmulatorWrapper {
     return new OnlineEmulatorWrapper(files, onlineEmulatorWrapperData.getPlatform(), onlineEmulatorWrapperData.getClass());
   }
 
-  static fileSizeIsRequiredToConvert(platform) {
-    const clazz = getClass(platform);
+  static async fileSizeIsRequiredToConvert(emulatorSaveStateArrayBuffer, platform) {
+    const saveStates = await getSaveStates(emulatorSaveStateArrayBuffer, 'dummy');
+
+    if (saveStates.length === 0) {
+      return false;
+    }
+
+    const clazz = getClass(platform, saveStates[0].arrayBuffer);
+
+    console.log(`Inside fileSizeIsRequiredToConvert(). returning ${clazz.fileSizeIsRequiredToConvert()}`);
 
     return clazz.fileSizeIsRequiredToConvert();
   }
