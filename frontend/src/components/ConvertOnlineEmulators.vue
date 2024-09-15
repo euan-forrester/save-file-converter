@@ -139,10 +139,14 @@ export default {
   asyncComputed: {
     displayOutputFileSize: {
       async get() {
-        return (
-          ((this.onlineEmulatorWrapper !== null) && (this.onlineEmulatorWrapper.adjustOutputSizesPlatform() !== null))
-          || this.fileSizeIsRequiredToConvert()
-        );
+        try {
+          return (
+            ((this.onlineEmulatorWrapper !== null) && (this.onlineEmulatorWrapper.adjustOutputSizesPlatform() !== null))
+            || await this.fileSizeIsRequiredToConvert()
+          );
+        } catch (e) {
+          return false;
+        }
       },
       default: false,
     },
@@ -220,9 +224,10 @@ export default {
     async updateOnlineEmulatorWrapper() {
       this.errorMessage = null;
 
-      const hasRequiredInputFileData = await this.hasRequiredInputFileData();
-      if (hasRequiredInputFileData) {
-        try {
+      try {
+        const hasRequiredInputFileData = await this.hasRequiredInputFileData();
+
+        if (hasRequiredInputFileData) {
           // If we already have one, don't remake it. This can happen when loading a snes file, then selecting a different size.
           // Remaking the OnlineEmulatorWrapper will result in resetting out outputFilesize to be the default
 
@@ -240,16 +245,16 @@ export default {
             this.outputFilename = this.getOutputFilename(OnlineEmulatorWrapper.getRawFileExtension());
             this.outputFilesize = this.getDefaultOutputFilesize();
           }
-        } catch (e) {
-          this.errorMessage = 'This file does not appear to be a save state that this site is able to currently support. '
-            + 'If this is a save state from an online emulator and you would like to request adding support for it, please visit the Discord / Contact page.';
+        } else {
           this.onlineEmulatorWrapper = null;
+          this.outputFilename = null;
+          this.outputFilesize = null;
+          this.selectedSaveData = null;
         }
-      } else {
+      } catch (e) {
+        this.errorMessage = 'This file does not appear to be a save state that this site is able to currently support. '
+          + 'If this is a save state from an online emulator and you would like to request adding support for it, please visit the Discord / Contact page.';
         this.onlineEmulatorWrapper = null;
-        this.outputFilename = null;
-        this.outputFilesize = null;
-        this.selectedSaveData = null;
       }
     },
     async readOnlineEmulatorData(event) {
