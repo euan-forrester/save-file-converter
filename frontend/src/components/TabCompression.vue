@@ -137,7 +137,6 @@ export default {
             switch (this.compressionType) {
               case 'zlib': {
                 try {
-                  console.log('About to try and decompress zlib');
                   return CompressionZlib.decompress(this.saveData);
                 } catch (e) {
                   throw new Error('Unable to decompress the specified data using zlib compression');
@@ -146,7 +145,6 @@ export default {
 
               case 'lzo': {
                 try {
-                  console.log('About to try and decompress LZO');
                   return CompressionLzo.decompress(this.saveData);
                 } catch (e) {
                   throw new Error('Unable to decompress the specified data using LZO compression');
