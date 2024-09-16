@@ -1,12 +1,12 @@
 <template>
   <div>
     <b-row no-gutters>
-      <b-col v-if="this.labelText !== null" cols="3" sm="3" align-self="center">
+      <b-col v-if="this.labelText !== null" cols="5" sm="4" align-self="center">
         <!-- Is this a bug? Not sure why this lint rule fires here: the <label> tag has a "for" set, and it matches the <b-form-input>'s "id" below -->
         <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
         <label :for="this.id" class="label">{{ labelText }}</label>
       </b-col>
-      <b-col :cols="(this.labelText !== null) ? 8 : 11" :sm="(this.labelText !== null) ? 9 : 12">
+      <b-col :cols="(this.labelText !== null) ? 6 : 11" :sm="(this.labelText !== null) ? 8 : 12">
         <div>
           <b-form-input
             v-on:input="checkInput($event)"

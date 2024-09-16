@@ -5,7 +5,7 @@
         <input-number
           id="input-slice-start-offset"
           class="top-row"
-          labelText="Starting offset:"
+          labelText="Start offset:"
           helpText="The offset in bytes from the beginning of the file to begin the slice. Can be in decimal, or hexadecimal beginning with 0x"
           @input="changeSliceStartOffset($event)"
           ref="inputNumberSliceStartOffset"
