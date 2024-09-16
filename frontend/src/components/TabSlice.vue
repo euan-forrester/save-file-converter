@@ -54,7 +54,7 @@
 .top-row {
   margin-top: 1em;
 }
-  
+
 .utilities-advanced-slice-convert-button {
   margin-top: 1em;
 }
