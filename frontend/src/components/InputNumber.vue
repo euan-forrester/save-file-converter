@@ -13,6 +13,7 @@
             :placeholder="this.placeholderText"
             :state="this.isValid"
             :id="this.id"
+            v-bind:value="value"
           />
           <help-button
             v-if="this.helpText !== null"
@@ -85,6 +86,10 @@ export default {
     leaveRoomForHelpIcon: Boolean,
   },
   methods: {
+    reset() {
+      this.value = 'cleared';
+      console.log('Called reset');
+    },
     checkInput(event) {
       let userInput = event.trim();
 
@@ -110,6 +115,7 @@ export default {
   data() {
     return {
       isValid: null,
+      value: null,
     };
   },
 };
