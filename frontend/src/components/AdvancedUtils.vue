@@ -23,9 +23,11 @@
           <tab-resize ref="tabResize"/>
         </b-tab>
 
+        <div v-if="false">
         <b-tab title="Header/footer">
           <tab-header-footer ref="tabHeaderFooter"/>
         </b-tab>
+        </div>
 
       </b-tabs>
 
@@ -88,7 +90,7 @@ export default {
       this.$refs.tabByteExpansion.reset();
       this.$refs.tabSlice.reset();
       this.$refs.tabResize.reset();
-      this.$refs.tabHeaderFooter.reset();
+      // this.$refs.tabHeaderFooter.reset();
     },
   },
 };
