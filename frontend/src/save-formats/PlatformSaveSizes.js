@@ -1,7 +1,7 @@
 // All values are in bytes
 // Not guaranteed to be correct: may have missing/estra values! Most of this is guesses
 
-export default {
+const PLATFORM_SAVE_SIZES = {
   nes: [
     512,
     1024,
@@ -95,3 +95,10 @@ export default {
     524288,
   ],
 };
+
+const ALL_SIZES = Object.keys(PLATFORM_SAVE_SIZES).reduce((accumulator, currentPlatform) => { accumulator.push(...PLATFORM_SAVE_SIZES[currentPlatform]); return accumulator; }, []);
+const ALL_SIZES_NO_DUPLICATES_SORTED = [...new Set(ALL_SIZES)].sort((a, b) => a - b);
+
+PLATFORM_SAVE_SIZES.all = ALL_SIZES_NO_DUPLICATES_SORTED;
+
+export default PLATFORM_SAVE_SIZES;

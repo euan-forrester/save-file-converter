@@ -2,13 +2,10 @@
   <div>
     <b-row no-gutters align-h="center" align-v="start">
       <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
-        <input-number
-          id="input-new-size"
-          class="top-row"
-          labelText="New size:"
-          helpText="The new size of the file, in bytes. Can be in decimal, or hexadecimal beginning with 0x"
-          @input="changeNewSize($event)"
-          ref="inputNumberNewSize"
+        <output-filesize
+          v-model="newSize"
+          platform="all"
+          ref="outputFilesize"
         />
       </b-col>
     </b-row>
@@ -61,7 +58,7 @@
 <script>
 import { saveAs } from 'file-saver';
 
-import InputNumber from './InputNumber.vue';
+import OutputFilesize from './OutputFilesize.vue';
 import InputFile from './InputFile.vue';
 import PadFillByte from './PadFillByte.vue';
 
@@ -73,7 +70,7 @@ const DEFAULT_PAD_FILL_BYTE = 0x00; // Most users won't have an opinion here, so
 export default {
   name: 'TabResize',
   components: {
-    InputNumber,
+    OutputFilesize,
     InputFile,
     PadFillByte,
   },
@@ -95,7 +92,6 @@ export default {
       this.padFillByte = DEFAULT_PAD_FILL_BYTE;
 
       this.$refs.inputFile.reset();
-      this.$refs.inputNumberNewSize.reset();
     },
     readDataToResize(event) {
       this.errorMessage = null;
@@ -104,15 +100,6 @@ export default {
         this.saveData = event.arrayBuffer;
         this.outputFilename = `${Util.removeFilenameExtension(event.filename)} (converted)${Util.getExtension(event.filename)}`;
 
-        this.checkResizeFile();
-      } catch (e) {
-        this.errorMessage = e.message;
-      }
-    },
-    changeNewSize(value) {
-      this.newSize = value;
-      this.errorMessage = null;
-      try {
         this.checkResizeFile();
       } catch (e) {
         this.errorMessage = e.message;

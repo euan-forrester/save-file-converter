@@ -63,6 +63,11 @@ export default {
       let kilobytesString = null;
 
       switch (size) {
+        case 64: {
+          kilobytesString = '0.06';
+          break;
+        }
+
         case 128: {
           kilobytesString = '0.1';
           break;
