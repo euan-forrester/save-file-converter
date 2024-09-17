@@ -25,7 +25,7 @@
 <style scoped>
   .help-button {
     position: absolute;
-    right: -1.6em;
+    right: -1.2em;
     top: 0em;
   }
 </style>

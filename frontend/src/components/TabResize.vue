@@ -3,6 +3,7 @@
     <b-row no-gutters align-h="center" align-v="start">
       <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
         <output-filesize
+          class="top-row"
           v-model="newSize"
           platform="all"
           ref="outputFilesize"
