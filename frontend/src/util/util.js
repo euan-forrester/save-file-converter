@@ -195,4 +195,17 @@ export default class Util {
   static fillArrayBuffer(arrayBuffer, fillValue) {
     return Util.getFilledArrayBuffer(arrayBuffer.byteLength, fillValue);
   }
+
+  static arrayBuffersEqual(arrayBuffer1, arrayBuffer2) {
+    if (arrayBuffer1.byteLength !== arrayBuffer2.byteLength) {
+      return false;
+    }
+
+    const u81 = new Uint8Array(arrayBuffer1);
+    const u82 = new Uint8Array(arrayBuffer2);
+
+    const unequalIndex = u81.find((element, index) => u81[index] !== u82[index]);
+
+    return (unequalIndex === undefined);
+  }
 }

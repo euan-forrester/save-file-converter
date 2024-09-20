@@ -15,6 +15,10 @@
           <tab-slice ref="tabSlice"/>
         </b-tab>
 
+        <b-tab title="File compare">
+          <tab-file-compare ref="tabFileCompare"/>
+        </b-tab>
+
         <b-tab title="Compression">
           <tab-compression ref="tabCompression"/>
         </b-tab>
@@ -40,21 +44,23 @@
 </style>
 
 <script>
+import TabResize from './TabResize.vue';
 import TabEndianSwap from './TabEndianSwap.vue';
+import TabSlice from './TabSlice.vue';
+import TabFileCompare from './TabFileCompare.vue';
 import TabCompression from './TabCompression.vue';
 import TabByteExpansion from './TabByteExpansion.vue';
-import TabSlice from './TabSlice.vue';
-import TabResize from './TabResize.vue';
 import TabHeaderFooter from './TabHeaderFooter.vue';
 
 export default {
   name: 'AdvancedUtils',
   components: {
+    TabResize,
     TabEndianSwap,
+    TabSlice,
+    TabFileCompare,
     TabCompression,
     TabByteExpansion,
-    TabSlice,
-    TabResize,
     TabHeaderFooter,
   },
   props: {
@@ -74,6 +80,7 @@ export default {
       'resize',
       'endian-swap',
       'slice',
+      'file-compare',
       'compression',
       'byte-expansion',
       'header-footer',
@@ -85,11 +92,12 @@ export default {
   },
   watch: {
     tabIndex() {
+      this.$refs.tabResize.reset();
       this.$refs.tabEndianSwap.reset();
+      this.$refs.tabSlice.reset();
+      this.$refs.tabFileCompare.reset();
       this.$refs.tabCompression.reset();
       this.$refs.tabByteExpansion.reset();
-      this.$refs.tabSlice.reset();
-      this.$refs.tabResize.reset();
       // this.$refs.tabHeaderFooter.reset();
     },
   },
