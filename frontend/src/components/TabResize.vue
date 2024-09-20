@@ -2,8 +2,27 @@
   <div>
     <b-row no-gutters align-h="center" align-v="start">
       <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
-        <output-filesize
+        <input-file
           class="top-row"
+          @load="readDataToResize($event)"
+          :errorMessage="this.errorMessage"
+          placeholderText="Choose a file to convert"
+          :leaveRoomForHelpIcon="true"
+          ref="inputFile"
+        />
+      </b-col>
+    </b-row>
+    <b-row no-gutters align-h="center" align-v="start">
+      <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
+        <file-size
+          :display="this.saveData !== null"
+          :fileData="this.saveData"
+        />
+      </b-col>
+    </b-row>
+    <b-row no-gutters align-h="center" align-v="start">
+      <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
+        <output-filesize
           v-model="newSize"
           platform="all"
           ref="outputFilesize"
@@ -16,17 +35,6 @@
           id="pad-fill-byte"
           v-model="padFillByte"
           :disabled="!this.isIncreasingFileSize()"
-        />
-      </b-col>
-    </b-row>
-    <b-row no-gutters align-h="center" align-v="start">
-      <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
-        <input-file
-          @load="readDataToResize($event)"
-          :errorMessage="this.errorMessage"
-          placeholderText="Choose a file to convert"
-          :leaveRoomForHelpIcon="true"
-          ref="inputFile"
         />
       </b-col>
     </b-row>
@@ -62,6 +70,7 @@ import { saveAs } from 'file-saver';
 import OutputFilesize from './OutputFilesize.vue';
 import InputFile from './InputFile.vue';
 import PadFillByte from './PadFillByte.vue';
+import FileSize from './FileSize.vue';
 
 import Util from '../util/util';
 import SaveFilesUtil from '../util/SaveFiles';
@@ -74,6 +83,7 @@ export default {
     OutputFilesize,
     InputFile,
     PadFillByte,
+    FileSize,
   },
   data() {
     return {

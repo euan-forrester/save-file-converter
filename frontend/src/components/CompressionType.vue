@@ -50,8 +50,8 @@ export default {
   data() {
     return {
       options: [
-        { value: 'zlib', text: 'zlib compression' }, // Used by retroarch (also used internally in Retron 5 files). I think this is by far the most common compression type users will run into, so I think it makes sense to make this the default
-        { value: 'lzo', text: 'LZO compression' }, // This is used internally in goomba etc files, so it was easy to include here
+        { value: 'zlib', text: 'zlib algorithm' }, // Used by retroarch (also used internally in Retron 5 files). I think this is by far the most common compression type users will run into, so I think it makes sense to make this the default
+        { value: 'lzo', text: 'LZO algorithm' }, // This is used internally in goomba etc files, so it was easy to include here
         // We could potentially add .zip compression here as well, since we handle it elsewhere for online emulators
         // But that's the only use case I've found for it so far, and it has a dedicated page in the app and we can always ask users
         // to just use their operating system's zip program. Also, zip supports multiple files inside one .zip file, which would increase

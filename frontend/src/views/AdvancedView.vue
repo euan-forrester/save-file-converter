@@ -18,7 +18,7 @@ export default {
   props: {
     initialTab: {
       type: String,
-      default: 'endian-swap',
+      default: 'resize',
     },
   },
 };

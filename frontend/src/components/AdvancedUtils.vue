@@ -3,8 +3,16 @@
     <b-container>
       <b-tabs v-model="tabIndex" content-class="mt-3" justified>
 
+        <b-tab title="Resize">
+          <tab-resize ref="tabResize"/>
+        </b-tab>
+
         <b-tab :title="'Endian\xa0swap'">
           <tab-endian-swap ref="tabEndianSwap"/>
+        </b-tab>
+
+        <b-tab title="Slice">
+          <tab-slice ref="tabSlice"/>
         </b-tab>
 
         <b-tab title="Compression">
@@ -13,14 +21,6 @@
 
         <b-tab :title="'Byte\xa0expansion'">
           <tab-byte-expansion ref="tabByteExpansion"/>
-        </b-tab>
-
-        <b-tab title="Slice">
-          <tab-slice ref="tabSlice"/>
-        </b-tab>
-
-        <b-tab title="Resize">
-          <tab-resize ref="tabResize"/>
         </b-tab>
 
         <div v-if="false">
@@ -60,7 +60,7 @@ export default {
   props: {
     initialTab: {
       type: String,
-      default: 'endian-swap',
+      default: 'resize',
     },
   },
   data() {
@@ -71,11 +71,11 @@ export default {
   beforeMount() {
     // Need to keep these in sync with the template above. Is there a way to get these programmatically?
     const possibleTabNames = [
+      'resize',
       'endian-swap',
+      'slice',
       'compression',
       'byte-expansion',
-      'slice',
-      'resize',
       'header-footer',
     ];
 

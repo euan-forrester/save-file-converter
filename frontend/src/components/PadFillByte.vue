@@ -10,7 +10,7 @@
             :disabled="disabled"
           />
           <help-button
-            popover-text="The value to fill into the extra bytes when increasing the length of the file"
+            popover-text="The value to fill into the extra bytes when increasing the size of the file. Not needed if decreasing the size of the file."
             :id="this.id"
             class="help-button"
           />
