@@ -1,5 +1,5 @@
 <template>
-    <div>
+  <div>
     <b-row no-gutters align-h="start" align-v="center">
       <b-col cols=11 sm=12>
         <div>

@@ -15,8 +15,12 @@
           <tab-slice ref="tabSlice"/>
         </b-tab>
 
-        <b-tab title="File compare">
+        <b-tab :title="'File\xa0compare'">
           <tab-file-compare ref="tabFileCompare"/>
+        </b-tab>
+
+        <b-tab title="Remove header/footer">
+          <tab-remove-header-footer ref="tabRemoveHeaderFooter"/>
         </b-tab>
 
         <b-tab title="Compression">
@@ -26,12 +30,6 @@
         <b-tab :title="'Byte\xa0expansion'">
           <tab-byte-expansion ref="tabByteExpansion"/>
         </b-tab>
-
-        <div v-if="false">
-        <b-tab title="Header/footer">
-          <tab-header-footer ref="tabHeaderFooter"/>
-        </b-tab>
-        </div>
 
       </b-tabs>
 
@@ -48,9 +46,9 @@ import TabResize from './TabResize.vue';
 import TabEndianSwap from './TabEndianSwap.vue';
 import TabSlice from './TabSlice.vue';
 import TabFileCompare from './TabFileCompare.vue';
+import TabRemoveHeaderFooter from './TabRemoveHeaderFooter.vue';
 import TabCompression from './TabCompression.vue';
 import TabByteExpansion from './TabByteExpansion.vue';
-import TabHeaderFooter from './TabHeaderFooter.vue';
 
 export default {
   name: 'AdvancedUtils',
@@ -59,9 +57,9 @@ export default {
     TabEndianSwap,
     TabSlice,
     TabFileCompare,
+    TabRemoveHeaderFooter,
     TabCompression,
     TabByteExpansion,
-    TabHeaderFooter,
   },
   props: {
     initialTab: {
@@ -81,9 +79,9 @@ export default {
       'endian-swap',
       'slice',
       'file-compare',
+      'remove-header-footer',
       'compression',
       'byte-expansion',
-      'header-footer',
     ];
 
     const initialTabIndex = possibleTabNames.indexOf(this.initialTab);
@@ -96,9 +94,9 @@ export default {
       this.$refs.tabEndianSwap.reset();
       this.$refs.tabSlice.reset();
       this.$refs.tabFileCompare.reset();
+      this.$refs.tabRemoveHeaderFooter.reset();
       this.$refs.tabCompression.reset();
       this.$refs.tabByteExpansion.reset();
-      // this.$refs.tabHeaderFooter.reset();
     },
   },
 };
