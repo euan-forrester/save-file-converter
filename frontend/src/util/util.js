@@ -208,4 +208,14 @@ export default class Util {
 
     return (unequalIndex === undefined);
   }
+
+  static copyHeaderFromArrayBuffer(sourceArrayBuffer, headerByteCount, destinationArrayBuffer) {
+    const headerArrayBuffer = sourceArrayBuffer.slice(0, headerByteCount);
+    return Util.concatArrayBuffers([headerArrayBuffer, destinationArrayBuffer]);
+  }
+
+  static copyFooterFromArrayBuffer(sourceArrayBuffer, footerByteCount, destinationArrayBuffer) {
+    const footerArrayBuffer = sourceArrayBuffer.slice(-footerByteCount);
+    return Util.concatArrayBuffers([destinationArrayBuffer, footerArrayBuffer]);
+  }
 }

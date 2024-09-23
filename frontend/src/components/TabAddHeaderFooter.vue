@@ -3,12 +3,12 @@
     <b-row no-gutters align-h="center" align-v="start">
       <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
         <input-file
-          @load="readData($event)"
-          placeholderText="Choose a file to convert"
+          @load="readExampleData($event)"
+          placeholderText="Choose an example file"
           :leaveRoomForHelpIcon="true"
-          help-text="Choose an example file from which to remove a header or footer. A header is extra information at the start of a file, and a footer is extra information at the end"
-          ref="inputFile"
-          id="inputFile"
+          help-text="Choose an example file from which to copy a header or footer. A header is extra information at the start of a file, and a footer is extra information at the end"
+          ref="inputFileExample"
+          id="inputFileExample"
           class="top-row"
         />
       </b-col>
@@ -33,18 +33,30 @@
       <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
         <header-footer
           v-model="headerFooter"
-          first-word="Remove"
-          id="headerFooterRemove"
+          first-word="Copy"
+          id="headerFooterAdd"
+        />
+      </b-col>
+    </b-row>
+    <b-row no-gutters align-h="center" align-v="start">
+      <b-col sm=12 md=7 lg=5 xl=4 align-self="center">
+        <input-file
+          @load="readDestinationData($event)"
+          placeholderText="Choose a file to convert"
+          help-text="Choose a file to which to add the header or footer from the example file above"
+          :leaveRoomForHelpIcon="true"
+          ref="inputFileDestination"
+          id="inputFileDestination"
         />
       </b-col>
     </b-row>
     <b-row class="justify-content-md-center" align-h="center">
       <b-col cols="auto" sm=4 md=3 lg=2 align-self="center">
         <b-button
-          class="utilities-advanced-remove-header-footer-convert-button"
+          class="utilities-advanced-add-header-footer-convert-button"
           variant="success"
           block
-          :disabled="(this.headerSize === null) || (this.headerSize === 0)"
+          :disabled="(this.headerSize === null) || (this.headerSize === 0) || (this.destinationSaveData === null)"
           @click="removeHeaderFooter()"
         >
         Convert!
@@ -59,7 +71,7 @@
   margin-top: 1em;
 }
 
-.utilities-advanced-remove-header-footer-convert-button {
+.utilities-advanced-add-header-footer-convert-button {
   margin-top: 1em;
 }
 </style>
@@ -72,17 +84,17 @@ import HeaderFooter from './HeaderFooter.vue';
 
 import Util from '../util/util';
 import MathUtil from '../util/Math';
-import PaddingUtil from '../util/Padding';
 
 export default {
-  name: 'TabRemoveHeaderFooter',
+  name: 'TabAddHeaderFooter',
   components: {
     InputFile,
     HeaderFooter,
   },
   data() {
     return {
-      saveData: null,
+      exampleSaveData: null,
+      destinationSaveData: null,
       headerSize: null,
       headerFooter: 'header',
       outputFilename: null,
@@ -90,22 +102,28 @@ export default {
   },
   methods: {
     reset() {
-      this.saveData = null;
+      this.exampleSaveData = null;
+      this.destinationSaveData = null;
       this.headerSize = null;
       this.headerFooter = 'header';
       this.outputFilename = null;
 
-      this.$refs.inputFile.reset();
+      this.$refs.inputFileExample.reset();
+      this.$refs.inputFileDestination.reset();
     },
-    readData(event) {
-      this.saveData = event.arrayBuffer;
+    readExampleData(event) {
+      this.exampleSaveData = event.arrayBuffer;
+      this.headerSize = Math.max(this.exampleSaveData.byteLength - MathUtil.getNextSmallestPowerOf2(this.exampleSaveData.byteLength), 0);
+    },
+    readDestinationData(event) {
+      this.destinationSaveData = event.arrayBuffer;
       this.outputFilename = `${Util.removeFilenameExtension(event.filename)} (converted)${Util.getExtension(event.filename)}`;
-      this.headerSize = Math.max(this.saveData.byteLength - MathUtil.getNextSmallestPowerOf2(this.saveData.byteLength), 0);
     },
     removeHeaderFooter() {
       const outputArrayBuffer = (this.headerFooter === 'header')
-        ? PaddingUtil.removePaddingFromStart(this.saveData, this.headerSize)
-        : PaddingUtil.removePaddingFromEnd(this.saveData, this.headerSize);
+        ? Util.copyHeaderFromArrayBuffer(this.exampleSaveData, this.headerSize, this.destinationSaveData)
+        : Util.copyFooterFromArrayBuffer(this.exampleSaveData, this.headerSize, this.destinationSaveData);
+
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 
       saveAs(outputBlob, this.outputFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101

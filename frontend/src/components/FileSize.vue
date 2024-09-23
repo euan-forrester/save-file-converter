@@ -1,10 +1,10 @@
 <template>
   <b-collapse appear id="id" :visible="display">
-  <b-list-group>
-    <b-list-group-item :variant="this.variant" class="d-flex justify-content-between align-items-center">
-      <div>File size:</div><div>{{ fileSize }} bytes</div>
-    </b-list-group-item>
-  </b-list-group>
+    <b-list-group>
+      <b-list-group-item :variant="this.variant" class="d-flex justify-content-between align-items-center">
+        <div>File size:</div><div>{{ fileSize }} bytes</div>
+      </b-list-group-item>
+    </b-list-group>
   </b-collapse>
 </template>
 

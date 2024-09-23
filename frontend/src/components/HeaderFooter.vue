@@ -10,7 +10,7 @@
             :disabled="disabled"
           />
           <help-button
-            popover-text="A header is extra information at the start of a file, and a footer is extra information at the end"
+            :popover-text="`Choose whether to ${this.firstWord.toLowerCase()} the header or footer`"
             :id="this.id"
             class="help-button"
           />
@@ -38,6 +38,10 @@ export default {
       type: String,
       default: null,
     },
+    firstWord: {
+      type: String,
+      default: null,
+    },
     id: String,
     disabled: {
       type: Boolean,
@@ -50,8 +54,8 @@ export default {
   data() {
     return {
       options: [
-        { value: 'header', text: 'Remove header' },
-        { value: 'footer', text: 'Remove footer' },
+        { value: 'header', text: `${this.firstWord} header` },
+        { value: 'footer', text: `${this.firstWord} footer` },
       ],
     };
   },

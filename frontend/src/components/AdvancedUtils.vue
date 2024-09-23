@@ -23,6 +23,10 @@
           <tab-remove-header-footer ref="tabRemoveHeaderFooter"/>
         </b-tab>
 
+        <b-tab title="Add header/footer">
+          <tab-add-header-footer ref="tabAddHeaderFooter"/>
+        </b-tab>
+
         <b-tab title="Compression">
           <tab-compression ref="tabCompression"/>
         </b-tab>
@@ -47,6 +51,7 @@ import TabEndianSwap from './TabEndianSwap.vue';
 import TabSlice from './TabSlice.vue';
 import TabFileCompare from './TabFileCompare.vue';
 import TabRemoveHeaderFooter from './TabRemoveHeaderFooter.vue';
+import TabAddHeaderFooter from './TabAddHeaderFooter.vue';
 import TabCompression from './TabCompression.vue';
 import TabByteExpansion from './TabByteExpansion.vue';
 
@@ -58,6 +63,7 @@ export default {
     TabSlice,
     TabFileCompare,
     TabRemoveHeaderFooter,
+    TabAddHeaderFooter,
     TabCompression,
     TabByteExpansion,
   },
@@ -80,6 +86,7 @@ export default {
       'slice',
       'file-compare',
       'remove-header-footer',
+      'add-header-footer',
       'compression',
       'byte-expansion',
     ];
@@ -95,6 +102,7 @@ export default {
       this.$refs.tabSlice.reset();
       this.$refs.tabFileCompare.reset();
       this.$refs.tabRemoveHeaderFooter.reset();
+      this.$refs.tabAddHeaderFooter.reset();
       this.$refs.tabCompression.reset();
       this.$refs.tabByteExpansion.reset();
     },
