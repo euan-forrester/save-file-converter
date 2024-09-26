@@ -41,7 +41,7 @@
 .top-row {
   margin-top: 1em;
 }
-  
+
 .utilities-advanced-byte-expand-convert-button {
   margin-top: 1em;
 }
