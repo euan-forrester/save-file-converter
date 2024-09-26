@@ -30,6 +30,7 @@ import {
   CollapsePlugin,
   SpinnerPlugin,
   ImagePlugin,
+  TabsPlugin,
 } from 'bootstrap-vue';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -49,3 +50,4 @@ Vue.use(ListGroupPlugin);
 Vue.use(CollapsePlugin);
 Vue.use(SpinnerPlugin);
 Vue.use(ImagePlugin);
+Vue.use(TabsPlugin);

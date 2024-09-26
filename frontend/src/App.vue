@@ -68,7 +68,8 @@
       <b-row class="nav-row">
         <b-col>
           <router-link to="/other-converters">Other{{'\xa0'}}converters</router-link> |
-          <router-link to="/utilities/erase-save">Erase{{'\xa0'}}save from cartridge</router-link>
+          <router-link to="/utilities/erase-save">Erase{{'\xa0'}}save from cartridge</router-link><!-- |
+          <router-link to="/utilities/advanced">Advanced{{'\xa0'}}<span class="new-text">(New)</span></router-link> -->
         </b-col>
       </b-row>
       <b-row>

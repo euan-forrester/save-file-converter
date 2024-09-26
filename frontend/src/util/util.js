@@ -195,4 +195,27 @@ export default class Util {
   static fillArrayBuffer(arrayBuffer, fillValue) {
     return Util.getFilledArrayBuffer(arrayBuffer.byteLength, fillValue);
   }
+
+  static arrayBuffersEqual(arrayBuffer1, arrayBuffer2) {
+    if (arrayBuffer1.byteLength !== arrayBuffer2.byteLength) {
+      return false;
+    }
+
+    const u81 = new Uint8Array(arrayBuffer1);
+    const u82 = new Uint8Array(arrayBuffer2);
+
+    const unequalIndex = u81.find((element, index) => u81[index] !== u82[index]);
+
+    return (unequalIndex === undefined);
+  }
+
+  static copyHeaderFromArrayBuffer(sourceArrayBuffer, headerByteCount, destinationArrayBuffer) {
+    const headerArrayBuffer = sourceArrayBuffer.slice(0, headerByteCount);
+    return Util.concatArrayBuffers([headerArrayBuffer, destinationArrayBuffer]);
+  }
+
+  static copyFooterFromArrayBuffer(sourceArrayBuffer, footerByteCount, destinationArrayBuffer) {
+    const footerArrayBuffer = sourceArrayBuffer.slice(-footerByteCount);
+    return Util.concatArrayBuffers([destinationArrayBuffer, footerArrayBuffer]);
+  }
 }

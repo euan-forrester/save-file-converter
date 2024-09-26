@@ -180,6 +180,7 @@ describe('PaddingUtil', () => {
 
     const unpaddedUint8Array = new Uint8Array(unpaddedArrayBuffer);
 
+    expect(unpaddedUint8Array.length).to.equal(ARRAY_BUFFER_SIZE);
     unpaddedUint8Array.forEach((e, i, a) => {
       expect(a[i]).to.equal(DATA_VALUE, `index ${i}`);
     });
@@ -196,6 +197,7 @@ describe('PaddingUtil', () => {
 
     const unpaddedUint8Array = new Uint8Array(unpaddedArrayBuffer);
 
+    expect(unpaddedUint8Array.length).to.equal(ARRAY_BUFFER_SIZE);
     unpaddedUint8Array.forEach((e, i, a) => {
       expect(a[i]).to.equal(DATA_VALUE, `index ${i}`);
     });
@@ -216,6 +218,7 @@ describe('PaddingUtil', () => {
 
     const unpaddedUint8Array = new Uint8Array(unpaddedArrayBuffer);
 
+    expect(unpaddedUint8Array.length).to.equal(ARRAY_BUFFER_SIZE);
     unpaddedUint8Array.forEach((e, i, a) => {
       expect(a[i]).to.equal(DATA_VALUE, `index ${i}`);
     });
@@ -232,6 +235,7 @@ describe('PaddingUtil', () => {
 
     const unpaddedUint8Array = new Uint8Array(unpaddedArrayBuffer);
 
+    expect(unpaddedUint8Array.length).to.equal(ARRAY_BUFFER_SIZE);
     unpaddedUint8Array.forEach((e, i, a) => {
       expect(a[i]).to.equal(DATA_VALUE, `index ${i}`);
     });

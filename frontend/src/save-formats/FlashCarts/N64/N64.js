@@ -7,13 +7,13 @@ import SaveFilesUtil from '../../../util/SaveFiles';
 
 export default class N64FlashCartSaveData {
   static createFromFlashCartData(flashCartArrayBuffer) {
-    const rawArrayBuffer = N64Util.needsEndianSwap(flashCartArrayBuffer) ? N64Util.endianSwap(flashCartArrayBuffer, 'bigToLittleEndian') : flashCartArrayBuffer;
+    const rawArrayBuffer = N64Util.needsEndianSwap(flashCartArrayBuffer) ? N64Util.endianSwap(flashCartArrayBuffer) : flashCartArrayBuffer;
 
     return new N64FlashCartSaveData(flashCartArrayBuffer, rawArrayBuffer);
   }
 
   static createFromRawData(rawArrayBuffer) {
-    const flashCartArrayBuffer = N64Util.needsEndianSwap(rawArrayBuffer) ? N64Util.endianSwap(rawArrayBuffer, 'littleToBigEndian') : rawArrayBuffer;
+    const flashCartArrayBuffer = N64Util.needsEndianSwap(rawArrayBuffer) ? N64Util.endianSwap(rawArrayBuffer) : rawArrayBuffer;
 
     return new N64FlashCartSaveData(flashCartArrayBuffer, rawArrayBuffer);
   }

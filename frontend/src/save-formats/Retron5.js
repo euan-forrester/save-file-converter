@@ -16,11 +16,11 @@ typedef struct
 } t_retronDataHdr;
 */
 
-import pako from 'pako';
 import crc32 from 'crc-32';
 import Util from '../util/util';
 import MathUtil from '../util/Math';
 import PaddingUtil from '../util/Padding';
+import CompressionZlibUtil from '../util/CompressionZlib';
 
 const LITTLE_ENDIAN = true;
 const MAGIC = 0x354E5452; // "RTN5", except backwards
@@ -37,7 +37,7 @@ export default class Retron5SaveData {
     const originalChecksum = crc32.buf(new Uint8Array(emulatorArrayBuffer)) >>> 0; // '>>> 0' interprets the result as an unsigned integer: https://stackoverflow.com/questions/1822350/what-is-the-javascript-operator-and-how-do-you-use-it
     const originalSize = emulatorArrayBuffer.byteLength;
 
-    const packedArrayBuffer = pako.deflate(emulatorArrayBuffer);
+    const packedArrayBuffer = CompressionZlibUtil.compress(emulatorArrayBuffer);
 
     const retron5HeaderArrayBuffer = new ArrayBuffer(DATA_HEADER_SIZE); // Need to have an ArrayBuffer with a size as a multiple of 4 to have a Uint32View into it, so need to have a separate one for the header
 
@@ -86,7 +86,7 @@ export default class Retron5SaveData {
 
     let rawSaveData = new Uint8Array(this.arrayBuffer.slice(this.getDataOffset()));
     if ((this.getFlags() & FLAG_ZLIB_PACKED) !== 0) {
-      rawSaveData = pako.inflate(rawSaveData);
+      rawSaveData = CompressionZlibUtil.decompress(rawSaveData);
     }
 
     if (rawSaveData.byteLength !== this.getOriginalSize()) {
