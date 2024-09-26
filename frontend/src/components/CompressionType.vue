@@ -10,7 +10,7 @@
             :disabled="disabled"
           />
           <help-button
-            popover-text="The compression algorithm to use to compress or decompress the save file"
+            popover-text="The algorithm to use to compress or decompress the save file"
             :id="this.id"
             class="help-button"
           />

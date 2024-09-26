@@ -6,7 +6,8 @@
           id="input-slice-start-offset"
           class="top-row"
           labelText="Start offset:"
-          helpText="The offset in bytes from the beginning of the file to begin the slice. Can be in decimal, or hexadecimal beginning with 0x"
+          helpText="A slice is copying out a portion of a larger file.
+          The start offset is the number of bytes from the beginning of the file to begin the slice. Can be in decimal, or hexadecimal beginning with 0x"
           @input="changeSliceStartOffset($event)"
           ref="inputNumberSliceStartOffset"
         />

@@ -6,7 +6,7 @@
           @load="readData($event)"
           placeholderText="Choose a file to convert"
           :leaveRoomForHelpIcon="true"
-          help-text="Choose an example file from which to remove a header or footer. A header is extra information at the start of a file, and a footer is extra information at the end"
+          help-text="Choose a file from which to remove a header or footer. A header is extra information at the start of a file, and a footer is extra information at the end"
           ref="inputFile"
           id="inputFile"
           class="top-row"
