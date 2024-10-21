@@ -1389,7 +1389,7 @@ export default {
           software: {
             name: 'The built-in Memory Card Manager',
             link: 'http://www.gametronik.com/site/rubriques/n64/FAQs/Hardware%20-%20GameShark%20Pro%20(U).pdf',
-            howToRun: 'Choose to copy a save from a game cartridge to a memory card or vice versa',
+            howToRun: 'Choose to copy a save from a game cartridge to a memory card or vice versa. Only works with EEPROM saves',
           },
           nes: false,
           snes: false,
