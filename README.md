@@ -122,6 +122,32 @@ Everything on this site is free and open source with no advertising. If you find
     - Save files from here need to be 64-bit endian-swapped to work in a regular emulator: https://github.com/exelotl/gba-eeprom-save-fix
 - Sega Saturn
   - https://github.com/hitomi2500/ss-save-parser
+  - https://github.com/slinga-homebrew/Save-Game-BUP-Scripts (description of the `.BUP` save format)
+  - https://github.com/slinga-homebrew/Save-Game-Copier
+  - https://segaxtreme.net/resources/saturn-save-converter.74/
+  - https://github.com/slinga-homebrew/Save-Game-Extractor (cool, but hopefully not the main method of getting files off of an actual Saturn)
+  - Saroo:
+    - https://github.com/tpunix/SAROO/tree/master/tools/savetool (SAROO save file converter)
+    - https://github.com/tpunix/SAROO/issues/131 (description of how the saroo deals with save files, also watch this for potential changes)
+    - https://www.reddit.com/r/SegaSaturn/comments/1acty0v/saroo_save_file_format/ (information on the saroo file format, tools, and example files)
+  - Potential save formats (based on what Saturn Save Converter does):
+    - These ones to initially support:
+      - BUP (is this the standardized format? Used by Psuedo Saturn Kai -> this is the tool used by ODEs as well?)
+        - https://github.com/slinga-homebrew/Save-Game-BUP-Scripts/blob/main/bup_header.h#L94 
+      - SaroSave (Saroo flash cart)
+        - https://github.com/tpunix/SAROO/blob/master/tools/savetool/sr_bup.c#L135
+        - https://www.reddit.com/r/SegaSaturn/comments/1acty0v/comment/kjz73ft/
+      - Mednafen - generates 3 files:
+        - `.bkr`: Internal save memory? Appears to be described here: https://www.reddit.com/r/SegaSaturn/comments/1acty0v/comment/kjz73ft/
+        - `.bcr`: Cartridge save memory? Compressed with gzip, then as described in link above but with bigger block size: https://www.reddit.com/r/RetroArch/comments/wke28j/comment/ijmw25t/
+        - `.smpc`: System management data, including clock information: https://docs.exodusemulator.com/Archives/SSDDV25/segahtml/index.html?page=hard/smpc/index.htm
+    - These ones to maybe support based on feedback:
+      - SSF (SSF emulator: https://segaretro.org/SSF)
+      - Yabause (https://yabause.org/ -- seems old, Kronos is a newer fork: https://github.com/FCare/Kronos)
+      - Giri Giri
+      - Nova
+      - Action Replay (https://github.com/hitomi2500/ss-save-parser/blob/master/config.cpp#L26)
+      - Druid II (https://github.com/hitomi2500/ss-save-parser/blob/master/config.cpp#L59)
 - TG-16/PCE:
   - https://github.com/Widdiful/PCE_BRAM_Manager
 - Gamecube
