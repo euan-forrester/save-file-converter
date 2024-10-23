@@ -85,6 +85,24 @@ export default {
       compressionDecompression: DEFAULT_COMPRESSION_DECOMPRESSION,
     };
   },
+  watch: {
+    compressionType() {
+      this.errorMessage = null;
+      try {
+        this.checkCompressDecompress();
+      } catch (e) {
+        this.errorMessage = e.message;
+      }
+    },
+    compressionDecompression() {
+      this.errorMessage = null;
+      try {
+        this.checkCompressDecompress();
+      } catch (e) {
+        this.errorMessage = e.message;
+      }
+    },
+  },
   methods: {
     reset() {
       this.saveData = null;
