@@ -5,22 +5,22 @@
 
 import pako from 'pako';
 
-export default class CompressionZlib {
+export default class CompressionGzip {
   static decompress(arrayBuffer) {
     try {
-      return pako.inflate(arrayBuffer);
+      return pako.ungzip(arrayBuffer);
     } catch (e) {
       // pako throws a string rather than an error
-      throw new Error(`Could not decompress the data using zlib: ${e}`);
+      throw new Error(`Could not decompress the data using gzip: ${e}`);
     }
   }
 
   static compress(arrayBuffer) {
     try {
-      return pako.deflate(arrayBuffer);
+      return pako.gzip(arrayBuffer);
     } catch (e) {
       // pako throws a string rather than an error
-      throw new Error(`Could not compress the data using zlib: ${e}`);
+      throw new Error(`Could not compress the data using gzip: ${e}`);
     }
   }
 }
