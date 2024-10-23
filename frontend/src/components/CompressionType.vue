@@ -51,6 +51,7 @@ export default {
     return {
       options: [
         { value: 'zlib', text: 'zlib algorithm' }, // Used by retroarch (also used internally in Retron 5 files). I think this is by far the most common compression type users will run into, so I think it makes sense to make this the default
+        { value: 'gzip', text: 'gzip algorithm' }, // Used by mednafen to compress Saturn saves (to cartridge memory)
         { value: 'lzo', text: 'LZO algorithm' }, // This is used internally in goomba etc files, so it was easy to include here
         // We could potentially add .zip compression here as well, since we handle it elsewhere for online emulators
         // But that's the only use case I've found for it so far, and it has a dedicated page in the app and we can always ask users

@@ -63,6 +63,7 @@ import InputFile from './InputFile.vue';
 import Util from '../util/util';
 
 import CompressionZlib from '../util/CompressionZlib';
+import CompressionGzip from '../util/CompressionGzip';
 import CompressionLzo from '../util/CompressionLzo';
 
 const DEFAULT_COMPRESSION_TYPE = 'zlib'; // I think the most common use here will be decompressing retroarch files, which uses zlib
@@ -119,6 +120,14 @@ export default {
                 }
               }
 
+              case 'gzip': {
+                try {
+                  return CompressionGzip.compress(this.saveData);
+                } catch (e) {
+                  throw new Error('Unable to compress the specified data using gzip compression');
+                }
+              }
+
               case 'lzo': {
                 try {
                   return CompressionLzo.compress(this.saveData);
@@ -140,6 +149,14 @@ export default {
                   return CompressionZlib.decompress(this.saveData);
                 } catch (e) {
                   throw new Error('Unable to decompress the specified data using zlib compression');
+                }
+              }
+
+              case 'gzip': {
+                try {
+                  return CompressionGzip.decompress(this.saveData);
+                } catch (e) {
+                  throw new Error('Unable to decompress the specified data using gzip compression');
                 }
               }
 
