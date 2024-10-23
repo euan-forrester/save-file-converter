@@ -129,6 +129,7 @@ Everything on this site is free and open source with no advertising. If you find
   - Saroo:
     - https://github.com/tpunix/SAROO/tree/master/tools/savetool (SAROO save file converter)
     - https://github.com/tpunix/SAROO/issues/131 (description of how the saroo deals with save files, also watch this for potential changes)
+    - https://github.com/tpunix/SAROO/issues/117 (description of current process of copying save files to saroo)
     - https://www.reddit.com/r/SegaSaturn/comments/1acty0v/saroo_save_file_format/ (information on the saroo file format, tools, and example files)
   - Potential save formats (based on what Saturn Save Converter does):
     - These ones to initially support:
@@ -136,7 +137,7 @@ Everything on this site is free and open source with no advertising. If you find
         - https://github.com/slinga-homebrew/Save-Game-BUP-Scripts/blob/main/bup_header.h#L94 
       - SaroSave (Saroo flash cart)
         - https://github.com/tpunix/SAROO/blob/master/tools/savetool/sr_bup.c#L135
-        - https://www.reddit.com/r/SegaSaturn/comments/1acty0v/comment/kjz73ft/
+        - https://github.com/tpunix/SAROO/blob/6f6e18289bbdc9b23b4c91b9da343a1362ed921c/doc/SAROO%E6%8A%80%E6%9C%AF%E7%82%B9%E6%BB%B4.txt#L448 (translation posted at https://www.reddit.com/r/SegaSaturn/comments/1acty0v/comment/kjz73ft/)
       - Mednafen - generates 3 files:
         - `.bkr`: Internal save memory? Appears to be described here: https://www.reddit.com/r/SegaSaturn/comments/1acty0v/comment/kjz73ft/
         - `.bcr`: Cartridge save memory? Compressed with gzip, then as described in link above but with bigger block size: https://www.reddit.com/r/RetroArch/comments/wke28j/comment/ijmw25t/
