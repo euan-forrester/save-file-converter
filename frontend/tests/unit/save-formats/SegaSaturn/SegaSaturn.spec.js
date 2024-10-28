@@ -21,7 +21,9 @@ describe('Sega Saturn', () => {
     const segaSaturnSaveData = SegaSaturnSaveData.createFromSegaSaturnData(segaSaturnArrayBuffer);
 
     expect(segaSaturnSaveData.getBlockSize()).to.equal(0x40);
-    // expect(segaSaturnSaveData.getNumFreeBlocks()).to.equal(112);
+    expect(segaSaturnSaveData.getTotalBytes()).to.equal(32768);
+    expect(segaSaturnSaveData.getTotalBlocks()).to.equal(512);
+    expect(segaSaturnSaveData.getFreeBlocks()).to.equal(505);
 
     expect(segaSaturnSaveData.getSaveFiles().length).to.equal(1);
 
@@ -45,7 +47,9 @@ describe('Sega Saturn', () => {
     const segaSaturnSaveData = SegaSaturnSaveData.createFromSegaSaturnData(segaSaturnArrayBuffer);
 
     expect(segaSaturnSaveData.getBlockSize()).to.equal(0x200);
-    // expect(segaSaturnSaveData.getNumFreeBlocks()).to.equal(112);
+    expect(segaSaturnSaveData.getTotalBytes()).to.equal(524288);
+    expect(segaSaturnSaveData.getTotalBlocks()).to.equal(1024);
+    expect(segaSaturnSaveData.getFreeBlocks()).to.equal(890);
 
     expect(segaSaturnSaveData.getSaveFiles().length).to.equal(2);
 

@@ -114,7 +114,8 @@ function readSaveFiles(arrayBuffer, blockSize) {
 
   const saveFiles = [];
 
-  let currentBlockNumber = 2; // First 2 blocks are reserved
+  let usedBlocks = [0, 1]; // First 2 blocks are reserved
+  let currentBlockNumber = 2;
 
   while (currentBlockNumber < totalNumBlocks) {
     let currentBlock = getBlock(arrayBuffer, blockSize, currentBlockNumber);
@@ -122,6 +123,8 @@ function readSaveFiles(arrayBuffer, blockSize) {
     let currentBlockDataView = new DataView(currentBlock);
 
     if (currentBlockDataView.getUint32(BLOCK_TYPE_OFFSET, LITTLE_ENDIAN) === BLOCK_TYPE_ARCHIVE_ENTRY) {
+      usedBlocks.push(currentBlockNumber);
+
       const name = Util.readNullTerminatedString(currentBlockUint8Array, ARCHIVE_ENTRY_NAME_OFFSET, ARCHIVE_ENTRY_NAME_ENCODING, ARCHIVE_ENTRY_NAME_LENGTH);
       const languageCode = currentBlockDataView.getUint8(ARCHIVE_ENTRY_LANGUAGE_OFFSET);
       const comment = Util.readNullTerminatedString(currentBlockUint8Array, ARCHIVE_ENTRY_COMMENT_OFFSET, ARCHIVE_ENTRY_COMMENT_ENCODING, ARCHIVE_ENTRY_COMMENT_LENGTH);
@@ -145,6 +148,7 @@ function readSaveFiles(arrayBuffer, blockSize) {
           currentBlockUint8Array = new Uint8Array(currentBlock);
           currentBlockDataView = new DataView(currentBlock);
           blockListEntryOffset = DATA_BLOCK_DATA_OFFSET;
+          usedBlocks.push(currentBlockNumber);
 
           const blockType = currentBlockDataView.getUint32(BLOCK_TYPE_OFFSET, LITTLE_ENDIAN);
 
@@ -155,6 +159,8 @@ function readSaveFiles(arrayBuffer, blockSize) {
 
         nextBlockNumber = currentBlockDataView.getUint16(blockListEntryOffset, LITTLE_ENDIAN);
       }
+
+      usedBlocks = usedBlocks.concat(blockList);
 
       // The data segments are the remainder of the current block, plus all of the blocks listed in the block list
       // Note that if the last block list entry was right at the end of currentBlock, the slice below will correctly return a zero-length ArrayBuffer
@@ -189,13 +195,16 @@ function readSaveFiles(arrayBuffer, blockSize) {
     currentBlockNumber += 1;
   }
 
-  return saveFiles;
-}
+  const volumeInfo = {
+    blockSize,
+    totalBytes: arrayBuffer.byteLength,
+    totalBlocks: totalNumBlocks,
+    freeBlocks: totalNumBlocks - usedBlocks.length,
+  };
 
-function getVolumeInfo(arrayBuffer) {
   return {
-    blockSize: getBlockSizeAndCheckHeader(arrayBuffer),
-    numFreeBlocks: 0,
+    saveFiles,
+    volumeInfo,
   };
 }
 
@@ -220,9 +229,9 @@ export default class SegaSaturnSaveData {
 
     const blockSize = getBlockSizeAndCheckHeader(uncompressedArrayBuffer);
 
-    const saveFiles = readSaveFiles(uncompressedArrayBuffer, blockSize);
+    const { saveFiles, volumeInfo } = readSaveFiles(uncompressedArrayBuffer, blockSize);
 
-    return new SegaSaturnSaveData(uncompressedArrayBuffer, saveFiles);
+    return new SegaSaturnSaveData(uncompressedArrayBuffer, saveFiles, volumeInfo);
   }
 
   static createFromSaveFiles(/* saveFiles, size */) {
@@ -249,10 +258,10 @@ export default class SegaSaturnSaveData {
   }
 
   // This constructor creates a new object from a binary representation of Sega CD save data
-  constructor(arrayBuffer, saveFiles) {
+  constructor(arrayBuffer, saveFiles, volumeInfo) {
     this.arrayBuffer = arrayBuffer;
     this.saveFiles = saveFiles;
-    this.volumeInfo = getVolumeInfo(arrayBuffer);
+    this.volumeInfo = volumeInfo;
   }
 
   getSaveFiles() {
@@ -263,8 +272,16 @@ export default class SegaSaturnSaveData {
     return this.volumeInfo.blockSize;
   }
 
-  getNumFreeBlocks() {
-    return this.volumeInfo.numFreeBlocks;
+  getTotalBytes() {
+    return this.volumeInfo.totalBytes;
+  }
+
+  getTotalBlocks() {
+    return this.volumeInfo.totalBlocks;
+  }
+
+  getFreeBlocks() {
+    return this.volumeInfo.freeBlocks;
   }
 
   getArrayBuffer() {
