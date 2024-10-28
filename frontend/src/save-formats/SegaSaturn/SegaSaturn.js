@@ -1,0 +1,229 @@
+/* eslint-disable no-bitwise */
+
+/*
+This is based on a description of the Saturn Archive Format from the Saroo repo:
+https://github.com/tpunix/SAROO/blob/6f6e18289bbdc9b23b4c91b9da343a1362ed921c/doc/SAROO%E6%8A%80%E6%9C%AF%E7%82%B9%E6%BB%B4.txt#L448
+which was translated here:
+https://www.reddit.com/r/SegaSaturn/comments/1acty0v/comment/kjz73ft/
+
+Date format from: https://segaxtreme.net/threads/backup-memory-structure.16803/post-156645
+
+Unlike the Sega CD and other consoles like the PS1 and N64, there is no directory at the beginning of the memory. So the entire file must
+be parsed to get a list of all of the saves it contains
+*/
+
+import Util from '../../util/util';
+
+const LITTLE_ENDIAN = false;
+
+const BLOCK_SIZE = 0x40;
+
+const MAGIC = 'BackUpRam Format';
+const MAGIC_ENCODING = 'US-ASCII';
+
+const BLOCK_TYPE_OFFSET = 0x00;
+const BLOCK_TYPE_ARCHIVE_ENTRY = 0x80000000;
+const BLOCK_TYPE_DATA = 0x00000000;
+
+const DATA_BLOCK_DATA_OFFSET = 0x04;
+
+const ARCHIVE_ENTRY_NAME_OFFSET = 0x04;
+const ARCHIVE_ENTRY_NAME_LENGTH = 11;
+const ARCHIVE_ENTRY_NAME_ENCODING = 'US-ASCII';
+
+const ARCHIVE_ENTRY_LANGUAGE_OFFSET = 0x0F;
+
+// Taken from https://github.com/slinga-homebrew/Save-Game-BUP-Scripts/blob/main/bup_header.h#L31
+const LANGUAGE_DECODE = {
+  0: 'Japanese',
+  1: 'English',
+  2: 'French',
+  3: 'German',
+  4: 'Spanish',
+  5: 'Italian',
+};
+
+const ARCHIVE_ENTRY_COMMENT_OFFSET = 0x10;
+const ARCHIVE_ENTRY_COMMENT_LENGTH = 10;
+const ARCHIVE_ENTRY_COMMENT_ENCODING = 'shift-jis';
+
+const ARCHIVE_ENTRY_DATE_OFFSET = 0x1A;
+const ARCHIVE_ENTRY_SAVE_SIZE_OFFSET = 0x1E;
+
+const ARCHIVE_ENTRY_BLOCK_LIST_OFFSET = 0x22;
+const ARCHIVE_ENTRY_BLOCK_LIST_END = 0x0000;
+
+function checkHeader(arrayBuffer) {
+  // First block is the MAGIC repeated
+  // Second block is all 0x00
+
+  const numMagicExpected = BLOCK_SIZE / MAGIC.length;
+
+  for (let i = 0; i < numMagicExpected; i += 1) {
+    const magicOffset = i * MAGIC.length;
+    Util.checkMagic(arrayBuffer, magicOffset, MAGIC, MAGIC_ENCODING);
+  }
+
+  const uint8Array = new Uint8Array(arrayBuffer);
+
+  for (let i = BLOCK_SIZE; i < (BLOCK_SIZE * 2); i += 1) {
+    if (uint8Array[i] !== 0x00) {
+      throw new Error('This does not appear to be a valid Sega Saturn save file: the second block is not all 0x00');
+    }
+  }
+}
+
+function getBlock(arrayBuffer, blockNumber) {
+  return arrayBuffer.slice(blockNumber * BLOCK_SIZE, (blockNumber + 1) * BLOCK_SIZE);
+}
+
+function getDate(dateEncoded) {
+  // Date conversion from: https://segaxtreme.net/threads/backup-memory-structure.16803/post-156645
+  // The Saturn stores the date as the number of minutes since Jan 1, 1980. So to convert to a javascript Date,
+  // we multiply to get milliseconds, and add the number of milliseconds between Jan 1, 1970 and Jan 1, 1980
+
+  return new Date((dateEncoded * 60 * 1000) + 315529200000);
+}
+
+function getLanguageString(languageEncoded) {
+  if (Object.hasOwn(LANGUAGE_DECODE, languageEncoded)) {
+    return LANGUAGE_DECODE[languageEncoded];
+  }
+
+  throw new Error(`Language code ${languageEncoded} is not a valid language`);
+}
+
+function readSaveFiles(arrayBuffer) {
+  const saveFiles = [];
+
+  let currentBlockNumber = 2; // First 2 blocks are reserved
+
+  let currentBlock = getBlock(arrayBuffer, currentBlockNumber);
+  let currentBlockUint8Array = new Uint8Array(currentBlock);
+  let currentBlockDataView = new DataView(currentBlock);
+
+  if (currentBlockDataView.getUint32(BLOCK_TYPE_OFFSET, LITTLE_ENDIAN) === BLOCK_TYPE_ARCHIVE_ENTRY) {
+    const name = Util.readNullTerminatedString(currentBlockUint8Array, ARCHIVE_ENTRY_NAME_OFFSET, ARCHIVE_ENTRY_NAME_ENCODING, ARCHIVE_ENTRY_NAME_LENGTH);
+    const languageCode = currentBlockDataView.getUint8(ARCHIVE_ENTRY_LANGUAGE_OFFSET);
+    const comment = Util.readNullTerminatedString(currentBlockUint8Array, ARCHIVE_ENTRY_COMMENT_OFFSET, ARCHIVE_ENTRY_COMMENT_ENCODING, ARCHIVE_ENTRY_COMMENT_LENGTH);
+    const dateCode = currentBlockDataView.getUint32(ARCHIVE_ENTRY_DATE_OFFSET, LITTLE_ENDIAN);
+    const saveSize = currentBlockDataView.getUint32(ARCHIVE_ENTRY_SAVE_SIZE_OFFSET, LITTLE_ENDIAN);
+
+    const blockList = [];
+    let blockListEntryOffset = ARCHIVE_ENTRY_BLOCK_LIST_OFFSET;
+    let nextBlockNumber = currentBlockDataView.getUint16(blockListEntryOffset, LITTLE_ENDIAN);
+
+    while (nextBlockNumber !== ARCHIVE_ENTRY_BLOCK_LIST_END) {
+      blockList.push(nextBlockNumber);
+
+      blockListEntryOffset += 2;
+
+      if (blockListEntryOffset > BLOCK_SIZE) {
+        currentBlockNumber += 1;
+        currentBlock = getBlock(arrayBuffer, currentBlockNumber);
+        currentBlockUint8Array = new Uint8Array(currentBlock);
+        currentBlockDataView = new DataView(currentBlock);
+        blockListEntryOffset = DATA_BLOCK_DATA_OFFSET;
+
+        const blockType = currentBlockDataView.getUint32(BLOCK_TYPE_OFFSET, LITTLE_ENDIAN);
+
+        if (blockType !== BLOCK_TYPE_DATA) {
+          throw new Error(`Found block type 0x${Buffer.from(blockType).toString('hex')} where there should be a data block that continues a block list`);
+        }
+      }
+
+      nextBlockNumber = currentBlockDataView.getUint16(blockListEntryOffset, LITTLE_ENDIAN);
+    }
+
+    // The data segments are the remainder of the current block, plus all of the blocks listed in the block list
+    // Note that if the last block list entry was right at the end of currentBlock, the slice below will correctly return a zero-length ArrayBuffer
+
+    const dataSegments = [currentBlock.slice(blockListEntryOffset + 2)].concat(blockList.map((blockNumber) => {
+      const block = getBlock(arrayBuffer, blockNumber);
+      const blockDataView = new DataView(block);
+      const blockType = blockDataView.getUint32(BLOCK_TYPE_OFFSET, LITTLE_ENDIAN);
+
+      if (blockType !== BLOCK_TYPE_DATA) {
+        throw new Error(`Found block type 0x${Buffer.from(blockType).toString('hex')} where there should be a data block`);
+      }
+
+      return block.slice(DATA_BLOCK_DATA_OFFSET);
+    }));
+
+    const saveData = Util.concatArrayBuffers(dataSegments).slice(0, saveSize); // We may have appended too many bytes by appending the entire final block, so slice it down to the specified size
+
+    saveFiles.push({
+      name,
+      languageCode,
+      language: getLanguageString(languageCode),
+      comment,
+      dateCode,
+      date: getDate(dateCode),
+      blockList,
+      saveSize,
+      saveData,
+    });
+  }
+
+  return saveFiles;
+}
+
+export default class SegaSaturnSaveData {
+  static createWithNewSize(/* segaSaturnSaveData, newSize */) {
+    /*
+    const newRawSaveData = SegaSaturnUtil.resize(segaSaturnSaveData.getArrayBuffer(), newSize);
+
+    return SegaSaturnSaveData.createFromSegaSaturnData(newRawSaveData);
+    */
+  }
+
+  static createFromSegaSaturnData(arrayBuffer) {
+    checkHeader(arrayBuffer);
+
+    const saveFiles = readSaveFiles(arrayBuffer);
+
+    return new SegaSaturnSaveData(arrayBuffer, saveFiles);
+  }
+
+  static createFromSaveFiles(/* saveFiles, size */) {
+    /*
+    // Setup and make sure we have enough space for the files
+
+    let segaCdArrayBuffer = SegaCdUtil.makeEmptySave(size);
+    const initialFreeBlocks = SegaCdUtil.getTotalAvailableBlocks(segaCdArrayBuffer); // If we call SegaCdUtil.getNumFreeBlocks() it will subtract one because of the extra block that's reserved for the first file's directory entry
+
+    const requiredBlocksForSaves = saveFiles.reduce((accumulatedBlocks, saveFile) => accumulatedBlocks + getRequiredBlocks(saveFile), 0);
+    const requiredBlocksForDirectoryEntries = Math.ceil(saveFiles.length / 2);
+    const requiredReservedBlocks = ((saveFiles.length % 2) === 0) ? 1 : 0; // We can store 2 directory entries in a block. We always need room for the next future directory entry. So, if there are an odd number of save files we can store the next one in our last block. But if there are an even number of save files we need to reserve the next block
+
+    const requiredBlocks = requiredBlocksForSaves + requiredBlocksForDirectoryEntries + requiredReservedBlocks;
+
+    if (requiredBlocks > initialFreeBlocks) {
+      throw new Error(`The specified save files require a total of ${requiredBlocks} blocks of free space, but Sega CD save data of ${size} bytes only has ${initialFreeBlocks} free blocks`);
+    }
+
+    // Write the files
+    */
+
+    // return new SegaSaturnSaveData(segaSaturnArrayBuffer, saveFiles);
+  }
+
+  // This constructor creates a new object from a binary representation of Sega CD save data
+  constructor(arrayBuffer, saveFiles) {
+    this.arrayBuffer = arrayBuffer;
+    this.saveFiles = saveFiles;
+    // this.volumeInfo = getVolumeInfo(arrayBuffer);
+  }
+
+  getSaveFiles() {
+    return this.saveFiles;
+  }
+
+  getNumFreeBlocks() {
+    return this.volumeInfo.numFreeBlocks;
+  }
+
+  getArrayBuffer() {
+    return this.arrayBuffer;
+  }
+}
