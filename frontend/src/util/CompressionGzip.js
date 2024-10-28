@@ -5,10 +5,12 @@
 
 import pako from 'pako';
 
+import Util from './util';
+
 export default class CompressionGzip {
   static decompress(arrayBuffer) {
     try {
-      return pako.ungzip(arrayBuffer);
+      return Util.bufferToArrayBuffer(pako.ungzip(arrayBuffer));
     } catch (e) {
       // pako throws a string rather than an error
       throw new Error(`Could not decompress the data using gzip: ${e}`);
@@ -17,7 +19,7 @@ export default class CompressionGzip {
 
   static compress(arrayBuffer) {
     try {
-      return pako.gzip(arrayBuffer);
+      return Util.bufferToArrayBuffer(pako.gzip(arrayBuffer));
     } catch (e) {
       // pako throws a string rather than an error
       throw new Error(`Could not compress the data using gzip: ${e}`);
