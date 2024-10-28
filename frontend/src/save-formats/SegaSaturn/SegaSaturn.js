@@ -17,8 +17,6 @@ import CompressionGzip from '../../util/CompressionGzip';
 
 const LITTLE_ENDIAN = false;
 
-const BLOCK_SIZE = 0x40;
-
 const MAGIC = 'BackUpRam Format';
 const MAGIC_ENCODING = 'US-ASCII';
 
@@ -112,75 +110,83 @@ function getLanguageString(languageEncoded) {
 }
 
 function readSaveFiles(arrayBuffer, blockSize) {
+  const totalNumBlocks = arrayBuffer.byteLength / blockSize;
+
   const saveFiles = [];
 
   let currentBlockNumber = 2; // First 2 blocks are reserved
 
-  let currentBlock = getBlock(arrayBuffer, blockSize, currentBlockNumber);
-  let currentBlockUint8Array = new Uint8Array(currentBlock);
-  let currentBlockDataView = new DataView(currentBlock);
+  while (currentBlockNumber < totalNumBlocks) {
+    let currentBlock = getBlock(arrayBuffer, blockSize, currentBlockNumber);
+    let currentBlockUint8Array = new Uint8Array(currentBlock);
+    let currentBlockDataView = new DataView(currentBlock);
 
-  if (currentBlockDataView.getUint32(BLOCK_TYPE_OFFSET, LITTLE_ENDIAN) === BLOCK_TYPE_ARCHIVE_ENTRY) {
-    const name = Util.readNullTerminatedString(currentBlockUint8Array, ARCHIVE_ENTRY_NAME_OFFSET, ARCHIVE_ENTRY_NAME_ENCODING, ARCHIVE_ENTRY_NAME_LENGTH);
-    const languageCode = currentBlockDataView.getUint8(ARCHIVE_ENTRY_LANGUAGE_OFFSET);
-    const comment = Util.readNullTerminatedString(currentBlockUint8Array, ARCHIVE_ENTRY_COMMENT_OFFSET, ARCHIVE_ENTRY_COMMENT_ENCODING, ARCHIVE_ENTRY_COMMENT_LENGTH);
-    const dateCode = currentBlockDataView.getUint32(ARCHIVE_ENTRY_DATE_OFFSET, LITTLE_ENDIAN);
-    const saveSize = currentBlockDataView.getUint32(ARCHIVE_ENTRY_SAVE_SIZE_OFFSET, LITTLE_ENDIAN);
+    if (currentBlockDataView.getUint32(BLOCK_TYPE_OFFSET, LITTLE_ENDIAN) === BLOCK_TYPE_ARCHIVE_ENTRY) {
+      const name = Util.readNullTerminatedString(currentBlockUint8Array, ARCHIVE_ENTRY_NAME_OFFSET, ARCHIVE_ENTRY_NAME_ENCODING, ARCHIVE_ENTRY_NAME_LENGTH);
+      const languageCode = currentBlockDataView.getUint8(ARCHIVE_ENTRY_LANGUAGE_OFFSET);
+      const comment = Util.readNullTerminatedString(currentBlockUint8Array, ARCHIVE_ENTRY_COMMENT_OFFSET, ARCHIVE_ENTRY_COMMENT_ENCODING, ARCHIVE_ENTRY_COMMENT_LENGTH);
+      const dateCode = currentBlockDataView.getUint32(ARCHIVE_ENTRY_DATE_OFFSET, LITTLE_ENDIAN);
+      const saveSize = currentBlockDataView.getUint32(ARCHIVE_ENTRY_SAVE_SIZE_OFFSET, LITTLE_ENDIAN);
 
-    const blockList = [];
-    let blockListEntryOffset = ARCHIVE_ENTRY_BLOCK_LIST_OFFSET;
-    let nextBlockNumber = currentBlockDataView.getUint16(blockListEntryOffset, LITTLE_ENDIAN);
+      const blockList = [];
+      let blockListEntryOffset = ARCHIVE_ENTRY_BLOCK_LIST_OFFSET;
+      let nextBlockNumber = currentBlockDataView.getUint16(blockListEntryOffset, LITTLE_ENDIAN);
 
-    while (nextBlockNumber !== ARCHIVE_ENTRY_BLOCK_LIST_END) {
-      blockList.push(nextBlockNumber);
+      while (nextBlockNumber !== ARCHIVE_ENTRY_BLOCK_LIST_END) {
+        blockList.push(nextBlockNumber);
 
-      blockListEntryOffset += 2;
+        blockListEntryOffset += 2;
 
-      if (blockListEntryOffset > BLOCK_SIZE) {
-        currentBlockNumber += 1;
-        currentBlock = getBlock(arrayBuffer, blockSize, currentBlockNumber);
-        currentBlockUint8Array = new Uint8Array(currentBlock);
-        currentBlockDataView = new DataView(currentBlock);
-        blockListEntryOffset = DATA_BLOCK_DATA_OFFSET;
+        if (blockListEntryOffset > blockSize) {
+          // FIXME: Is this code ever called? We need a test for this
+          console.log('***** Found a block list that overran our previous block!!!');
+          currentBlockNumber += 1;
+          currentBlock = getBlock(arrayBuffer, blockSize, currentBlockNumber);
+          currentBlockUint8Array = new Uint8Array(currentBlock);
+          currentBlockDataView = new DataView(currentBlock);
+          blockListEntryOffset = DATA_BLOCK_DATA_OFFSET;
 
-        const blockType = currentBlockDataView.getUint32(BLOCK_TYPE_OFFSET, LITTLE_ENDIAN);
+          const blockType = currentBlockDataView.getUint32(BLOCK_TYPE_OFFSET, LITTLE_ENDIAN);
+
+          if (blockType !== BLOCK_TYPE_DATA) {
+            throw new Error(`Found block type 0x${Buffer.from(blockType).toString('hex')} where there should be a data block that continues a block list`);
+          }
+        }
+
+        nextBlockNumber = currentBlockDataView.getUint16(blockListEntryOffset, LITTLE_ENDIAN);
+      }
+
+      // The data segments are the remainder of the current block, plus all of the blocks listed in the block list
+      // Note that if the last block list entry was right at the end of currentBlock, the slice below will correctly return a zero-length ArrayBuffer
+
+      const dataSegments = [currentBlock.slice(blockListEntryOffset + 2)].concat(blockList.map((blockNumber) => {
+        const block = getBlock(arrayBuffer, blockSize, blockNumber);
+        const blockDataView = new DataView(block);
+        const blockType = blockDataView.getUint32(BLOCK_TYPE_OFFSET, LITTLE_ENDIAN);
 
         if (blockType !== BLOCK_TYPE_DATA) {
-          throw new Error(`Found block type 0x${Buffer.from(blockType).toString('hex')} where there should be a data block that continues a block list`);
+          throw new Error(`Found block type 0x${Buffer.from(blockType).toString('hex')} where there should be a data block`);
         }
-      }
 
-      nextBlockNumber = currentBlockDataView.getUint16(blockListEntryOffset, LITTLE_ENDIAN);
+        return block.slice(DATA_BLOCK_DATA_OFFSET);
+      }));
+
+      const saveData = Util.concatArrayBuffers(dataSegments).slice(0, saveSize); // We may have appended too many bytes by appending the entire final block, so slice it down to the specified size
+
+      saveFiles.push({
+        name,
+        languageCode,
+        language: getLanguageString(languageCode),
+        comment,
+        dateCode,
+        date: getDate(dateCode),
+        blockList,
+        saveSize,
+        saveData,
+      });
     }
 
-    // The data segments are the remainder of the current block, plus all of the blocks listed in the block list
-    // Note that if the last block list entry was right at the end of currentBlock, the slice below will correctly return a zero-length ArrayBuffer
-
-    const dataSegments = [currentBlock.slice(blockListEntryOffset + 2)].concat(blockList.map((blockNumber) => {
-      const block = getBlock(arrayBuffer, blockSize, blockNumber);
-      const blockDataView = new DataView(block);
-      const blockType = blockDataView.getUint32(BLOCK_TYPE_OFFSET, LITTLE_ENDIAN);
-
-      if (blockType !== BLOCK_TYPE_DATA) {
-        throw new Error(`Found block type 0x${Buffer.from(blockType).toString('hex')} where there should be a data block`);
-      }
-
-      return block.slice(DATA_BLOCK_DATA_OFFSET);
-    }));
-
-    const saveData = Util.concatArrayBuffers(dataSegments).slice(0, saveSize); // We may have appended too many bytes by appending the entire final block, so slice it down to the specified size
-
-    saveFiles.push({
-      name,
-      languageCode,
-      language: getLanguageString(languageCode),
-      comment,
-      dateCode,
-      date: getDate(dateCode),
-      blockList,
-      saveSize,
-      saveData,
-    });
+    currentBlockNumber += 1;
   }
 
   return saveFiles;

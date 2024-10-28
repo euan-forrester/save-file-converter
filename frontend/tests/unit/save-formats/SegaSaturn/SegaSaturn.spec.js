@@ -11,7 +11,7 @@ const INTERNAL_MEMORY_1_FILE_FILENAME_FILE_1 = `${DIR}/Hyper Duel (Japan)-1.BUP`
 
 const CARTRIDGE_MEMORY_1_FILE_FILENAME = `${DIR}/Daytona USA - Championship Circuit Edition (USA).bcr`;
 const CARTRIDGE_MEMORY_1_FILE_FILENAME_FILE_1 = `${DIR}/Daytona USA - Championship Circuit Edition (USA)-1.BUP`;
-// const CARTRIDGE_MEMORY_1_FILE_FILENAME_FILE_2 = `${DIR}/Daytona USA - Championship Circuit Edition (USA)-2.BUP`;
+const CARTRIDGE_MEMORY_1_FILE_FILENAME_FILE_2 = `${DIR}/Daytona USA - Championship Circuit Edition (USA)-2.BUP`;
 
 describe('Sega Saturn', () => {
   it('should extract a save from an internal memory file containing 1 save', async () => {
@@ -29,7 +29,7 @@ describe('Sega Saturn', () => {
     expect(segaSaturnSaveData.getSaveFiles()[0].language).to.equal('Japanese');
     expect(segaSaturnSaveData.getSaveFiles()[0].comment).to.equal('ﾊｲﾊﾟｰﾃﾞｭｴﾙ'); // "Hyper Duel"
     expect(segaSaturnSaveData.getSaveFiles()[0].date.toUTCString()).to.equal('Wed, 31 May 2000 01:00:00 GMT');
-    expect(ArrayUtil.arraysEqual(segaSaturnSaveData.getSaveFiles()[0].blockList, [3, 4, 5, 6])).to.equal(true);
+    expect(ArrayUtil.arraysEqual(segaSaturnSaveData.getSaveFiles()[0].blockList, ArrayUtil.createSequentialArray(3, 6))).to.equal(true);
     expect(segaSaturnSaveData.getSaveFiles()[0].saveSize).to.equal(260);
 
     ArrayBufferUtil.writeArrayBuffer(INTERNAL_MEMORY_1_FILE_FILENAME_FILE_1, segaSaturnSaveData.getSaveFiles()[0].saveData);
@@ -47,16 +47,27 @@ describe('Sega Saturn', () => {
     expect(segaSaturnSaveData.getBlockSize()).to.equal(0x200);
     // expect(segaSaturnSaveData.getNumFreeBlocks()).to.equal(112);
 
-    expect(segaSaturnSaveData.getSaveFiles().length).to.equal(1);
+    expect(segaSaturnSaveData.getSaveFiles().length).to.equal(2);
 
     expect(segaSaturnSaveData.getSaveFiles()[0].name).to.equal('DAYTONA96_0');
     expect(segaSaturnSaveData.getSaveFiles()[0].language).to.equal('English');
     expect(segaSaturnSaveData.getSaveFiles()[0].comment).to.equal('RECORDS');
     expect(segaSaturnSaveData.getSaveFiles()[0].date.toUTCString()).to.equal('Mon, 28 Oct 2024 13:27:00 GMT');
-    expect(ArrayUtil.arraysEqual(segaSaturnSaveData.getSaveFiles()[0].blockList, [3, 4, 5, 6, 7, 8, 9, 10])).to.equal(true);
+    expect(ArrayUtil.arraysEqual(segaSaturnSaveData.getSaveFiles()[0].blockList, ArrayUtil.createSequentialArray(3, 10))).to.equal(true);
     expect(segaSaturnSaveData.getSaveFiles()[0].saveSize).to.equal(4033);
 
     ArrayBufferUtil.writeArrayBuffer(CARTRIDGE_MEMORY_1_FILE_FILENAME_FILE_1, segaSaturnSaveData.getSaveFiles()[0].saveData);
+
+    // expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getSaveFiles()[0].fileData, file1ArrayBuffer)).to.equal(true);
+
+    expect(segaSaturnSaveData.getSaveFiles()[1].name).to.equal('DAYTONA96_1');
+    expect(segaSaturnSaveData.getSaveFiles()[1].language).to.equal('English');
+    expect(segaSaturnSaveData.getSaveFiles()[1].comment).to.equal('GHOST');
+    expect(segaSaturnSaveData.getSaveFiles()[1].date.toUTCString()).to.equal('Mon, 28 Oct 2024 13:27:00 GMT');
+    expect(ArrayUtil.arraysEqual(segaSaturnSaveData.getSaveFiles()[1].blockList, ArrayUtil.createSequentialArray(12, 133))).to.equal(true);
+    expect(segaSaturnSaveData.getSaveFiles()[1].saveSize).to.equal(61713);
+
+    ArrayBufferUtil.writeArrayBuffer(CARTRIDGE_MEMORY_1_FILE_FILENAME_FILE_2, segaSaturnSaveData.getSaveFiles()[1].saveData);
 
     // expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getSaveFiles()[0].fileData, file1ArrayBuffer)).to.equal(true);
   });
