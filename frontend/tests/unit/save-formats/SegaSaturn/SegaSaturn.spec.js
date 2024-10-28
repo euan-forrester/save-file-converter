@@ -1,0 +1,34 @@
+import { expect } from 'chai';
+import ArrayBufferUtil from '#/util/ArrayBuffer';
+import ArrayUtil from '#/util/Array';
+
+import SegaSaturnSaveData from '@/save-formats/SegaSaturn/SegaSaturn';
+
+const DIR = './tests/data/save-formats/segasaturn';
+
+const INTERNAL_MEMORY_1_FILE_FILENAME = `${DIR}/Hyper Duel (Japan).bkr`;
+const INTERNAL_MEMORY_1_FILE_FILENAME_FILE_1 = `${DIR}/Hyper Duel (Japan)-1.BUP`;
+
+describe('Sega Saturn', () => {
+  it('should extract a save from an internal memory file containing 1 save', async () => {
+    const segaCdArrayBuffer = await ArrayBufferUtil.readArrayBuffer(INTERNAL_MEMORY_1_FILE_FILENAME);
+    // const file1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(INTERNAL_MEMORY_1_FILE_FILENAME_FILE_1);
+
+    const segaSaturnSaveData = SegaSaturnSaveData.createFromSegaSaturnData(segaCdArrayBuffer);
+
+    // expect(segaSaturnSaveData.getNumFreeBlocks()).to.equal(112);
+
+    expect(segaSaturnSaveData.getSaveFiles().length).to.equal(1);
+
+    expect(segaSaturnSaveData.getSaveFiles()[0].name).to.equal('HYPERDUEL_0');
+    expect(segaSaturnSaveData.getSaveFiles()[0].language).to.equal('Japanese');
+    expect(segaSaturnSaveData.getSaveFiles()[0].comment).to.equal('ﾊｲﾊﾟｰﾃﾞｭｴﾙ'); // "Hyper Duel"
+    expect(segaSaturnSaveData.getSaveFiles()[0].date.toUTCString()).to.equal('Wed, 31 May 2000 01:00:00 GMT');
+    expect(ArrayUtil.arraysEqual(segaSaturnSaveData.getSaveFiles()[0].blockList, [3, 4, 5, 6])).to.equal(true);
+    expect(segaSaturnSaveData.getSaveFiles()[0].saveSize).to.equal(260);
+
+    ArrayBufferUtil.writeArrayBuffer(INTERNAL_MEMORY_1_FILE_FILENAME_FILE_1, segaSaturnSaveData.getSaveFiles()[0].saveData);
+
+    // expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getSaveFiles()[0].fileData, file1ArrayBuffer)).to.equal(true);
+  });
+});
