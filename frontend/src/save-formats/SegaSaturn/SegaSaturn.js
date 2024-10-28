@@ -13,6 +13,7 @@ be parsed to get a list of all of the saves it contains
 */
 
 import Util from '../../util/util';
+import CompressionGzip from '../../util/CompressionGzip';
 
 const LITTLE_ENDIAN = false;
 
@@ -53,28 +54,45 @@ const ARCHIVE_ENTRY_SAVE_SIZE_OFFSET = 0x1E;
 const ARCHIVE_ENTRY_BLOCK_LIST_OFFSET = 0x22;
 const ARCHIVE_ENTRY_BLOCK_LIST_END = 0x0000;
 
-function checkHeader(arrayBuffer) {
-  // First block is the MAGIC repeated
+function getBlockSizeAndCheckHeader(arrayBuffer) {
+  // First block is the MAGIC repeated. Can we infer the block size of the file from counting the number of times it's repeated
   // Second block is all 0x00
 
-  const numMagicExpected = BLOCK_SIZE / MAGIC.length;
+  let currentOffset = 0;
 
-  for (let i = 0; i < numMagicExpected; i += 1) {
-    const magicOffset = i * MAGIC.length;
-    Util.checkMagic(arrayBuffer, magicOffset, MAGIC, MAGIC_ENCODING);
+  while (currentOffset < arrayBuffer.byteLength) {
+    try {
+      Util.checkMagic(arrayBuffer, currentOffset, MAGIC, MAGIC_ENCODING);
+    } catch (e) {
+      break;
+    }
+
+    currentOffset += MAGIC.length;
+  }
+
+  const blockSize = currentOffset;
+
+  if (blockSize === 0) {
+    throw new Error('This does not appear to be a valid Sega Saturn save file: couldn\'t find any magic.');
+  }
+
+  if (((blockSize / MAGIC.length) % 2) !== 0) {
+    throw new Error('This does not appear to be a valid Sega Saturn save file: found an odd number of magic.');
   }
 
   const uint8Array = new Uint8Array(arrayBuffer);
 
-  for (let i = BLOCK_SIZE; i < (BLOCK_SIZE * 2); i += 1) {
+  for (let i = blockSize; i < (blockSize * 2); i += 1) {
     if (uint8Array[i] !== 0x00) {
       throw new Error('This does not appear to be a valid Sega Saturn save file: the second block is not all 0x00');
     }
   }
+
+  return blockSize;
 }
 
-function getBlock(arrayBuffer, blockNumber) {
-  return arrayBuffer.slice(blockNumber * BLOCK_SIZE, (blockNumber + 1) * BLOCK_SIZE);
+function getBlock(arrayBuffer, blockSize, blockNumber) {
+  return arrayBuffer.slice(blockNumber * blockSize, (blockNumber + 1) * blockSize);
 }
 
 function getDate(dateEncoded) {
@@ -93,12 +111,12 @@ function getLanguageString(languageEncoded) {
   throw new Error(`Language code ${languageEncoded} is not a valid language`);
 }
 
-function readSaveFiles(arrayBuffer) {
+function readSaveFiles(arrayBuffer, blockSize) {
   const saveFiles = [];
 
   let currentBlockNumber = 2; // First 2 blocks are reserved
 
-  let currentBlock = getBlock(arrayBuffer, currentBlockNumber);
+  let currentBlock = getBlock(arrayBuffer, blockSize, currentBlockNumber);
   let currentBlockUint8Array = new Uint8Array(currentBlock);
   let currentBlockDataView = new DataView(currentBlock);
 
@@ -120,7 +138,7 @@ function readSaveFiles(arrayBuffer) {
 
       if (blockListEntryOffset > BLOCK_SIZE) {
         currentBlockNumber += 1;
-        currentBlock = getBlock(arrayBuffer, currentBlockNumber);
+        currentBlock = getBlock(arrayBuffer, blockSize, currentBlockNumber);
         currentBlockUint8Array = new Uint8Array(currentBlock);
         currentBlockDataView = new DataView(currentBlock);
         blockListEntryOffset = DATA_BLOCK_DATA_OFFSET;
@@ -139,7 +157,7 @@ function readSaveFiles(arrayBuffer) {
     // Note that if the last block list entry was right at the end of currentBlock, the slice below will correctly return a zero-length ArrayBuffer
 
     const dataSegments = [currentBlock.slice(blockListEntryOffset + 2)].concat(blockList.map((blockNumber) => {
-      const block = getBlock(arrayBuffer, blockNumber);
+      const block = getBlock(arrayBuffer, blockSize, blockNumber);
       const blockDataView = new DataView(block);
       const blockType = blockDataView.getUint32(BLOCK_TYPE_OFFSET, LITTLE_ENDIAN);
 
@@ -168,6 +186,13 @@ function readSaveFiles(arrayBuffer) {
   return saveFiles;
 }
 
+function getVolumeInfo(arrayBuffer) {
+  return {
+    blockSize: getBlockSizeAndCheckHeader(arrayBuffer),
+    numFreeBlocks: 0,
+  };
+}
+
 export default class SegaSaturnSaveData {
   static createWithNewSize(/* segaSaturnSaveData, newSize */) {
     /*
@@ -178,11 +203,20 @@ export default class SegaSaturnSaveData {
   }
 
   static createFromSegaSaturnData(arrayBuffer) {
-    checkHeader(arrayBuffer);
+    // Cartridge saves from mednafen are compressed using gzip, but internal saves are not
+    let uncompressedArrayBuffer = null;
 
-    const saveFiles = readSaveFiles(arrayBuffer);
+    try {
+      uncompressedArrayBuffer = CompressionGzip.decompress(arrayBuffer);
+    } catch (e) {
+      uncompressedArrayBuffer = arrayBuffer;
+    }
 
-    return new SegaSaturnSaveData(arrayBuffer, saveFiles);
+    const blockSize = getBlockSizeAndCheckHeader(uncompressedArrayBuffer);
+
+    const saveFiles = readSaveFiles(uncompressedArrayBuffer, blockSize);
+
+    return new SegaSaturnSaveData(uncompressedArrayBuffer, saveFiles);
   }
 
   static createFromSaveFiles(/* saveFiles, size */) {
@@ -212,11 +246,15 @@ export default class SegaSaturnSaveData {
   constructor(arrayBuffer, saveFiles) {
     this.arrayBuffer = arrayBuffer;
     this.saveFiles = saveFiles;
-    // this.volumeInfo = getVolumeInfo(arrayBuffer);
+    this.volumeInfo = getVolumeInfo(arrayBuffer);
   }
 
   getSaveFiles() {
     return this.saveFiles;
+  }
+
+  getBlockSize() {
+    return this.volumeInfo.blockSize;
   }
 
   getNumFreeBlocks() {
