@@ -25,7 +25,7 @@ For an archive entry block, the format is as follows:
 0x10 - 0x19: Comment (encoded as shift-jis)
 0x1A - 0x1D: Date (encoded as number of minutes since Jan 1, 1980)
 0x1E - 0x21: Save size in bytes
-0x22 - ????: List of block numbers containing save data for this entry. Ends with 0x0000. Note that some sources imply that this list is missing if the save data size is < the remaining block size. This is incorrect: the end of list marker is still present here
+0x22 - ????: List of 2-byte block numbers containing save data for this entry. Ends with 0x0000. Note that some sources imply that this list is missing if the total save data size is < the remaining block size. This is incorrect: the end of list marker is still present here
 ???? - end:  Beginning of save data for this entry
 
 For a data entry block, the format is as follows:

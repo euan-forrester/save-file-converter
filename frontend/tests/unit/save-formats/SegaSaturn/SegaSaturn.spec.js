@@ -115,7 +115,7 @@ describe('Sega Saturn', () => {
     expect(segaSaturnSaveData.getSaveFiles()[0].language).to.equal('Japanese');
     expect(segaSaturnSaveData.getSaveFiles()[0].comment).to.equal('ﾃﾞｻﾞ2_ｼｽﾃﾑ'); // "Deza 2_system"
     expect(segaSaturnSaveData.getSaveFiles()[0].date.toUTCString()).to.equal('Tue, 29 Oct 2024 12:27:00 GMT');
-    // expect(ArrayUtil.arraysEqual(segaSaturnSaveData.getSaveFiles()[0].blockList, ArrayUtil.createSequentialArray(3, 6))).to.equal(true);
+    expect(ArrayUtil.arraysEqual(segaSaturnSaveData.getSaveFiles()[0].blockList, [])).to.equal(true);
     expect(segaSaturnSaveData.getSaveFiles()[0].saveSize).to.equal(17);
 
     ArrayBufferUtil.writeArrayBuffer(INTERNAL_MEMORY_SMALL_FILE_FILENAME_FILE_1, segaSaturnSaveData.getSaveFiles()[0].saveData);
