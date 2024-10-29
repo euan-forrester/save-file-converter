@@ -10,6 +10,25 @@ Date format from: https://segaxtreme.net/threads/backup-memory-structure.16803/p
 
 Unlike the Sega CD and other consoles like the PS1 and N64, there is no directory at the beginning of the memory. So the entire file must
 be parsed to get a list of all of the saves it contains
+
+The file is divided into equal-sized blocks. The first block is the string 'BackUpRam Format' repeated over and over, and you can infer the block size of the file
+by counting the number of repetitions of that string. The second block is all 0x00. Everything is big endian.
+
+From there, blocks are of 2 types: archive entry blocks begin with 0x80000000, and data entry blocks begin with 0x00000000
+
+For an archive entry block, the format is as follows:
+0x00 - 0x03: Block type (0x80000000)
+0x04 - 0x0E: Archive name
+0x0F: Language flag
+0x10 - 0x19: Comment (encoded as shift-jis)
+0x1A - 0x1D: Date (encoded as number of minutes since Jan 1, 1980)
+0x1E - 0x21: Save size in bytes
+0x22 - ????: List of block numbers containing save data for this entry. Ends with 0x0000. Note that some sources imply that this list is missing if the save data size is < the remaining block size. This is incorrect: the end of list marker is still present here
+???? - end:  Beginning of save data for this entry
+
+For a data entry block, the format is as follows:
+0x00 - 0x03: Block type (0x00000000)
+0x04 - end:  save data
 */
 
 import Util from '../../util/util';
@@ -19,6 +38,8 @@ const LITTLE_ENDIAN = false;
 
 const MAGIC = 'BackUpRam Format';
 const MAGIC_ENCODING = 'US-ASCII';
+
+const RESERVED_BLOCKS = [0, 1];
 
 const BLOCK_TYPE_OFFSET = 0x00;
 const BLOCK_TYPE_ARCHIVE_ENTRY = 0x80000000;
@@ -53,7 +74,7 @@ const ARCHIVE_ENTRY_BLOCK_LIST_OFFSET = 0x22;
 const ARCHIVE_ENTRY_BLOCK_LIST_END = 0x0000;
 
 function getBlockSizeAndCheckHeader(arrayBuffer) {
-  // First block is the MAGIC repeated. Can we infer the block size of the file from counting the number of times it's repeated
+  // First block is the MAGIC repeated. We can infer the block size of the file by counting the number of times it's repeated
   // Second block is all 0x00
 
   let currentOffset = 0;
@@ -110,12 +131,12 @@ function getLanguageString(languageEncoded) {
 }
 
 function readSaveFiles(arrayBuffer, blockSize) {
-  const totalNumBlocks = arrayBuffer.byteLength / blockSize;
+  const totalNumBlocks = (arrayBuffer.byteLength / blockSize);
 
   const saveFiles = [];
 
-  let usedBlocks = [0, 1]; // First 2 blocks are reserved
-  let currentBlockNumber = 2;
+  let usedBlocks = [];
+  let currentBlockNumber = RESERVED_BLOCKS.length;
 
   while (currentBlockNumber < totalNumBlocks) {
     let currentBlock = getBlock(arrayBuffer, blockSize, currentBlockNumber);
@@ -133,7 +154,7 @@ function readSaveFiles(arrayBuffer, blockSize) {
 
       const blockList = [];
       let blockListEntryOffset = ARCHIVE_ENTRY_BLOCK_LIST_OFFSET;
-      let nextBlockNumber = currentBlockDataView.getUint16(blockListEntryOffset, LITTLE_ENDIAN);
+      let nextBlockNumber = currentBlockDataView.getUint16(blockListEntryOffset, LITTLE_ENDIAN); // Note that this is always present, even when the entire save file fits within the starting block. In that case, this value is set to ARCHIVE_ENTRY_BLOCK_LIST_END
 
       while (nextBlockNumber !== ARCHIVE_ENTRY_BLOCK_LIST_END) {
         blockList.push(nextBlockNumber);
@@ -198,8 +219,9 @@ function readSaveFiles(arrayBuffer, blockSize) {
   const volumeInfo = {
     blockSize,
     totalBytes: arrayBuffer.byteLength,
-    totalBlocks: totalNumBlocks,
-    freeBlocks: totalNumBlocks - usedBlocks.length,
+    totalBlocks: totalNumBlocks - RESERVED_BLOCKS.length,
+    usedBlocks: usedBlocks.length,
+    freeBlocks: totalNumBlocks - usedBlocks.length - RESERVED_BLOCKS.length,
   };
 
   return {
@@ -268,20 +290,8 @@ export default class SegaSaturnSaveData {
     return this.saveFiles;
   }
 
-  getBlockSize() {
-    return this.volumeInfo.blockSize;
-  }
-
-  getTotalBytes() {
-    return this.volumeInfo.totalBytes;
-  }
-
-  getTotalBlocks() {
-    return this.volumeInfo.totalBlocks;
-  }
-
-  getFreeBlocks() {
-    return this.volumeInfo.freeBlocks;
+  getVolumeInfo() {
+    return this.volumeInfo;
   }
 
   getArrayBuffer() {
