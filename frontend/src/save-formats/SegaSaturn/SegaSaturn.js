@@ -9,10 +9,12 @@ https://www.reddit.com/r/SegaSaturn/comments/1acty0v/comment/kjz73ft/
 Date format from: https://segaxtreme.net/threads/backup-memory-structure.16803/post-156645
 
 Unlike the Sega CD and other consoles like the PS1 and N64, there is no directory at the beginning of the memory. So the entire file must
-be parsed to get a list of all of the saves it contains
+be parsed to get a list of all of the saves it contains and to get a list of occupied blocks.
 
-The file is divided into equal-sized blocks. The first block is the string 'BackUpRam Format' repeated over and over, and you can infer the block size of the file
-by counting the number of repetitions of that string. The second block is all 0x00. Everything is big endian.
+The file is divided into equal-sized blocks. Everything is big endian.
+
+The first 2 blocks are reserved. The first block is the string 'BackUpRam Format' repeated over and over, and you can infer the block size of the file
+by counting the number of repetitions of that string. The second block is all 0x00.
 
 From there, blocks are of 2 types: archive entry blocks begin with 0x80000000, and data entry blocks begin with 0x00000000
 
@@ -29,6 +31,8 @@ For an archive entry block, the format is as follows:
 For a data entry block, the format is as follows:
 0x00 - 0x03: Block type (0x00000000)
 0x04 - end:  save data
+
+Note that the save size does not include space for the block type flag at the beginning of each block.
 */
 
 import Util from '../../util/util';
