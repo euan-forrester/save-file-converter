@@ -129,6 +129,7 @@ Everything on this site is free and open source with no advertising. If you find
   - https://segaxtreme.net/resources/saturn-save-converter.74/
   - https://github.com/slinga-homebrew/Save-Game-Extractor (cool, but hopefully not the main method of getting files off of an actual Saturn)
   - http://ppcenter.free.fr/satdocs/ST-162-R1-092994.html (official documentation)
+  - https://segaxtreme.net/threads/backup-memory-structure.16803/
   - Saroo:
     - https://github.com/tpunix/SAROO/tree/master/tools/savetool (SAROO save file converter)
     - https://github.com/tpunix/SAROO/issues/131 (description of how the saroo deals with save files, also watch this for potential changes)
