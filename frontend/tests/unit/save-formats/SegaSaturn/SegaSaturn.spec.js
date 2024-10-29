@@ -6,6 +6,8 @@ import SegaSaturnSaveData from '@/save-formats/SegaSaturn/SegaSaturn';
 
 const DIR = './tests/data/save-formats/segasaturn';
 
+const EMPTY_SAVE = `${DIR}/Empty save.bkr`;
+
 const INTERNAL_MEMORY_1_FILE_FILENAME = `${DIR}/Hyper Duel (Japan).bkr`;
 const INTERNAL_MEMORY_1_FILE_FILENAME_FILE_1 = `${DIR}/Hyper Duel (Japan)-1.BUP`;
 
@@ -13,17 +15,35 @@ const CARTRIDGE_MEMORY_1_FILE_FILENAME = `${DIR}/Daytona USA - Championship Circ
 const CARTRIDGE_MEMORY_1_FILE_FILENAME_FILE_1 = `${DIR}/Daytona USA - Championship Circuit Edition (USA)-1.BUP`;
 const CARTRIDGE_MEMORY_1_FILE_FILENAME_FILE_2 = `${DIR}/Daytona USA - Championship Circuit Edition (USA)-2.BUP`;
 
+const INTERNAL_MEMORY_SMALL_FILE_FILENAME = `${DIR}/Dezaemon 2 (Japan).bkr`;
+const INTERNAL_MEMORY_SMALL_FILE_FILENAME_FILE_1 = `${DIR}/Dezaemon 2 (Japan)-1.BUP`;
+
 describe('Sega Saturn', () => {
+  it('should correctly read an empty internal memory save file', async () => {
+    const segaSaturnArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMPTY_SAVE);
+
+    const segaSaturnSaveData = SegaSaturnSaveData.createFromSegaSaturnData(segaSaturnArrayBuffer);
+
+    expect(segaSaturnSaveData.getVolumeInfo().blockSize).to.equal(0x40);
+    expect(segaSaturnSaveData.getVolumeInfo().totalBytes).to.equal(32768);
+    expect(segaSaturnSaveData.getVolumeInfo().totalBlocks).to.equal(510);
+    expect(segaSaturnSaveData.getVolumeInfo().usedBlocks).to.equal(0);
+    expect(segaSaturnSaveData.getVolumeInfo().freeBlocks).to.equal(510); // A real saturn will report 461 blocks free when the internal memory is empty. This is because it's estimating the amount of space that the various file headers will take: https://www.reddit.com/r/SegaSaturn/comments/y1rsaf/comment/ismy6wt/
+
+    expect(segaSaturnSaveData.getSaveFiles().length).to.equal(0);
+  });
+
   it('should extract a save from an internal memory file containing 1 save', async () => {
     const segaSaturnArrayBuffer = await ArrayBufferUtil.readArrayBuffer(INTERNAL_MEMORY_1_FILE_FILENAME);
     // const file1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(INTERNAL_MEMORY_1_FILE_FILENAME_FILE_1);
 
     const segaSaturnSaveData = SegaSaturnSaveData.createFromSegaSaturnData(segaSaturnArrayBuffer);
 
-    expect(segaSaturnSaveData.getBlockSize()).to.equal(0x40);
-    expect(segaSaturnSaveData.getTotalBytes()).to.equal(32768);
-    expect(segaSaturnSaveData.getTotalBlocks()).to.equal(512);
-    expect(segaSaturnSaveData.getFreeBlocks()).to.equal(505);
+    expect(segaSaturnSaveData.getVolumeInfo().blockSize).to.equal(0x40);
+    expect(segaSaturnSaveData.getVolumeInfo().totalBytes).to.equal(32768);
+    expect(segaSaturnSaveData.getVolumeInfo().totalBlocks).to.equal(510);
+    expect(segaSaturnSaveData.getVolumeInfo().usedBlocks).to.equal(5);
+    expect(segaSaturnSaveData.getVolumeInfo().freeBlocks).to.equal(505);
 
     expect(segaSaturnSaveData.getSaveFiles().length).to.equal(1);
 
@@ -46,10 +66,11 @@ describe('Sega Saturn', () => {
 
     const segaSaturnSaveData = SegaSaturnSaveData.createFromSegaSaturnData(segaSaturnArrayBuffer);
 
-    expect(segaSaturnSaveData.getBlockSize()).to.equal(0x200);
-    expect(segaSaturnSaveData.getTotalBytes()).to.equal(524288);
-    expect(segaSaturnSaveData.getTotalBlocks()).to.equal(1024);
-    expect(segaSaturnSaveData.getFreeBlocks()).to.equal(890);
+    expect(segaSaturnSaveData.getVolumeInfo().blockSize).to.equal(0x200);
+    expect(segaSaturnSaveData.getVolumeInfo().totalBytes).to.equal(524288);
+    expect(segaSaturnSaveData.getVolumeInfo().totalBlocks).to.equal(1022);
+    expect(segaSaturnSaveData.getVolumeInfo().usedBlocks).to.equal(132);
+    expect(segaSaturnSaveData.getVolumeInfo().freeBlocks).to.equal(890);
 
     expect(segaSaturnSaveData.getSaveFiles().length).to.equal(2);
 
@@ -72,6 +93,32 @@ describe('Sega Saturn', () => {
     expect(segaSaturnSaveData.getSaveFiles()[1].saveSize).to.equal(61713);
 
     ArrayBufferUtil.writeArrayBuffer(CARTRIDGE_MEMORY_1_FILE_FILENAME_FILE_2, segaSaturnSaveData.getSaveFiles()[1].saveData);
+
+    // expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getSaveFiles()[0].fileData, file1ArrayBuffer)).to.equal(true);
+  });
+
+  it('should extract a save from an internal memory file containing 1 save which fits in a single block', async () => {
+    const segaSaturnArrayBuffer = await ArrayBufferUtil.readArrayBuffer(INTERNAL_MEMORY_SMALL_FILE_FILENAME);
+    // const file1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(INTERNAL_MEMORY_SMALL_FILE_FILENAME_FILE_1);
+
+    const segaSaturnSaveData = SegaSaturnSaveData.createFromSegaSaturnData(segaSaturnArrayBuffer);
+
+    expect(segaSaturnSaveData.getVolumeInfo().blockSize).to.equal(0x40);
+    expect(segaSaturnSaveData.getVolumeInfo().totalBytes).to.equal(32768);
+    expect(segaSaturnSaveData.getVolumeInfo().totalBlocks).to.equal(510);
+    expect(segaSaturnSaveData.getVolumeInfo().usedBlocks).to.equal(1);
+    expect(segaSaturnSaveData.getVolumeInfo().freeBlocks).to.equal(509);
+
+    expect(segaSaturnSaveData.getSaveFiles().length).to.equal(1);
+
+    expect(segaSaturnSaveData.getSaveFiles()[0].name).to.equal('DEZA2___SYS');
+    expect(segaSaturnSaveData.getSaveFiles()[0].language).to.equal('Japanese');
+    expect(segaSaturnSaveData.getSaveFiles()[0].comment).to.equal('ﾃﾞｻﾞ2_ｼｽﾃﾑ'); // "Deza 2_system"
+    expect(segaSaturnSaveData.getSaveFiles()[0].date.toUTCString()).to.equal('Tue, 29 Oct 2024 12:27:00 GMT');
+    // expect(ArrayUtil.arraysEqual(segaSaturnSaveData.getSaveFiles()[0].blockList, ArrayUtil.createSequentialArray(3, 6))).to.equal(true);
+    expect(segaSaturnSaveData.getSaveFiles()[0].saveSize).to.equal(17);
+
+    ArrayBufferUtil.writeArrayBuffer(INTERNAL_MEMORY_SMALL_FILE_FILENAME_FILE_1, segaSaturnSaveData.getSaveFiles()[0].saveData);
 
     // expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getSaveFiles()[0].fileData, file1ArrayBuffer)).to.equal(true);
   });
