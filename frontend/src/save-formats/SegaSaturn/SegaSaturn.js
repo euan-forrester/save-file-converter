@@ -215,7 +215,7 @@ function readSaveFiles(arrayBuffer, blockSize) {
         return block.slice(DATA_BLOCK_DATA_OFFSET);
       }));
 
-      const saveData = Util.concatArrayBuffers(dataSegments).slice(0, saveSize); // We may have appended too many bytes by appending the entire final block, so slice it down to the specified size
+      const rawData = Util.concatArrayBuffers(dataSegments).slice(0, saveSize); // We may have appended too many bytes by appending the entire final block, so slice it down to the specified size
 
       saveFiles.push({
         name,
@@ -226,7 +226,7 @@ function readSaveFiles(arrayBuffer, blockSize) {
         date: getDate(dateCode),
         blockList,
         saveSize,
-        saveData,
+        rawData,
       });
     }
 
