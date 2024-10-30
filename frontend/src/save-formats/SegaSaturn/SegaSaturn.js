@@ -25,7 +25,7 @@ For an archive entry block, the format is as follows:
 0x10 - 0x19: Comment (encoded as shift-jis)
 0x1A - 0x1D: Date (encoded as number of minutes since Jan 1, 1980)
 0x1E - 0x21: Save size in bytes
-0x22 - ????: List of 2-byte block numbers containing save data for this entry. Ends with 0x0000. Note that some sources imply that this list is missing if the total save data size is < the remaining block size. This is incorrect: the end of list marker is still present here
+0x22 - ????: List of 2-byte block numbers containing save data for this entry. Ends with 0x0000. See notes below.
 ???? - end:  Beginning of save data for this entry
 
 For a data entry block, the format is as follows:
@@ -33,6 +33,16 @@ For a data entry block, the format is as follows:
 0x04 - end:  save data
 
 Note that the save size does not include space for the block type flag at the beginning of each block.
+
+Block numbers list notes:
+- If the total save data size is < the remaining block size, the marker at 0x22 is set to ARCHIVE_ENTRY_BLOCK_LIST_END.
+  Some sources imply that the marker at 0x22 is missing altogether, which is incorrect: the block list is merely empty.
+
+- If the block numbers list doesn't fit within the remaining block size, then it continues at the first, second, etc block specified in the block list.
+  i.e. the blocks containing the continuation of the block list are specified as part of the block list. This has the effect of ballooning the size
+  of a large save with a small block size: it needs extra blocks to contain the portion of the block list specifying where the block list is.
+  At a larger block size, there's more room for the first block to contain the entire block list, which is also in turn shorter because of the larger blocks.
+  The blocks containing the block list are regular data blocks with 0x00000000 in bytes 0x00 - 0x03.
 */
 
 import Util from '../../util/util';
@@ -140,15 +150,15 @@ function readSaveFiles(arrayBuffer, blockSize) {
   const saveFiles = [];
 
   let usedBlocks = [];
-  let currentBlockNumber = RESERVED_BLOCKS.length;
+  let searchBlockNumber = RESERVED_BLOCKS.length; // The block number where we are currently searching for an archive entry
 
-  while (currentBlockNumber < totalNumBlocks) {
-    let currentBlock = getBlock(arrayBuffer, blockSize, currentBlockNumber);
+  while (searchBlockNumber < totalNumBlocks) {
+    let currentBlock = getBlock(arrayBuffer, blockSize, searchBlockNumber);
     let currentBlockUint8Array = new Uint8Array(currentBlock);
     let currentBlockDataView = new DataView(currentBlock);
 
     if (currentBlockDataView.getUint32(BLOCK_TYPE_OFFSET, LITTLE_ENDIAN) === BLOCK_TYPE_ARCHIVE_ENTRY) {
-      usedBlocks.push(currentBlockNumber);
+      usedBlocks.push(searchBlockNumber);
 
       const name = Util.readNullTerminatedString(currentBlockUint8Array, ARCHIVE_ENTRY_NAME_OFFSET, ARCHIVE_ENTRY_NAME_ENCODING, ARCHIVE_ENTRY_NAME_LENGTH);
       const languageCode = currentBlockDataView.getUint8(ARCHIVE_ENTRY_LANGUAGE_OFFSET);
@@ -160,20 +170,21 @@ function readSaveFiles(arrayBuffer, blockSize) {
       let blockListEntryOffset = ARCHIVE_ENTRY_BLOCK_LIST_OFFSET;
       let nextBlockNumber = currentBlockDataView.getUint16(blockListEntryOffset, LITTLE_ENDIAN); // Note that this is always present, even when the entire save file fits within the starting block. In that case, this value is set to ARCHIVE_ENTRY_BLOCK_LIST_END
 
+      let blockListReadingIndex = 0; // If the block list doesn't fit within the starting block, it continues in the blocks specified in the block list
+
       while (nextBlockNumber !== ARCHIVE_ENTRY_BLOCK_LIST_END) {
         blockList.push(nextBlockNumber);
 
         blockListEntryOffset += 2;
 
-        if (blockListEntryOffset > blockSize) {
-          // FIXME: Is this code ever called? We need a test for this
-          console.log('***** Found a block list that overran our previous block!!!');
-          currentBlockNumber += 1;
-          currentBlock = getBlock(arrayBuffer, blockSize, currentBlockNumber);
+        if (blockListEntryOffset >= blockSize) {
+          currentBlock = getBlock(arrayBuffer, blockSize, blockList[blockListReadingIndex]);
+          usedBlocks.push(blockList[blockListReadingIndex]);
+          blockListReadingIndex += 1;
+
           currentBlockUint8Array = new Uint8Array(currentBlock);
           currentBlockDataView = new DataView(currentBlock);
           blockListEntryOffset = DATA_BLOCK_DATA_OFFSET;
-          usedBlocks.push(currentBlockNumber);
 
           const blockType = currentBlockDataView.getUint32(BLOCK_TYPE_OFFSET, LITTLE_ENDIAN);
 
@@ -190,7 +201,9 @@ function readSaveFiles(arrayBuffer, blockSize) {
       // The data segments are the remainder of the current block, plus all of the blocks listed in the block list
       // Note that if the last block list entry was right at the end of currentBlock, the slice below will correctly return a zero-length ArrayBuffer
 
-      const dataSegments = [currentBlock.slice(blockListEntryOffset + 2)].concat(blockList.map((blockNumber) => {
+      const dataBlockList = blockList.slice(blockListReadingIndex); // Remove the blocks used to specify the block list
+
+      const dataSegments = [currentBlock.slice(blockListEntryOffset + 2)].concat(dataBlockList.map((blockNumber) => {
         const block = getBlock(arrayBuffer, blockSize, blockNumber);
         const blockDataView = new DataView(block);
         const blockType = blockDataView.getUint32(BLOCK_TYPE_OFFSET, LITTLE_ENDIAN);
@@ -217,7 +230,7 @@ function readSaveFiles(arrayBuffer, blockSize) {
       });
     }
 
-    currentBlockNumber += 1;
+    searchBlockNumber += 1;
   }
 
   const volumeInfo = {
