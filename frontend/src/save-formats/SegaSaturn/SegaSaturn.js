@@ -45,6 +45,8 @@ Block numbers list notes:
   The blocks containing the block list are regular data blocks with 0x00000000 in bytes 0x00 - 0x03.
 */
 
+import SegaSaturnUtil from './Util';
+
 import Util from '../../util/util';
 import CompressionGzip from '../../util/CompressionGzip';
 
@@ -66,16 +68,6 @@ const ARCHIVE_ENTRY_NAME_LENGTH = 11;
 const ARCHIVE_ENTRY_NAME_ENCODING = 'US-ASCII';
 
 const ARCHIVE_ENTRY_LANGUAGE_OFFSET = 0x0F;
-
-// Taken from https://github.com/slinga-homebrew/Save-Game-BUP-Scripts/blob/main/bup_header.h#L31
-const LANGUAGE_DECODE = {
-  0: 'Japanese',
-  1: 'English',
-  2: 'French',
-  3: 'German',
-  4: 'Spanish',
-  5: 'Italian',
-};
 
 const ARCHIVE_ENTRY_COMMENT_OFFSET = 0x10;
 const ARCHIVE_ENTRY_COMMENT_LENGTH = 10;
@@ -126,22 +118,6 @@ function getBlockSizeAndCheckHeader(arrayBuffer) {
 
 function getBlock(arrayBuffer, blockSize, blockNumber) {
   return arrayBuffer.slice(blockNumber * blockSize, (blockNumber + 1) * blockSize);
-}
-
-function getDate(dateEncoded) {
-  // Date conversion from: https://segaxtreme.net/threads/backup-memory-structure.16803/post-156645
-  // The Saturn stores the date as the number of minutes since Jan 1, 1980. So to convert to a javascript Date,
-  // we multiply to get milliseconds, and add the number of milliseconds between Jan 1, 1970 and Jan 1, 1980
-
-  return new Date((dateEncoded * 60 * 1000) + 315529200000);
-}
-
-function getLanguageString(languageEncoded) {
-  if (Object.hasOwn(LANGUAGE_DECODE, languageEncoded)) {
-    return LANGUAGE_DECODE[languageEncoded];
-  }
-
-  throw new Error(`Language code ${languageEncoded} is not a valid language`);
 }
 
 function readSaveFiles(arrayBuffer, blockSize) {
@@ -220,10 +196,10 @@ function readSaveFiles(arrayBuffer, blockSize) {
       saveFiles.push({
         name,
         languageCode,
-        language: getLanguageString(languageCode),
+        language: SegaSaturnUtil.getLanguageString(languageCode),
         comment,
         dateCode,
-        date: getDate(dateCode),
+        date: SegaSaturnUtil.getDate(dateCode),
         blockList,
         saveSize,
         rawData,
@@ -248,6 +224,14 @@ function readSaveFiles(arrayBuffer, blockSize) {
 }
 
 export default class SegaSaturnSaveData {
+  static ARCHIVE_ENTRY_NAME_LENGTH = ARCHIVE_ENTRY_NAME_LENGTH;
+
+  static ARCHIVE_ENTRY_NAME_ENCODING = ARCHIVE_ENTRY_NAME_ENCODING;
+
+  static ARCHIVE_ENTRY_COMMENT_LENGTH = ARCHIVE_ENTRY_COMMENT_LENGTH;
+
+  static ARCHIVE_ENTRY_COMMENT_ENCODING = ARCHIVE_ENTRY_COMMENT_ENCODING;
+
   static createWithNewSize(/* segaSaturnSaveData, newSize */) {
     /*
     const newRawSaveData = SegaSaturnUtil.resize(segaSaturnSaveData.getArrayBuffer(), newSize);

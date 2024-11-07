@@ -26,6 +26,7 @@
     "crc-32": "^1.2.0",
     "create-hash": "^1.2.0",
     "dayjs": "^1.10.4",
+    "encoding-japanese": "^2.2.0",
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
     "lodash-es": "^4.17.21",
