@@ -1,4 +1,5 @@
 import path from 'path';
+import Encoding from 'encoding-japanese'; // Should we consider splitting this out? Almost every page depends on this file, but very few need japanese encodings
 
 // Comment to trigger build
 
@@ -53,11 +54,26 @@ export default class Util {
     return Util.bufferToArrayBuffer(Buffer.concat(bufferList));
   }
 
-  static setMagic(arrayBuffer, offset, magic, magicEncoding) {
-    const textEncoder = new TextEncoder(magicEncoding);
-    const magicArrayBuffer = Util.bufferToArrayBuffer(textEncoder.encode(magic));
+  static setString(arrayBuffer, offset, string, stringEncoding, maxLengthWhenEncoded) {
+    let stringArrayBuffer = null;
 
-    return Util.setArrayBufferPortion(arrayBuffer, magicArrayBuffer, offset, 0, magicArrayBuffer.byteLength);
+    if (stringEncoding === 'shift-jis') {
+      const unicodeArray = Encoding.stringToCode(string);
+
+      stringArrayBuffer = Util.bufferToArrayBuffer(new Uint8Array(Encoding.convert(unicodeArray, { to: 'SJIS', from: 'UNICODE' })));
+    } else {
+      // TextEncoder can actually only encode to UTF8. US-ASCII is a subset of that, so
+      // this happens to work when we specify US-ASCII. TextDecoder is able to decode a wide variety of formats
+      const textEncoder = new TextEncoder(stringEncoding);
+
+      stringArrayBuffer = Util.bufferToArrayBuffer(textEncoder.encode(string));
+    }
+
+    return Util.setArrayBufferPortion(arrayBuffer, stringArrayBuffer, offset, 0, Math.min(stringArrayBuffer.byteLength, maxLengthWhenEncoded));
+  }
+
+  static setMagic(arrayBuffer, offset, magic, magicEncoding) {
+    return Util.setString(arrayBuffer, offset, magic, magicEncoding, Number.MAX_SAFE_INTEGER);
   }
 
   // Check magic that's provided by a nice, human-readable string
