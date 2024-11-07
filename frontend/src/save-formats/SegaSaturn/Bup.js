@@ -12,7 +12,7 @@ Like the code above, we're going to ignore some of the fields like stats and blo
 Here's the structure as assembled from reading https://github.com/slinga-homebrew/Save-Game-BUP-Scripts/blob/main/bup_parse.py#L248
 0x00 - 0x03: Magic
 0x04 - 0x07: Save ID
-0x08 - 0x0B: "stats": unsure what this is, we leave as zero
+0x08 - 0x0B: stats: we leave as zero. Details: https://github.com/cafe-alpha/pskai_wtfpl/blob/main/vmem_defs.h#L82
 0x0C - 0x0F: unused
 0x10 - 0x1B: archive name
 0x1C - 0x26: comment
@@ -24,7 +24,7 @@ Here's the structure as assembled from reading https://github.com/slinga-homebre
 0x34 - 0x37: date code 2: when Pseudo Saturn Kai last started
 0x38 - 0x3F: unused
 
-The portion from 0x10 - 0x31 is the official BupDir struct, as detailed here: http://ppcenter.free.fr/satdocs/ST-162-R1-092994.html (page 42)
+The portion from 0x10 - 0x31 inclusive is the official BupDir struct, as detailed here: http://ppcenter.free.fr/satdocs/ST-162-R1-092994.html (page 42)
 
 Note that we are supposed to prefer the first date in the structure (when the game was last saved) over the second date (when Pseudo Saturn Kai last started)
 https://github.com/cafe-alpha/pskai_wtfpl/blob/main/vmem_defs.h#L127
