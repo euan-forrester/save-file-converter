@@ -17,12 +17,17 @@ Here's the structure as assembled from reading https://github.com/slinga-homebre
 0x10 - 0x1B: archive name
 0x1C - 0x26: comment
 0x27:        language code
-0x28 - 0x2B: date code
-0x2C - 0x2F: data size
-0x30 - 0x31: block size: we leave as zero
+0x28 - 0x2B: date code 1: when game was last saved
+0x2C - 0x2F: data size in bytes
+0x30 - 0x31: data size in blocks: we leave as zero
 0x32 - 0x33: padding
-0x34 - 0x37: date code repeated
+0x34 - 0x37: date code 2: when Pseudo Saturn Kai last started
 0x38 - 0x3F: unused
+
+The portion from 0x10 - 0x31 is the official BupDir struct, as detailed here: http://ppcenter.free.fr/satdocs/ST-162-R1-092994.html (page 42)
+
+Note that we are supposed to prefer the first date in the structure (when the game was last saved) over the second date (when Pseudo Saturn Kai last started)
+https://github.com/cafe-alpha/pskai_wtfpl/blob/main/vmem_defs.h#L127
 */
 
 import SegaSaturnSaveData from './SegaSaturn';
@@ -47,7 +52,7 @@ const COMMENT_OFFSET = 0x1C;
 const COMMENT_LENGTH = SegaSaturnSaveData.ARCHIVE_ENTRY_COMMENT_LENGTH + 1; // +1 to hold a NULL at the end
 
 const LANGUAGE_OFFSET = 0x27;
-const DATE_OFFSET = 0x28;
+const DATE_OFFSET_1 = 0x28;
 const SAVE_SIZE_OFFSET = 0x2C;
 const DATE_OFFSET_2 = 0x34;
 
@@ -65,7 +70,7 @@ export default class SegaSaturnBupSaveData {
 
       headerDataView.setUint32(SAVE_ID_OFFSET, index, LITTLE_ENDIAN);
       headerDataView.setUint8(LANGUAGE_OFFSET, saveFile.languageCode);
-      headerDataView.setUint32(DATE_OFFSET, saveFile.dateCode, LITTLE_ENDIAN);
+      headerDataView.setUint32(DATE_OFFSET_1, saveFile.dateCode, LITTLE_ENDIAN);
       headerDataView.setUint32(SAVE_SIZE_OFFSET, saveFile.saveSize, LITTLE_ENDIAN);
       headerDataView.setUint32(DATE_OFFSET_2, saveFile.dateCode, LITTLE_ENDIAN);
 
@@ -84,16 +89,14 @@ export default class SegaSaturnBupSaveData {
       Util.checkMagic(headerArrayBuffer, MAGIC_OFFSET, MAGIC, MAGIC_ENCODING);
 
       const languageCode = headerDataView.getUint8(LANGUAGE_OFFSET);
-      const dateCode = headerDataView.getUint32(DATE_OFFSET, LITTLE_ENDIAN);
+      const dateCode1 = headerDataView.getUint32(DATE_OFFSET_1, LITTLE_ENDIAN);
       const dateCode2 = headerDataView.getUint32(DATE_OFFSET_2, LITTLE_ENDIAN);
       const saveSize = headerDataView.getUint32(SAVE_SIZE_OFFSET, LITTLE_ENDIAN);
 
+      const dateCode = (dateCode1 !== 0) ? dateCode1 : dateCode2; // See note above about which date to prefer
+
       if (saveSize !== rawData.byteLength) {
         throw new Error(`Specified save size of ${saveSize} bytes does not match actual save size of ${rawData.byteLength} bytes`);
-      }
-
-      if (dateCode !== dateCode2) {
-        throw new Error(`Dates do not match: found ${SegaSaturnUtil.getDate(dateCode)} and ${SegaSaturnUtil.getDate(dateCode2)}`);
       }
 
       return {
