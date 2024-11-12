@@ -3,6 +3,7 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 import ArrayUtil from '#/util/Array';
 
 import SegaSaturnSaveData from '@/save-formats/SegaSaturn/SegaSaturn';
+import SegaSaturnUtil from '@/save-formats/SegaSaturn/Util';
 
 const DIR = './tests/data/save-formats/segasaturn';
 
@@ -39,6 +40,22 @@ describe('Sega Saturn', () => {
     expect(segaSaturnSaveData.getSaveFiles().length).to.equal(0);
   });
 
+  it('should correctly create an empty internal memory save file', async () => {
+    const segaSaturnArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMPTY_SAVE);
+
+    const segaSaturnSaveData = SegaSaturnSaveData.createFromSaveFiles([], 0x40);
+
+    expect(segaSaturnSaveData.getVolumeInfo().blockSize).to.equal(0x40);
+    expect(segaSaturnSaveData.getVolumeInfo().totalBytes).to.equal(32768);
+    expect(segaSaturnSaveData.getVolumeInfo().totalBlocks).to.equal(510);
+    expect(segaSaturnSaveData.getVolumeInfo().usedBlocks).to.equal(0);
+    expect(segaSaturnSaveData.getVolumeInfo().freeBlocks).to.equal(510); // A real saturn will report 461 blocks free when the internal memory is empty. This is because it's estimating the amount of space that the various file headers will take: https://www.reddit.com/r/SegaSaturn/comments/y1rsaf/comment/ismy6wt/
+
+    expect(segaSaturnSaveData.getSaveFiles().length).to.equal(0);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getArrayBuffer(), segaSaturnArrayBuffer)).to.equal(true);
+  });
+
   it('should extract a save from an internal memory file containing 1 save', async () => {
     const segaSaturnArrayBuffer = await ArrayBufferUtil.readArrayBuffer(INTERNAL_MEMORY_FILE_FILENAME);
     const file1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(INTERNAL_MEMORY_FILE_FILENAME_FILE_1);
@@ -57,13 +74,39 @@ describe('Sega Saturn', () => {
     expect(segaSaturnSaveData.getSaveFiles()[0].language).to.equal('Japanese');
     expect(segaSaturnSaveData.getSaveFiles()[0].comment).to.equal('ﾊｲﾊﾟｰﾃﾞｭｴﾙ'); // "Hyper Duel"
     expect(segaSaturnSaveData.getSaveFiles()[0].date.toUTCString()).to.equal('Wed, 31 May 2000 01:00:00 GMT');
-    expect(ArrayUtil.arraysEqual(segaSaturnSaveData.getSaveFiles()[0].blockList, ArrayUtil.createSequentialArray(3, 6))).to.equal(true);
+    expect(ArrayUtil.arraysEqual(segaSaturnSaveData.getSaveFiles()[0].blockList, ArrayUtil.createSequentialArray(3, 4))).to.equal(true);
     expect(segaSaturnSaveData.getSaveFiles()[0].saveSize).to.equal(260);
     expect(segaSaturnSaveData.getSaveFiles()[0].saveSize).to.equal(file1ArrayBuffer.byteLength);
 
-    // ArrayBufferUtil.writeArrayBuffer(INTERNAL_MEMORY_FILE_FILENAME_FILE_1, segaSaturnSaveData.getSaveFiles()[0].rawData);
-
     expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getSaveFiles()[0].rawData, file1ArrayBuffer)).to.equal(true);
+  });
+
+  it('should create an internal memory file containing 1 save', async () => {
+    const segaSaturnArrayBuffer = await ArrayBufferUtil.readArrayBuffer(INTERNAL_MEMORY_FILE_FILENAME);
+    const file1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(INTERNAL_MEMORY_FILE_FILENAME_FILE_1);
+
+    const saveFiles = [
+      {
+        name: 'HYPERDUEL_0',
+        languageCode: SegaSaturnUtil.getLanguageCode('Japanese'),
+        comment: 'ﾊｲﾊﾟｰﾃﾞｭｴﾙ', // "Hyper Duel"
+        dateCode: SegaSaturnUtil.getDateCode(new Date('Wed, 31 May 2000 01:00:00 GMT')),
+        saveSize: file1ArrayBuffer.byteLength,
+        rawData: file1ArrayBuffer,
+      },
+    ];
+
+    const segaSaturnSaveData = SegaSaturnSaveData.createFromSaveFiles(saveFiles, 0x40);
+
+    expect(segaSaturnSaveData.getVolumeInfo().blockSize).to.equal(0x40);
+    expect(segaSaturnSaveData.getVolumeInfo().totalBytes).to.equal(32768);
+    expect(segaSaturnSaveData.getVolumeInfo().totalBlocks).to.equal(510);
+    expect(segaSaturnSaveData.getVolumeInfo().usedBlocks).to.equal(5);
+    expect(segaSaturnSaveData.getVolumeInfo().freeBlocks).to.equal(505);
+
+    expect(segaSaturnSaveData.getSaveFiles().length).to.equal(1);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getArrayBuffer(), segaSaturnArrayBuffer)).to.equal(true);
   });
 
   it('should extract saves from a cartridge memory file containing 2 saves', async () => {
@@ -85,11 +128,9 @@ describe('Sega Saturn', () => {
     expect(segaSaturnSaveData.getSaveFiles()[0].language).to.equal('English');
     expect(segaSaturnSaveData.getSaveFiles()[0].comment).to.equal('RECORDS');
     expect(segaSaturnSaveData.getSaveFiles()[0].date.toUTCString()).to.equal('Mon, 28 Oct 2024 13:27:00 GMT');
-    expect(ArrayUtil.arraysEqual(segaSaturnSaveData.getSaveFiles()[0].blockList, ArrayUtil.createSequentialArray(3, 10))).to.equal(true);
+    expect(ArrayUtil.arraysEqual(segaSaturnSaveData.getSaveFiles()[0].blockList, ArrayUtil.createSequentialArray(3, 8))).to.equal(true);
     expect(segaSaturnSaveData.getSaveFiles()[0].saveSize).to.equal(4033);
     expect(segaSaturnSaveData.getSaveFiles()[0].saveSize).to.equal(file1ArrayBuffer.byteLength);
-
-    // ArrayBufferUtil.writeArrayBuffer(CARTRIDGE_MEMORY_FILE_FILENAME_FILE_1, segaSaturnSaveData.getSaveFiles()[0].rawData);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getSaveFiles()[0].rawData, file1ArrayBuffer)).to.equal(true);
 
@@ -97,11 +138,9 @@ describe('Sega Saturn', () => {
     expect(segaSaturnSaveData.getSaveFiles()[1].language).to.equal('English');
     expect(segaSaturnSaveData.getSaveFiles()[1].comment).to.equal('GHOST');
     expect(segaSaturnSaveData.getSaveFiles()[1].date.toUTCString()).to.equal('Mon, 28 Oct 2024 13:27:00 GMT');
-    expect(ArrayUtil.arraysEqual(segaSaturnSaveData.getSaveFiles()[1].blockList, ArrayUtil.createSequentialArray(12, 133))).to.equal(true);
+    expect(ArrayUtil.arraysEqual(segaSaturnSaveData.getSaveFiles()[1].blockList, ArrayUtil.createSequentialArray(12, 122))).to.equal(true);
     expect(segaSaturnSaveData.getSaveFiles()[1].saveSize).to.equal(61713);
     expect(segaSaturnSaveData.getSaveFiles()[1].saveSize).to.equal(file2ArrayBuffer.byteLength);
-
-    // ArrayBufferUtil.writeArrayBuffer(CARTRIDGE_MEMORY_FILE_FILENAME_FILE_2, segaSaturnSaveData.getSaveFiles()[1].rawData);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getSaveFiles()[1].rawData, file2ArrayBuffer)).to.equal(true);
   });
@@ -128,8 +167,6 @@ describe('Sega Saturn', () => {
     expect(segaSaturnSaveData.getSaveFiles()[0].saveSize).to.equal(17);
     expect(segaSaturnSaveData.getSaveFiles()[0].saveSize).to.equal(file1ArrayBuffer.byteLength);
 
-    // ArrayBufferUtil.writeArrayBuffer(INTERNAL_MEMORY_SMALL_FILE_FILENAME_FILE_1, segaSaturnSaveData.getSaveFiles()[0].rawData);
-
     expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getSaveFiles()[0].rawData, file1ArrayBuffer)).to.equal(true);
   });
 
@@ -151,11 +188,9 @@ describe('Sega Saturn', () => {
     expect(segaSaturnSaveData.getSaveFiles()[0].language).to.equal('Japanese');
     expect(segaSaturnSaveData.getSaveFiles()[0].comment).to.equal('Julian    ');
     expect(segaSaturnSaveData.getSaveFiles()[0].date.toUTCString()).to.equal('Tue, 29 Oct 2024 16:45:00 GMT');
-    expect(ArrayUtil.arraysEqual(segaSaturnSaveData.getSaveFiles()[0].blockList, ArrayUtil.createSequentialArray(3, 422))).to.equal(true);
+    expect(ArrayUtil.arraysEqual(segaSaturnSaveData.getSaveFiles()[0].blockList, ArrayUtil.createSequentialArray(3, 420))).to.equal(true);
     expect(segaSaturnSaveData.getSaveFiles()[0].saveSize).to.equal(24344);
     expect(segaSaturnSaveData.getSaveFiles()[0].saveSize).to.equal(file1ArrayBuffer.byteLength);
-
-    // ArrayBufferUtil.writeArrayBuffer(INTERNAL_MEMORY_LARGE_FILE_FILENAME_FILE_1, segaSaturnSaveData.getSaveFiles()[0].rawData);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getSaveFiles()[0].rawData, file1ArrayBuffer)).to.equal(true);
   });
@@ -178,11 +213,9 @@ describe('Sega Saturn', () => {
     expect(segaSaturnSaveData.getSaveFiles()[0].language).to.equal('Japanese');
     expect(segaSaturnSaveData.getSaveFiles()[0].comment).to.equal('Julian    ');
     expect(segaSaturnSaveData.getSaveFiles()[0].date.toUTCString()).to.equal('Tue, 29 Oct 2024 16:45:00 GMT');
-    expect(ArrayUtil.arraysEqual(segaSaturnSaveData.getSaveFiles()[0].blockList, ArrayUtil.createSequentialArray(3, 50))).to.equal(true);
+    expect(ArrayUtil.arraysEqual(segaSaturnSaveData.getSaveFiles()[0].blockList, ArrayUtil.createSequentialArray(3, 48))).to.equal(true);
     expect(segaSaturnSaveData.getSaveFiles()[0].saveSize).to.equal(24344);
     expect(segaSaturnSaveData.getSaveFiles()[0].saveSize).to.equal(file1ArrayBuffer.byteLength);
-
-    // ArrayBufferUtil.writeArrayBuffer(CARTRIDGE_MEMORY_LARGE_FILE_FILENAME_FILE_1, segaSaturnSaveData.getSaveFiles()[0].rawData);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getSaveFiles()[0].rawData, file1ArrayBuffer)).to.equal(true);
   });
