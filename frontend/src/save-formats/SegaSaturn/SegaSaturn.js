@@ -85,6 +85,7 @@ const ARCHIVE_ENTRY_SAVE_SIZE_OFFSET = 0x1E;
 
 const ARCHIVE_ENTRY_BLOCK_LIST_OFFSET = 0x22;
 const ARCHIVE_ENTRY_BLOCK_LIST_END = 0x0000;
+const ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE = 2; // Each entry in the block list is a uint16
 
 function getBlockSizeAndCheckHeader(arrayBuffer) {
   // First block is the MAGIC repeated. We can infer the block size of the file by counting the number of times it's repeated
@@ -257,8 +258,27 @@ function readSaveFiles(arrayBuffer, blockSize) {
   };
 }
 
-function getBlocksForSaveFile(/* saveFile, blockSize */) {
-  return [];
+function getBlocksForSaveFile(saveFile, blockSize) {
+  let archiveEntryBlock = makeEmptyBlock(blockSize);
+
+  archiveEntryBlock = Util.setString(archiveEntryBlock, ARCHIVE_ENTRY_NAME_OFFSET, saveFile.name, ARCHIVE_ENTRY_NAME_ENCODING, ARCHIVE_ENTRY_NAME_LENGTH);
+  archiveEntryBlock = Util.setString(archiveEntryBlock, ARCHIVE_ENTRY_COMMENT_OFFSET, saveFile.comment, ARCHIVE_ENTRY_COMMENT_ENCODING, ARCHIVE_ENTRY_COMMENT_LENGTH);
+
+  const archiveEntryBlockDataView = new DataView(archiveEntryBlock);
+
+  archiveEntryBlockDataView.setUint32(BLOCK_TYPE_OFFSET, BLOCK_TYPE_ARCHIVE_ENTRY, LITTLE_ENDIAN);
+  archiveEntryBlockDataView.setUint8(ARCHIVE_ENTRY_LANGUAGE_OFFSET, saveFile.languageCode);
+  archiveEntryBlockDataView.setUint32(ARCHIVE_ENTRY_DATE_OFFSET, saveFile.dateCode, LITTLE_ENDIAN);
+  archiveEntryBlockDataView.setUint32(ARCHIVE_ENTRY_SAVE_SIZE_OFFSET, saveFile.rawData.byteLength, LITTLE_ENDIAN);
+
+  const maxDataBytesInArchiveEntryBlock = blockSize - ARCHIVE_ENTRY_BLOCK_LIST_OFFSET;
+
+  if (saveFile.rawData.byteLength <= (maxDataBytesInArchiveEntryBlock - ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE)) {
+    archiveEntryBlockDataView.setUint16(ARCHIVE_ENTRY_BLOCK_LIST_OFFSET, ARCHIVE_ENTRY_BLOCK_LIST_END, LITTLE_ENDIAN);
+    archiveEntryBlock = Util.setArrayBufferPortion(archiveEntryBlock, saveFile.rawData, ARCHIVE_ENTRY_BLOCK_LIST_OFFSET + ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE, 0, saveFile.rawData.byteLength);
+  }
+
+  return [archiveEntryBlock];
 }
 
 export default class SegaSaturnSaveData {
