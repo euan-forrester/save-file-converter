@@ -1,27 +1,29 @@
 // Taken from https://github.com/slinga-homebrew/Save-Game-BUP-Scripts/blob/main/bup_header.h#L31
-const LANGUAGE_DECODE = {
-  0: 'Japanese',
-  1: 'English',
-  2: 'French',
-  3: 'German',
-  4: 'Spanish',
-  5: 'Italian',
-};
+const LANGUAGE_DECODE = new Map([
+  [0, 'Japanese'],
+  [1, 'English'],
+  [2, 'French'],
+  [3, 'German'],
+  [4, 'Spanish'],
+  [5, 'Italian'],
+]);
+
+const POSSIBLE_LANGUAGE_CODES = Array.from(LANGUAGE_DECODE.keys());
 
 // The epoch for Javascript Dates is Jan 1, 1970. For Saturn dates, it's Jan 1, 1980
 const MILLISECONDS_BETWEEN_EPOCHS = 315529200000;
 
 export default class SegaSaturnUtil {
   static getLanguageString(languageEncoded) {
-    if (Object.hasOwn(LANGUAGE_DECODE, languageEncoded)) {
-      return LANGUAGE_DECODE[languageEncoded];
+    if (LANGUAGE_DECODE.has(languageEncoded)) {
+      return LANGUAGE_DECODE.get(languageEncoded);
     }
 
     throw new Error(`Language code ${languageEncoded} is not a valid language`);
   }
 
   static getLanguageCode(languageString) {
-    const languageEncoded = Object.keys(LANGUAGE_DECODE).find((key) => LANGUAGE_DECODE[key] === languageString);
+    const languageEncoded = POSSIBLE_LANGUAGE_CODES.find((key) => LANGUAGE_DECODE.get(key) === languageString);
 
     if (languageEncoded === undefined) {
       throw new Error(`Cannot find language code for language '${languageString}'`);

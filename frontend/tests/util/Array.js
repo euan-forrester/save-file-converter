@@ -13,7 +13,7 @@ export default class ArrayUtil {
     return true;
   }
 
-  static createSequentialArray(startValue, endValue) {
-    return Array(endValue - startValue + 1).fill().map((_, index) => index + startValue);
+  static createSequentialArray(startValue, numValues) {
+    return Array(numValues).fill().map((_, index) => index + startValue);
   }
 }

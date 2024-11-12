@@ -55,6 +55,13 @@ const LITTLE_ENDIAN = false;
 const MAGIC = 'BackUpRam Format';
 const MAGIC_ENCODING = 'US-ASCII';
 
+const TOTAL_BLOCKS = new Map([ // Total number of blocks in a save file, indexed by block size
+  [0x40, 512],
+  [0x200, 1024],
+]);
+
+const POSSIBLE_BLOCK_SIZES = Array.from(TOTAL_BLOCKS.keys());
+
 const RESERVED_BLOCKS = [0, 1];
 
 const BLOCK_TYPE_OFFSET = 0x00;
@@ -118,6 +125,39 @@ function getBlockSizeAndCheckHeader(arrayBuffer) {
 
 function getBlock(arrayBuffer, blockSize, blockNumber) {
   return arrayBuffer.slice(blockNumber * blockSize, (blockNumber + 1) * blockSize);
+}
+
+function makeEmptyBlock(blockSize) {
+  return Util.getFilledArrayBuffer(blockSize, 0x00);
+}
+
+function makeSequentialArray(startValue, numValues) {
+  return Array(numValues).fill().map((_, index) => index + startValue);
+}
+
+function makeReservedBlocks(blockSize) {
+  let reservedBlock0 = makeEmptyBlock(blockSize);
+
+  let currentOffset = 0;
+
+  while (currentOffset < reservedBlock0.byteLength) {
+    reservedBlock0 = Util.setMagic(reservedBlock0, currentOffset, MAGIC, MAGIC_ENCODING);
+    currentOffset += MAGIC.length;
+  }
+
+  return [reservedBlock0, makeEmptyBlock(blockSize)];
+}
+
+function getVolumeInfo(segaSaturnArrayBuffer, blockSize, usedBlocks) {
+  const totalNumBlocks = segaSaturnArrayBuffer.byteLength / blockSize;
+
+  return {
+    blockSize,
+    totalBytes: segaSaturnArrayBuffer.byteLength,
+    totalBlocks: totalNumBlocks - RESERVED_BLOCKS.length,
+    usedBlocks: usedBlocks.length,
+    freeBlocks: totalNumBlocks - usedBlocks.length - RESERVED_BLOCKS.length,
+  };
 }
 
 function readSaveFiles(arrayBuffer, blockSize) {
@@ -209,18 +249,16 @@ function readSaveFiles(arrayBuffer, blockSize) {
     searchBlockNumber += 1;
   }
 
-  const volumeInfo = {
-    blockSize,
-    totalBytes: arrayBuffer.byteLength,
-    totalBlocks: totalNumBlocks - RESERVED_BLOCKS.length,
-    usedBlocks: usedBlocks.length,
-    freeBlocks: totalNumBlocks - usedBlocks.length - RESERVED_BLOCKS.length,
-  };
+  const volumeInfo = getVolumeInfo(arrayBuffer, blockSize, usedBlocks);
 
   return {
     saveFiles,
     volumeInfo,
   };
+}
+
+function getBlocksForSaveFile(/* saveFile, blockSize */) {
+  return [];
 }
 
 export default class SegaSaturnSaveData {
@@ -257,27 +295,42 @@ export default class SegaSaturnSaveData {
     return new SegaSaturnSaveData(uncompressedArrayBuffer, saveFiles, volumeInfo);
   }
 
-  static createFromSaveFiles(/* saveFiles, size */) {
-    /*
-    // Setup and make sure we have enough space for the files
-
-    let segaCdArrayBuffer = SegaCdUtil.makeEmptySave(size);
-    const initialFreeBlocks = SegaCdUtil.getTotalAvailableBlocks(segaCdArrayBuffer); // If we call SegaCdUtil.getNumFreeBlocks() it will subtract one because of the extra block that's reserved for the first file's directory entry
-
-    const requiredBlocksForSaves = saveFiles.reduce((accumulatedBlocks, saveFile) => accumulatedBlocks + getRequiredBlocks(saveFile), 0);
-    const requiredBlocksForDirectoryEntries = Math.ceil(saveFiles.length / 2);
-    const requiredReservedBlocks = ((saveFiles.length % 2) === 0) ? 1 : 0; // We can store 2 directory entries in a block. We always need room for the next future directory entry. So, if there are an odd number of save files we can store the next one in our last block. But if there are an even number of save files we need to reserve the next block
-
-    const requiredBlocks = requiredBlocksForSaves + requiredBlocksForDirectoryEntries + requiredReservedBlocks;
-
-    if (requiredBlocks > initialFreeBlocks) {
-      throw new Error(`The specified save files require a total of ${requiredBlocks} blocks of free space, but Sega CD save data of ${size} bytes only has ${initialFreeBlocks} free blocks`);
+  static createFromSaveFiles(saveFiles, blockSize) {
+    if (POSSIBLE_BLOCK_SIZES.find((possibleBlockSize) => possibleBlockSize === blockSize) === undefined) {
+      throw new Error(`Cannot create Saturn save file: ${blockSize} bytes is not a valid block size`);
     }
 
-    // Write the files
-    */
+    let blockList = makeReservedBlocks(blockSize);
 
-    // return new SegaSaturnSaveData(segaSaturnArrayBuffer, saveFiles);
+    const totalNumBlocks = TOTAL_BLOCKS.get(blockSize);
+
+    // Transform our save files into blocks
+
+    const saveFilesBlocks = saveFiles.map((saveFile) => getBlocksForSaveFile(saveFile, blockSize)).flat();
+
+    if ((saveFilesBlocks.length + RESERVED_BLOCKS.length) > totalNumBlocks) {
+      throw new Error(`Not enough space to hold all saves. Requires ${saveFilesBlocks.length} and only has space for ${totalNumBlocks - RESERVED_BLOCKS.length} blocks`);
+    }
+
+    // Figure out how many blocks we need to use
+
+    blockList = blockList.concat(saveFilesBlocks);
+
+    const usedBlocks = makeSequentialArray(RESERVED_BLOCKS.length, saveFilesBlocks.length);
+
+    // Append empty blocks until we have enough total blocks
+
+    while (blockList.length < totalNumBlocks) {
+      blockList.push(makeEmptyBlock(blockSize));
+    }
+
+    // Now that we have all of our blocks, we can assemble them to make our save file image
+
+    const segaSaturnArrayBuffer = Util.concatArrayBuffers(blockList);
+
+    const volumeInfo = getVolumeInfo(segaSaturnArrayBuffer, blockSize, usedBlocks);
+
+    return new SegaSaturnSaveData(segaSaturnArrayBuffer, saveFiles, volumeInfo);
   }
 
   // This constructor creates a new object from a binary representation of Sega CD save data
