@@ -258,7 +258,19 @@ function readSaveFiles(arrayBuffer, blockSize) {
   };
 }
 
-function getBlocksForSaveFile(saveFile, blockSize) {
+function getNumDataBlocksForSaveFile(saveFile, blockSize) {
+  const maxDataBytesInArchiveEntryBlock = blockSize - ARCHIVE_ENTRY_BLOCK_LIST_OFFSET;
+
+  if (saveFile.rawData.byteLength <= (maxDataBytesInArchiveEntryBlock - ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE)) {
+    return 0;
+  }
+
+  return Math.ceil(saveFile.rawData.byteLength / blockSize) - 1;
+}
+
+function getBlocksForSaveFile(saveFile, blockSize, startingBlockNumber) {
+  // First, fill in all of the fields in the archive entry block
+
   let archiveEntryBlock = makeEmptyBlock(blockSize);
 
   archiveEntryBlock = Util.setString(archiveEntryBlock, ARCHIVE_ENTRY_NAME_OFFSET, saveFile.name, ARCHIVE_ENTRY_NAME_ENCODING, ARCHIVE_ENTRY_NAME_LENGTH);
@@ -271,14 +283,62 @@ function getBlocksForSaveFile(saveFile, blockSize) {
   archiveEntryBlockDataView.setUint32(ARCHIVE_ENTRY_DATE_OFFSET, saveFile.dateCode, LITTLE_ENDIAN);
   archiveEntryBlockDataView.setUint32(ARCHIVE_ENTRY_SAVE_SIZE_OFFSET, saveFile.rawData.byteLength, LITTLE_ENDIAN);
 
-  const maxDataBytesInArchiveEntryBlock = blockSize - ARCHIVE_ENTRY_BLOCK_LIST_OFFSET;
+  // Now create all of our blocks that contain the block list
 
-  if (saveFile.rawData.byteLength <= (maxDataBytesInArchiveEntryBlock - ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE)) {
-    archiveEntryBlockDataView.setUint16(ARCHIVE_ENTRY_BLOCK_LIST_OFFSET, ARCHIVE_ENTRY_BLOCK_LIST_END, LITTLE_ENDIAN);
-    archiveEntryBlock = Util.setArrayBufferPortion(archiveEntryBlock, saveFile.rawData, ARCHIVE_ENTRY_BLOCK_LIST_OFFSET + ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE, 0, saveFile.rawData.byteLength);
+  const numDataBlocksRequired = getNumDataBlocksForSaveFile(saveFile, blockSize);
+  const saveFileBlocks = [];
+
+  let currentDataBlockIndex = 0;
+  let currentBlock = archiveEntryBlock;
+  let currentBlockDataView = new DataView(currentBlock);
+  let currentBlockOffset = ARCHIVE_ENTRY_BLOCK_LIST_OFFSET;
+
+  while (currentDataBlockIndex < numDataBlocksRequired) {
+    currentBlockDataView.setUint16(currentBlockOffset, currentDataBlockIndex + startingBlockNumber + 1, LITTLE_ENDIAN); // +1 because of the archive entry block
+    currentBlockOffset += ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE;
+
+    if (currentBlockOffset >= blockSize) {
+      saveFileBlocks.push(currentBlock);
+      currentBlock = makeEmptyBlock(blockSize);
+      currentBlockDataView = new DataView(currentBlock);
+      currentBlockDataView.setUint32(BLOCK_TYPE_OFFSET, BLOCK_TYPE_DATA, LITTLE_ENDIAN);
+      currentBlockOffset = DATA_BLOCK_DATA_OFFSET;
+    }
+
+    currentDataBlockIndex += 1;
   }
 
-  return [archiveEntryBlock];
+  // Add an end of list marker
+
+  currentBlockDataView.setUint16(currentBlockOffset, ARCHIVE_ENTRY_BLOCK_LIST_END, LITTLE_ENDIAN);
+  currentBlockOffset += ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE;
+
+  // Now create all of the blocks that contain the save data
+
+  let currentOffsetInSaveData = 0;
+
+  while (currentOffsetInSaveData < saveFile.rawData.byteLength) {
+    if (currentBlockOffset >= blockSize) {
+      saveFileBlocks.push(currentBlock);
+      currentBlock = makeEmptyBlock(blockSize);
+      currentBlockDataView = new DataView(currentBlock);
+      currentBlockDataView.setUint32(BLOCK_TYPE_OFFSET, BLOCK_TYPE_DATA, LITTLE_ENDIAN);
+      currentBlockOffset = DATA_BLOCK_DATA_OFFSET;
+    }
+
+    const saveFileNumBytesToCopyToBlock = Math.min(saveFile.rawData.byteLength, blockSize - currentBlockOffset);
+
+    currentBlock = Util.setArrayBufferPortion(currentBlock, saveFile.rawData, currentBlockOffset, currentOffsetInSaveData, saveFileNumBytesToCopyToBlock);
+
+    currentOffsetInSaveData += saveFileNumBytesToCopyToBlock;
+    currentBlockOffset += saveFileNumBytesToCopyToBlock;
+  }
+
+  saveFileBlocks.push(currentBlock);
+
+  // All done!
+
+  return saveFileBlocks;
 }
 
 export default class SegaSaturnSaveData {
@@ -326,7 +386,7 @@ export default class SegaSaturnSaveData {
 
     // Transform our save files into blocks
 
-    const saveFilesBlocks = saveFiles.map((saveFile) => getBlocksForSaveFile(saveFile, blockSize)).flat();
+    const saveFilesBlocks = saveFiles.map((saveFile) => getBlocksForSaveFile(saveFile, blockSize, RESERVED_BLOCKS.length)).flat();
 
     if ((saveFilesBlocks.length + RESERVED_BLOCKS.length) > totalNumBlocks) {
       throw new Error(`Not enough space to hold all saves. Requires ${saveFilesBlocks.length} and only has space for ${totalNumBlocks - RESERVED_BLOCKS.length} blocks`);
