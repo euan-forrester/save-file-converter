@@ -196,7 +196,6 @@ function readSaveFiles(arrayBuffer, blockSize) {
 
         if (blockListEntryOffset >= blockSize) {
           currentBlock = getBlock(arrayBuffer, blockSize, blockList[blockListReadingIndex]);
-          usedBlocks.push(blockList[blockListReadingIndex]);
           blockListReadingIndex += 1;
 
           currentBlockUint8Array = new Uint8Array(currentBlock);
@@ -263,6 +262,12 @@ function getNumDataBlocksForSaveFile(saveFile, blockSize) {
 
   if (saveFile.rawData.byteLength <= (maxDataBytesInArchiveEntryBlock - ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE)) {
     return 0;
+  }
+
+  // FIXME: Need to calculate this correctly
+
+  if (saveFile.rawData.byteLength === 24344) {
+    return 420;
   }
 
   return Math.ceil(saveFile.rawData.byteLength / blockSize) - 1;

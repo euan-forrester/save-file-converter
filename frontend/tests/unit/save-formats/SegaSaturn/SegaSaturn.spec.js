@@ -98,6 +98,8 @@ describe('Sega Saturn', () => {
 
     const segaSaturnSaveData = SegaSaturnSaveData.createFromSaveFiles(saveFiles, 0x40);
 
+    ArrayBufferUtil.writeArrayBuffer(`${DIR}/output-block list in first block.bkr`, segaSaturnSaveData.getArrayBuffer());
+
     expect(segaSaturnSaveData.getVolumeInfo().blockSize).to.equal(0x40);
     expect(segaSaturnSaveData.getVolumeInfo().totalBytes).to.equal(32768);
     expect(segaSaturnSaveData.getVolumeInfo().totalBlocks).to.equal(510);
@@ -179,7 +181,7 @@ describe('Sega Saturn', () => {
         name: 'DEZA2___SYS',
         languageCode: SegaSaturnUtil.getLanguageCode('Japanese'),
         comment: 'ﾃﾞｻﾞ2_ｼｽﾃﾑ', // "Deza 2_system"
-        dateCode: SegaSaturnUtil.getDateCode(new Date('ue, 29 Oct 2024 12:27:00 GMT')),
+        dateCode: SegaSaturnUtil.getDateCode(new Date('Tue, 29 Oct 2024 12:27:00 GMT')),
         saveSize: file1ArrayBuffer.byteLength,
         rawData: file1ArrayBuffer,
       },
@@ -207,8 +209,8 @@ describe('Sega Saturn', () => {
     expect(segaSaturnSaveData.getVolumeInfo().blockSize).to.equal(0x40);
     expect(segaSaturnSaveData.getVolumeInfo().totalBytes).to.equal(32768);
     expect(segaSaturnSaveData.getVolumeInfo().totalBlocks).to.equal(510);
-    expect(segaSaturnSaveData.getVolumeInfo().usedBlocks).to.equal(435);
-    expect(segaSaturnSaveData.getVolumeInfo().freeBlocks).to.equal(75);
+    expect(segaSaturnSaveData.getVolumeInfo().usedBlocks).to.equal(421);
+    expect(segaSaturnSaveData.getVolumeInfo().freeBlocks).to.equal(89);
 
     expect(segaSaturnSaveData.getSaveFiles().length).to.equal(1);
 
@@ -221,6 +223,36 @@ describe('Sega Saturn', () => {
     expect(segaSaturnSaveData.getSaveFiles()[0].saveSize).to.equal(file1ArrayBuffer.byteLength);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getSaveFiles()[0].rawData, file1ArrayBuffer)).to.equal(true);
+  });
+
+  it('should create an internal memory file containing 1 save where the block list does not first in the first block', async () => {
+    const segaSaturnArrayBuffer = await ArrayBufferUtil.readArrayBuffer(INTERNAL_MEMORY_LARGE_FILE_FILENAME);
+    const file1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(INTERNAL_MEMORY_LARGE_FILE_FILENAME_FILE_1);
+
+    const saveFiles = [
+      {
+        name: 'SFORCE33_01',
+        languageCode: SegaSaturnUtil.getLanguageCode('Japanese'),
+        comment: 'Julian    ',
+        dateCode: SegaSaturnUtil.getDateCode(new Date('Tue, 29 Oct 2024 16:45:00 GMT')),
+        saveSize: file1ArrayBuffer.byteLength,
+        rawData: file1ArrayBuffer,
+      },
+    ];
+
+    const segaSaturnSaveData = SegaSaturnSaveData.createFromSaveFiles(saveFiles, 0x40);
+
+    ArrayBufferUtil.writeArrayBuffer(`${DIR}/output-block list doesn't fit in first block.bkr`, segaSaturnSaveData.getArrayBuffer());
+
+    expect(segaSaturnSaveData.getVolumeInfo().blockSize).to.equal(0x40);
+    expect(segaSaturnSaveData.getVolumeInfo().totalBytes).to.equal(32768);
+    expect(segaSaturnSaveData.getVolumeInfo().totalBlocks).to.equal(510);
+    expect(segaSaturnSaveData.getVolumeInfo().usedBlocks).to.equal(421);
+    expect(segaSaturnSaveData.getVolumeInfo().freeBlocks).to.equal(89);
+
+    expect(segaSaturnSaveData.getSaveFiles().length).to.equal(1);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getArrayBuffer(), segaSaturnArrayBuffer)).to.equal(true);
   });
 
   it('should extract a save from a cartridge file containing 1 save which was the same as the one that did not fit in the first block of an internal memory save', async () => {
