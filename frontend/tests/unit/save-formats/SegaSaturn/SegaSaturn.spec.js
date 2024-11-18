@@ -13,6 +13,7 @@ const INTERNAL_MEMORY_FILE_FILENAME = `${DIR}/Hyper Duel (Japan).bkr`;
 const INTERNAL_MEMORY_FILE_FILENAME_FILE_1 = `${DIR}/Hyper Duel (Japan)-1.raw`;
 
 const CARTRIDGE_MEMORY_FILE_FILENAME = `${DIR}/Daytona USA - Championship Circuit Edition (USA)-uncompressed.bcr`;
+const CARTRIDGE_MEMORY_FILE_FILENAME_RECREATED = `${DIR}/Daytona USA - Championship Circuit Edition (USA)-uncompressed-recreated.bcr`; // Our output is very similar to the BIO's output, except that it has some non-zero garbage in the comment field after the null-terminated text
 const CARTRIDGE_MEMORY_FILE_FILENAME_FILE_1 = `${DIR}/Daytona USA - Championship Circuit Edition (USA)-1.raw`;
 const CARTRIDGE_MEMORY_FILE_FILENAME_FILE_2 = `${DIR}/Daytona USA - Championship Circuit Edition (USA)-2.raw`;
 
@@ -143,6 +144,43 @@ describe('Sega Saturn', () => {
     expect(segaSaturnSaveData.getSaveFiles()[1].saveSize).to.equal(file2ArrayBuffer.byteLength);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getSaveFiles()[1].rawData, file2ArrayBuffer)).to.equal(true);
+  });
+
+  it('should create a cartridge memory file containing 2 saves', async () => {
+    const segaSaturnArrayBuffer = await ArrayBufferUtil.readArrayBuffer(CARTRIDGE_MEMORY_FILE_FILENAME_RECREATED);
+    const file1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(CARTRIDGE_MEMORY_FILE_FILENAME_FILE_1);
+    const file2ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(CARTRIDGE_MEMORY_FILE_FILENAME_FILE_2);
+
+    const saveFiles = [
+      {
+        name: 'DAYTONA96_0',
+        languageCode: SegaSaturnUtil.getLanguageCode('English'),
+        comment: 'RECORDS',
+        dateCode: SegaSaturnUtil.getDateCode(new Date('Mon, 28 Oct 2024 13:27:00 GMT')),
+        saveSize: file1ArrayBuffer.byteLength,
+        rawData: file1ArrayBuffer,
+      },
+      {
+        name: 'DAYTONA96_1',
+        languageCode: SegaSaturnUtil.getLanguageCode('English'),
+        comment: 'GHOST',
+        dateCode: SegaSaturnUtil.getDateCode(new Date('Mon, 28 Oct 2024 13:27:00 GMT')),
+        saveSize: file2ArrayBuffer.byteLength,
+        rawData: file2ArrayBuffer,
+      },
+    ];
+
+    const segaSaturnSaveData = SegaSaturnSaveData.createFromSaveFiles(saveFiles, 0x200);
+
+    expect(segaSaturnSaveData.getVolumeInfo().blockSize).to.equal(0x200);
+    expect(segaSaturnSaveData.getVolumeInfo().totalBytes).to.equal(524288);
+    expect(segaSaturnSaveData.getVolumeInfo().totalBlocks).to.equal(1022);
+    expect(segaSaturnSaveData.getVolumeInfo().usedBlocks).to.equal(132);
+    expect(segaSaturnSaveData.getVolumeInfo().freeBlocks).to.equal(890);
+
+    expect(segaSaturnSaveData.getSaveFiles().length).to.equal(2);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getArrayBuffer(), segaSaturnArrayBuffer)).to.equal(true);
   });
 
   it('should extract a save from an internal memory file containing 1 save which fits in a single block', async () => {
