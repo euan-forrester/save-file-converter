@@ -14,7 +14,7 @@ const BUP_ENGLISH_FILENAME = `${DIR}/SFORCE31.BUP`;
 const RAW_ENGLISH_FILENAME = `${DIR}/SFORCE31.raw`;
 const BUP_ENGLISH_RECREATED_FILENAME = `${DIR}/SFORCE31-recreated.BUP`;
 
-describe('Sega Saturn', () => {
+describe('Sega Saturn - .BUP', () => {
   it('should correctly read a .BUP file with a Japanese comment', async () => {
     const bupArrayBuffer = await ArrayBufferUtil.readArrayBuffer(BUP_JAPANESE_FILENAME);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_JAPANESE_FILENAME);

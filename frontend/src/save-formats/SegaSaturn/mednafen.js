@@ -1,5 +1,5 @@
 /*
-The popular emulator mednafen reads/writes raw Saturn BIOS files, but compresses the cartridge saves using gzip 
+The popular emulator mednafen reads/writes raw Saturn BIOS files, but compresses the cartridge saves using gzip
 */
 
 import SegaSaturnSaveData from './SegaSaturn';

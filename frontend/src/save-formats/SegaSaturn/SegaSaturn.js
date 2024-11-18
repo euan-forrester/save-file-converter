@@ -20,9 +20,9 @@ From there, blocks are of 2 types: archive entry blocks begin with 0x80000000, a
 
 For an archive entry block, the format is as follows:
 0x00 - 0x03: Block type (0x80000000)
-0x04 - 0x0E: Archive name
+0x04 - 0x0E: Archive name (null-terminated, encoded as US-ASCII)
 0x0F: Language flag
-0x10 - 0x19: Comment (encoded as shift-jis)
+0x10 - 0x19: Comment (null-terminated, encoded as shift-jis)
 0x1A - 0x1D: Date (encoded as number of minutes since Jan 1, 1980)
 0x1E - 0x21: Save size in bytes
 0x22 - ????: List of 2-byte block numbers containing save data for this entry. Ends with 0x0000. See notes below.
