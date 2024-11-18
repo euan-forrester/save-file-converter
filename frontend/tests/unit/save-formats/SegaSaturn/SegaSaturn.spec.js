@@ -12,7 +12,7 @@ const EMPTY_SAVE = `${DIR}/Empty save.bkr`;
 const INTERNAL_MEMORY_FILE_FILENAME = `${DIR}/Hyper Duel (Japan).bkr`;
 const INTERNAL_MEMORY_FILE_FILENAME_FILE_1 = `${DIR}/Hyper Duel (Japan)-1.raw`;
 
-const CARTRIDGE_MEMORY_FILE_FILENAME = `${DIR}/Daytona USA - Championship Circuit Edition (USA).bcr`;
+const CARTRIDGE_MEMORY_FILE_FILENAME = `${DIR}/Daytona USA - Championship Circuit Edition (USA)-uncompressed.bcr`;
 const CARTRIDGE_MEMORY_FILE_FILENAME_FILE_1 = `${DIR}/Daytona USA - Championship Circuit Edition (USA)-1.raw`;
 const CARTRIDGE_MEMORY_FILE_FILENAME_FILE_2 = `${DIR}/Daytona USA - Championship Circuit Edition (USA)-2.raw`;
 
@@ -22,7 +22,7 @@ const INTERNAL_MEMORY_SMALL_FILE_FILENAME_FILE_1 = `${DIR}/Dezaemon 2 (Japan)-1.
 const INTERNAL_MEMORY_LARGE_FILE_FILENAME = `${DIR}/Shining Force III Scenario 3 (English v25.1).bkr`;
 const INTERNAL_MEMORY_LARGE_FILE_FILENAME_FILE_1 = `${DIR}/Shining Force III Scenario 3 (English v25.1)-1.raw`;
 
-const CARTRIDGE_MEMORY_LARGE_FILE_FILENAME = `${DIR}/Shining Force III Scenario 3 (English v25.1).bcr`;
+const CARTRIDGE_MEMORY_LARGE_FILE_FILENAME = `${DIR}/Shining Force III Scenario 3 (English v25.1)-uncompressed.bcr`;
 const CARTRIDGE_MEMORY_LARGE_FILE_FILENAME_FILE_1 = `${DIR}/Shining Force III Scenario 3 (English v25.1)-cart-1.raw`; // Virtually identical to INTERNAL_MEMORY_LARGE_FILE_FILENAME_FILE_1 but 3 bytes of game data are different
 
 describe('Sega Saturn', () => {
@@ -97,8 +97,6 @@ describe('Sega Saturn', () => {
     ];
 
     const segaSaturnSaveData = SegaSaturnSaveData.createFromSaveFiles(saveFiles, 0x40);
-
-    ArrayBufferUtil.writeArrayBuffer(`${DIR}/output-block list in first block.bkr`, segaSaturnSaveData.getArrayBuffer());
 
     expect(segaSaturnSaveData.getVolumeInfo().blockSize).to.equal(0x40);
     expect(segaSaturnSaveData.getVolumeInfo().totalBytes).to.equal(32768);
@@ -225,7 +223,7 @@ describe('Sega Saturn', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getSaveFiles()[0].rawData, file1ArrayBuffer)).to.equal(true);
   });
 
-  it('should create an internal memory file containing 1 save where the block list does not first in the first block', async () => {
+  it('should create an internal memory file containing 1 save where the block list does not fit in the first block', async () => {
     const segaSaturnArrayBuffer = await ArrayBufferUtil.readArrayBuffer(INTERNAL_MEMORY_LARGE_FILE_FILENAME);
     const file1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(INTERNAL_MEMORY_LARGE_FILE_FILENAME_FILE_1);
 
@@ -241,8 +239,6 @@ describe('Sega Saturn', () => {
     ];
 
     const segaSaturnSaveData = SegaSaturnSaveData.createFromSaveFiles(saveFiles, 0x40);
-
-    ArrayBufferUtil.writeArrayBuffer(`${DIR}/output-block list doesn't fit in first block.bkr`, segaSaturnSaveData.getArrayBuffer());
 
     expect(segaSaturnSaveData.getVolumeInfo().blockSize).to.equal(0x40);
     expect(segaSaturnSaveData.getVolumeInfo().totalBytes).to.equal(32768);
@@ -278,5 +274,33 @@ describe('Sega Saturn', () => {
     expect(segaSaturnSaveData.getSaveFiles()[0].saveSize).to.equal(file1ArrayBuffer.byteLength);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getSaveFiles()[0].rawData, file1ArrayBuffer)).to.equal(true);
+  });
+
+  it('should create a cartridge file containing 1 save which was the same as the one that did not fit in the first block of an internal memory save', async () => {
+    const segaSaturnArrayBuffer = await ArrayBufferUtil.readArrayBuffer(CARTRIDGE_MEMORY_LARGE_FILE_FILENAME);
+    const file1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(CARTRIDGE_MEMORY_LARGE_FILE_FILENAME_FILE_1);
+
+    const saveFiles = [
+      {
+        name: 'SFORCE33_01',
+        languageCode: SegaSaturnUtil.getLanguageCode('Japanese'),
+        comment: 'Julian    ',
+        dateCode: SegaSaturnUtil.getDateCode(new Date('Tue, 29 Oct 2024 16:45:00 GMT')),
+        saveSize: file1ArrayBuffer.byteLength,
+        rawData: file1ArrayBuffer,
+      },
+    ];
+
+    const segaSaturnSaveData = SegaSaturnSaveData.createFromSaveFiles(saveFiles, 0x200);
+
+    expect(segaSaturnSaveData.getVolumeInfo().blockSize).to.equal(0x200);
+    expect(segaSaturnSaveData.getVolumeInfo().totalBytes).to.equal(524288);
+    expect(segaSaturnSaveData.getVolumeInfo().totalBlocks).to.equal(1022);
+    expect(segaSaturnSaveData.getVolumeInfo().usedBlocks).to.equal(49);
+    expect(segaSaturnSaveData.getVolumeInfo().freeBlocks).to.equal(973);
+
+    expect(segaSaturnSaveData.getSaveFiles().length).to.equal(1);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getArrayBuffer(), segaSaturnArrayBuffer)).to.equal(true);
   });
 });
