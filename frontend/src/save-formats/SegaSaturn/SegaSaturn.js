@@ -388,21 +388,24 @@ export default class SegaSaturnSaveData {
       throw new Error(`Cannot create Saturn save file: ${blockSize} bytes is not a valid block size`);
     }
 
-    let blockList = makeReservedBlocks(blockSize);
-
-    const totalNumBlocks = TOTAL_BLOCKS.get(blockSize);
-
     // Transform our save files into blocks
 
-    const saveFilesBlocks = saveFiles.map((saveFile) => getBlocksForSaveFile(saveFile, blockSize, RESERVED_BLOCKS.length)).flat();
-
-    if ((saveFilesBlocks.length + RESERVED_BLOCKS.length) > totalNumBlocks) {
-      throw new Error(`Not enough space to hold all saves. Requires ${saveFilesBlocks.length} and only has space for ${totalNumBlocks - RESERVED_BLOCKS.length} blocks`);
-    }
+    let currentBlockNumber = RESERVED_BLOCKS.length;
+    const saveFilesBlocks = saveFiles.map((saveFile) => {
+      const blocksForSaveFile = getBlocksForSaveFile(saveFile, blockSize, currentBlockNumber);
+      currentBlockNumber += blocksForSaveFile.length;
+      return blocksForSaveFile;
+    }).flat();
 
     // Figure out how many blocks we need to use
 
-    blockList = blockList.concat(saveFilesBlocks);
+    const totalNumBlocks = TOTAL_BLOCKS.get(blockSize);
+
+    const blockList = makeReservedBlocks(blockSize).concat(saveFilesBlocks);
+
+    if (blockList.length > totalNumBlocks) {
+      throw new Error(`Not enough space to hold all saves. Requires ${saveFilesBlocks.length} and only has space for ${totalNumBlocks - RESERVED_BLOCKS.length} blocks`);
+    }
 
     const usedBlocks = makeSequentialArray(RESERVED_BLOCKS.length, saveFilesBlocks.length);
 
