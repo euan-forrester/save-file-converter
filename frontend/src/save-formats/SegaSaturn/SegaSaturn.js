@@ -263,27 +263,17 @@ function getNumDataBlocksForSaveFile(saveFile, blockSize) {
   // so the longer the block list is
   // Also, some data fits in the first archive block
 
-  // First, check if the save will fit entirely in the archive entry block
-
   const numDataBytesInArchiveBlock = blockSize - ARCHIVE_ENTRY_BLOCK_LIST_OFFSET;
   const numDataBytesInDataBlock = blockSize - DATA_BLOCK_DATA_OFFSET;
 
-  let blockListSizeBytes = ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE; // End of list entry
-  let numBytesToStoreInDataBlocks = saveFile.rawData.byteLength + blockListSizeBytes - numDataBytesInArchiveBlock;
-
-  if (numBytesToStoreInDataBlocks <= 0) {
-    return 0;
-  }
-
-  // We need at least one data block, so we need a block list. Keep adding blocks to store the block list until we don't need anymore
-
   let blocksAddedForBlockList = 0;
-  let approxDataSizeInBlocks = Math.ceil(numBytesToStoreInDataBlocks / numDataBytesInDataBlock);
+  let numBytesToStoreInDataBlocks = 0; // Our first approximation is that we need no data blocks for this save
+  let approxDataSizeInBlocks = 0;
 
   do {
-    blockListSizeBytes = (approxDataSizeInBlocks + 1) * ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE; // Need +1 for the end of list entry
+    const blockListSizeBytes = (approxDataSizeInBlocks + 1) * ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE; // Need +1 for the end of list entry
 
-    numBytesToStoreInDataBlocks = saveFile.rawData.byteLength + blockListSizeBytes - numDataBytesInArchiveBlock;
+    numBytesToStoreInDataBlocks = Math.max(saveFile.rawData.byteLength + blockListSizeBytes - numDataBytesInArchiveBlock, 0);
 
     const newApproxBlockListSizeInBlocks = Math.ceil(numBytesToStoreInDataBlocks / numDataBytesInDataBlock);
 
