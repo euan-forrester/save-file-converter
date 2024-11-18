@@ -46,6 +46,9 @@ Everything on this site is free and open source with no advertising. If you find
 - GameShark (PS2)
   - (partial): https://www.ps2savetools.com/documents/xps-format/
 - PS2
+  - Description of PS2 save data: https://babyno.top/en/posts/2023/09/parsing-ps2-memcard-file-system/
+  - Parsing PS2 save data: https://babyno.top/en/posts/2023/09/exporting-file-from-ps2-memcard/
+  - Parser with 3D icon viewer: https://github.com/caol64/ps2mc-browser
   - Save Tools: https://www.ps2savetools.com/
   - mymc save tool: 
     - http://www.csclub.uwaterloo.ca:11068/mymc/
@@ -57,7 +60,6 @@ Everything on this site is free and open source with no advertising. If you find
   - Use PS2 files on PS3: https://github.com/bucanero/apollo-ps3
   - Convert PS2 formats: https://github.com/bucanero/psv-save-converter
   - Manage PS2 memory cards: https://github.com/bucanero/ps2vmc-tool
-  - 3D icon viewer: https://github.com/caol64/ps2mc-browser
 - Wii Virtual Console save game format (note that the files are encrypted)
   - https://wiibrew.org/wiki/Wii_Savegame_Parser
   - https://wiibrew.org/wiki/Savegame_Files
