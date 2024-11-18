@@ -48,7 +48,6 @@ Block numbers list notes:
 import SegaSaturnUtil from './Util';
 
 import Util from '../../util/util';
-import CompressionGzip from '../../util/CompressionGzip';
 
 const LITTLE_ENDIAN = false;
 
@@ -258,19 +257,42 @@ function readSaveFiles(arrayBuffer, blockSize) {
 }
 
 function getNumDataBlocksForSaveFile(saveFile, blockSize) {
-  const maxDataBytesInArchiveEntryBlock = blockSize - ARCHIVE_ENTRY_BLOCK_LIST_OFFSET;
+  // The difficulty in calculating this is that we need an unknown number of bytes to store the list of blocks,
+  // because the block list points to both the blocks that actually store the save data but also to the blocks
+  // that store the block list. So, the longer the block list is the more blocks are needed to store it,
+  // so the longer the block list is
+  // Also, some data fits in the first archive block
 
-  if (saveFile.rawData.byteLength <= (maxDataBytesInArchiveEntryBlock - ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE)) {
+  // First, check if the save will fit entirely in the archive entry block
+
+  const numDataBytesInArchiveBlock = blockSize - ARCHIVE_ENTRY_BLOCK_LIST_OFFSET;
+  const numDataBytesInDataBlock = blockSize - DATA_BLOCK_DATA_OFFSET;
+
+  let blockListSizeBytes = ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE; // End of list entry
+  let numBytesToStoreInDataBlocks = saveFile.rawData.byteLength + blockListSizeBytes - numDataBytesInArchiveBlock;
+
+  if (numBytesToStoreInDataBlocks <= 0) {
     return 0;
   }
 
-  // FIXME: Need to calculate this correctly
+  // We need at least one data block, so we need a block list. Keep adding blocks to store the block list until we don't need anymore
 
-  if (saveFile.rawData.byteLength === 24344) {
-    return 420;
-  }
+  let blocksAddedForBlockList = 0;
+  let approxDataSizeInBlocks = Math.ceil(numBytesToStoreInDataBlocks / numDataBytesInDataBlock);
 
-  return Math.ceil(saveFile.rawData.byteLength / blockSize) - 1;
+  do {
+    blockListSizeBytes = (approxDataSizeInBlocks + 1) * ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE; // Need +1 for the end of list entry
+
+    numBytesToStoreInDataBlocks = saveFile.rawData.byteLength + blockListSizeBytes - numDataBytesInArchiveBlock;
+
+    const newApproxBlockListSizeInBlocks = Math.ceil(numBytesToStoreInDataBlocks / numDataBytesInDataBlock);
+
+    blocksAddedForBlockList = newApproxBlockListSizeInBlocks - approxDataSizeInBlocks;
+
+    approxDataSizeInBlocks = newApproxBlockListSizeInBlocks;
+  } while (blocksAddedForBlockList > 0);
+
+  return approxDataSizeInBlocks;
 }
 
 function getBlocksForSaveFile(saveFile, blockSize, startingBlockNumber) {
@@ -364,20 +386,11 @@ export default class SegaSaturnSaveData {
   }
 
   static createFromSegaSaturnData(arrayBuffer) {
-    // Cartridge saves from mednafen are compressed using gzip, but internal saves are not
-    let uncompressedArrayBuffer = null;
+    const blockSize = getBlockSizeAndCheckHeader(arrayBuffer);
 
-    try {
-      uncompressedArrayBuffer = CompressionGzip.decompress(arrayBuffer);
-    } catch (e) {
-      uncompressedArrayBuffer = arrayBuffer;
-    }
+    const { saveFiles, volumeInfo } = readSaveFiles(arrayBuffer, blockSize);
 
-    const blockSize = getBlockSizeAndCheckHeader(uncompressedArrayBuffer);
-
-    const { saveFiles, volumeInfo } = readSaveFiles(uncompressedArrayBuffer, blockSize);
-
-    return new SegaSaturnSaveData(uncompressedArrayBuffer, saveFiles, volumeInfo);
+    return new SegaSaturnSaveData(arrayBuffer, saveFiles, volumeInfo);
   }
 
   static createFromSaveFiles(saveFiles, blockSize) {
@@ -418,7 +431,6 @@ export default class SegaSaturnSaveData {
     return new SegaSaturnSaveData(segaSaturnArrayBuffer, saveFiles, volumeInfo);
   }
 
-  // This constructor creates a new object from a binary representation of Sega CD save data
   constructor(arrayBuffer, saveFiles, volumeInfo) {
     this.arrayBuffer = arrayBuffer;
     this.saveFiles = saveFiles;
