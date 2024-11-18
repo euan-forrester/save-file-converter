@@ -1,5 +1,10 @@
 /*
 The popular emulator mednafen reads/writes raw Saturn BIOS files, but compresses the cartridge saves using gzip
+
+Note that it is able to load uncompressed cartridge saves as well: it will just compress them when you exit the emulator.
+
+Also, our compressed files are very slightly different from the ones that it creates (different by 1 bit in my test case),
+probably because of different compression settings. But the emulator is able to load them fine as well.
 */
 
 import SegaSaturnSaveData from './SegaSaturn';
