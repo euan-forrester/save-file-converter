@@ -359,6 +359,14 @@ function getBlocksForSaveFile(saveFile, blockSize, startingBlockNumber) {
 }
 
 export default class SegaSaturnSaveData {
+  static INTERNAL_BLOCK_SIZE = POSSIBLE_BLOCK_SIZES[0];
+
+  static CARTRIDGE_BLOCK_SIZE = POSSIBLE_BLOCK_SIZES[1];
+
+  static INTERNAL_SAVE_SIZE = TOTAL_BLOCKS.get(POSSIBLE_BLOCK_SIZES[0]) * POSSIBLE_BLOCK_SIZES[0];
+
+  static CARTRIDGE_SAVE_SIZE = TOTAL_BLOCKS.get(POSSIBLE_BLOCK_SIZES[1]) * POSSIBLE_BLOCK_SIZES[1];
+
   static ARCHIVE_ENTRY_NAME_LENGTH = ARCHIVE_ENTRY_NAME_LENGTH;
 
   static ARCHIVE_ENTRY_NAME_ENCODING = ARCHIVE_ENTRY_NAME_ENCODING;
@@ -366,6 +374,19 @@ export default class SegaSaturnSaveData {
   static ARCHIVE_ENTRY_COMMENT_LENGTH = ARCHIVE_ENTRY_COMMENT_LENGTH;
 
   static ARCHIVE_ENTRY_COMMENT_ENCODING = ARCHIVE_ENTRY_COMMENT_ENCODING;
+
+  static createEmptySave(blockSize) {
+    return SegaSaturnSaveData.createFromSaveFiles([], blockSize).getArrayBuffer();
+  }
+
+  static isCorrectlyFormatted(arrayBuffer) {
+    try {
+      SegaSaturnSaveData.createFromSegaSaturnData(arrayBuffer);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 
   static createWithNewSize(/* segaSaturnSaveData, newSize */) {
     /*
