@@ -7,7 +7,7 @@ does it: https://github.com/MiSTer-devel/Saturn_MiSTer/issues/283
 */
 
 import SegaSaturnSaveData from '../SegaSaturn/SegaSaturn';
-import MednafenSegaSaturnSaveData from '../SegaSaturn/mednafen';
+import EmulatorSegaSaturnSaveData from '../SegaSaturn/Emulator';
 
 import GenesisUtil from '../../util/Genesis';
 
@@ -88,24 +88,23 @@ export default class MisterSegaSaturnSaveData {
     // whether we're passed an internal save buffer and/or a ram cart save buffer.
     // There are 4 cases, depending on which combination of raw file we are passed.
 
-    // Our raw files may come from the emulator mednafen, in which case the cart one will be compressed.
-    // Just decompress both here to make sure we're not encoding information about this emulator in our file about the mister
+    // Our raw files may come from an emulator, in which case they may come in some slightly diffently formats and we need to get the actual raw data
 
-    let uncompressedRawInternalSaveArrayBuffer = null;
-    let uncompressedRawCartSaveArrayBuffer = null;
+    let actualRawInternalSaveArrayBuffer = null;
+    let actualRawCartSaveArrayBuffer = null;
 
     if (rawInternalSaveArrayBuffer !== null) {
-      uncompressedRawInternalSaveArrayBuffer = MednafenSegaSaturnSaveData.createFromSegaSaturnData(rawInternalSaveArrayBuffer).getArrayBuffer();
+      actualRawInternalSaveArrayBuffer = EmulatorSegaSaturnSaveData.createFromSegaSaturnData(rawInternalSaveArrayBuffer).getArrayBuffer();
 
-      if (uncompressedRawInternalSaveArrayBuffer.byteLength !== SegaSaturnSaveData.INTERNAL_SAVE_SIZE) {
+      if (actualRawInternalSaveArrayBuffer.byteLength !== SegaSaturnSaveData.INTERNAL_SAVE_SIZE) {
         throw new Error('This does not appear to be an internal Sega Saturn save file');
       }
     }
 
     if (rawCartSaveArrayBuffer !== null) {
-      uncompressedRawCartSaveArrayBuffer = MednafenSegaSaturnSaveData.createFromSegaSaturnData(rawCartSaveArrayBuffer).getArrayBuffer();
+      actualRawCartSaveArrayBuffer = EmulatorSegaSaturnSaveData.createFromSegaSaturnData(rawCartSaveArrayBuffer).getArrayBuffer();
 
-      if (uncompressedRawCartSaveArrayBuffer.byteLength !== SegaSaturnSaveData.CARTRIDGE_SAVE_SIZE) {
+      if (actualRawCartSaveArrayBuffer.byteLength !== SegaSaturnSaveData.CARTRIDGE_SAVE_SIZE) {
         throw new Error('This does not appear to be a Sega Saturn cartridge save file');
       }
     }
@@ -116,31 +115,31 @@ export default class MisterSegaSaturnSaveData {
     const emptyInternalSaveBuffer = SegaSaturnSaveData.createEmptySave(SegaSaturnSaveData.INTERNAL_BLOCK_SIZE);
     const emptyCartSaveBuffer = SegaSaturnSaveData.createEmptySave(SegaSaturnSaveData.CARTRIDGE_BLOCK_SIZE);
 
-    if (uncompressedRawInternalSaveArrayBuffer !== null) {
-      if (uncompressedRawCartSaveArrayBuffer !== null) {
+    if (actualRawInternalSaveArrayBuffer !== null) {
+      if (actualRawCartSaveArrayBuffer !== null) {
         // We have both pieces, so we're creating a large mister file
         return new MisterSegaSaturnSaveData(
-          uncompressedRawInternalSaveArrayBuffer,
-          uncompressedRawCartSaveArrayBuffer,
-          GenesisUtil.byteExpand(Util.concatArrayBuffers([uncompressedRawInternalSaveArrayBuffer, uncompressedRawCartSaveArrayBuffer]), MISTER_PADDING_VALUE),
+          actualRawInternalSaveArrayBuffer,
+          actualRawCartSaveArrayBuffer,
+          GenesisUtil.byteExpand(Util.concatArrayBuffers([actualRawInternalSaveArrayBuffer, actualRawCartSaveArrayBuffer]), MISTER_PADDING_VALUE),
         );
       }
 
       // We have the internal save data but not the ram cart save data, so create a small mister file
       return new MisterSegaSaturnSaveData(
-        uncompressedRawInternalSaveArrayBuffer,
+        actualRawInternalSaveArrayBuffer,
         emptyCartSaveBuffer,
-        GenesisUtil.byteExpand(uncompressedRawInternalSaveArrayBuffer, MISTER_PADDING_VALUE),
+        GenesisUtil.byteExpand(actualRawInternalSaveArrayBuffer, MISTER_PADDING_VALUE),
       );
     }
 
     // We don't have an internal save buffer
-    if (uncompressedRawCartSaveArrayBuffer !== null) {
+    if (actualRawCartSaveArrayBuffer !== null) {
       // We have only the ram cart data, so create a large mister file
       return new MisterSegaSaturnSaveData(
         emptyInternalSaveBuffer,
-        uncompressedRawCartSaveArrayBuffer,
-        GenesisUtil.byteExpand(Util.concatArrayBuffers([emptyInternalSaveBuffer, uncompressedRawCartSaveArrayBuffer]), MISTER_PADDING_VALUE),
+        actualRawCartSaveArrayBuffer,
+        GenesisUtil.byteExpand(Util.concatArrayBuffers([emptyInternalSaveBuffer, actualRawCartSaveArrayBuffer]), MISTER_PADDING_VALUE),
       );
     }
 
