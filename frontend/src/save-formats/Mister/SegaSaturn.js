@@ -88,6 +88,9 @@ export default class MisterSegaSaturnSaveData {
     // whether we're passed an internal save buffer and/or a ram cart save buffer.
     // There are 4 cases, depending on which combination of raw file we are passed.
 
+    // Our raw files may come from the emulator mednafen, in which case the cart one will be compressed.
+    // Just decompress both here to make sure we're not encoding information about this emulator in our file about the mister
+
     let uncompressedRawInternalSaveArrayBuffer = null;
     let uncompressedRawCartSaveArrayBuffer = null;
 
