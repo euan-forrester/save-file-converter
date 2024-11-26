@@ -7,9 +7,9 @@ Also, our compressed files are very slightly different from the ones that it cre
 probably because of different compression settings. But the emulator is able to load them fine as well.
 */
 
-import SegaSaturnSaveData from './SegaSaturn';
+import SegaSaturnSaveData from '../SegaSaturn';
 
-import CompressionGzip from '../../util/CompressionGzip';
+import CompressionGzip from '../../../util/CompressionGzip';
 
 const CARTRIDGE_BLOCK_SIZE = 0x200; // Block size for cartridge saves
 

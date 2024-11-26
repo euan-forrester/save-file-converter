@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 import ArrayUtil from '#/util/Array';
 
-import MednafenSegaSaturnSaveData from '@/save-formats/SegaSaturn/mednafen';
+import MednafenSegaSaturnSaveData from '@/save-formats/SegaSaturn/Emulators/mednafen';
 import SegaSaturnUtil from '@/save-formats/SegaSaturn/Util';
 
 const DIR = './tests/data/save-formats/segasaturn';
