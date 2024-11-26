@@ -15,6 +15,8 @@ const COMBINED_MISTER_INTERNAL_AND_RAM_CART_FILENAME = `${DIR}/Pretend-mister-sa
 const COMBINED_INTERNAL_FILENAME = `${DIR}/Daytona USA - Championship Circuit Edition (USA).bkr`;
 const COMBINED_CART_FILENAME = `${DIR}/Shining Force III Scenario 3 (English v25.1)-uncompressed.bcr`;
 
+const COMBINED_CART_COMPRESSED_FILENAME = `${DIR}/Shining Force III Scenario 3 (English v25.1).bcr`; // The user will probably provide an emulator file that's compressed, because that's how mednafen outputs it
+
 const MISTER_COMBINED_CART_PLUS_EMPTY_INTERNAL_FILENAME = `${DIR}/Pretend-mister-save-only-cart.sav`;
 
 const MISTER_EMPTY_FILENAME = `${DIR}/Empty-mister-save.sav`;
@@ -39,7 +41,7 @@ describe('MiSTer - Sega Saturn save format', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(misterSegaSaturnSaveData.getMisterArrayBuffer(), misterArrayBuffer)).to.equal(true);
   });
 
-  it('should convert a raw RAM cart Sega Saturn save to the long MiSTer format', async () => {
+  it('should convert a raw cart Sega Saturn save to the long MiSTer format', async () => {
     const rawCartSaveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(COMBINED_CART_FILENAME);
     const misterArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MISTER_COMBINED_CART_PLUS_EMPTY_INTERNAL_FILENAME);
 
@@ -48,9 +50,28 @@ describe('MiSTer - Sega Saturn save format', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(misterSegaSaturnSaveData.getMisterArrayBuffer(), misterArrayBuffer)).to.equal(true);
   });
 
-  it('should convert a raw internal save + raw RAM cart Sega Saturn save to the long MiSTer format', async () => {
+  it('should convert a compressed raw cart Sega Saturn save to the long MiSTer format', async () => {
+    const rawCartSaveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(COMBINED_CART_COMPRESSED_FILENAME);
+    const misterArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MISTER_COMBINED_CART_PLUS_EMPTY_INTERNAL_FILENAME);
+
+    const misterSegaSaturnSaveData = MisterSegaSaturnSaveData.createFromRawData({ rawCartSaveArrayBuffer });
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(misterSegaSaturnSaveData.getMisterArrayBuffer(), misterArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a raw internal save + raw cart Sega Saturn save to the long MiSTer format', async () => {
     const rawInternalSaveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(COMBINED_INTERNAL_FILENAME);
     const rawCartSaveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(COMBINED_CART_FILENAME);
+    const misterArrayBuffer = await ArrayBufferUtil.readArrayBuffer(COMBINED_MISTER_INTERNAL_AND_RAM_CART_FILENAME);
+
+    const misterSegaSaturnSaveData = MisterSegaSaturnSaveData.createFromRawData({ rawInternalSaveArrayBuffer, rawCartSaveArrayBuffer });
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(misterSegaSaturnSaveData.getMisterArrayBuffer(), misterArrayBuffer)).to.equal(true);
+  });
+
+  it('should convert a raw internal save + raw compressed cart Sega Saturn save to the long MiSTer format', async () => {
+    const rawInternalSaveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(COMBINED_INTERNAL_FILENAME);
+    const rawCartSaveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(COMBINED_CART_COMPRESSED_FILENAME);
     const misterArrayBuffer = await ArrayBufferUtil.readArrayBuffer(COMBINED_MISTER_INTERNAL_AND_RAM_CART_FILENAME);
 
     const misterSegaSaturnSaveData = MisterSegaSaturnSaveData.createFromRawData({ rawInternalSaveArrayBuffer, rawCartSaveArrayBuffer });
