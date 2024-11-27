@@ -425,7 +425,7 @@ export default class SegaSaturnSaveData {
     const blockList = makeReservedBlocks(blockSize).concat(saveFilesBlocks);
 
     if (blockList.length > totalNumBlocks) {
-      throw new Error(`Not enough space to hold all saves. Requires ${saveFilesBlocks.length} and only has space for ${totalNumBlocks - RESERVED_BLOCKS.length} blocks`);
+      throw new Error(`Not enough space to hold all saves. Requires ${saveFilesBlocks.length} blocks and only has space for ${totalNumBlocks - RESERVED_BLOCKS.length} blocks`);
     }
 
     const usedBlocks = makeSequentialArray(RESERVED_BLOCKS.length, saveFilesBlocks.length);

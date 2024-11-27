@@ -232,13 +232,13 @@ export default {
           sortable: true,
         },
         {
-          key: 'segacd',
+          key: 'sega-cd',
           label: 'Sega CD',
           sortable: true,
         },
         {
-          key: 'saturn',
-          label: 'Saturn',
+          key: 'sega-saturn',
+          label: 'Sega Saturn',
           sortable: true,
         },
         {

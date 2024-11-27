@@ -106,6 +106,20 @@ const routes = [
     component: () => import(/* webpackChunkName: "sega-cd" */ '../views/SegaCd.vue'),
   },
   {
+    path: '/sega-saturn',
+    redirect: '/sega-saturn/emulator',
+  },
+  {
+    path: '/sega-saturn/emulator',
+    name: 'Sega Saturn - Emulator',
+    component: () => import(/* webpackChunkName: "sega-saturn-emulator" */ '../views/SegaSaturnEmulator.vue'),
+  },
+  {
+    path: '/sega-saturn/saroo',
+    name: 'Sega Saturn - Saroo',
+    component: () => import(/* webpackChunkName: "sega-saturn-saroo" */ '../views/SegaSaturnSaroo.vue'),
+  },
+  {
     path: '/nintendo-switch-online',
     name: 'Nintendo Switch Online',
     component: () => import(/* webpackChunkName: "nintendo-switch-online" */ '../views/NintendoSwitchOnline.vue'),

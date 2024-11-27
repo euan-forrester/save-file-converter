@@ -11,6 +11,8 @@ https://savefileconverter.com/#/ps1/ps3
 https://savefileconverter.com/#/ps1/emulator
 https://savefileconverter.com/#/psp
 https://savefileconverter.com/#/sega-cd
+https://savefileconverter.com/#/sega-saturn/emulator
+https://savefileconverter.com/#/sega-saturn/saroo
 https://savefileconverter.com/#/n64/dexdrive
 https://savefileconverter.com/#/n64/controller-pak
 https://savefileconverter.com/#/mister
