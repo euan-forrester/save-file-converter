@@ -29,8 +29,6 @@ const MISTER_CARTRIDGE_SAVE_SIZE = SegaSaturnSaveData.CARTRIDGE_SAVE_SIZE * 2;
 
 const MISTER_PADDING_VALUE = 0x00;
 
-const MISTER_GARBAGE_LENGTH = 0x40; // Some saves (from an earlier version of the core?) contain data for the first 0x40 bytes that looks like: "BBcaUcRkmUFprRaaBmc UFRomrFmraat" rather than " B a c k U p R a m   F o r m a t", which still reads correctly if you look at every other byte, but fails GenesisUtil.isByteExpanded()
-
 export default class MisterSegaSaturnSaveData {
   static INTERNAL_MEMORY = 'internal-memory';
 
@@ -69,10 +67,9 @@ export default class MisterSegaSaturnSaveData {
       cartArrayBuffer = misterArrayBuffer.slice(MISTER_INTERNAL_SAVE_SIZE, MISTER_INTERNAL_SAVE_SIZE + MISTER_CARTRIDGE_SAVE_SIZE);
     }
 
-    if (!GenesisUtil.isByteExpanded(internalArrayBuffer.slice(MISTER_GARBAGE_LENGTH)) || !GenesisUtil.isByteExpanded(cartArrayBuffer)) {
-      throw new Error('This does not appear to be a MiSTer Sega Saturn save file: it is not byte expanded');
-    }
-
+    // With this core the file can contain garbage data in the "expanded" bytes, so testing with GenesisUtil.isByteExpanded()
+    // will give false negatives. Instead we just blindly byte collapse it and then test the format of the resultant file.
+    // Sega Saturn files have a distinct signature at the start of the file so this test should be sufficient.
     internalArrayBuffer = GenesisUtil.byteCollapse(internalArrayBuffer);
     cartArrayBuffer = GenesisUtil.byteCollapse(cartArrayBuffer);
 
