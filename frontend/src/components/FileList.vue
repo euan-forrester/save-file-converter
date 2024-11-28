@@ -1,6 +1,6 @@
 <template>
   <b-collapse appear :visible="display">
-    <b-alert variant="info" :show="(this.files !== null) && (this.files.length === 0)">
+    <b-alert variant="info" :show="(this.files !== null) && (this.files.length === 0) && this.showMessageWhenEmpty">
       No saves found in file
     </b-alert>
     <div v-show="(this.files !== null) && (this.files.length > 0)">
@@ -41,6 +41,10 @@ export default {
     display: {
       type: Boolean,
       default: false,
+    },
+    showMessageWhenEmpty: {
+      type: Boolean,
+      default: true,
     },
     value: {
       type: Number,
