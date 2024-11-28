@@ -26,6 +26,11 @@
           </div>
           <div v-else>
             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
+            <sega-cd-save-type-selector
+              :value="this.segaCdSaveType"
+              @change="changeSegaCdSaveType($event)"
+              ramCartText="Backup cartridge"
+            />
           </div>
         </b-col>
         <b-col sm=12 md=2 lg=2 xl=2 align-self="start">
@@ -53,7 +58,8 @@
             <input-file
               @load="readIndividualFileSaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose files to add"
+              placeholderText="Choose files to add (*.BUP)"
+              acceptExtension=".BUP"
               :leaveRoomForHelpIcon="false"
               :allowMultipleFiles="true"
             />
@@ -61,6 +67,7 @@
               :display="this.segaSaturnSaveData !== null"
               :files="this.getFileListNames()"
               :enabled="false"
+              :showMessageWhenEmpty="false"
             />
           </div>
         </b-col>
@@ -117,6 +124,7 @@ import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import FileList from './FileList.vue';
+import SegaCdSaveTypeSelector from './SegaCdSaveTypeSelector.vue';
 import SegaSaturnSaveData from '../save-formats/SegaSaturn/SegaSaturn';
 import SegaSaturnBupSaveData from '../save-formats/SegaSaturn/Bup';
 import EmulatorSegaSaturnSaveData from '../save-formats/SegaSaturn/Emulator';
@@ -127,11 +135,14 @@ export default {
     return {
       segaSaturnSaveData: null,
       bupsArray: null,
+      saveFiles: null,
       errorMessage: null,
       inputFilename: null,
       outputFilename: null,
       conversionDirection: 'convertToRaw',
+      segaCdSaveType: 'internal-memory',
       selectedSaveData: null,
+      outputBlockSize: SegaSaturnSaveData.INTERNAL_BLOCK_SIZE,
     };
   },
   components: {
@@ -139,6 +150,7 @@ export default {
     InputFile,
     OutputFilename,
     FileList,
+    SegaCdSaveTypeSelector,
   },
   computed: {
     convertButtonDisabled() {
@@ -163,10 +175,13 @@ export default {
       this.conversionDirection = newDirection;
       this.segaSaturnSaveData = null;
       this.bupsArray = null;
+      this.saveFiles = null;
       this.errorMessage = null;
       this.inputFilename = null;
       this.outputFilename = null;
       this.selectedSaveData = null;
+      this.segaCdSaveType = 'internal-memory';
+      this.outputBlockSize = SegaSaturnSaveData.INTERNAL_BLOCK_SIZE;
     },
     changeSelectedSaveData(newSaveData) {
       if (this.segaSaturnSaveData.getSaveFiles().length > 0) {
@@ -175,6 +190,18 @@ export default {
       } else {
         this.selectedSaveData = null;
         this.outputFilename = null;
+      }
+    },
+    changeSegaCdSaveType(newValue) {
+      if (this.segaCdSaveType !== newValue) {
+        this.segaCdSaveType = newValue;
+        if (newValue === 'internal-memory') {
+          this.outputBlockSize = SegaSaturnSaveData.INTERNAL_BLOCK_SIZE;
+        } else {
+          this.outputBlockSize = SegaSaturnSaveData.CARTRIDGE_BLOCK_SIZE;
+        }
+
+        this.tryToCreateSegaSaturnSaveDataFromSaveFiles();
       }
     },
     readSegaSaturnSaveData(event) {
@@ -189,6 +216,7 @@ export default {
         this.errorMessage = 'File appears to not be in the correct format';
         this.segaSaturnSaveData = null;
         this.bupsArray = null;
+        this.saveFiles = null;
         this.selectedSaveData = null;
       }
     },
@@ -199,20 +227,39 @@ export default {
       try {
         this.bupsArray = event.map((f) => f.arrayBuffer);
 
-        const saveFiles = SegaSaturnBupSaveData.convertBupsToSaveFiles(this.bupsArray);
+        this.saveFiles = SegaSaturnBupSaveData.convertBupsToSaveFiles(this.bupsArray);
 
-        this.segaSaturnSaveData = SegaSaturnSaveData.createFromSaveFiles(saveFiles, 0x40 /* this.blockSize */);
-
-        if (this.segaSaturnSaveData.getSaveFiles().length > 0) {
-          this.outputFilename = `${Util.convertDescriptionToFilename(this.segaSaturnSaveData.getSaveFiles()[0].name)}.bkr`;
-        } else {
-          this.outputFilename = 'output.bkr';
-        }
+        this.tryToCreateSegaSaturnSaveDataFromSaveFiles();
       } catch (e) {
         this.errorMessage = e.message;
         this.segaSaturnSaveData = null;
         this.bupsArray = null;
+        this.saveFiles = null;
         this.selectedSaveData = null;
+      }
+    },
+    tryToCreateSegaSaturnSaveDataFromSaveFiles() {
+      if ((this.saveFiles !== null) && (this.outputBlockSize !== null)) {
+        this.errorMessage = null;
+        this.selectedSaveData = null;
+        this.inputFilename = null;
+        try {
+          this.segaSaturnSaveData = SegaSaturnSaveData.createFromSaveFiles(this.saveFiles, this.outputBlockSize);
+
+          const outputFileExtension = (this.segaCdSaveType === 'internal-memory') ? 'bkr' : 'bcr'; // These are mednafen-specific. Not sure what to do here
+
+          if (this.segaSaturnSaveData.getSaveFiles().length > 0) {
+            this.outputFilename = `${Util.convertDescriptionToFilename(this.segaSaturnSaveData.getSaveFiles()[0].name)}.${outputFileExtension}`;
+          } else {
+            this.outputFilename = `output.${outputFileExtension}`;
+          }
+        } catch (e) {
+          this.errorMessage = e.message;
+          this.segaSaturnSaveData = null;
+          this.selectedSaveData = null;
+          this.outputFilename = null;
+          // Leave this.bupsArray and this.saveFiles alone, so we can try a different block size
+        }
       }
     },
     convertFile() {
