@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
-import ArrayUtil from '#/util/Array';
+import ArrayUtil from '@/util/Array';
 
 import SegaSaturnSaveData from '@/save-formats/SegaSaturn/SegaSaturn';
 import SegaSaturnUtil from '@/save-formats/SegaSaturn/Util';
