@@ -30,7 +30,7 @@ Archive entry:
 0x10 - 0x1A: Comment
 0x1B:        Language code
 0x1C - 1x1F: Date code
-0x40 - ????: Block list (terminated with ARCHIVE_ENTRY_BLOCK_LIST_END)
+0x40 - ????: Save data (if small enough to fit in this block), or list of blocks containing the save data (terminated with ARCHIVE_ENTRY_BLOCK_LIST_END)
 */
 
 import Util from '../../../util/util';
@@ -127,17 +127,27 @@ function getSaveFile(arrayBuffer, directoryEntryIndex) {
   }
 
   const rawDataBlockList = [];
-  let blockListCurrentOffset = ARCHIVE_ENTRY_BLOCK_LIST_OFFSET;
-  let blockListEntry = archiveEntryBlockDataView.getUint16(blockListCurrentOffset);
+  let rawData = null;
 
-  while (blockListEntry !== ARCHIVE_ENTRY_BLOCK_LIST_END) {
-    rawDataBlockList.push(blockListEntry);
-    blockListCurrentOffset += 2;
-    blockListEntry = archiveEntryBlockDataView.getUint16(blockListCurrentOffset);
+  // If the save data can fit within the archive block then it's found there
+  // Otherwise, the rest of the archive block is a list of blocks which contain the save data
+
+  if (saveSize <= (BLOCK_SIZE - ARCHIVE_ENTRY_BLOCK_LIST_OFFSET)) {
+    rawData = archiveEntryBlock.slice(ARCHIVE_ENTRY_BLOCK_LIST_OFFSET, ARCHIVE_ENTRY_BLOCK_LIST_OFFSET + saveSize);
+  } else {
+    let blockListCurrentOffset = ARCHIVE_ENTRY_BLOCK_LIST_OFFSET;
+    let blockListEntry = archiveEntryBlockDataView.getUint16(blockListCurrentOffset);
+
+    while (blockListEntry !== ARCHIVE_ENTRY_BLOCK_LIST_END) {
+      rawDataBlockList.push(blockListEntry);
+      blockListCurrentOffset += 2;
+      blockListEntry = archiveEntryBlockDataView.getUint16(blockListCurrentOffset);
+    }
+
+    const rawDataBlocks = rawDataBlockList.map((blockNum) => getBlock(arrayBuffer, blockNum));
+
+    rawData = Util.concatArrayBuffers(rawDataBlocks).slice(0, saveSize);
   }
-
-  const rawDataBlocks = rawDataBlockList.map((blockNum) => getBlock(arrayBuffer, blockNum));
-  const rawData = Util.concatArrayBuffers(rawDataBlocks).slice(0, saveSize);
 
   console.log(`Found save: languageCode: ${SegaSaturnUtil.getLanguageString(languageCode)}, comment: ${comment}, date: ${SegaSaturnUtil.getDate(dateCode).toUTCString()}, size: ${saveSize}`);
 
