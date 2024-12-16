@@ -42,6 +42,7 @@ import ArrayUtil from '../../../util/Array';
 
 import SegaSaturnSaveData from '../SegaSaturn';
 import SegaSaturnUtil from '../Util';
+import SegaSaturnSarooUtil from './Util';
 
 const LITTLE_ENDIAN = false;
 
@@ -102,13 +103,6 @@ function getBlock(slotArrayBuffer, blockSize, blockNumber) {
   return slotArrayBuffer.slice(blockNumber * blockSize, (blockNumber + 1) * blockSize);
 }
 
-function isBlockOccupied(blockNum, bitmapUint8Array) {
-  const byteNum = Math.floor(blockNum / 8);
-  const bitNum = blockNum % 8;
-
-  return ((bitmapUint8Array[byteNum] & (1 << bitNum)) !== 0);
-}
-
 // Based on get_next_block() from https://github.com/tpunix/SAROO/blob/master/tools/savetool/sr_bup.c#L74
 // It just finds the next occupied block in sequential order and returns it
 //
@@ -166,16 +160,9 @@ function getSaveFiles(slotNum, arrayBuffer) {
   const freeBlocks = slotDataView.getUint16(SLOT_FREE_BLOCKS_OFFSET, LITTLE_ENDIAN);
   const gameId = Util.readNullTerminatedString(slotUint8Array, SLOT_GAME_ID_OFFSET, GAME_ID_ENCODING, GAME_ID_LENGTH);
   let nextSaveBlockNum = slotDataView.getUint16(SLOT_FIRST_SAVE_BLOCK_OFFSET, LITTLE_ENDIAN);
-  const bitmapUint8Array = new Uint8Array(slotArrayBuffer.slice(SLOT_BITMAP_OFFSET, SLOT_BITMAP_OFFSET + SLOT_BITMAP_LENGTH));
+  const bitmap = slotArrayBuffer.slice(SLOT_BITMAP_OFFSET, SLOT_BITMAP_OFFSET + SLOT_BITMAP_LENGTH);
 
-  const numBlocks = Math.min(totalSize / blockSize, SLOT_BITMAP_LENGTH * 8);
-  const blockOccupancy = ArrayUtil.createSequentialArray(0, numBlocks).map((blockNum) => isBlockOccupied(blockNum, bitmapUint8Array));
-  const usedBlocks = blockOccupancy.reduce((blockList, blockIsOccupied, blockNum) => {
-    if (blockIsOccupied) {
-      blockList.push(blockNum);
-    }
-    return blockList;
-  }, []);
+  const { blockOccupancy, usedBlocks } = SegaSaturnSarooUtil.getBlockOccupancy(bitmap, totalSize, blockSize);
 
   console.log(`Found slot with total size: ${totalSize}, block size: ${blockSize}, free blocks: ${freeBlocks}, game ID: ${gameId}, first save block num: ${nextSaveBlockNum}`);
   console.log('Used blocks: ', usedBlocks);

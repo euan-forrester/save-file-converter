@@ -13,8 +13,13 @@ be parsed to get a list of all of the saves it contains and to get a list of occ
 
 The file is divided into equal-sized blocks. Everything is big endian.
 
-The first 2 blocks are reserved. The first block is the string 'BackUpRam Format' repeated over and over, and you can infer the block size of the file
-by counting the number of repetitions of that string. The second block is all 0x00.
+The first 2 blocks are reserved. The first block is the string 'BackUpRam Format' repeated over and over. The BIOS writes out 0x40
+bytes of this regardless of whether the block size is 0x40 or 0x200 bytes. mednafen manually fills the entire first block (either
+0x40 or 0x200 bytes), presumably to allow the reader to infer the block size of the file by counting the number of repetitions of that string.
+
+We may want to change our detection of the block size to look at the size of the file rather than counting that string in the first block.
+
+The second block is all 0x00.
 
 From there, blocks are of 2 types: archive entry blocks begin with 0x80000000, and data entry blocks begin with 0x00000000
 
