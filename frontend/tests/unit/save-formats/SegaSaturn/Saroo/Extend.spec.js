@@ -7,9 +7,9 @@ import ArrayUtil from '@/util/Array';
 
 const DIR = './tests/data/save-formats/segasaturn/saroo';
 
-/*
-const SAROO_FILENAME_EMPTY = `${DIR}/SS_SAVE_empty.BIN`;
+const SAROO_FILENAME_EMPTY = `${DIR}/SS_MEMS_empty.BIN`;
 
+/*
 const SAROO_FILENAME_2_GAMES = `${DIR}/SS_SAVE_2_games.BIN`;
 const SAROO_FILENAME_2_GAMES_FILE_1 = `${DIR}/Hyper Duel (Japan).raw`;
 const SAROO_FILENAME_2_GAMES_FILE_2 = `${DIR}/Dungeons and Dragons Collection (Japan) (Disc 2) (Shadows over Mystara).raw`;
@@ -21,10 +21,22 @@ const SAROO_1_GAME_2_SAVES_FILE_2 = `${DIR}/Daytona USA - Championship Circuit E
 
 // FIXME: Need a test for a game that saves to the backup cart, but has a marker in this file? Not sure how that works yet
 
-// FIXME: Need test for empty file
 // FIXME: Need test for file containing saves from > 1 game
 
 describe('Sega Saturn - Saroo extend', () => {
+  it('should parse an empty file', async () => {
+    const sarooArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_FILENAME_EMPTY);
+
+    const segaSaturnSaveData = SarooSegaSaturnExtendSaveData.createFromSarooData(sarooArrayBuffer);
+
+    expect(segaSaturnSaveData.getVolumeInfo().totalSize).to.equal(8388608);
+    expect(segaSaturnSaveData.getVolumeInfo().numFreeBlocks).to.equal(8056);
+    expect(segaSaturnSaveData.getVolumeInfo().numUsedBlocks).to.equal(8); // Header block + 7 directory blocks
+    expect(ArrayUtil.arraysEqual(segaSaturnSaveData.getVolumeInfo().usedBlocks, ArrayUtil.createSequentialArray(0, 8))).to.equal(true);
+
+    expect(segaSaturnSaveData.getSaveFiles().length).to.equal(0);
+  });
+
   it('should extract saves from a Saroo extend file containing 2 saves, both from the same game', async () => {
     const sarooArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_1_GAME_2_SAVES);
     const file1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_1_GAME_2_SAVES_FILE_1);
