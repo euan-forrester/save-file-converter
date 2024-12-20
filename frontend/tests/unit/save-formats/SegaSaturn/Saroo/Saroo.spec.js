@@ -30,9 +30,15 @@ describe('Sega Saturn - Saroo', () => {
   });
 
   it('should create an empty file', async () => {
+    const sarooArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_FILENAME_EMPTY);
+
     const segaSaturnSaveData = SarooSegaSaturnSaveData.createFromSaveFiles([]);
 
+    // FIXME: Check volume info here
+
     expect(segaSaturnSaveData.getSaveFiles().length).to.equal(0);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getArrayBuffer(), sarooArrayBuffer)).to.equal(true);
   });
 
   it('should extract saves from a Saroo file containing 4 saves all for different games, 2 of which are empty', async () => {
