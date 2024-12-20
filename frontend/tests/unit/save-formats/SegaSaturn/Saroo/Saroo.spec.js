@@ -3,13 +3,14 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 import SarooSegaSaturnSaveData from '@/save-formats/SegaSaturn/Saroo/Saroo';
 import ArrayUtil from '@/util/Array';
-// import SegaSaturnUtil from '@/save-formats/SegaSaturn/Util';
+import SegaSaturnUtil from '@/save-formats/SegaSaturn/Util';
 
 const DIR = './tests/data/save-formats/segasaturn/saroo';
 
 const SAROO_FILENAME_EMPTY = `${DIR}/SS_SAVE_empty.BIN`;
 
 const SAROO_FILENAME_2_GAMES = `${DIR}/SS_SAVE_2_games.BIN`;
+const SAROO_FILENAME_2_GAMES_RECREATED = `${DIR}/SS_SAVE_2_games-recreated.BIN`; // Because the original has 2 game with empty saves that are represented differently from each other so we can't know how to represent each
 const SAROO_FILENAME_2_GAMES_FILE_1 = `${DIR}/Hyper Duel (Japan).raw`;
 const SAROO_FILENAME_2_GAMES_FILE_2 = `${DIR}/Dungeons and Dragons Collection (Japan) (Disc 2) (Shadows over Mystara).raw`;
 
@@ -17,7 +18,6 @@ const SAROO_1_GAME_2_SAVES = `${DIR}/SS_SAVE_1_game_2_saves.BIN`;
 const SAROO_1_GAME_2_SAVES_FILE_1 = `${DIR}/Shining Force III Scenario 1 (English v25.1)-1.raw`;
 const SAROO_1_GAME_2_SAVES_FILE_2 = `${DIR}/Shining Force III Scenario 1 (English v25.1)-2.raw`;
 
-// FIXME: Need a test for a game that saves to the backup cart, but has a marker in this file? Not sure how that works yet
 // FIXME: Need to add volume info
 
 describe('Sega Saturn - Saroo', () => {
@@ -25,6 +25,12 @@ describe('Sega Saturn - Saroo', () => {
     const sarooArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_FILENAME_EMPTY);
 
     const segaSaturnSaveData = SarooSegaSaturnSaveData.createFromSarooData(sarooArrayBuffer);
+
+    expect(segaSaturnSaveData.getSaveFiles().length).to.equal(0);
+  });
+
+  it('should create an empty file', async () => {
+    const segaSaturnSaveData = SarooSegaSaturnSaveData.createFromSaveFiles([]);
 
     expect(segaSaturnSaveData.getSaveFiles().length).to.equal(0);
   });
@@ -61,6 +67,57 @@ describe('Sega Saturn - Saroo', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getSaveFiles()[1].rawData, file2ArrayBuffer)).to.equal(true);
   });
 
+  it('should create a Saroo file containing saves for 4 different games, 2 of which are empty', async () => {
+    const sarooArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_FILENAME_2_GAMES_RECREATED);
+    const file1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_FILENAME_2_GAMES_FILE_1);
+    const file2ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_FILENAME_2_GAMES_FILE_2);
+
+    const gameSaveFiles = [
+      {
+        gameId: 'T-1809G   V1.001', // Hyper Duel
+        saveFiles: [
+          {
+            name: 'HYPERDUEL_0',
+            languageCode: SegaSaturnUtil.getLanguageCode('Japanese'),
+            comment: 'ﾊｲﾊﾟｰﾃﾞｭｴﾙ', // "Hyper Duel"
+            dateCode: SegaSaturnUtil.getDateCode(new Date('Thu, 01 Jun 2000 01:00:00 GMT')),
+            saveSize: file1ArrayBuffer.byteLength,
+            rawData: file1ArrayBuffer,
+          },
+        ],
+      },
+      {
+        gameId: 'T-1810G   V1.003', // Blast Wind
+        saveFiles: [],
+      },
+      {
+        gameId: 'T-1245G   V1.000', // Dungeons and Dragons Collection
+        saveFiles: [
+          {
+            name: 'CAP_DAD_002',
+            languageCode: SegaSaturnUtil.getLanguageCode('Japanese'),
+            comment: 'D&Dｺﾚｸｼｮﾝ2', // "D&D Collection 2"
+            dateCode: SegaSaturnUtil.getDateCode(new Date('Sun, 01 Dec 2024 21:31:00 GMT')),
+            saveSize: file2ArrayBuffer.byteLength,
+            rawData: file2ArrayBuffer,
+          },
+        ],
+      },
+      {
+        gameId: 'T-2301H   V1.000', // Shinobi Legions
+        saveFiles: [],
+      },
+    ];
+
+    const segaSaturnSaveData = SarooSegaSaturnSaveData.createFromSaveFiles(gameSaveFiles);
+
+    expect(segaSaturnSaveData.getSaveFiles().length).to.equal(2);
+
+    // FIXME: Check volume info here
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getArrayBuffer(), sarooArrayBuffer)).to.equal(true);
+  });
+
   it('should extract saves from a Saroo file containing 2 saves, both from the same game', async () => {
     const sarooArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_1_GAME_2_SAVES);
     const file1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_1_GAME_2_SAVES_FILE_1);
@@ -89,5 +146,43 @@ describe('Sega Saturn - Saroo', () => {
     expect(segaSaturnSaveData.getSaveFiles()[1].saveSize).to.equal(file2ArrayBuffer.byteLength);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getSaveFiles()[1].rawData, file2ArrayBuffer)).to.equal(true);
+  });
+
+  it('should create a Saroo file containing 2 saves, both from the same game', async () => {
+    const sarooArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_1_GAME_2_SAVES);
+    const file1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_1_GAME_2_SAVES_FILE_1);
+    const file2ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_1_GAME_2_SAVES_FILE_2);
+
+    const gameSaveFiles = [
+      {
+        gameId: 'SF3TRANS  V25.1 ', // Shining Force III Scenario 1, translated
+        saveFiles: [
+          {
+            name: 'SFORCE31_01',
+            languageCode: SegaSaturnUtil.getLanguageCode('Japanese'),
+            comment: 'Euan-1A   ',
+            dateCode: SegaSaturnUtil.getDateCode(new Date('Wed, 11 Dec 2024 14:25:00 GMT')),
+            saveSize: file1ArrayBuffer.byteLength,
+            rawData: file1ArrayBuffer,
+          },
+          {
+            name: 'SFORCE31_02',
+            languageCode: SegaSaturnUtil.getLanguageCode('Japanese'),
+            comment: 'Euan-1A   ',
+            dateCode: SegaSaturnUtil.getDateCode(new Date('Wed, 11 Dec 2024 14:26:00 GMT')),
+            saveSize: file2ArrayBuffer.byteLength,
+            rawData: file2ArrayBuffer,
+          },
+        ],
+      },
+    ];
+
+    const segaSaturnSaveData = SarooSegaSaturnSaveData.createFromSaveFiles(gameSaveFiles);
+
+    expect(segaSaturnSaveData.getSaveFiles().length).to.equal(2);
+
+    // FIXME: Check volume info here
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getArrayBuffer(), sarooArrayBuffer)).to.equal(true);
   });
 });
