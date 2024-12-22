@@ -72,7 +72,7 @@ const SLOT_TOTAL_SIZE_OFFSET = 0x08;
 const SLOT_BLOCK_SIZE_OFFSET = 0x0C;
 const SLOT_FREE_BLOCKS_OFFSET = 0x0E;
 const SLOT_GAME_ID_OFFSET = 0x20;
-const SLOT_FIRST_SAVE_BLOCK_OFFSET = 0x3E; // This contains 0x00 if there's no save
+const SLOT_FIRST_SAVE_BLOCK_OFFSET = 0x3E; // This contains NO_NEXT_SAVE if there's no first save
 const SLOT_BITMAP_OFFSET = 0x40;
 
 const NUM_RESERVED_BLOCKS = 1; // The first block in a slot contains the slot information: magic, total size, block size, bitmap, etc
@@ -82,9 +82,10 @@ const ARCHIVE_ENTRY_SAVE_SIZE_OFFSET = 0x0C;
 const ARCHIVE_ENTRY_COMMENT_OFFSET = 0x10;
 const ARCHIVE_ENTRY_LANGUAGE_OFFSET = 0x1B;
 const ARCHIVE_ENTRY_DATE_OFFSET = 0x1C;
-const ARCHIVE_ENTRY_NEXT_SAVE_BLOCK_OFFSET = 0x3E;
-const ARCHIVE_ENTRY_NO_NEXT_SAVE = 0;
+const ARCHIVE_ENTRY_NEXT_SAVE_BLOCK_OFFSET = 0x3E; // This contains NO_NEXT_SAVE if there's no next save
 const ARCHIVE_ENTRY_BITMAP_OFFSET = 0x40;
+
+const NO_NEXT_SAVE = 0;
 
 function slotContainsValidSaves(slotNum, arrayBuffer) {
   // Reserved slots can't contain valid saves
@@ -179,7 +180,7 @@ function getSaveFiles(slotNum, arrayBuffer) {
 
   const saveFiles = [];
 
-  while (nextSaveBlockNum !== ARCHIVE_ENTRY_NO_NEXT_SAVE) {
+  while (nextSaveBlockNum !== NO_NEXT_SAVE) {
     const archiveEntryBlockArrayBuffer = getBlock(slotArrayBuffer, blockSize, nextSaveBlockNum);
     const archiveEntryBlockDataView = new DataView(archiveEntryBlockArrayBuffer);
     const archiveEntryBlockUint8Array = new Uint8Array(archiveEntryBlockArrayBuffer);
@@ -229,6 +230,14 @@ function getSaveFiles(slotNum, arrayBuffer) {
   };
 }
 
+function getVolumeInfo(arrayBuffer) {
+  // Not much I can think of to say about the volume as a whole, since each slot is more like a mini-volume
+  // with a max size and number of free blocks and etc
+  return {
+    totalSlots: Math.floor(arrayBuffer.byteLength / SLOT_SIZE),
+  };
+}
+
 function createReservedSlot(gameSaveFiles) {
   // The reserved slot is the magic, followed by the ID of every game that has a save. The game IDs have the same length as the magic
 
@@ -263,7 +272,7 @@ function createGameSlot(gameInfo) {
   });
 
   if (saveFilesWithBlocksNeeded.length > 0) {
-    saveFilesWithBlocksNeeded[saveFilesWithBlocksNeeded.length - 1].nextSaveBlockNum = ARCHIVE_ENTRY_NO_NEXT_SAVE;
+    saveFilesWithBlocksNeeded[saveFilesWithBlocksNeeded.length - 1].nextSaveBlockNum = NO_NEXT_SAVE;
   }
 
   let numUsedBlocks = NUM_RESERVED_BLOCKS; // First block is the header
@@ -282,7 +291,7 @@ function createGameSlot(gameInfo) {
   const slotUsedBlocks = ArrayUtil.createSequentialArray(0, numUsedBlocks); // Cheating, because we know we're going to lay everything out sequentially
   const slotBlockOccupancyBitmapArrayBuffer = SegaSaturnSarooUtil.createBlockOccupancyBitmap(slotUsedBlocks, BITMAP_LENGTH);
 
-  // Now we can create our header block that contains the number of used blocks and the block occupancy bitmap
+  // Now we can create our header block that contains the number of used blocks and the slot block occupancy bitmap
 
   let headerBlock = Util.getFilledArrayBuffer(DEFAULT_BLOCK_SIZE, FILL_VALUE);
   headerBlock = Util.setMagic(headerBlock, SLOT_MAGIC_OFFSET, SLOT_MAGIC, SLOT_MAGIC_ENCODING);
@@ -294,9 +303,9 @@ function createGameSlot(gameInfo) {
   headerBlockDataView.setUint32(SLOT_TOTAL_SIZE_OFFSET, SLOT_SIZE, LITTLE_ENDIAN);
   headerBlockDataView.setUint16(SLOT_BLOCK_SIZE_OFFSET, DEFAULT_BLOCK_SIZE, LITTLE_ENDIAN);
   headerBlockDataView.setUint16(SLOT_FREE_BLOCKS_OFFSET, freeBlocks);
-  headerBlockDataView.setUint16(SLOT_FIRST_SAVE_BLOCK_OFFSET, gameInfo.saveFiles.length > 0 ? NUM_RESERVED_BLOCKS : ARCHIVE_ENTRY_NO_NEXT_SAVE); // If there's a first save file, it goes in the next block
+  headerBlockDataView.setUint16(SLOT_FIRST_SAVE_BLOCK_OFFSET, gameInfo.saveFiles.length > 0 ? NUM_RESERVED_BLOCKS : NO_NEXT_SAVE); // If there's a first save file, it goes in the next block
 
-  // Next we can create the archive and data blocks for each save
+  // Next we can create the archive block for each save, and append the data (rounded up to the next block)
 
   const allSlotPortions = [headerBlock];
 
@@ -362,7 +371,9 @@ export default class SarooSegaSaturnSaveData {
 
     const gameSaveFiles = validSlotNums.map((slotNum) => getSaveFiles(slotNum, arrayBuffer));
 
-    return new SarooSegaSaturnSaveData(arrayBuffer, gameSaveFiles);
+    const volumeInfo = getVolumeInfo(arrayBuffer);
+
+    return new SarooSegaSaturnSaveData(arrayBuffer, gameSaveFiles, volumeInfo);
   }
 
   static createFromSaveFiles(gameSaveFiles) {
@@ -372,7 +383,9 @@ export default class SarooSegaSaturnSaveData {
 
     const arrayBuffer = Util.concatArrayBuffers([reservedSlot].concat(gameSlots));
 
-    return new SarooSegaSaturnSaveData(arrayBuffer, gameSaveFiles);
+    const volumeInfo = getVolumeInfo(arrayBuffer);
+
+    return new SarooSegaSaturnSaveData(arrayBuffer, gameSaveFiles, volumeInfo);
   }
 
   // This constructor creates a new object from a binary representation of Sega Saturn save data

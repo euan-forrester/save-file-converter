@@ -18,13 +18,13 @@ const SAROO_1_GAME_2_SAVES = `${DIR}/SS_SAVE_1_game_2_saves.BIN`;
 const SAROO_1_GAME_2_SAVES_FILE_1 = `${DIR}/Shining Force III Scenario 1 (English v25.1)-1.raw`;
 const SAROO_1_GAME_2_SAVES_FILE_2 = `${DIR}/Shining Force III Scenario 1 (English v25.1)-2.raw`;
 
-// FIXME: Need to add volume info
-
 describe('Sega Saturn - Saroo', () => {
   it('should parse an empty file', async () => {
     const sarooArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_FILENAME_EMPTY);
 
     const segaSaturnSaveData = SarooSegaSaturnSaveData.createFromSarooData(sarooArrayBuffer);
+
+    expect(segaSaturnSaveData.getVolumeInfo().totalSlots).to.equal(1);
 
     expect(segaSaturnSaveData.getSaveFiles().length).to.equal(0);
   });
@@ -34,7 +34,7 @@ describe('Sega Saturn - Saroo', () => {
 
     const segaSaturnSaveData = SarooSegaSaturnSaveData.createFromSaveFiles([]);
 
-    // FIXME: Check volume info here
+    expect(segaSaturnSaveData.getVolumeInfo().totalSlots).to.equal(1);
 
     expect(segaSaturnSaveData.getSaveFiles().length).to.equal(0);
 
@@ -49,6 +49,8 @@ describe('Sega Saturn - Saroo', () => {
     const file2ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_FILENAME_2_GAMES_FILE_2);
 
     const segaSaturnSaveData = SarooSegaSaturnSaveData.createFromSarooData(sarooArrayBuffer);
+
+    expect(segaSaturnSaveData.getVolumeInfo().totalSlots).to.equal(5);
 
     expect(segaSaturnSaveData.getSaveFiles().length).to.equal(2);
 
@@ -117,6 +119,8 @@ describe('Sega Saturn - Saroo', () => {
 
     const segaSaturnSaveData = SarooSegaSaturnSaveData.createFromSaveFiles(gameSaveFiles);
 
+    expect(segaSaturnSaveData.getVolumeInfo().totalSlots).to.equal(5);
+
     expect(segaSaturnSaveData.getSaveFiles().length).to.equal(2);
 
     // FIXME: Check volume info here
@@ -130,6 +134,8 @@ describe('Sega Saturn - Saroo', () => {
     const file2ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_1_GAME_2_SAVES_FILE_2);
 
     const segaSaturnSaveData = SarooSegaSaturnSaveData.createFromSarooData(sarooArrayBuffer);
+
+    expect(segaSaturnSaveData.getVolumeInfo().totalSlots).to.equal(2);
 
     expect(segaSaturnSaveData.getSaveFiles().length).to.equal(2);
 
@@ -185,9 +191,9 @@ describe('Sega Saturn - Saroo', () => {
 
     const segaSaturnSaveData = SarooSegaSaturnSaveData.createFromSaveFiles(gameSaveFiles);
 
-    expect(segaSaturnSaveData.getSaveFiles().length).to.equal(2);
+    expect(segaSaturnSaveData.getVolumeInfo().totalSlots).to.equal(2);
 
-    // FIXME: Check volume info here
+    expect(segaSaturnSaveData.getSaveFiles().length).to.equal(2);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getArrayBuffer(), sarooArrayBuffer)).to.equal(true);
   });
