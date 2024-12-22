@@ -123,8 +123,6 @@ describe('Sega Saturn - Saroo', () => {
 
     expect(segaSaturnSaveData.getSaveFiles().length).to.equal(2);
 
-    // FIXME: Check volume info here
-
     expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getArrayBuffer(), sarooArrayBuffer)).to.equal(true);
   });
 
