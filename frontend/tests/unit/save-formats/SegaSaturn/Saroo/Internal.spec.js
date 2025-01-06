@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-import SarooSegaSaturnSaveData from '@/save-formats/SegaSaturn/Saroo/Saroo';
+import SarooSegaSaturnInternalSaveData from '@/save-formats/SegaSaturn/Saroo/Internal';
 import ArrayUtil from '@/util/Array';
 import SegaSaturnUtil from '@/save-formats/SegaSaturn/Util';
 
@@ -18,11 +18,11 @@ const SAROO_1_GAME_2_SAVES = `${DIR}/SS_SAVE_1_game_2_saves.BIN`;
 const SAROO_1_GAME_2_SAVES_FILE_1 = `${DIR}/Shining Force III Scenario 1 (English v25.1)-1.raw`;
 const SAROO_1_GAME_2_SAVES_FILE_2 = `${DIR}/Shining Force III Scenario 1 (English v25.1)-2.raw`;
 
-describe('Sega Saturn - Saroo', () => {
+describe('Sega Saturn - Saroo internal', () => {
   it('should parse an empty file', async () => {
     const sarooArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_FILENAME_EMPTY);
 
-    const segaSaturnSaveData = SarooSegaSaturnSaveData.createFromSarooData(sarooArrayBuffer);
+    const segaSaturnSaveData = SarooSegaSaturnInternalSaveData.createFromSarooData(sarooArrayBuffer);
 
     expect(segaSaturnSaveData.getVolumeInfo().totalSlots).to.equal(1);
 
@@ -32,7 +32,7 @@ describe('Sega Saturn - Saroo', () => {
   it('should create an empty file', async () => {
     const sarooArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_FILENAME_EMPTY);
 
-    const segaSaturnSaveData = SarooSegaSaturnSaveData.createFromSaveFiles([]);
+    const segaSaturnSaveData = SarooSegaSaturnInternalSaveData.createFromSaveFiles([]);
 
     expect(segaSaturnSaveData.getVolumeInfo().totalSlots).to.equal(1);
 
@@ -48,7 +48,7 @@ describe('Sega Saturn - Saroo', () => {
     const file1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_FILENAME_2_GAMES_FILE_1);
     const file2ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_FILENAME_2_GAMES_FILE_2);
 
-    const segaSaturnSaveData = SarooSegaSaturnSaveData.createFromSarooData(sarooArrayBuffer);
+    const segaSaturnSaveData = SarooSegaSaturnInternalSaveData.createFromSarooData(sarooArrayBuffer);
 
     expect(segaSaturnSaveData.getVolumeInfo().totalSlots).to.equal(5);
 
@@ -117,7 +117,7 @@ describe('Sega Saturn - Saroo', () => {
       },
     ];
 
-    const segaSaturnSaveData = SarooSegaSaturnSaveData.createFromSaveFiles(gameSaveFiles);
+    const segaSaturnSaveData = SarooSegaSaturnInternalSaveData.createFromSaveFiles(gameSaveFiles);
 
     expect(segaSaturnSaveData.getVolumeInfo().totalSlots).to.equal(5);
 
@@ -131,7 +131,7 @@ describe('Sega Saturn - Saroo', () => {
     const file1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_1_GAME_2_SAVES_FILE_1);
     const file2ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_1_GAME_2_SAVES_FILE_2);
 
-    const segaSaturnSaveData = SarooSegaSaturnSaveData.createFromSarooData(sarooArrayBuffer);
+    const segaSaturnSaveData = SarooSegaSaturnInternalSaveData.createFromSarooData(sarooArrayBuffer);
 
     expect(segaSaturnSaveData.getVolumeInfo().totalSlots).to.equal(2);
 
@@ -187,7 +187,7 @@ describe('Sega Saturn - Saroo', () => {
       },
     ];
 
-    const segaSaturnSaveData = SarooSegaSaturnSaveData.createFromSaveFiles(gameSaveFiles);
+    const segaSaturnSaveData = SarooSegaSaturnInternalSaveData.createFromSaveFiles(gameSaveFiles);
 
     expect(segaSaturnSaveData.getVolumeInfo().totalSlots).to.equal(2);
 

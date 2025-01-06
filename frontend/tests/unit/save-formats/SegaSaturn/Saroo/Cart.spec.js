@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-import SarooSegaSaturnExtendSaveData from '@/save-formats/SegaSaturn/Saroo/Extend';
+import SarooSegaSaturnCartSaveData from '@/save-formats/SegaSaturn/Saroo/Cart';
 import ArrayUtil from '@/util/Array';
 // import SegaSaturnUtil from '@/save-formats/SegaSaturn/Util';
 
@@ -21,11 +21,11 @@ const SAROO_2_GAMES_3_SAVES_FILE_3 = `${DIR}/Daytona USA - Championship Circuit 
 // FIXME: Need a test for a game that saves to the backup cart, but has a marker in this file? Not sure how that works yet
 // ^^^^^^ Look at save set 3: Blast Wind. Why does a small save end up in the extend file? ^^^^^^^
 
-describe('Sega Saturn - Saroo extend', () => {
+describe('Sega Saturn - Saroo cart', () => {
   it('should parse an empty file', async () => {
     const sarooArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_FILENAME_EMPTY);
 
-    const segaSaturnSaveData = SarooSegaSaturnExtendSaveData.createFromSarooData(sarooArrayBuffer);
+    const segaSaturnSaveData = SarooSegaSaturnCartSaveData.createFromSarooData(sarooArrayBuffer);
 
     expect(segaSaturnSaveData.getVolumeInfo().totalSize).to.equal(8388608);
     expect(segaSaturnSaveData.getVolumeInfo().numFreeBlocks).to.equal(8056);
@@ -40,7 +40,7 @@ describe('Sega Saturn - Saroo extend', () => {
     const file1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_1_GAME_2_SAVES_FILE_1);
     const file2ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_1_GAME_2_SAVES_FILE_2);
 
-    const segaSaturnSaveData = SarooSegaSaturnExtendSaveData.createFromSarooData(sarooArrayBuffer);
+    const segaSaturnSaveData = SarooSegaSaturnCartSaveData.createFromSarooData(sarooArrayBuffer);
 
     expect(segaSaturnSaveData.getVolumeInfo().totalSize).to.equal(8388608);
     expect(segaSaturnSaveData.getVolumeInfo().numFreeBlocks).to.equal(7989);
@@ -76,7 +76,7 @@ describe('Sega Saturn - Saroo extend', () => {
     const file2ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_2_GAMES_3_SAVES_FILE_2);
     const file3ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_2_GAMES_3_SAVES_FILE_3);
 
-    const segaSaturnSaveData = SarooSegaSaturnExtendSaveData.createFromSarooData(sarooArrayBuffer);
+    const segaSaturnSaveData = SarooSegaSaturnCartSaveData.createFromSarooData(sarooArrayBuffer);
 
     expect(segaSaturnSaveData.getVolumeInfo().totalSize).to.equal(8388608);
     expect(segaSaturnSaveData.getVolumeInfo().numFreeBlocks).to.equal(7988);

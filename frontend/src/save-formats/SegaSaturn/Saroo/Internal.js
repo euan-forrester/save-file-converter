@@ -1,7 +1,9 @@
 /* eslint-disable no-bitwise */
 
 /*
-This is the SS_SAVE.BIN file created by the Saroo, which the official save converter describes as "SAROO save file": https://github.com/tpunix/SAROO/blob/master/tools/savetool/main.c#L131
+This is the SS_SAVE.BIN file created by the Saroo.
+The official save converter describes as "SAROO save file": https://github.com/tpunix/SAROO/blob/master/tools/savetool/main.c#L131
+The Saroo reads/writes here when the game wants to access the system's internal memory: https://github.com/tpunix/SAROO/issues/232
 
 It's parsed by https://github.com/tpunix/SAROO/blob/master/tools/savetool/sr_bup.c
 
@@ -353,12 +355,12 @@ function createGameSlot(gameInfo) {
   return Util.concatArrayBuffers(allSlotPortions);
 }
 
-export default class SarooSegaSaturnSaveData {
+export default class SarooSegaSaturnInternalSaveData {
   static createWithNewSize(/* segaSaturnSaveData, newSize */) {
     /*
     const newRawSaveData = SegaSaturnUtil.resize(segaSaturnSaveData.getArrayBuffer(), newSize);
 
-    return SegaSaturnSaveData.createFromSegaSaturnData(newRawSaveData);
+    return SarooSegaSaturnInternalSaveData.createFromSegaSaturnData(newRawSaveData);
     */
   }
 
@@ -373,7 +375,7 @@ export default class SarooSegaSaturnSaveData {
 
     const volumeInfo = getVolumeInfo(arrayBuffer);
 
-    return new SarooSegaSaturnSaveData(arrayBuffer, gameSaveFiles, volumeInfo);
+    return new SarooSegaSaturnInternalSaveData(arrayBuffer, gameSaveFiles, volumeInfo);
   }
 
   static createFromSaveFiles(gameSaveFiles) {
@@ -385,7 +387,7 @@ export default class SarooSegaSaturnSaveData {
 
     const volumeInfo = getVolumeInfo(arrayBuffer);
 
-    return new SarooSegaSaturnSaveData(arrayBuffer, gameSaveFiles, volumeInfo);
+    return new SarooSegaSaturnInternalSaveData(arrayBuffer, gameSaveFiles, volumeInfo);
   }
 
   // This constructor creates a new object from a binary representation of Sega Saturn save data

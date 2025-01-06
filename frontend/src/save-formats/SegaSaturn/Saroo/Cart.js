@@ -1,7 +1,9 @@
 /* eslint-disable no-bitwise */
 
 /*
-This is the SS_MEMS.BIN file created by the Saroo, which the official save converter describes as "SAROO extend save": https://github.com/tpunix/SAROO/blob/master/tools/savetool/main.c#L131
+This is the SS_MEMS.BIN file created by the Saroo
+The official save converter describes as "SAROO extend save": https://github.com/tpunix/SAROO/blob/master/tools/savetool/main.c#L131
+The Saroo reads/writes here when the game wants to access a backup memory cart: https://github.com/tpunix/SAROO/issues/232
 
 It's parsed by https://github.com/tpunix/SAROO/blob/master/tools/savetool/sr_mems.c
 
@@ -52,7 +54,7 @@ const MAGIC_ENCODING = 'US-ASCII';
 const TOTAL_SIZE_OFFSET = 0x08;
 const FREE_BLOCKS_OFFSET = 0x0C;
 const BITMAP_OFFSET = 0x10;
-const BITMAP_LENGTH = BLOCK_SIZE - BITMAP_OFFSET; // Note that the bitmap is "missing" the first 16 bytes, which are used by the header. 16 bytes * 8 = 128 blocks not included in the bitmap. Hence the file has 8064 blocks instead of 8192
+const BITMAP_LENGTH = BLOCK_SIZE - BITMAP_OFFSET; // Note that the bitmap is "missing" 16 bytes, which are used by the header. 16 bytes * 8 = 128 blocks not included in the bitmap. Hence the file has 8064 blocks instead of 8192
 
 const DIRECTORY_OFFSET = BLOCK_SIZE;
 const DIRECTORY_NUM_BLOCKS = 7;
@@ -164,12 +166,12 @@ function getSaveFile(arrayBuffer, directoryEntryIndex) {
   };
 }
 
-export default class SarooSegaSaturnExtendSaveData {
+export default class SarooSegaSaturnCartSaveData {
   static createWithNewSize(/* segaSaturnSaveData, newSize */) {
     /*
     const newRawSaveData = SegaSaturnUtil.resize(segaSaturnSaveData.getArrayBuffer(), newSize);
 
-    return SarooSegaSaturnExtendSaveData.createFromSegaSaturnData(newRawSaveData);
+    return SarooSegaSaturnCartSaveData.createFromSegaSaturnData(newRawSaveData);
     */
   }
 
@@ -194,7 +196,7 @@ export default class SarooSegaSaturnExtendSaveData {
       usedBlocks,
     };
 
-    return new SarooSegaSaturnExtendSaveData(arrayBuffer, saveFiles, volumeInfo);
+    return new SarooSegaSaturnCartSaveData(arrayBuffer, saveFiles, volumeInfo);
   }
 
   static createFromSaveFiles(/* saveFiles, size */) {
@@ -217,7 +219,7 @@ export default class SarooSegaSaturnExtendSaveData {
     // Write the files
     */
 
-    // return new SarooSegaSaturnExtendSaveData(segaSaturnArrayBuffer, saveFiles);
+    // return new SarooSegaSaturnCartSaveData(segaSaturnArrayBuffer, saveFiles);
   }
 
   // This constructor creates a new object from a binary representation of Sega Saturn save data
