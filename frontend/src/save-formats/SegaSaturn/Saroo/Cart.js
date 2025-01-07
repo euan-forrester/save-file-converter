@@ -46,6 +46,10 @@ import SegaSaturnSarooUtil from './Util';
 const LITTLE_ENDIAN = false;
 
 const BLOCK_SIZE = 1024;
+const TOTAL_BLOCKS = 8192; // The file is this many blocks long, but only 8064 are usable: see note below about the "missing" blocks
+const FILL_VALUE = 0x00;
+
+const HEADER_NUM_BLOCKS = 1;
 
 const MAGIC = 'SaroMems';
 const MAGIC_OFFSET = 0;
@@ -55,6 +59,8 @@ const TOTAL_SIZE_OFFSET = 0x08;
 const FREE_BLOCKS_OFFSET = 0x0C;
 const BITMAP_OFFSET = 0x10;
 const BITMAP_LENGTH = BLOCK_SIZE - BITMAP_OFFSET; // Note that the bitmap is "missing" 16 bytes, which are used by the header. 16 bytes * 8 = 128 blocks not included in the bitmap. Hence the file has 8064 blocks instead of 8192
+
+const AVAILABLE_BLOCKS = BITMAP_LENGTH * 8;
 
 const DIRECTORY_OFFSET = BLOCK_SIZE;
 const DIRECTORY_NUM_BLOCKS = 7;
@@ -70,7 +76,129 @@ const ARCHIVE_ENTRY_COMMENT_OFFSET = 0x10;
 const ARCHIVE_ENTRY_LANGUAGE_OFFSET = 0x1B;
 const ARCHIVE_ENTRY_DATE_OFFSET = 0x1C;
 const ARCHIVE_ENTRY_BLOCK_LIST_OFFSET = 0x40;
+const ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE = 2;
 const ARCHIVE_ENTRY_BLOCK_LIST_END = 0x0000;
+
+const ARCHIVE_ENTRY_BLOCK_LIST_AVAILABLE_SIZE = BLOCK_SIZE - ARCHIVE_ENTRY_BLOCK_LIST_OFFSET;
+const ARCHIVE_ENTRY_MAX_NUM_BLOCKS = (ARCHIVE_ENTRY_BLOCK_LIST_AVAILABLE_SIZE / ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE) - 1; // -1 for the end of list marker. We have space for a list of 479 blocks, which would support files of 479kB: much larger than the original Saturn's cart memory
+
+const NUM_RESERVED_BLOCKS = HEADER_NUM_BLOCKS + DIRECTORY_NUM_BLOCKS;
+
+function createEmptyBlock() {
+  return Util.getFilledArrayBuffer(BLOCK_SIZE, FILL_VALUE);
+}
+
+function createHeaderBlock(volumeInfo) {
+  const blockOccupancyBitmapArrayBuffer = SegaSaturnSarooUtil.createBlockOccupancyBitmap(volumeInfo.usedBlocks, BITMAP_LENGTH);
+
+  let headerBlock = createEmptyBlock();
+  headerBlock = Util.setMagic(headerBlock, MAGIC_OFFSET, MAGIC, MAGIC_ENCODING);
+  headerBlock = Util.setArrayBufferPortion(headerBlock, blockOccupancyBitmapArrayBuffer, BITMAP_OFFSET, 0, BITMAP_LENGTH);
+
+  const headerBlockDataView = new DataView(headerBlock);
+
+  headerBlockDataView.setUint32(TOTAL_SIZE_OFFSET, volumeInfo.totalSize, LITTLE_ENDIAN);
+  headerBlockDataView.setUint16(FREE_BLOCKS_OFFSET, volumeInfo.numFreeBlocks, LITTLE_ENDIAN);
+
+  return headerBlock;
+}
+
+function createDirectoryEntry(saveFile, startingBlockNum) {
+  let directoryEntry = Util.getFilledArrayBuffer(DIRECTORY_ENTRY_LENGTH, FILL_VALUE);
+  directoryEntry = Util.setString(directoryEntry, DIRECTORY_ENTRY_NAME_OFFSET, saveFile.name, SegaSaturnSaveData.ARCHIVE_ENTRY_NAME_ENCODING, SegaSaturnSaveData.ARCHIVE_ENTRY_NAME_LENGTH);
+
+  const directoryEntryDataView = new DataView(directoryEntry);
+
+  directoryEntryDataView.setUint16(DIRECTORY_ENTRY_STARTING_BLOCK, startingBlockNum, LITTLE_ENDIAN);
+
+  return directoryEntry;
+}
+
+function createDirectory(gameSaveFilesWithBlockList) {
+  let currentBlockNum = NUM_RESERVED_BLOCKS;
+
+  const directoryEntries = gameSaveFilesWithBlockList.map((saveFileWithBlockList) => {
+    const saveFileStartingBlockNum = currentBlockNum;
+
+    currentBlockNum += saveFileWithBlockList.blockList.length;
+
+    return createDirectoryEntry(saveFileWithBlockList, saveFileStartingBlockNum);
+  });
+
+  const remainingDirectorySize = (TOTAL_DIRECTORY_ENTRIES - directoryEntries.length) * DIRECTORY_ENTRY_LENGTH;
+
+  if (remainingDirectorySize > 0) {
+    const remainingDirectoryArrayBuffer = Util.getFilledArrayBuffer(remainingDirectorySize, FILL_VALUE);
+
+    return Util.concatArrayBuffers([...directoryEntries, remainingDirectoryArrayBuffer]);
+  }
+
+  return Util.concatArrayBuffers(directoryEntries);
+}
+
+function createBlockListForSaveFile(saveFile, startingBlockNum) {
+  // First create the archive entry block
+
+  let archiveEntry = createEmptyBlock();
+  archiveEntry = Util.setString(archiveEntry, ARCHIVE_ENTRY_NAME_OFFSET, saveFile.name, SegaSaturnSaveData.ARCHIVE_ENTRY_NAME_ENCODING, SegaSaturnSaveData.ARCHIVE_ENTRY_NAME_LENGTH);
+  archiveEntry = Util.setString(archiveEntry, ARCHIVE_ENTRY_COMMENT_OFFSET, saveFile.comment, SegaSaturnSaveData.ARCHIVE_ENTRY_COMMENT_ENCODING, SegaSaturnSaveData.ARCHIVE_ENTRY_COMMENT_LENGTH);
+
+  const archiveEntryDataView = new DataView(archiveEntry);
+
+  archiveEntryDataView.setUint32(ARCHIVE_ENTRY_SIZE_OFFSET, saveFile.rawData.byteLength, LITTLE_ENDIAN);
+  archiveEntryDataView.setUint8(ARCHIVE_ENTRY_LANGUAGE_OFFSET, saveFile.languageCode);
+  archiveEntryDataView.setUint32(ARCHIVE_ENTRY_DATE_OFFSET, saveFile.dateCode, LITTLE_ENDIAN);
+
+  const blockList = [];
+
+  // If the save data can fit within the archive block then it's found there
+  // Otherwise, the rest of the archive block is a list of blocks which contain the save data
+
+  if (saveFile.rawData.byteLength <= ARCHIVE_ENTRY_BLOCK_LIST_AVAILABLE_SIZE) {
+    archiveEntry = Util.setArrayBufferPortion(archiveEntry, saveFile.rawData, ARCHIVE_ENTRY_BLOCK_LIST_OFFSET, 0, saveFile.rawData.byteLength);
+    blockList.push(archiveEntry);
+  } else {
+    // If the file is too big to fit into the archive block then we need to fill in the block list,
+    // and divide the file into blocks
+
+    // Fill in the block list
+
+    const numBlocks = Math.ceil(saveFile.rawData.byteLength / BLOCK_SIZE);
+
+    if (numBlocks > ARCHIVE_ENTRY_MAX_NUM_BLOCKS) {
+      throw new Error(`Not enough space to store file ${saveFile.name} - ${saveFile.comment}: requires ${numBlocks} but the maximum is ${ARCHIVE_ENTRY_MAX_NUM_BLOCKS}`);
+    }
+
+    for (let i = 0; i < numBlocks; i += 1) {
+      const blockListEntryOffset = ARCHIVE_ENTRY_BLOCK_LIST_OFFSET + (ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE * i);
+      archiveEntryDataView.setUint16(blockListEntryOffset, startingBlockNum + 1 + i, LITTLE_ENDIAN); // +1 because of the archive entry block. We're cheating a bit here because we know we will lay everything our sequentially
+    }
+
+    const blockListEndOffset = ARCHIVE_ENTRY_BLOCK_LIST_OFFSET + (ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE * numBlocks);
+    archiveEntryDataView.setUint16(blockListEndOffset, ARCHIVE_ENTRY_BLOCK_LIST_END, LITTLE_ENDIAN);
+
+    blockList.push(archiveEntry);
+
+    // Now divide the data into blocks. We need to pad the data in the last block to be exactly a block size
+
+    let rawDataPadded = saveFile.rawData;
+
+    if ((saveFile.rawData % BLOCK_SIZE) !== 0) {
+      const paddingBytes = BLOCK_SIZE - (saveFile.rawData.byteLength % BLOCK_SIZE);
+      rawDataPadded = Util.concatArrayBuffers([rawDataPadded, Util.getFilledArrayBuffer(paddingBytes, FILL_VALUE)]);
+    }
+
+    for (let i = 0; i < numBlocks; i += 1) {
+      const blockStartingOffset = i * BLOCK_SIZE;
+      blockList.push(rawDataPadded.slice(blockStartingOffset, blockStartingOffset + BLOCK_SIZE));
+    }
+  }
+
+  return {
+    ...saveFile,
+    blockList,
+  };
+}
 
 function getBlock(arrayBuffer, blockNumber) {
   return arrayBuffer.slice(blockNumber * BLOCK_SIZE, (blockNumber + 1) * BLOCK_SIZE);
@@ -89,6 +217,8 @@ function getOccupiedDirectoryEntryIndexes(arrayBuffer) {
 }
 
 function getSaveFile(arrayBuffer, directoryEntryIndex) {
+  // First read the directory entry to get the name and block number of the archive entry block
+
   const directoryArrayBuffer = getDirectoryArrayBuffer(arrayBuffer);
   const directoryDataView = new DataView(directoryArrayBuffer);
   const directoryUint8Array = new Uint8Array(directoryArrayBuffer);
@@ -102,7 +232,7 @@ function getSaveFile(arrayBuffer, directoryEntryIndex) {
   );
   const startingBlockNum = directoryDataView.getUint16(directoryEntryOffset + DIRECTORY_ENTRY_STARTING_BLOCK);
 
-  console.log(`Found save: ${directoryName} with starting block ${startingBlockNum}`);
+  // Now read the archive entry block to get all of the save file metadata
 
   const archiveEntryBlock = getBlock(arrayBuffer, startingBlockNum);
   const archiveEntryBlockDataView = new DataView(archiveEntryBlock);
@@ -131,10 +261,11 @@ function getSaveFile(arrayBuffer, directoryEntryIndex) {
   const rawDataBlockList = [];
   let rawData = null;
 
+  // Lastly we can get the actual save data
   // If the save data can fit within the archive block then it's found there
   // Otherwise, the rest of the archive block is a list of blocks which contain the save data
 
-  if (saveSize <= (BLOCK_SIZE - ARCHIVE_ENTRY_BLOCK_LIST_OFFSET)) {
+  if (saveSize <= ARCHIVE_ENTRY_BLOCK_LIST_AVAILABLE_SIZE) {
     rawData = archiveEntryBlock.slice(ARCHIVE_ENTRY_BLOCK_LIST_OFFSET, ARCHIVE_ENTRY_BLOCK_LIST_OFFSET + saveSize);
   } else {
     let blockListCurrentOffset = ARCHIVE_ENTRY_BLOCK_LIST_OFFSET;
@@ -142,7 +273,7 @@ function getSaveFile(arrayBuffer, directoryEntryIndex) {
 
     while (blockListEntry !== ARCHIVE_ENTRY_BLOCK_LIST_END) {
       rawDataBlockList.push(blockListEntry);
-      blockListCurrentOffset += 2;
+      blockListCurrentOffset += ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE;
       blockListEntry = archiveEntryBlockDataView.getUint16(blockListCurrentOffset);
     }
 
@@ -150,8 +281,6 @@ function getSaveFile(arrayBuffer, directoryEntryIndex) {
 
     rawData = Util.concatArrayBuffers(rawDataBlocks).slice(0, saveSize);
   }
-
-  console.log(`Found save: languageCode: ${SegaSaturnUtil.getLanguageString(languageCode)}, comment: ${comment}, date: ${SegaSaturnUtil.getDate(dateCode).toUTCString()}, size: ${saveSize}`);
 
   return {
     name,
@@ -199,27 +328,51 @@ export default class SarooSegaSaturnCartSaveData {
     return new SarooSegaSaturnCartSaveData(arrayBuffer, saveFiles, volumeInfo);
   }
 
-  static createFromSaveFiles(/* saveFiles, size */) {
-    /*
-    // Setup and make sure we have enough space for the files
-
-    let segaCdArrayBuffer = SegaCdUtil.makeEmptySave(size);
-    const initialFreeBlocks = SegaCdUtil.getTotalAvailableBlocks(segaCdArrayBuffer); // If we call SegaCdUtil.getNumFreeBlocks() it will subtract one because of the extra block that's reserved for the first file's directory entry
-
-    const requiredBlocksForSaves = saveFiles.reduce((accumulatedBlocks, saveFile) => accumulatedBlocks + getRequiredBlocks(saveFile), 0);
-    const requiredBlocksForDirectoryEntries = Math.ceil(saveFiles.length / 2);
-    const requiredReservedBlocks = ((saveFiles.length % 2) === 0) ? 1 : 0; // We can store 2 directory entries in a block. We always need room for the next future directory entry. So, if there are an odd number of save files we can store the next one in our last block. But if there are an even number of save files we need to reserve the next block
-
-    const requiredBlocks = requiredBlocksForSaves + requiredBlocksForDirectoryEntries + requiredReservedBlocks;
-
-    if (requiredBlocks > initialFreeBlocks) {
-      throw new Error(`The specified save files require a total of ${requiredBlocks} blocks of free space, but Sega CD save data of ${size} bytes only has ${initialFreeBlocks} free blocks`);
+  static createFromSaveFiles(gameSaveFiles) {
+    if (gameSaveFiles.length > TOTAL_DIRECTORY_ENTRIES) {
+      throw new Error(`Not enough space to hold all saves. Requires ${gameSaveFiles.length} saves, but directory only has room for ${TOTAL_DIRECTORY_ENTRIES} saves`);
     }
 
-    // Write the files
-    */
+    // First figure out how many blocks each save file requires
 
-    // return new SarooSegaSaturnCartSaveData(segaSaturnArrayBuffer, saveFiles);
+    let startingBlockNum = NUM_RESERVED_BLOCKS;
+
+    const gameSaveFilesWithBlockList = gameSaveFiles.map((saveFile) => {
+      const saveFileWithBlockList = createBlockListForSaveFile(saveFile, startingBlockNum);
+      startingBlockNum += saveFileWithBlockList.blockList.length;
+      return saveFileWithBlockList;
+    });
+    const gameBlocksList = gameSaveFilesWithBlockList.map((saveFileWithBlocks) => saveFileWithBlocks.blockList);
+    const gameBlocks = Util.concatArrayBuffers(gameBlocksList.flat());
+
+    // Now that we know how many blocks each save takes we can calculate the volume info and directory blocks
+
+    const directoryBlocks = createDirectory(gameSaveFilesWithBlockList);
+
+    const numUsedBlocks = NUM_RESERVED_BLOCKS + gameBlocksList.flat().length;
+    const usedBlocks = ArrayUtil.createSequentialArray(0, numUsedBlocks); // Cheating, because we know we're going to lay everything out sequentially
+
+    if (numUsedBlocks > AVAILABLE_BLOCKS) {
+      throw new Error(`Not enough space to hold all saves. Requires ${numUsedBlocks} but we only have ${AVAILABLE_BLOCKS} of space`);
+    }
+
+    const volumeInfo = {
+      totalSize: TOTAL_BLOCKS * BLOCK_SIZE,
+      numFreeBlocks: AVAILABLE_BLOCKS - numUsedBlocks,
+      numUsedBlocks,
+      usedBlocks,
+    };
+
+    // With the volume info we can make the header block and the number of empty blocks we need to pad out the file
+
+    const headerBlock = createHeaderBlock(volumeInfo);
+    const emptyBlocks = Util.getFilledArrayBuffer((TOTAL_BLOCKS - numUsedBlocks) * BLOCK_SIZE, FILL_VALUE); // Note that we already checked that numUsedBlocks is <= AVAILABLE_BLOCKS, which is < TOTAL_BLOCKS. So we'll always have some number of bytes here
+
+    // Concat all the portions to create the final file
+
+    const arrayBuffer = Util.concatArrayBuffers([headerBlock, directoryBlocks, gameBlocks, emptyBlocks]);
+
+    return new SarooSegaSaturnCartSaveData(arrayBuffer, gameSaveFiles, volumeInfo);
   }
 
   // This constructor creates a new object from a binary representation of Sega Saturn save data

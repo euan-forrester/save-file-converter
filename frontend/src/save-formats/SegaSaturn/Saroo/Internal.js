@@ -61,8 +61,9 @@ const BITMAP_LENGTH = 64;
 const GAME_ID_LENGTH = 0x10;
 const GAME_ID_ENCODING = 'US-ASCII';
 
-const NUM_RESERVED_SLOTS = 1;
+const NUM_RESERVED_SLOTS = 1; // For the magic string above
 const NUM_SLOTS = SLOT_SIZE / GAME_ID_LENGTH; // In theory, the reserved slot can store this many game IDs
+const NUM_AVAILABLE_SLOTS = NUM_SLOTS - NUM_RESERVED_SLOTS;
 
 const FILL_VALUE = 0x00;
 
@@ -177,9 +178,6 @@ function getSaveFiles(slotNum, arrayBuffer) {
 
   const slotBlockOccupancy = SegaSaturnSarooUtil.getBlockOccupancy(slotBitmap, totalSize, blockSize);
 
-  console.log(`Found slot with total size: ${totalSize}, block size: ${blockSize}, free blocks: ${freeBlocks}, game ID: ${gameId}, first save block num: ${nextSaveBlockNum}`);
-  console.log('Used blocks: ', slotBlockOccupancy.usedBlocks);
-
   const saveFiles = [];
 
   while (nextSaveBlockNum !== NO_NEXT_SAVE) {
@@ -206,9 +204,6 @@ function getSaveFiles(slotNum, arrayBuffer) {
 
     nextSaveBlockNum = archiveEntryBlockDataView.getUint16(ARCHIVE_ENTRY_NEXT_SAVE_BLOCK_OFFSET, LITTLE_ENDIAN);
 
-    console.log(`Found save with name ${name}, comment ${comment}, language: ${SegaSaturnUtil.getLanguageString(languageCode)}`);
-    console.log(`date: ${SegaSaturnUtil.getDate(dateCode).toUTCString()}, size: ${saveSize}, next save block num ${nextSaveBlockNum}`);
-
     saveFiles.push({
       name,
       languageCode,
@@ -222,12 +217,10 @@ function getSaveFiles(slotNum, arrayBuffer) {
     });
   }
 
-  if (saveFiles.length === 0) {
-    console.log('No save found for this game');
-  }
-
   return {
     gameId,
+    freeBlocks,
+    slotBlockOccupancy,
     saveFiles,
   };
 }
@@ -287,7 +280,7 @@ function createGameSlot(gameInfo) {
   const freeBlocks = totalBlocks - numUsedBlocks;
 
   if (freeBlocks < 0) {
-    throw new Error(`Not enough space to contain ${gameInfo.saveFiles.length} saves. Need ${numUsedBlocks} blocks but only have ${totalBlocks} blocks`);
+    throw new Error(`Not enough space to store ${gameInfo.saveFiles.length} saves for the game '${gameInfo.gameId}'. Need ${numUsedBlocks} blocks but only have ${totalBlocks} blocks`);
   }
 
   const slotUsedBlocks = ArrayUtil.createSequentialArray(0, numUsedBlocks); // Cheating, because we know we're going to lay everything out sequentially
@@ -367,7 +360,7 @@ export default class SarooSegaSaturnInternalSaveData {
   static createFromSarooData(arrayBuffer) {
     Util.checkMagic(arrayBuffer, MAGIC_OFFSET, MAGIC, MAGIC_ENCODING);
 
-    const allSlotNums = ArrayUtil.createSequentialArray(NUM_RESERVED_SLOTS, NUM_SLOTS - NUM_RESERVED_SLOTS);
+    const allSlotNums = ArrayUtil.createSequentialArray(NUM_RESERVED_SLOTS, NUM_AVAILABLE_SLOTS);
     const firstInvalidSlotIndex = allSlotNums.findIndex((slotNum) => !slotContainsValidSaves(slotNum, arrayBuffer));
     const validSlotNums = (firstInvalidSlotIndex >= 0) ? allSlotNums.slice(0, firstInvalidSlotIndex) : allSlotNums;
 
@@ -379,6 +372,10 @@ export default class SarooSegaSaturnInternalSaveData {
   }
 
   static createFromSaveFiles(gameSaveFiles) {
+    if (gameSaveFiles.length > NUM_AVAILABLE_SLOTS) {
+      throw new Error(`Too many games to fit in file: found ${gameSaveFiles.length} different games, but can only store ${NUM_AVAILABLE_SLOTS}`);
+    }
+
     const reservedSlot = createReservedSlot(gameSaveFiles);
 
     const gameSlots = gameSaveFiles.map((gameInfo) => createGameSlot(gameInfo));

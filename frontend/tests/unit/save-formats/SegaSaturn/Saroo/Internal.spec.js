@@ -41,7 +41,7 @@ describe('Sega Saturn - Saroo internal', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getArrayBuffer(), sarooArrayBuffer)).to.equal(true);
   });
 
-  it('should extract saves from a Saroo file containing 4 saves all for different games, 2 of which are empty', async () => {
+  it('should extract saves from a Saroo internal file containing 4 saves all for different games, 2 of which are empty', async () => {
     // One save is empty by having a blank slot for that game ID
     // The other save is empty by having 0 as the first save block number
     const sarooArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_FILENAME_2_GAMES);
@@ -75,7 +75,7 @@ describe('Sega Saturn - Saroo internal', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getSaveFiles()[1].rawData, file2ArrayBuffer)).to.equal(true);
   });
 
-  it('should create a Saroo file containing saves for 4 different games, 2 of which are empty', async () => {
+  it('should create a Saroo internal file containing saves for 4 different games, 2 of which are empty', async () => {
     const sarooArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_FILENAME_2_GAMES_RECREATED);
     const file1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_FILENAME_2_GAMES_FILE_1);
     const file2ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_FILENAME_2_GAMES_FILE_2);
@@ -126,7 +126,7 @@ describe('Sega Saturn - Saroo internal', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getArrayBuffer(), sarooArrayBuffer)).to.equal(true);
   });
 
-  it('should extract saves from a Saroo file containing 2 saves, both from the same game', async () => {
+  it('should extract saves from a Saroo internal file containing 2 saves, both from the same game', async () => {
     const sarooArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_1_GAME_2_SAVES);
     const file1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_1_GAME_2_SAVES_FILE_1);
     const file2ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_1_GAME_2_SAVES_FILE_2);
@@ -158,7 +158,7 @@ describe('Sega Saturn - Saroo internal', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getSaveFiles()[1].rawData, file2ArrayBuffer)).to.equal(true);
   });
 
-  it('should create a Saroo file containing 2 saves, both from the same game', async () => {
+  it('should create a Saroo internal file containing 2 saves, both from the same game', async () => {
     const sarooArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_1_GAME_2_SAVES);
     const file1ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_1_GAME_2_SAVES_FILE_1);
     const file2ArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_1_GAME_2_SAVES_FILE_2);
