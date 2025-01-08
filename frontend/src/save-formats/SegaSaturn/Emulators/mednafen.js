@@ -11,8 +11,6 @@ import SegaSaturnSaveData from '../SegaSaturn';
 
 import CompressionGzip from '../../../util/CompressionGzip';
 
-const CARTRIDGE_BLOCK_SIZE = 0x200; // Block size for cartridge saves
-
 export default class MednafenSegaSaturnSaveData {
   static createWithNewSize(/* segaSaturnSaveData, newSize */) {
     /*
@@ -38,7 +36,7 @@ export default class MednafenSegaSaturnSaveData {
   static createFromSaveFiles(saveFiles, blockSize) {
     const segaSaturnSaveData = SegaSaturnSaveData.createFromSaveFiles(saveFiles, blockSize);
 
-    if (blockSize === CARTRIDGE_BLOCK_SIZE) {
+    if (blockSize === SegaSaturnSaveData.CARTRIDGE_BLOCK_SIZE) {
       return new SegaSaturnSaveData(
         CompressionGzip.compress(segaSaturnSaveData.getArrayBuffer()),
         segaSaturnSaveData.getSaveFiles(),
