@@ -304,6 +304,27 @@ export default class SarooSegaSaturnCartSaveData {
     */
   }
 
+  static upsertGameSaveFiles(existingGameSaveFiles, newGameSaveFiles) {
+    const existingCopy = Util.deepCopyArray(existingGameSaveFiles);
+
+    // Merge in the new game save files into the existing game save files
+    // Uses an 'upsert' style operation where missing records are inserted, and existing records are updated
+
+    newGameSaveFiles.forEach((newSaveFile) => {
+      const existingSaveFileIndex = existingCopy.findIndex((existing) => existing.name === newSaveFile.name);
+
+      if (existingSaveFileIndex < 0) {
+        // If this save file does not exist for this game, then add it
+        existingCopy.push(newSaveFile);
+      } else {
+        // If this save file does exist for this game, then update it
+        existingCopy[existingSaveFileIndex] = newSaveFile;
+      }
+    });
+
+    return existingCopy;
+  }
+
   static createFromSarooData(arrayBuffer) {
     const dataView = new DataView(arrayBuffer);
 
