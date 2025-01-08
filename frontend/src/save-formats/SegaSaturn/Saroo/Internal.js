@@ -357,6 +357,43 @@ export default class SarooSegaSaturnInternalSaveData {
     */
   }
 
+  static upsertGameSaveFiles(existingGameSaveFiles, newGameSaveFiles) {
+    const existingCopy = Util.deepCopyArray(existingGameSaveFiles);
+
+    // Merge in the new game save files into the existing game save files
+    // Uses an 'upsert' style operation where missing records are inserted, and existing records are updated
+
+    for (let i = 0; i < newGameSaveFiles.length; i += 1) {
+      const existingGameIdIndex = existingCopy.findIndex((existing) => existing.gameId === newGameSaveFiles[i].gameId);
+
+      // If the game isn't present at all in the existing files, then insert all the saves for it
+
+      if (existingGameIdIndex < 0) {
+        existingCopy.push(newGameSaveFiles[i]);
+        continue; // eslint-disable-line no-continue
+      }
+
+      // If the game is present, then we need to check each of the saves
+
+      for (let j = 0; j < newGameSaveFiles[i].saveFiles.length; j += 1) {
+        const existingSaveFileIndex = existingCopy[existingGameIdIndex].saveFiles.findIndex((existing) => existing.name === newGameSaveFiles[i].saveFiles[j].name);
+
+        // If this save file doesn't exist for this game, then just insert it
+
+        if (existingSaveFileIndex < 0) {
+          existingCopy[existingGameIdIndex].saveFiles.push(newGameSaveFiles[i].saveFiles[j]);
+          continue; // eslint-disable-line no-continue
+        }
+
+        // If this save file does exist for this game, then update it
+
+        existingCopy[existingGameIdIndex].saveFiles[existingSaveFileIndex] = newGameSaveFiles[i].saveFiles[j];
+      }
+    }
+
+    return existingCopy;
+  }
+
   static createFromSarooData(arrayBuffer) {
     Util.checkMagic(arrayBuffer, MAGIC_OFFSET, MAGIC, MAGIC_ENCODING);
 

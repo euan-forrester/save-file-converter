@@ -195,4 +195,302 @@ describe('Sega Saturn - Saroo internal', () => {
 
     expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getArrayBuffer(), sarooArrayBuffer)).to.equal(true);
   });
+
+  it('should upsert a new game into existing save files', async () => {
+    const existingGameSaveFiles = [
+      {
+        gameId: 'ExistingGameId1',
+        saveFiles: [
+          {
+            name: 'ExistingSaveFile1',
+            languageCode: SegaSaturnUtil.getLanguageCode('English'),
+            comment: 'Comment1',
+            dateCode: SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 14:00:00 GMT')),
+            saveSize: 1234,
+            rawData: null,
+          },
+        ],
+      },
+    ];
+
+    const newGameSaveFiles = [
+      {
+        gameId: 'NewGameId1',
+        saveFiles: [
+          {
+            name: 'NewSaveFile1',
+            languageCode: SegaSaturnUtil.getLanguageCode('English'),
+            comment: 'Comment2',
+            dateCode: SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 15:00:00 GMT')),
+            saveSize: 2345,
+            rawData: null,
+          },
+        ],
+      },
+    ];
+
+    const combinedGameSaveFiles = SarooSegaSaturnInternalSaveData.upsertGameSaveFiles(existingGameSaveFiles, newGameSaveFiles);
+
+    expect(combinedGameSaveFiles.length).to.equal(2);
+
+    expect(combinedGameSaveFiles[0].gameId).to.equal('ExistingGameId1');
+    expect(combinedGameSaveFiles[0].saveFiles.length).to.equal(1);
+
+    expect(combinedGameSaveFiles[0].saveFiles[0].name).to.equal('ExistingSaveFile1');
+    expect(combinedGameSaveFiles[0].saveFiles[0].languageCode).to.equal(SegaSaturnUtil.getLanguageCode('English'));
+    expect(combinedGameSaveFiles[0].saveFiles[0].comment).to.equal('Comment1');
+    expect(combinedGameSaveFiles[0].saveFiles[0].dateCode).to.equal(SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 14:00:00 GMT')));
+    expect(combinedGameSaveFiles[0].saveFiles[0].saveSize).to.equal(1234);
+    expect(combinedGameSaveFiles[0].saveFiles[0].rawData).to.equal(null);
+
+    expect(combinedGameSaveFiles[1].gameId).to.equal('NewGameId1');
+    expect(combinedGameSaveFiles[1].saveFiles.length).to.equal(1);
+
+    expect(combinedGameSaveFiles[1].saveFiles[0].name).to.equal('NewSaveFile1');
+    expect(combinedGameSaveFiles[1].saveFiles[0].languageCode).to.equal(SegaSaturnUtil.getLanguageCode('English'));
+    expect(combinedGameSaveFiles[1].saveFiles[0].comment).to.equal('Comment2');
+    expect(combinedGameSaveFiles[1].saveFiles[0].dateCode).to.equal(SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 15:00:00 GMT')));
+    expect(combinedGameSaveFiles[1].saveFiles[0].saveSize).to.equal(2345);
+    expect(combinedGameSaveFiles[1].saveFiles[0].rawData).to.equal(null);
+  });
+
+  it('should upsert a new save file into an existing game', async () => {
+    const existingGameSaveFiles = [
+      {
+        gameId: 'ExistingGameId1',
+        saveFiles: [
+          {
+            name: 'ExistingSaveFile1',
+            languageCode: SegaSaturnUtil.getLanguageCode('English'),
+            comment: 'Comment1',
+            dateCode: SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 14:00:00 GMT')),
+            saveSize: 1234,
+            rawData: null,
+          },
+        ],
+      },
+    ];
+
+    const newGameSaveFiles = [
+      {
+        gameId: 'ExistingGameId1',
+        saveFiles: [
+          {
+            name: 'NewSaveFile1',
+            languageCode: SegaSaturnUtil.getLanguageCode('English'),
+            comment: 'Comment2',
+            dateCode: SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 15:00:00 GMT')),
+            saveSize: 2345,
+            rawData: null,
+          },
+        ],
+      },
+    ];
+
+    const combinedGameSaveFiles = SarooSegaSaturnInternalSaveData.upsertGameSaveFiles(existingGameSaveFiles, newGameSaveFiles);
+
+    expect(combinedGameSaveFiles.length).to.equal(1);
+
+    expect(combinedGameSaveFiles[0].gameId).to.equal('ExistingGameId1');
+    expect(combinedGameSaveFiles[0].saveFiles.length).to.equal(2);
+
+    expect(combinedGameSaveFiles[0].saveFiles[0].name).to.equal('ExistingSaveFile1');
+    expect(combinedGameSaveFiles[0].saveFiles[0].languageCode).to.equal(SegaSaturnUtil.getLanguageCode('English'));
+    expect(combinedGameSaveFiles[0].saveFiles[0].comment).to.equal('Comment1');
+    expect(combinedGameSaveFiles[0].saveFiles[0].dateCode).to.equal(SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 14:00:00 GMT')));
+    expect(combinedGameSaveFiles[0].saveFiles[0].saveSize).to.equal(1234);
+    expect(combinedGameSaveFiles[0].saveFiles[0].rawData).to.equal(null);
+
+    expect(combinedGameSaveFiles[0].saveFiles[1].name).to.equal('NewSaveFile1');
+    expect(combinedGameSaveFiles[0].saveFiles[1].languageCode).to.equal(SegaSaturnUtil.getLanguageCode('English'));
+    expect(combinedGameSaveFiles[0].saveFiles[1].comment).to.equal('Comment2');
+    expect(combinedGameSaveFiles[0].saveFiles[1].dateCode).to.equal(SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 15:00:00 GMT')));
+    expect(combinedGameSaveFiles[0].saveFiles[1].saveSize).to.equal(2345);
+    expect(combinedGameSaveFiles[0].saveFiles[1].rawData).to.equal(null);
+  });
+
+  it('should upsert an existing save file into an existing game', async () => {
+    const existingGameSaveFiles = [
+      {
+        gameId: 'ExistingGameId1',
+        saveFiles: [
+          {
+            name: 'ExistingSaveFile1',
+            languageCode: SegaSaturnUtil.getLanguageCode('English'),
+            comment: 'Comment1',
+            dateCode: SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 14:00:00 GMT')),
+            saveSize: 1234,
+            rawData: null,
+          },
+        ],
+      },
+    ];
+
+    const newGameSaveFiles = [
+      {
+        gameId: 'ExistingGameId1',
+        saveFiles: [
+          {
+            name: 'ExistingSaveFile1',
+            languageCode: SegaSaturnUtil.getLanguageCode('English'),
+            comment: 'NewComment2',
+            dateCode: SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 15:00:00 GMT')),
+            saveSize: 2345,
+            rawData: null,
+          },
+        ],
+      },
+    ];
+
+    const combinedGameSaveFiles = SarooSegaSaturnInternalSaveData.upsertGameSaveFiles(existingGameSaveFiles, newGameSaveFiles);
+
+    expect(combinedGameSaveFiles.length).to.equal(1);
+
+    expect(combinedGameSaveFiles[0].gameId).to.equal('ExistingGameId1');
+    expect(combinedGameSaveFiles[0].saveFiles.length).to.equal(1);
+
+    expect(combinedGameSaveFiles[0].saveFiles[0].name).to.equal('ExistingSaveFile1');
+    expect(combinedGameSaveFiles[0].saveFiles[0].languageCode).to.equal(SegaSaturnUtil.getLanguageCode('English'));
+    expect(combinedGameSaveFiles[0].saveFiles[0].comment).to.equal('NewComment2');
+    expect(combinedGameSaveFiles[0].saveFiles[0].dateCode).to.equal(SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 15:00:00 GMT')));
+    expect(combinedGameSaveFiles[0].saveFiles[0].saveSize).to.equal(2345);
+    expect(combinedGameSaveFiles[0].saveFiles[0].rawData).to.equal(null);
+  });
+
+  it('should upsert a new game, a new save file into an existing game, and a new save file into an existing save file', async () => {
+    const existingGameSaveFiles = [
+      {
+        gameId: 'ExistingGameId1',
+        saveFiles: [
+          {
+            name: 'ExistingSaveFile1',
+            languageCode: SegaSaturnUtil.getLanguageCode('English'),
+            comment: 'Comment1',
+            dateCode: SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 11:00:00 GMT')),
+            saveSize: 1234,
+            rawData: null,
+          },
+          {
+            name: 'ExistingSaveFile2',
+            languageCode: SegaSaturnUtil.getLanguageCode('English'),
+            comment: 'Comment2',
+            dateCode: SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 12:00:00 GMT')),
+            saveSize: 2345,
+            rawData: null,
+          },
+        ],
+      },
+      {
+        gameId: 'ExistingGameId2',
+        saveFiles: [
+          {
+            name: 'ExistingSaveFile3',
+            languageCode: SegaSaturnUtil.getLanguageCode('English'),
+            comment: 'Comment3',
+            dateCode: SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 13:00:00 GMT')),
+            saveSize: 3456,
+            rawData: null,
+          },
+        ],
+      },
+    ];
+
+    const newGameSaveFiles = [
+      {
+        gameId: 'NewGameId1',
+        saveFiles: [
+          {
+            name: 'NewSaveFile1',
+            languageCode: SegaSaturnUtil.getLanguageCode('English'),
+            comment: 'Comment4',
+            dateCode: SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 14:00:00 GMT')),
+            saveSize: 4567,
+            rawData: null,
+          },
+        ],
+      },
+      {
+        gameId: 'ExistingGameId1',
+        saveFiles: [
+          {
+            name: 'NewSaveFile2',
+            languageCode: SegaSaturnUtil.getLanguageCode('English'),
+            comment: 'Comment5',
+            dateCode: SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 15:00:00 GMT')),
+            saveSize: 5678,
+            rawData: null,
+          },
+          {
+            name: 'ExistingSaveFile2',
+            languageCode: SegaSaturnUtil.getLanguageCode('English'),
+            comment: 'NewComment6',
+            dateCode: SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 16:00:00 GMT')),
+            saveSize: 6789,
+            rawData: null,
+          },
+        ],
+      },
+      {
+        gameId: 'ExistingGameId2',
+        saveFiles: [
+          {
+            name: 'ExistingSaveFile3',
+            languageCode: SegaSaturnUtil.getLanguageCode('English'),
+            comment: 'NewComment7',
+            dateCode: SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 17:00:00 GMT')),
+            saveSize: 7890,
+            rawData: null,
+          },
+        ],
+      },
+    ];
+
+    const combinedGameSaveFiles = SarooSegaSaturnInternalSaveData.upsertGameSaveFiles(existingGameSaveFiles, newGameSaveFiles);
+
+    expect(combinedGameSaveFiles.length).to.equal(3);
+
+    expect(combinedGameSaveFiles[0].gameId).to.equal('ExistingGameId1');
+    expect(combinedGameSaveFiles[0].saveFiles.length).to.equal(3);
+
+    expect(combinedGameSaveFiles[0].saveFiles[0].name).to.equal('ExistingSaveFile1');
+    expect(combinedGameSaveFiles[0].saveFiles[0].languageCode).to.equal(SegaSaturnUtil.getLanguageCode('English'));
+    expect(combinedGameSaveFiles[0].saveFiles[0].comment).to.equal('Comment1');
+    expect(combinedGameSaveFiles[0].saveFiles[0].dateCode).to.equal(SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 11:00:00 GMT')));
+    expect(combinedGameSaveFiles[0].saveFiles[0].saveSize).to.equal(1234);
+    expect(combinedGameSaveFiles[0].saveFiles[0].rawData).to.equal(null);
+
+    expect(combinedGameSaveFiles[0].saveFiles[1].name).to.equal('ExistingSaveFile2');
+    expect(combinedGameSaveFiles[0].saveFiles[1].languageCode).to.equal(SegaSaturnUtil.getLanguageCode('English'));
+    expect(combinedGameSaveFiles[0].saveFiles[1].comment).to.equal('NewComment6');
+    expect(combinedGameSaveFiles[0].saveFiles[1].dateCode).to.equal(SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 16:00:00 GMT')));
+    expect(combinedGameSaveFiles[0].saveFiles[1].saveSize).to.equal(6789);
+    expect(combinedGameSaveFiles[0].saveFiles[1].rawData).to.equal(null);
+
+    expect(combinedGameSaveFiles[0].saveFiles[2].name).to.equal('NewSaveFile2');
+    expect(combinedGameSaveFiles[0].saveFiles[2].languageCode).to.equal(SegaSaturnUtil.getLanguageCode('English'));
+    expect(combinedGameSaveFiles[0].saveFiles[2].comment).to.equal('Comment5');
+    expect(combinedGameSaveFiles[0].saveFiles[2].dateCode).to.equal(SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 15:00:00 GMT')));
+    expect(combinedGameSaveFiles[0].saveFiles[2].saveSize).to.equal(5678);
+    expect(combinedGameSaveFiles[0].saveFiles[2].rawData).to.equal(null);
+
+    expect(combinedGameSaveFiles[1].gameId).to.equal('ExistingGameId2');
+    expect(combinedGameSaveFiles[1].saveFiles.length).to.equal(1);
+
+    expect(combinedGameSaveFiles[1].saveFiles[0].name).to.equal('ExistingSaveFile3');
+    expect(combinedGameSaveFiles[1].saveFiles[0].languageCode).to.equal(SegaSaturnUtil.getLanguageCode('English'));
+    expect(combinedGameSaveFiles[1].saveFiles[0].comment).to.equal('NewComment7');
+    expect(combinedGameSaveFiles[1].saveFiles[0].dateCode).to.equal(SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 17:00:00 GMT')));
+    expect(combinedGameSaveFiles[1].saveFiles[0].saveSize).to.equal(7890);
+    expect(combinedGameSaveFiles[1].saveFiles[0].rawData).to.equal(null);
+
+    expect(combinedGameSaveFiles[2].gameId).to.equal('NewGameId1');
+    expect(combinedGameSaveFiles[2].saveFiles.length).to.equal(1);
+
+    expect(combinedGameSaveFiles[2].saveFiles[0].name).to.equal('NewSaveFile1');
+    expect(combinedGameSaveFiles[2].saveFiles[0].languageCode).to.equal(SegaSaturnUtil.getLanguageCode('English'));
+    expect(combinedGameSaveFiles[2].saveFiles[0].comment).to.equal('Comment4');
+    expect(combinedGameSaveFiles[2].saveFiles[0].dateCode).to.equal(SegaSaturnUtil.getDateCode(new Date('Tue, 7 Jan 2025 14:00:00 GMT')));
+    expect(combinedGameSaveFiles[2].saveFiles[0].saveSize).to.equal(4567);
+    expect(combinedGameSaveFiles[2].saveFiles[0].rawData).to.equal(null);
+  });
 });

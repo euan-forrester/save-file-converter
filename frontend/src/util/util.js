@@ -234,4 +234,8 @@ export default class Util {
     const footerArrayBuffer = sourceArrayBuffer.slice(-footerByteCount);
     return Util.concatArrayBuffers([destinationArrayBuffer, footerArrayBuffer]);
   }
+
+  static deepCopyArray(array) {
+    return JSON.parse(JSON.stringify(array));
+  }
 }
