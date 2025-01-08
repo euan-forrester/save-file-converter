@@ -390,6 +390,15 @@ export default class SarooSegaSaturnInternalSaveData {
     return existingCopy;
   }
 
+  static isInternalSarooData(arrayBuffer) {
+    try {
+      SarooSegaSaturnInternalSaveData.createFromSarooData(arrayBuffer);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   static createFromSarooData(arrayBuffer) {
     Util.checkMagic(arrayBuffer, MAGIC_OFFSET, MAGIC, MAGIC_ENCODING);
 

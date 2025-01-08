@@ -325,6 +325,15 @@ export default class SarooSegaSaturnCartSaveData {
     return existingCopy;
   }
 
+  static isCartSarooData(arrayBuffer) {
+    try {
+      SarooSegaSaturnCartSaveData.createFromSarooData(arrayBuffer);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   static createFromSarooData(arrayBuffer) {
     const dataView = new DataView(arrayBuffer);
 
