@@ -5,7 +5,7 @@ export default class GenesisMegaEverdriveProSegaCdFlashCartSaveData {
 
   static RAM_CART = 'ram-cart';
 
-  static FLASH_CART_RAM_CART_SIZE = 262144; // The Mega Everdrive Pro produces RAM cart files of this size
+  static FLASH_CART_RAM_CART_SIZE = 131072; // The Mega Everdrive Pro produces RAM cart files of this size as of firmware v24.1129
 
   static EMULATOR_RAM_CART_SIZE = 524288; // The emulators I've seen produce a RAM cart file of this size (note that the output size is changeable by the user)
 
