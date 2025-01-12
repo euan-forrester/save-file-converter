@@ -56,7 +56,6 @@ const NOTE_TABLE_NOTE_NAME_EXTENSION_LENGTH = 4;
 const NOTE_TABLE_NOTE_NAME_OFFSET = 16;
 const NOTE_TABLE_NOTE_NAME_LENGTH = 16;
 
-const INODE_TABLE_CHECKSUM_OFFSET = 1; // Is the 0th byte also part of the checksum?
 const INODE_TABLE_ENTRY_STOP = 1;
 const INODE_TABLE_ENTRY_EMPTY = 3;
 
@@ -220,13 +219,10 @@ function calculateChecksumsOfBlock(arrayBuffer) {
 // Calculate checksums of 4 byte arrays and compare them against the checksum
 // listed in the file. They're redundant, so if any are correct then the file
 // is deems not corrupted.
-//
-// Also fix up a common error along the way
 function checkIdArea(arrayBuffer) {
   let foundValidBlock = false;
 
   const dataView = new DataView(arrayBuffer);
-  const array = new Uint8Array(arrayBuffer);
 
   ID_AREA_CHECKSUM_OFFSETS.forEach((offset) => {
     const block = arrayBuffer.slice(offset, offset + ID_AREA_BLOCK_SIZE);
@@ -235,13 +231,10 @@ function checkIdArea(arrayBuffer) {
     const desiredSumA = dataView.getUint16(offset + ID_AREA_CHECKSUM_DESIRED_SUM_A_OFFSET, LITTLE_ENDIAN);
     let desiredSumB = dataView.getUint16(offset + ID_AREA_CHECKSUM_DESIRED_SUM_B_OFFSET, LITTLE_ENDIAN);
 
-    // Fix incorrect checksums found in many DexDrive files
+    // Find incorrect checksums found in many DexDrive files
     // https://github.com/bryc/mempak/blob/master/js/parser.js#L127
-    //
-    // FIXME: Note that here we're operating on a copy of the data (a slice) and so this won't affect what's written out
     if ((desiredSumB !== sumB) && ((desiredSumB ^ 0x0C) === sumB) && (desiredSumA === sumA)) {
       desiredSumB ^= 0xC;
-      array[offset + 31] ^= 0xC;
     }
 
     foundValidBlock = foundValidBlock || ((desiredSumA === sumA) && (desiredSumB === sumB));
@@ -336,10 +329,6 @@ function readNoteTable(inodePageArrayBuffer, noteTableArrayBuffer) {
 
     if (firstPageValid && unusedBytesAreZero && nextPageValid) {
       noteKeys.push(startingPage);
-
-      // Apparently sometimes this bit is unset, but it needs to be set.
-      // FIXME: Currently, this only affects a copy of the data (a slice) and not the actual data written out
-      noteTableArray[currentByte + NOTE_TABLE_STATUS_OFFSET] |= NOTE_TABLE_OCCUPIED_BIT;
 
       const gameSerialCodeArray = noteTableArray.slice(currentByte + NOTE_TABLE_GAME_SERIAL_CODE_OFFSET, currentByte + NOTE_TABLE_GAME_SERIAL_CODE_OFFSET + NOTE_TABLE_GAME_SERIAL_CODE_LENGTH);
       const publisherCodeArray = noteTableArray.slice(currentByte + NOTE_TABLE_PUBLISHER_CODE_OFFSET, currentByte + NOTE_TABLE_PUBLISHER_CODE_OFFSET + NOTE_TABLE_PUBLISHER_CODE_LENGTH);
@@ -495,26 +484,9 @@ function checkIndexes(inodeArrayBuffer, noteTableKeys) {
     throw new Error(`We encountered ${found.parsed.length} keys when following the various index sequences, but found ${found.keys.length} keys when looking through the entire inode table.`);
   }
 
-  // We've passed all of our validations, so we can fixup our checksums.
-  // Apparently valid files can have invalid checksums, so we won't actually
-  // check the checksums: only calculate and update them.
-  // https://github.com/bryc/mempak/blob/master/js/parser.js#L325
-
-  let sum = 0;
-  for (let currentPage = FIRST_SAVE_DATA_PAGE; currentPage < NUM_PAGES; currentPage += 1) {
-    // The code we're copying this from adds up all the bytes rather than the uint16s like we're doing here.
-    // But, since we already validated that each of these uint16s is < NUM_PAGES (128) then we can assume that all
-    // of the high bytes are 0
-    sum += getNextPageNumber(inodePageDataView, currentPage);
-    sum &= 0xFF;
-  }
-
-  // Is the 0th byte also part of the checksum?
-  // The code we're copying this from doesn't update the 0th byte, so we'll leave it alone too
-  // https://github.com/bryc/mempak/blob/master/js/parser.js#L330
-  //
-  // FIXME: This only updates a copy of the data (a slice) and not the actual data written out
-  inodePageDataView.setUint8(INODE_TABLE_CHECKSUM_OFFSET, sum);
+  // We've passed all of our validations, so the last remaining part is the checksums
+  // Apparently valid files can have invalid checksums, so we won't actually check the checksums
+  // For DexDrive files, we parse the file and then re-create it entirely to avoid having to fix these sorts of things manually
 
   return noteIndexes;
 }
@@ -654,8 +626,8 @@ export default class N64MempackSaveData {
     checkIdArea(getPage(ID_AREA_PAGE, mempackArrayBuffer));
 
     // Now, check the note table
-    let inodeArrayBuffer = getPage(INODE_TABLE_PAGE, mempackArrayBuffer);
-    let inodeBackupArrayBuffer = getPage(INODE_TABLE_BACKUP_PAGE, mempackArrayBuffer);
+    const inodeArrayBuffer = getPage(INODE_TABLE_PAGE, mempackArrayBuffer);
+    const inodeBackupArrayBuffer = getPage(INODE_TABLE_BACKUP_PAGE, mempackArrayBuffer);
     const noteTableArrayBuffer = concatPages(NOTE_TABLE_PAGES, mempackArrayBuffer);
 
     const noteInfo = readNoteTable(inodeArrayBuffer, noteTableArrayBuffer);
@@ -663,19 +635,11 @@ export default class N64MempackSaveData {
 
     try {
       noteIndexes = checkIndexes(inodeArrayBuffer, noteInfo.noteKeys);
-
-      // If we pass our index checks, then the parimary inode page is good and we can replace the backup with it
-      // FIXME: This only affects a copy of the data (a slice) and not the actual data written out
-      inodeBackupArrayBuffer = inodeArrayBuffer;
     } catch (e) {
       // If we encounter something that appears to be corrupted in the main inode table, then
       // try again with the backup table
       try {
         noteIndexes = checkIndexes(inodeBackupArrayBuffer, noteInfo.noteKeys);
-
-        // Our primary table is corrupted but our backup is okay, so write the backup over the primary
-        // FIXME: This only affects a copy of the data (a slice) and not the actual data written out
-        inodeArrayBuffer = inodeBackupArrayBuffer;
       } catch (e2) {
         throw new Error('Both primary and backup inode tables appear to be corrupted. Error from backup table follows', { cause: e2 });
       }
