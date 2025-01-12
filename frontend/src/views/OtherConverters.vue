@@ -41,7 +41,7 @@
         <b-link href="https://github.com/ShendoXT/memcardrex">MemcardRex</b-link>
       </b-col>
       <b-col cols=12 md=5 lg=5 xl=4>
-        Various PS1 formats. Requires{{'\xa0'}}Windows. <b-link href="https://github.com/ShendoXT/memcardrex/releases">Download{{'\xa0'}}here</b-link>
+        Various PS1 formats. Requires{{'\xa0'}}Windows/Mac. <b-link href="https://github.com/ShendoXT/memcardrex/releases">Download{{'\xa0'}}here</b-link>
       </b-col>
     </b-row>
     <div class="blank-line"/>
@@ -105,6 +105,15 @@
       </b-col>
       <b-col cols=12 md=5 lg=5 xl=4>
         Convert to/from Retroarch N64 saves
+      </b-col>
+    </b-row>
+    <div class="blank-line"/>
+    <b-row align-h="center">
+      <b-col cols=12 md=5 lg=5 xl=4>
+        <b-link href="https://github.com/bucanero/ps2vmc-tool">PS2 VMC Tool</b-link>
+      </b-col>
+      <b-col cols=12 md=5 lg=5 xl=4>
+        Manage PS2 emulator memory card images. Requires{{'\xa0'}}Windows/Mac/Linux. <b-link href="https://github.com/bucanero/ps2vmc-tool/releases">Download{{'\xa0'}}here</b-link>
       </b-col>
     </b-row>
   </div>
