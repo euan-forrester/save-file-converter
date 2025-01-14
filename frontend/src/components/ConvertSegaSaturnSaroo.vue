@@ -98,13 +98,6 @@
           </b-button>
         </b-col>
       </b-row>
-      <b-row>
-        <b-col>
-          <div class="help">
-            Help: how can I <router-link to="/original-hardware?sort=sega-saturn">copy save files to and from a Sega Saturn console</router-link>?
-          </div>
-        </b-col>
-      </b-row>
     </b-container>
   </div>
 </template>
@@ -204,6 +197,8 @@ export default {
       this.segaCdSaveType = 'internal-memory';
       this.saturnRomData = null;
       this.saturnRomErrorMessage = null;
+
+      this.setOutputFilename();
     },
     changeSelectedSaveData(newSaveData) {
       if (this.segaSaturnSaveData.getSaveFiles().length > 0) {
@@ -214,14 +209,25 @@ export default {
         this.outputFilename = null;
       }
     },
+    setOutputFilename() {
+      if (this.conversionDirection === 'convertToFormat') {
+        if (this.segaCdSaveType === 'internal-memory') {
+          this.outputFilename = 'SS_SAVE.BIN';
+        } else {
+          this.outputFilename = 'SS_MEMS.BIN';
+        }
+      }
+    },
     changeSegaCdSaveType(newValue) {
       if (this.segaCdSaveType !== newValue) {
         this.segaCdSaveType = newValue;
         this.saturnRomData = null;
+        this.segaSaturnSaveData = null;
         if (this.$refs.inputFileSaturnRomData) {
           this.$refs.inputFileSaturnRomData.reset();
         }
         this.tryToCreateSegaSaturnSaveDataFromSaveFiles();
+        this.setOutputFilename();
       }
     },
     readSaturnRom(event) {
@@ -292,10 +298,8 @@ export default {
               },
             ];
             this.segaSaturnSaveData = SarooSegaSaturnInternalSaveData.createFromSaveFiles(gameSaveFiles);
-            this.outputFilename = 'SS_SAVE.BIN';
           } else {
             this.segaSaturnSaveData = SarooSegaSaturnCartSaveData.createFromSaveFiles(this.saveFiles);
-            this.outputFilename = 'SS_MEMS.BIN';
           }
         } catch (e) {
           this.errorMessage = e.message;

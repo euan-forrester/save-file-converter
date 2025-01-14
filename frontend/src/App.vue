@@ -55,8 +55,8 @@
       </b-row>
       <b-row>
         <b-col class="nav-row">
-          <router-link to="/sega-saturn/emulator">Sega{{'\xa0'}}Saturn{{'\xa0'}}-{{'\xa0'}}Emulator{{'\xa0'}}<span class="new-text">(New)</span></router-link> |
           <router-link to="/sega-saturn/saroo">Sega{{'\xa0'}}Saturn{{'\xa0'}}-{{'\xa0'}}Saroo{{'\xa0'}}<span class="new-text">(New)</span></router-link> |
+          <router-link to="/sega-saturn/emulator">Sega{{'\xa0'}}Saturn{{'\xa0'}}-{{'\xa0'}}Emulator{{'\xa0'}}<span class="new-text">(New)</span></router-link> |
           <router-link to="/sega-cd">Sega{{'\xa0'}}CD</router-link>
         </b-col>
       </b-row>
