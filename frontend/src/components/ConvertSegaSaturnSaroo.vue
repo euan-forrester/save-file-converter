@@ -64,6 +64,18 @@
               :leaveRoomForHelpIcon="false"
               :allowMultipleFiles="true"
             />
+            <div v-if="this.needsSaturnRomData">
+              <input-file
+                @load="readSaturnRom($event)"
+                :errorMessage="this.saturnRomErrorMessage"
+                placeholderText="Select track 1 from the game's .bin/.cue files"
+                acceptExtension=".bin"
+                :leaveRoomForHelpIcon="true"
+                helpText="Saroo internal memory files require additional information about the game. It's generally contained in track 1 of the games .bin/.cue files.
+                You can only add saves from one game at a time to Saroo internal memory files."
+                ref="inputFileSaturnRomData"
+              />
+            </div>
             <file-list
               :display="this.segaSaturnSaveData !== null"
               :files="this.getFileListNames()"
@@ -129,6 +141,7 @@ import SegaSaturnBupSaveData from '../save-formats/SegaSaturn/Bup';
 import SarooSegaSaturnInternalSaveData from '../save-formats/SegaSaturn/Saroo/Internal';
 import SarooSegaSaturnCartSaveData from '../save-formats/SegaSaturn/Saroo/Cart';
 import SarooSegaSaturnSystemSaveData from '../save-formats/SegaSaturn/Saroo/System';
+import SegaSaturnCueBin from '../rom-formats/SegaSaturnCueBin';
 
 export default {
   name: 'ConvertSegaSaturnSaroo',
@@ -143,6 +156,8 @@ export default {
       conversionDirection: 'convertToRaw',
       segaCdSaveType: 'internal-memory',
       selectedSaveData: null,
+      saturnRomData: null,
+      saturnRomErrorMessage: null,
     };
   },
   components: {
@@ -156,7 +171,13 @@ export default {
     convertButtonDisabled() {
       const haveDataSelected = (this.conversionDirection === 'convertToRaw') ? true : this.selectedSaveData === null;
 
-      return !this.segaSaturnSaveData || this.segaSaturnSaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
+      return !this.segaSaturnSaveData || this.segaSaturnSaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename || !this.hasSaturnRomDataIfNeeded;
+    },
+    needsSaturnRomData() {
+      return (this.conversionDirection === 'convertToFormat') && (this.segaCdSaveType === 'internal-memory');
+    },
+    hasSaturnRomDataIfNeeded() {
+      return !this.needsSaturnRomData || (this.saturnRomData !== null);
     },
   },
   methods: {
@@ -181,6 +202,8 @@ export default {
       this.outputFilename = null;
       this.selectedSaveData = null;
       this.segaCdSaveType = 'internal-memory';
+      this.saturnRomData = null;
+      this.saturnRomErrorMessage = null;
     },
     changeSelectedSaveData(newSaveData) {
       if (this.segaSaturnSaveData.getSaveFiles().length > 0) {
@@ -194,7 +217,20 @@ export default {
     changeSegaCdSaveType(newValue) {
       if (this.segaCdSaveType !== newValue) {
         this.segaCdSaveType = newValue;
+        this.saturnRomData = null;
+        if (this.$refs.inputFileSaturnRomData) {
+          this.$refs.inputFileSaturnRomData.reset();
+        }
         this.tryToCreateSegaSaturnSaveDataFromSaveFiles();
+      }
+    },
+    readSaturnRom(event) {
+      this.saturnRomErrorMessage = null;
+      try {
+        this.saturnRomData = new SegaSaturnCueBin(event.arrayBuffer);
+        this.tryToCreateSegaSaturnSaveDataFromSaveFiles();
+      } catch (e) {
+        this.saturnRomErrorMessage = 'This does not appear to be track 1 of a Sega Saturn game in .cue/.bin format';
       }
     },
     readSegaSaturnSaveData(event) {
@@ -243,7 +279,7 @@ export default {
       }
     },
     tryToCreateSegaSaturnSaveDataFromSaveFiles() {
-      if ((this.saveFiles !== null) && (this.segaCdSaveType !== null)) { // FIXME: Need to check that we have a ROM here, so we can set the game ID
+      if ((this.saveFiles !== null) && this.hasSaturnRomDataIfNeeded) {
         this.errorMessage = null;
         this.selectedSaveData = null;
         this.inputFilename = null;
@@ -251,7 +287,7 @@ export default {
           if (this.segaCdSaveType === 'internal-memory') {
             const gameSaveFiles = [
               {
-                gameId: 'Dummy', // FIXME: Need to correctly set the game ID here
+                gameId: this.saturnRomData.getGameId(),
                 saveFiles: this.saveFiles,
               },
             ];
@@ -266,7 +302,7 @@ export default {
           this.segaSaturnSaveData = null;
           this.selectedSaveData = null;
           this.outputFilename = null;
-          // Leave this.bupsArray and this.saveFiles alone, so we can try a different sega cd save type (internal vs cart)
+          // Leave this.bupsArray and this.saveFiles and this.saturnRomData alone, so we can try a different sega cd save type (internal vs cart)
         }
       }
     },
