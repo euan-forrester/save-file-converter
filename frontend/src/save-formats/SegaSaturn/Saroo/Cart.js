@@ -305,7 +305,7 @@ export default class SarooSegaSaturnCartSaveData {
   }
 
   static upsertGameSaveFiles(existingGameSaveFiles, newGameSaveFiles) {
-    const existingCopy = Util.deepCopyArray(existingGameSaveFiles);
+    const existingCopy = existingGameSaveFiles.slice(0); // Shallow copy
 
     // Merge in the new game save files into the existing game save files
     // Uses an 'upsert' style operation where missing records are inserted, and existing records are updated

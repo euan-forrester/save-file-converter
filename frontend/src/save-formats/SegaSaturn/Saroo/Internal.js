@@ -358,7 +358,7 @@ export default class SarooSegaSaturnInternalSaveData {
   }
 
   static upsertGameSaveFiles(existingGameSaveFiles, newGameSaveFiles) {
-    const existingCopy = Util.deepCopyArray(existingGameSaveFiles);
+    const existingCopy = existingGameSaveFiles.slice(0); // Shallow copy
 
     // Merge in the new game save files into the existing game save files
     // Uses an 'upsert' style operation where missing records are inserted, and existing records are updated
@@ -419,11 +419,8 @@ export default class SarooSegaSaturnInternalSaveData {
     }
 
     const reservedSlot = createReservedSlot(gameSaveFiles);
-
     const gameSlots = gameSaveFiles.map((gameInfo) => createGameSlot(gameInfo));
-
-    const arrayBuffer = Util.concatArrayBuffers([reservedSlot].concat(gameSlots));
-
+    const arrayBuffer = Util.concatArrayBuffers([reservedSlot, ...gameSlots]);
     const volumeInfo = getVolumeInfo(arrayBuffer);
 
     return new SarooSegaSaturnInternalSaveData(arrayBuffer, gameSaveFiles, volumeInfo);

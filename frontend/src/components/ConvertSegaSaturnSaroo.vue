@@ -20,7 +20,7 @@
             />
             <file-list
               :display="this.segaSaturnSaveData !== null"
-              :files="this.getFileListNames()"
+              :files="this.getSaveDataFileListNames()"
               v-model="selectedSaveData"
               @change="changeSelectedSaveData($event)"
             />
@@ -73,12 +73,30 @@
                 :leaveRoomForHelpIcon="true"
                 helpText="Saroo internal memory files require additional information about the game. It's generally contained in track 1 of the games .bin/.cue files.
                 You can only add saves from one game at a time to Saroo internal memory files."
+                id="inputFileSaturnRomData"
                 ref="inputFileSaturnRomData"
               />
             </div>
             <file-list
               :display="this.segaSaturnSaveData !== null"
               :files="this.getFileListNames()"
+              :enabled="false"
+              :showMessageWhenEmpty="false"
+            />
+            <input-file
+              @load="readSaveDataToMergeInfo($event)"
+              :errorMessage="this.saveDataToMergeIntoErrorMessage"
+              placeholderText="Optional: Add to existing Saroo file"
+              acceptExtension=".BIN"
+              :leaveRoomForHelpIcon="true"
+              helpText="The Saroo has one single common file for internal memory saves and one for backup cartridge saves. You may wish to add the saves selected above
+              to your existing file to preserve the other saves in it. If any of the saves selected above are already present in the file they will be overwritten."
+              id="inputFileToMergeInfo"
+              ref="inputFileToMergeInfo"
+            />
+            <file-list
+              :display="this.segaSaturnSaveDataToMergeInto !== null"
+              :files="this.getSaveDataToMergeInfoFileListNames()"
               :enabled="false"
               :showMessageWhenEmpty="false"
             />
@@ -136,11 +154,26 @@ import SarooSegaSaturnCartSaveData from '../save-formats/SegaSaturn/Saroo/Cart';
 import SarooSegaSaturnSystemSaveData from '../save-formats/SegaSaturn/Saroo/System';
 import SegaSaturnCueBin from '../rom-formats/SegaSaturnCueBin';
 
+function getFileListNames(saveFiles) {
+  return saveFiles.map((x) => ({
+    displayText: `${x.name} - ${x.comment}`,
+  }));
+}
+
+function getFileListNamesFromSaveData(saveData) {
+  if ((saveData !== null) && (saveData.getSaveFiles() !== null)) {
+    return getFileListNames(saveData.getSaveFiles());
+  }
+
+  return [];
+}
+
 export default {
   name: 'ConvertSegaSaturnSaroo',
   data() {
     return {
       segaSaturnSaveData: null,
+      segaSaturnSaveDataToMergeInto: null,
       bupsArray: null,
       saveFiles: null,
       errorMessage: null,
@@ -151,6 +184,7 @@ export default {
       selectedSaveData: null,
       saturnRomData: null,
       saturnRomErrorMessage: null,
+      saveDataToMergeIntoErrorMessage: null,
     };
   },
   components: {
@@ -175,22 +209,26 @@ export default {
   },
   methods: {
     getFileListNames() {
-      if ((this.segaSaturnSaveData !== null) && (this.segaSaturnSaveData.getSaveFiles() !== null)) {
-        return this.segaSaturnSaveData.getSaveFiles().map(
-          (x) => ({
-            displayText: `${x.name} - ${x.comment}`,
-          }),
-        );
+      if (this.saveFiles !== null) {
+        return getFileListNames(this.saveFiles);
       }
 
       return [];
     },
+    getSaveDataFileListNames() {
+      return getFileListNamesFromSaveData(this.segaSaturnSaveData);
+    },
+    getSaveDataToMergeInfoFileListNames() {
+      return getFileListNamesFromSaveData(this.segaSaturnSaveDataToMergeInto);
+    },
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
       this.segaSaturnSaveData = null;
+      this.segaSaturnSaveDataToMergeInto = null;
       this.bupsArray = null;
       this.saveFiles = null;
       this.errorMessage = null;
+      this.saveDataToMergeIntoErrorMessage = null;
       this.inputFilename = null;
       this.outputFilename = null;
       this.selectedSaveData = null;
@@ -223,8 +261,14 @@ export default {
         this.segaCdSaveType = newValue;
         this.saturnRomData = null;
         this.segaSaturnSaveData = null;
+        this.errorMessage = null;
+        this.segaSaturnSaveDataToMergeInto = null;
+        this.saveDataToMergeIntoErrorMessage = null;
         if (this.$refs.inputFileSaturnRomData) {
           this.$refs.inputFileSaturnRomData.reset();
+        }
+        if (this.$refs.inputFileToMergeInfo) {
+          this.$refs.inputFileToMergeInfo.reset();
         }
         this.tryToCreateSegaSaturnSaveDataFromSaveFiles();
         this.setOutputFilename();
@@ -266,6 +310,29 @@ export default {
         }
       }
     },
+    readSaveDataToMergeInfo(event) {
+      if (this.segaCdSaveType !== null) {
+        this.saveDataToMergeIntoErrorMessage = null;
+
+        if (this.segaCdSaveType === 'internal-memory') {
+          try {
+            this.segaSaturnSaveDataToMergeInto = SarooSegaSaturnInternalSaveData.createFromSarooData(event.arrayBuffer);
+            this.tryToCreateSegaSaturnSaveDataFromSaveFiles();
+          } catch (e) {
+            this.saveDataToMergeIntoErrorMessage = 'You can only merge saves from an internal memory save file (SS_SAVE.BIN) when creating a new internal memory file';
+            this.segaSaturnSaveDataToMergeInto = null;
+          }
+        } else {
+          try {
+            this.segaSaturnSaveDataToMergeInto = SarooSegaSaturnCartSaveData.createFromSarooData(event.arrayBuffer);
+            this.tryToCreateSegaSaturnSaveDataFromSaveFiles();
+          } catch (e) {
+            this.saveDataToMergeIntoErrorMessage = 'You can only merge saves from a backup cartridge save file (SS_MEMS.BIN) when creating a new backup cartridge file';
+            this.segaSaturnSaveDataToMergeInto = null;
+          }
+        }
+      }
+    },
     readIndividualFileSaveData(event) {
       this.errorMessage = null;
       this.selectedSaveData = null;
@@ -291,15 +358,28 @@ export default {
         this.inputFilename = null;
         try {
           if (this.segaCdSaveType === 'internal-memory') {
-            const gameSaveFiles = [
+            const newGameSaveFiles = [
               {
                 gameId: this.saturnRomData.getGameId(),
                 saveFiles: this.saveFiles,
               },
             ];
+
+            let gameSaveFiles = newGameSaveFiles;
+
+            if (this.segaSaturnSaveDataToMergeInto !== null) {
+              gameSaveFiles = SarooSegaSaturnInternalSaveData.upsertGameSaveFiles(this.segaSaturnSaveDataToMergeInto.getGameSaveFiles(), newGameSaveFiles);
+            }
+
             this.segaSaturnSaveData = SarooSegaSaturnInternalSaveData.createFromSaveFiles(gameSaveFiles);
           } else {
-            this.segaSaturnSaveData = SarooSegaSaturnCartSaveData.createFromSaveFiles(this.saveFiles);
+            let saveFiles = this.saveFiles; // eslint-disable-line prefer-destructuring
+
+            if (this.segaSaturnSaveDataToMergeInto !== null) {
+              saveFiles = SarooSegaSaturnCartSaveData.upsertGameSaveFiles(this.segaSaturnSaveDataToMergeInto.getSaveFiles(), this.saveFiles);
+            }
+
+            this.segaSaturnSaveData = SarooSegaSaturnCartSaveData.createFromSaveFiles(saveFiles);
           }
         } catch (e) {
           this.errorMessage = e.message;
