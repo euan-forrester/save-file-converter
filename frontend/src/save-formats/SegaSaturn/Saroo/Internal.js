@@ -357,6 +357,20 @@ export default class SarooSegaSaturnInternalSaveData {
     */
   }
 
+  static gameSaveFilesContainsFile(gameSaveFiles, gameId, saveFile) {
+    const gameIdIndex = gameSaveFiles.findIndex((x) => x.gameId === gameId);
+
+    if (gameIdIndex < 0) {
+      return false;
+    }
+
+    return (gameSaveFiles[gameIdIndex].saveFiles.findIndex((x) => x.name === saveFile.name) >= 0);
+  }
+
+  static gameSaveFilesAreEqual(gameId1, saveFile1, gameId2, saveFile2) {
+    return (gameId1 === gameId2) && (saveFile1.name === saveFile2.name);
+  }
+
   static upsertGameSaveFiles(existingGameSaveFiles, newGameSaveFiles) {
     const existingCopy = existingGameSaveFiles.slice(0); // Shallow copy
 

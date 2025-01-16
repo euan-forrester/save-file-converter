@@ -66,7 +66,31 @@ export default {
       }
 
       const optionsEnabled = this.enabled;
-      return this.files.map((f, i) => ({ value: i, text: f.displayText, disabled: !optionsEnabled }));
+      return this.files.map((f, i) => {
+        const item = {
+          value: i,
+          disabled: !optionsEnabled,
+        };
+
+        switch (f.displayColour) {
+          case 'red': {
+            item.html = `<div style="background-color:darksalmon;color:black">${f.displayText}</div>`;
+            break;
+          }
+
+          case 'green': {
+            item.html = `<div style="background-color:lightgreen;color:black">${f.displayText}</div>`;
+            break;
+          }
+
+          default: {
+            item.text = f.displayText;
+            break;
+          }
+        }
+
+        return item;
+      });
     },
     valueLocal: {
       get() { return this.value; },

@@ -71,8 +71,8 @@
                 placeholderText="Select track 1 from the game's .bin/.cue files"
                 acceptExtension=".bin"
                 :leaveRoomForHelpIcon="true"
-                helpText="Saroo internal memory files require additional information about the game. It's generally contained in track 1 of the games .bin/.cue files.
-                You can only add saves from one game at a time to Saroo internal memory files."
+                helpText="Saroo internal memory files require additional information about the game. It's generally contained in track 1 of the game's .bin/.cue files.
+                You can only add saves from one game at a time to Saroo internal memory files. All processing is done on your local machine and your ROMs are not sent anywhere."
                 id="inputFileSaturnRomData"
                 ref="inputFileSaturnRomData"
               />
@@ -90,7 +90,8 @@
               acceptExtension=".BIN"
               :leaveRoomForHelpIcon="true"
               helpText="The Saroo has one single common file for internal memory saves and one for backup cartridge saves. You may wish to add the saves selected above
-              to your existing file to preserve the other saves in it. If any of the saves selected above are already present in the file they will be overwritten."
+              to your existing file to preserve the other saves in it. If any of the saves selected above are already present in the file they will be overwritten.
+              Overwritten files will be highlighted in red, with the replacement files highlighted in green."
               id="inputFileToMergeInfo"
               ref="inputFileToMergeInfo"
             />
@@ -154,14 +155,22 @@ import SarooSegaSaturnCartSaveData from '../save-formats/SegaSaturn/Saroo/Cart';
 import SarooSegaSaturnSystemSaveData from '../save-formats/SegaSaturn/Saroo/System';
 import SegaSaturnCueBin from '../rom-formats/SegaSaturnCueBin';
 
+function getFileListEntry(saveFile) {
+  return {
+    displayText: `${saveFile.name} - ${saveFile.comment}`,
+  };
+}
+
 function getFileListNames(saveFiles) {
-  return saveFiles.map((x) => ({
-    displayText: `${x.name} - ${x.comment}`,
-  }));
+  if (saveFiles !== null) {
+    return saveFiles.map((x) => getFileListEntry(x));
+  }
+
+  return [];
 }
 
 function getFileListNamesFromSaveData(saveData) {
-  if ((saveData !== null) && (saveData.getSaveFiles() !== null)) {
+  if (saveData !== null) {
     return getFileListNames(saveData.getSaveFiles());
   }
 
@@ -208,18 +217,113 @@ export default {
     },
   },
   methods: {
+    getGameSaveFiles() {
+      if ((this.saturnRomData === null) || (this.saveFiles === null)) {
+        return [];
+      }
+
+      return [
+        {
+          gameId: this.saturnRomData.getGameId(),
+          saveFiles: this.saveFiles,
+        },
+      ];
+    },
+    hasAllDataToShowOverriddenFiles() {
+      const hasSaveFilesAndSaveDataToMergeInto = (this.saveFiles !== null) && (this.segaSaturnSaveDataToMergeInto !== null);
+
+      if (this.segaCdSaveType === 'internal-memory') {
+        return hasSaveFilesAndSaveDataToMergeInto && (this.saturnRomData !== null);
+      }
+
+      return hasSaveFilesAndSaveDataToMergeInto;
+    },
+    getSaveDataFileListNames() {
+      // This is for displaying the file list on the left, when converting FROM Saroo data. No need for any colouring
+      return getFileListNamesFromSaveData(this.segaSaturnSaveData);
+    },
     getFileListNames() {
-      if (this.saveFiles !== null) {
+      // This is for displaying the top file list on the right (of files we are converting/adding to an existing file), when converting TO Saroo data.
+
+      if (!this.hasAllDataToShowOverriddenFiles()) {
+        // We're doing either internal or cart saves, but don't have enough data to show coloured entries.
+        // So just show regular entries regardless of whether we're doing internal or cart saves
+
         return getFileListNames(this.saveFiles);
       }
 
-      return [];
-    },
-    getSaveDataFileListNames() {
-      return getFileListNamesFromSaveData(this.segaSaturnSaveData);
+      if (this.segaCdSaveType === 'internal-memory') {
+        // We're doing internal saves, and have all of the data necessary to show coloured entries
+        const gameSaveFiles = this.getGameSaveFiles();
+
+        return gameSaveFiles.reduce((outputFileList, gameToMergeInfo) => {
+          const gameFileListEntries = gameToMergeInfo.saveFiles.map((saveFile) => {
+            const fileListEntry = getFileListEntry(saveFile);
+
+            if (SarooSegaSaturnInternalSaveData.gameSaveFilesContainsFile(this.segaSaturnSaveDataToMergeInto.getGameSaveFiles(), gameToMergeInfo.gameId, saveFile)) {
+              fileListEntry.displayColour = 'green';
+            }
+
+            return fileListEntry;
+          });
+
+          return [...outputFileList, ...gameFileListEntries];
+        }, []);
+      }
+
+      // We're doing cart saves, and have all of the data necessary to show coloured entries
+
+      return this.saveFiles.map((saveFile) => {
+        const fileListEntry = getFileListEntry(saveFile);
+
+        if (SarooSegaSaturnCartSaveData.saveFilesContainsFile(this.segaSaturnSaveDataToMergeInto.getSaveFiles(), saveFile)) {
+          fileListEntry.displayColour = 'green';
+        }
+
+        return fileListEntry;
+      });
     },
     getSaveDataToMergeInfoFileListNames() {
-      return getFileListNamesFromSaveData(this.segaSaturnSaveDataToMergeInto);
+      // This is for displaying the bottom file list on the right (of existing files we are adding to), when converting TO Saroo data.
+
+      if (!this.hasAllDataToShowOverriddenFiles()) {
+        // We're doing either internal or cart saves, but don't have enough data to show coloured entries.
+        // So just show regular entries regardless of whether we're doing internal or cart saves
+
+        return getFileListNamesFromSaveData(this.segaSaturnSaveDataToMergeInto);
+      }
+
+      if (this.segaCdSaveType === 'internal-memory') {
+        // We're doing internal saves, and have all of the data necessary to show coloured entries
+
+        const gameSaveFiles = this.getGameSaveFiles();
+
+        return this.segaSaturnSaveDataToMergeInto.getGameSaveFiles().reduce((outputFileList, gameToMergeInfo) => {
+          const gameFileListEntries = gameToMergeInfo.saveFiles.map((saveFile) => {
+            const fileListEntry = getFileListEntry(saveFile);
+
+            if (SarooSegaSaturnInternalSaveData.gameSaveFilesContainsFile(gameSaveFiles, gameToMergeInfo.gameId, saveFile)) {
+              fileListEntry.displayColour = 'red';
+            }
+
+            return fileListEntry;
+          });
+
+          return [...outputFileList, ...gameFileListEntries];
+        }, []);
+      }
+
+      // We're doing cart saves, and have all of the data necessary to show coloured entries
+
+      return this.segaSaturnSaveDataToMergeInto.getSaveFiles().map((saveFile) => {
+        const fileListEntry = getFileListEntry(saveFile);
+
+        if (SarooSegaSaturnCartSaveData.saveFilesContainsFile(this.saveFiles, saveFile)) {
+          fileListEntry.displayColour = 'red';
+        }
+
+        return fileListEntry;
+      });
     },
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
@@ -358,12 +462,7 @@ export default {
         this.inputFilename = null;
         try {
           if (this.segaCdSaveType === 'internal-memory') {
-            const newGameSaveFiles = [
-              {
-                gameId: this.saturnRomData.getGameId(),
-                saveFiles: this.saveFiles,
-              },
-            ];
+            const newGameSaveFiles = this.getGameSaveFiles();
 
             let gameSaveFiles = newGameSaveFiles;
 

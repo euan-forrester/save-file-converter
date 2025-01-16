@@ -304,6 +304,14 @@ export default class SarooSegaSaturnCartSaveData {
     */
   }
 
+  static saveFilesContainsFile(saveFiles, saveFile) {
+    return (saveFiles.findIndex((x) => SarooSegaSaturnCartSaveData.saveFilesAreEqual(x, saveFile)) >= 0);
+  }
+
+  static saveFilesAreEqual(saveFile1, saveFile2) {
+    return (saveFile1.name === saveFile2.name);
+  }
+
   static upsertGameSaveFiles(existingGameSaveFiles, newGameSaveFiles) {
     const existingCopy = existingGameSaveFiles.slice(0); // Shallow copy
 
@@ -311,7 +319,7 @@ export default class SarooSegaSaturnCartSaveData {
     // Uses an 'upsert' style operation where missing records are inserted, and existing records are updated
 
     newGameSaveFiles.forEach((newSaveFile) => {
-      const existingSaveFileIndex = existingCopy.findIndex((existing) => existing.name === newSaveFile.name);
+      const existingSaveFileIndex = existingCopy.findIndex((existing) => SarooSegaSaturnCartSaveData.saveFilesAreEqual(existing, newSaveFile));
 
       if (existingSaveFileIndex < 0) {
         // If this save file does not exist for this game, then add it
