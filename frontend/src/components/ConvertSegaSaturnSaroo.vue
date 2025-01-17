@@ -370,6 +370,7 @@ export default {
         this.tryToCreateSegaSaturnSaveDataFromSaveFiles();
       } catch (e) {
         this.saturnRomErrorMessage = 'This does not appear to be track 1 of a Sega Saturn game in .cue/.bin format';
+        this.saturnRomData = null;
       }
     },
     readSegaSaturnSaveData(event) {
