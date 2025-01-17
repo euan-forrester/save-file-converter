@@ -86,7 +86,11 @@ export default class SegaSaturnBupSaveData {
 
       const rawData = arrayBuffer.slice(HEADER_SIZE);
 
-      Util.checkMagic(headerArrayBuffer, MAGIC_OFFSET, MAGIC, MAGIC_ENCODING);
+      try {
+        Util.checkMagic(headerArrayBuffer, MAGIC_OFFSET, MAGIC, MAGIC_ENCODING);
+      } catch (e) {
+        throw new Error('This does not appear to be a Sega Saturn save file in .BUP format');
+      }
 
       const languageCode = headerDataView.getUint8(LANGUAGE_OFFSET);
       const dateCode1 = headerDataView.getUint32(DATE_OFFSET_1, LITTLE_ENDIAN);
