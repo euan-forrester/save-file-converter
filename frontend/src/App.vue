@@ -53,16 +53,30 @@
           <router-link to="/ps1/emulator">PS1{{'\xa0'}}-{{'\xa0'}}emulator</router-link>
         </b-col>
       </b-row>
+      <!--
       <b-row>
         <b-col class="nav-row">
-          <router-link to="/sega-cd">Sega{{'\xa0'}}CD{{'\xa0'}}</router-link> |
-          <router-link to="/psp">PSP{{'\xa0'}}-{{'\xa0'}}Save{{'\xa0'}}decryption{{'\xa0'}}</router-link>
+          <router-link to="/sega-saturn/saroo">Sega{{'\xa0'}}Saturn{{'\xa0'}}-{{'\xa0'}}Saroo{{'\xa0'}}<span class="new-text">(New)</span></router-link> |
+          <router-link to="/sega-saturn/emulator">Sega{{'\xa0'}}Saturn{{'\xa0'}}-{{'\xa0'}}Emulator{{'\xa0'}}<span class="new-text">(New)</span></router-link> |
+          <router-link to="/sega-cd">Sega{{'\xa0'}}CD</router-link>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="nav-row">
+          <router-link to="/psp">PSP{{'\xa0'}}-{{'\xa0'}}Save{{'\xa0'}}decryption</router-link>
+        </b-col>
+      </b-row>
+      -->
+      <b-row>
+        <b-col class="nav-row">
+          <router-link to="/sega-cd">Sega{{'\xa0'}}CD</router-link> |
+          <router-link to="/psp">PSP{{'\xa0'}}-{{'\xa0'}}Save{{'\xa0'}}decryption</router-link>
         </b-col>
       </b-row>
       <b-row>
         <b-col class="nav-row">
           <router-link to="/download-saves">Download{{'\xa0'}}saves</router-link> |
-          <router-link to="/original-hardware">Copy{{'\xa0'}}saves{{'\xa0'}}to/from{{'\xa0'}}original{{'\xa0'}}hardware{{'\xa0'}}</router-link>
+          <router-link to="/original-hardware">Copy{{'\xa0'}}saves{{'\xa0'}}to/from{{'\xa0'}}original{{'\xa0'}}hardware</router-link>
         </b-col>
       </b-row>
       <b-row class="nav-row">

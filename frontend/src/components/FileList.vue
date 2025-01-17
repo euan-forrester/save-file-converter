@@ -1,6 +1,6 @@
 <template>
   <b-collapse appear :visible="display">
-    <b-alert variant="info" :show="(this.files !== null) && (this.files.length === 0)">
+    <b-alert variant="info" :show="(this.files !== null) && (this.files.length === 0) && this.showMessageWhenEmpty">
       No saves found in file
     </b-alert>
     <div v-show="(this.files !== null) && (this.files.length > 0)">
@@ -42,6 +42,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    showMessageWhenEmpty: {
+      type: Boolean,
+      default: true,
+    },
     value: {
       type: Number,
       default: null,
@@ -62,7 +66,31 @@ export default {
       }
 
       const optionsEnabled = this.enabled;
-      return this.files.map((f, i) => ({ value: i, text: f.displayText, disabled: !optionsEnabled }));
+      return this.files.map((f, i) => {
+        const item = {
+          value: i,
+          disabled: !optionsEnabled,
+        };
+
+        switch (f.displayColour) {
+          case 'red': {
+            item.html = `<div style="background-color:darksalmon;color:black">${f.displayText}</div>`;
+            break;
+          }
+
+          case 'green': {
+            item.html = `<div style="background-color:lightgreen;color:black">${f.displayText}</div>`;
+            break;
+          }
+
+          default: {
+            item.text = f.displayText;
+            break;
+          }
+        }
+
+        return item;
+      });
     },
     valueLocal: {
       get() { return this.value; },
