@@ -20,7 +20,7 @@
             />
             <file-list
               :display="this.segaSaturnSaveData !== null"
-              :files="this.getSaveDataFileListNames()"
+              :files="this.getSarooSaveDataFileListEntries()"
               v-model="selectedSaveData"
               @change="changeSelectedSaveData($event)"
             />
@@ -79,7 +79,7 @@
             </div>
             <file-list
               :display="this.segaSaturnSaveData !== null"
-              :files="this.getFileListNames()"
+              :files="this.getIndividualFileListEntries()"
               :enabled="false"
               :showMessageWhenEmpty="false"
             />
@@ -97,7 +97,7 @@
             />
             <file-list
               :display="this.segaSaturnSaveDataToMergeInto !== null"
-              :files="this.getSaveDataToMergeInfoFileListNames()"
+              :files="this.getSaveDataToMergeInfoFileListEntries()"
               :enabled="false"
               :showMessageWhenEmpty="false"
             />
@@ -189,7 +189,7 @@ function getCartMemoryFileListEntries(saveFiles, overridingSaveFiles, colour) {
   });
 }
 
-function getFileListNames(saveFiles) {
+function getFileListEntries(saveFiles) {
   if (saveFiles !== null) {
     return saveFiles.map((x) => getFileListEntry(x));
   }
@@ -197,9 +197,9 @@ function getFileListNames(saveFiles) {
   return [];
 }
 
-function getFileListNamesFromSaveData(saveData) {
+function getFileListEntriesFromSaveData(saveData) {
   if (saveData !== null) {
-    return getFileListNames(saveData.getSaveFiles());
+    return getFileListEntries(saveData.getSaveFiles());
   }
 
   return [];
@@ -266,18 +266,18 @@ export default {
 
       return hasSaveFilesAndSaveDataToMergeInto;
     },
-    getSaveDataFileListNames() {
+    getSarooSaveDataFileListEntries() {
       // This is for displaying the file list on the left, when converting FROM Saroo data. No need for any colouring
-      return getFileListNamesFromSaveData(this.segaSaturnSaveData);
+      return getFileListEntriesFromSaveData(this.segaSaturnSaveData);
     },
-    getFileListNames() {
+    getIndividualFileListEntries() {
       // This is for displaying the top file list on the right (of files we are converting/adding to an existing file), when converting TO Saroo data.
 
       if (!this.hasAllDataToShowOverriddenFiles()) {
         // We're doing either internal or cart saves, but don't have enough data to show coloured entries.
         // So just show regular entries regardless of whether we're doing internal or cart saves
 
-        return getFileListNames(this.saveFiles);
+        return getFileListEntries(this.saveFiles);
       }
 
       if (this.segaCdSaveType === 'internal-memory') {
@@ -290,14 +290,14 @@ export default {
 
       return getCartMemoryFileListEntries(this.saveFiles, this.segaSaturnSaveDataToMergeInto.getSaveFiles(), 'green');
     },
-    getSaveDataToMergeInfoFileListNames() {
+    getSaveDataToMergeInfoFileListEntries() {
       // This is for displaying the bottom file list on the right (of existing files we are adding to), when converting TO Saroo data.
 
       if (!this.hasAllDataToShowOverriddenFiles()) {
         // We're doing either internal or cart saves, but don't have enough data to show coloured entries.
         // So just show regular entries regardless of whether we're doing internal or cart saves
 
-        return getFileListNamesFromSaveData(this.segaSaturnSaveDataToMergeInto);
+        return getFileListEntriesFromSaveData(this.segaSaturnSaveDataToMergeInto);
       }
 
       if (this.segaCdSaveType === 'internal-memory') {
