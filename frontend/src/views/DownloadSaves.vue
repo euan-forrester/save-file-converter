@@ -185,7 +185,7 @@
     <div class="blank-line"/>
     <b-row align-h="center">
       <b-col cols=12 md=5 lg=5 xl=4>
-        <b-link href="https://github.com/slinga-homebrew/Save-Game-Copier/tree/master/cd/SATSAVES">PPcenter</b-link>
+        <b-link href="https://github.com/slinga-homebrew/Save-Game-Copier/tree/master/cd/SATSAVES">slinga-homebrew</b-link>
       </b-col>
       <b-col cols=12 md=5 lg=5 xl=4>
         Selection of Sega Saturn games.
