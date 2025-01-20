@@ -17,7 +17,7 @@ The first 2 blocks are reserved. The first block is the string 'BackUpRam Format
 bytes of this regardless of whether the block size is 0x40 or 0x200 bytes. mednafen manually fills the entire first block (either
 0x40 or 0x200 bytes), presumably to allow the reader to infer the block size of the file by counting the number of repetitions of that string.
 
-We may want to change our detection of the block size to look at the size of the file rather than counting that string in the first block.
+We determine the block size of the file by looking at the file length.
 
 The second block is all 0x00.
 
@@ -58,6 +58,7 @@ const LITTLE_ENDIAN = false;
 
 const MAGIC = 'BackUpRam Format';
 const MAGIC_ENCODING = 'US-ASCII';
+const MIN_LENGTH_OF_REPEATING_MAGIC = 0x40;
 
 const TOTAL_BLOCKS = new Map([ // Total number of blocks in a save file, indexed by block size
   [0x40, 512],
@@ -65,6 +66,9 @@ const TOTAL_BLOCKS = new Map([ // Total number of blocks in a save file, indexed
 ]);
 
 const POSSIBLE_BLOCK_SIZES = Array.from(TOTAL_BLOCKS.keys());
+
+const INTERNAL_SAVE_SIZE = TOTAL_BLOCKS.get(POSSIBLE_BLOCK_SIZES[0]) * POSSIBLE_BLOCK_SIZES[0];
+const CARTRIDGE_SAVE_SIZE = TOTAL_BLOCKS.get(POSSIBLE_BLOCK_SIZES[1]) * POSSIBLE_BLOCK_SIZES[1];
 
 const RESERVED_BLOCKS = [0, 1];
 
@@ -92,12 +96,34 @@ const ARCHIVE_ENTRY_BLOCK_LIST_END = 0x0000;
 const ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE = 2; // Each entry in the block list is a uint16
 
 function getBlockSizeAndCheckHeader(arrayBuffer) {
-  // First block is the MAGIC repeated. We can infer the block size of the file by counting the number of times it's repeated
+  // First block contains the MAGIC repeated for 0x40 bytes or longer
   // Second block is all 0x00
+
+  // First get our block size from looking at the size of the file. This will also check that the file is long
+  // enough for our magic check in the next step
+
+  let blockSize = 0;
+
+  switch (arrayBuffer.byteLength) {
+    case INTERNAL_SAVE_SIZE: {
+      blockSize = POSSIBLE_BLOCK_SIZES[0]; // eslint-disable-line prefer-destructuring
+      break;
+    }
+
+    case CARTRIDGE_SAVE_SIZE: {
+      blockSize = POSSIBLE_BLOCK_SIZES[1]; // eslint-disable-line prefer-destructuring
+      break;
+    }
+
+    default:
+      throw new Error(`Invalid file length of ${arrayBuffer.byteLength}. Cannot infer block size`);
+  }
+
+  // Next check that there's the correct magic
 
   let currentOffset = 0;
 
-  while (currentOffset < arrayBuffer.byteLength) {
+  while (currentOffset < MIN_LENGTH_OF_REPEATING_MAGIC) {
     try {
       Util.checkMagic(arrayBuffer, currentOffset, MAGIC, MAGIC_ENCODING);
     } catch (e) {
@@ -107,15 +133,15 @@ function getBlockSizeAndCheckHeader(arrayBuffer) {
     currentOffset += MAGIC.length;
   }
 
-  const blockSize = currentOffset;
-
-  if (blockSize === 0) {
+  if (currentOffset === 0) {
     throw new Error('This does not appear to be a valid Sega Saturn save file: couldn\'t find any magic.');
   }
 
-  if (((blockSize / MAGIC.length) % 2) !== 0) {
-    throw new Error('This does not appear to be a valid Sega Saturn save file: found an odd number of magic.');
+  if (currentOffset < MIN_LENGTH_OF_REPEATING_MAGIC) {
+    throw new Error('This does not appear to be a valid Sega Saturn save file: didn\'t find enough magic.');
   }
+
+  // And finally check our second block
 
   const uint8Array = new Uint8Array(arrayBuffer);
 
@@ -368,9 +394,9 @@ export default class SegaSaturnSaveData {
 
   static CARTRIDGE_BLOCK_SIZE = POSSIBLE_BLOCK_SIZES[1];
 
-  static INTERNAL_SAVE_SIZE = TOTAL_BLOCKS.get(POSSIBLE_BLOCK_SIZES[0]) * POSSIBLE_BLOCK_SIZES[0];
+  static INTERNAL_SAVE_SIZE = INTERNAL_SAVE_SIZE
 
-  static CARTRIDGE_SAVE_SIZE = TOTAL_BLOCKS.get(POSSIBLE_BLOCK_SIZES[1]) * POSSIBLE_BLOCK_SIZES[1];
+  static CARTRIDGE_SAVE_SIZE = CARTRIDGE_SAVE_SIZE
 
   static ARCHIVE_ENTRY_NAME_LENGTH = ARCHIVE_ENTRY_NAME_LENGTH;
 
