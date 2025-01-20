@@ -38,12 +38,12 @@ export default class MisterSegaSaturnSaveData {
     return 'sav';
   }
 
-  static getRawFileExtension() {
-    return 'bkr';
+  static getRawFileExtension(saveType) {
+    return (saveType === 'internal-memory') ? 'bkr' : 'bcr';
   }
 
   static adjustOutputSizesPlatform() {
-    return 'segasaturn';
+    return null; // The internal and cart sizes are fixed
   }
 
   static createWithNewSize(/* misterSaveData, newSize */) {

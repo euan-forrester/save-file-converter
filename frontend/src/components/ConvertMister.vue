@@ -50,6 +50,7 @@
               <sega-cd-save-type-selector
                 :value="this.segaCdSaveType"
                 @change="changeSegaCdSaveType($event)"
+                :ramCartText="this.misterPlatform === 'Mister-SAT' ? 'Backup cartridge' : 'RAM cartridge'"
               />
             </div>
             <div v-if="this.displayOutputFileSize">
@@ -66,7 +67,7 @@
                 ref="inputFileSegaCdInternalMemory"
               />
               <input-file
-                @load="readEmulatorSaveData($event, 'rawRamCartSaveArrayBuffer')"
+                @load="readEmulatorSaveData($event, 'rawCartSaveArrayBuffer')"
                 :errorMessage="this.errorMessage"
                 placeholderText="Choose a RAM cartridge save file to convert"
                 :leaveRoomForHelpIcon="false"
@@ -140,6 +141,7 @@ import MisterGameGearSaveData from '../save-formats/Mister/GameGear';
 import MisterSmsSaveData from '../save-formats/Mister/Sms';
 import MisterGenesisSaveData from '../save-formats/Mister/Genesis';
 import MisterSegaCdSaveData from '../save-formats/Mister/SegaCd';
+import MisterSegaSaturnSaveData from '../save-formats/Mister/SegaSaturn';
 import MisterPcEngineSaveData from '../save-formats/Mister/PcEngine';
 import MisterPs1SaveData from '../save-formats/Mister/Ps1';
 import MisterWonderSwanSaveData from '../save-formats/Mister/WonderSwan';
@@ -173,7 +175,7 @@ export default {
   },
   computed: {
     isSegaCd: {
-      get() { return (this.misterPlatform === 'Mister-MCD'); },
+      get() { return (this.misterPlatform === 'Mister-MCD') || (this.misterPlatform === 'Mister-SAT'); },
     },
     displayOutputFileSize: {
       get() {
@@ -214,7 +216,7 @@ export default {
     getSegaCdRawFileName() {
       const filenameSuffix = (this.segaCdSaveType === 'internal-memory') ? ' - internal memory' : ' - ram cartridge';
 
-      return `${Util.removeFilenameExtension(this.inputFilename)}${filenameSuffix}.${this.misterPlatformClass.getRawFileExtension(this.inputArrayBuffer)}`;
+      return `${Util.removeFilenameExtension(this.inputFilename)}${filenameSuffix}.${this.misterPlatformClass.getRawFileExtension(this.segaCdSaveType)}`;
     },
     misterPlatformChanged() {
       if (this.misterPlatform !== null) {
@@ -266,6 +268,11 @@ export default {
 
           case 'Mister-MCD': {
             this.misterPlatformClass = MisterSegaCdSaveData;
+            break;
+          }
+
+          case 'Mister-SAT': {
+            this.misterPlatformClass = MisterSegaSaturnSaveData;
             break;
           }
 

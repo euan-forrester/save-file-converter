@@ -47,12 +47,20 @@ export default {
       set(newValue) { this.$emit('change', newValue); },
     },
   },
+  watch: {
+    ramCartText: {
+      immediate: true,
+      handler(newValue) {
+        this.options = [
+          { value: 'internal-memory', text: this.internalMemoryText },
+          { value: 'ram-cart', text: newValue },
+        ];
+      },
+    },
+  },
   data() {
     return {
-      options: [
-        { value: 'internal-memory', text: this.internalMemoryText },
-        { value: 'ram-cart', text: this.ramCartText },
-      ],
+      options: null,
     };
   },
 };
