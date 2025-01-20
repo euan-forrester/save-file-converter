@@ -44,20 +44,20 @@ describe('MiSTer - Sega CD save format', () => {
   });
 
   it('should convert a raw RAM cart Sega CD save to the long MiSTer format', async () => {
-    const rawRamCartSaveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_RAM_CART_FILENAME);
+    const rawCartSaveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_RAM_CART_FILENAME);
     const misterArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MISTER_COMBINED_RAM_CART_PLUS_EMPTY_INTERNAL_FILENAME);
 
-    const misterSegaCdSaveData = MisterSegaCdSaveData.createFromRawData({ rawRamCartSaveArrayBuffer });
+    const misterSegaCdSaveData = MisterSegaCdSaveData.createFromRawData({ rawCartSaveArrayBuffer });
 
     expect(ArrayBufferUtil.arrayBuffersEqual(misterSegaCdSaveData.getMisterArrayBuffer(), misterArrayBuffer)).to.equal(true);
   });
 
   it('should convert a raw internal save + raw RAM cart Sega CD save to the long MiSTer format', async () => {
     const rawInternalSaveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_INTERNAL_FILENAME);
-    const rawRamCartSaveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_RAM_CART_FILENAME);
+    const rawCartSaveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_RAM_CART_FILENAME);
     const misterArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MISTER_COMBINED_INTERNAL_PLUS_RAM_CART_FILENAME);
 
-    const misterSegaCdSaveData = MisterSegaCdSaveData.createFromRawData({ rawInternalSaveArrayBuffer, rawRamCartSaveArrayBuffer });
+    const misterSegaCdSaveData = MisterSegaCdSaveData.createFromRawData({ rawInternalSaveArrayBuffer, rawCartSaveArrayBuffer });
 
     expect(ArrayBufferUtil.arrayBuffersEqual(misterSegaCdSaveData.getMisterArrayBuffer(), misterArrayBuffer)).to.equal(true);
   });
