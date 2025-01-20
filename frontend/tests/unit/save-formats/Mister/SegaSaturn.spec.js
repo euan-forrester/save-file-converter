@@ -6,16 +6,17 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 const DIR = './tests/data/save-formats/mister/segasaturn';
 
 const MISTER_INTERNAL_ONLY_FILENAME = `${DIR}/Daytona USA - Championship Circuit Edition (USA).sav`;
+const MISTER_INTERNAL_ONLY_RECREATED_FILENAME = `${DIR}/Daytona USA - Championship Circuit Edition (USA)-recreated.sav`; // Some files we were given from the mister are byte expanded out with 0x00 and some are with 0xFF. This one was done with 0x00, but when we recreate it we use 0xFF
 const RAW_INTERNAL_ONLY_FILENAME = `${DIR}/Daytona USA - Championship Circuit Edition (USA).bkr`;
 
 const MISTER_INTERNAL_ONLY_WITH_GARBAGE_FILENAME = `${DIR}/Sega Rally Championship Plus (Japan).sav`;
 const RAW_INTERNAL_ONLY_WITH_GARBAGE_FILENAME = `${DIR}/Sega Rally Championship Plus (Japan).bkr`;
 
-const COMBINED_MISTER_INTERNAL_AND_RAM_CART_FILENAME = `${DIR}/Pretend-mister-save-including-cartridge.sav`; // I created this file in a hex editor: it's not from the actual Saturn core. The Saturn core currently doesn't support cartridge saves. The dev says it's likely the final format will be cartridge memory optionally appended to internal memory
-const COMBINED_INTERNAL_FILENAME = `${DIR}/Daytona USA - Championship Circuit Edition (USA).bkr`;
-const COMBINED_CART_FILENAME = `${DIR}/Shining Force III Scenario 3 (English v25.1)-uncompressed.bcr`;
+const COMBINED_MISTER_INTERNAL_AND_RAM_CART_FILENAME = `${DIR}/Rayman (USA) (R2).sav`;
+const COMBINED_INTERNAL_FILENAME = `${DIR}/Rayman (USA) (R2)-internal.bkr`;
+const COMBINED_CART_FILENAME = `${DIR}/Rayman (USA) (R2)-cart-uncompressed.bcr`;
 
-const COMBINED_CART_COMPRESSED_FILENAME = `${DIR}/Shining Force III Scenario 3 (English v25.1).bcr`; // The user will probably provide an emulator file that's compressed, because that's how mednafen outputs it
+const COMBINED_CART_COMPRESSED_FILENAME = `${DIR}/Rayman (USA) (R2)-cart.bcr`; // The user will probably provide an emulator file that's compressed, because that's how mednafen outputs it
 
 const MISTER_COMBINED_CART_PLUS_EMPTY_INTERNAL_FILENAME = `${DIR}/Pretend-mister-save-only-cart.sav`;
 
@@ -33,7 +34,7 @@ describe('MiSTer - Sega Saturn save format', () => {
   });
 
   it('should convert a raw internal Sega Saturn save to the short MiSTer format', async () => {
-    const misterArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MISTER_INTERNAL_ONLY_FILENAME);
+    const misterArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MISTER_INTERNAL_ONLY_RECREATED_FILENAME);
     const rawInternalSaveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_INTERNAL_ONLY_FILENAME);
 
     const misterSegaSaturnSaveData = MisterSegaSaturnSaveData.createFromRawData({ rawInternalSaveArrayBuffer });

@@ -27,7 +27,7 @@ import Util from '../../util/util';
 const MISTER_INTERNAL_SAVE_SIZE = SegaSaturnSaveData.INTERNAL_SAVE_SIZE * 2;
 const MISTER_CARTRIDGE_SAVE_SIZE = SegaSaturnSaveData.CARTRIDGE_SAVE_SIZE * 2;
 
-const MISTER_PADDING_VALUE = 0x00;
+const MISTER_PADDING_VALUE = 0xFF;
 
 export default class MisterSegaSaturnSaveData {
   static INTERNAL_MEMORY = 'internal-memory';
