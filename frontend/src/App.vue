@@ -53,7 +53,6 @@
           <router-link to="/ps1/emulator">PS1{{'\xa0'}}-{{'\xa0'}}emulator</router-link>
         </b-col>
       </b-row>
-      <!--
       <b-row>
         <b-col class="nav-row">
           <router-link to="/sega-saturn/saroo">Sega{{'\xa0'}}Saturn{{'\xa0'}}-{{'\xa0'}}Saroo{{'\xa0'}}<span class="new-text">(New)</span></router-link> |
@@ -63,13 +62,6 @@
       </b-row>
       <b-row>
         <b-col class="nav-row">
-          <router-link to="/psp">PSP{{'\xa0'}}-{{'\xa0'}}Save{{'\xa0'}}decryption</router-link>
-        </b-col>
-      </b-row>
-      -->
-      <b-row>
-        <b-col class="nav-row">
-          <router-link to="/sega-cd">Sega{{'\xa0'}}CD</router-link> |
           <router-link to="/psp">PSP{{'\xa0'}}-{{'\xa0'}}Save{{'\xa0'}}decryption</router-link>
         </b-col>
       </b-row>
