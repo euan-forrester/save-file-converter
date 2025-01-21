@@ -216,7 +216,7 @@ export default {
       }
     },
     getSegaCdRawFileName() {
-      const filenameSuffix = (this.segaCdSaveType === 'internal-memory') ? ' - internal memory' : ' - ram cartridge';
+      const filenameSuffix = (this.segaCdSaveType === 'internal-memory') ? ' - internal memory' : ' - cartridge';
 
       return `${Util.removeFilenameExtension(this.inputFilename)}${filenameSuffix}.${this.misterPlatformClass.getRawFileExtension(this.segaCdSaveType)}`;
     },
