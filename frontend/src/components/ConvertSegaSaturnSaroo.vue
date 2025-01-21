@@ -16,7 +16,8 @@
               :errorMessage="this.errorMessage"
               placeholderText="Choose a file to convert (*.BIN)"
               acceptExtension=".BIN"
-              :leaveRoomForHelpIcon="false"
+              :leaveRoomForHelpIcon="true"
+              helpText="Please select SS_SAVE.BIN, SS_MEMS.BIN, or SS_BUP.BIN from your Saroo"
             />
             <file-list
               :display="this.segaSaturnSaveData !== null"
