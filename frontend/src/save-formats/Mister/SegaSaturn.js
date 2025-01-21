@@ -1,8 +1,7 @@
 /*
 The Saturn core on the MiSTer stores out regular Saturn BIOS files, except "byte expanded".
 
-Currently, it only emulates the Saturn's internal memory. There are eventual plans to also emulate the save cartridge, and when
-that happens it is likely that the cartridge memory will be optionally appended to the internal memory -- the same as how the Sega CD
+The cartridge memory is optionally appended to the internal memory -- the same as how the Sega CD
 does it: https://github.com/MiSTer-devel/Saturn_MiSTer/issues/283
 */
 
@@ -10,17 +9,6 @@ import SegaSaturnSaveData from '../SegaSaturn/SegaSaturn';
 import EmulatorSegaSaturnSaveData from '../SegaSaturn/Emulator';
 
 import GenesisUtil from '../../util/Genesis';
-
-/*
-The Mister Sega CD save file is a single file with the internal backup RAM (8kB) concatenated with the cartridge backup RAM (set to 512kB)
-
-Most other platforms store 2 files, but the Mister stores just one for consistency with its other cores.
-
-Once the file is parsed, like all platforms the Mister interfaces with Sega CD data via its BIOS, meaning that all saves are the same.
-
-In the example saves I was given, one of them was a 520kB (8kB + 512kB) file but without the BRAM_FORMAT at the end of the second section
-(that section was completely blank). So I guess that part wasn't valid, and we should just truncate the file.
-*/
 
 import Util from '../../util/util';
 
