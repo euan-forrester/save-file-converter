@@ -50,6 +50,7 @@
               <sega-cd-save-type-selector
                 :value="this.segaCdSaveType"
                 @change="changeSegaCdSaveType($event)"
+                :ramCartText="this.misterPlatform === 'Mister-SAT' ? 'Backup cartridge' : 'RAM cartridge'"
               />
             </div>
             <div v-if="this.displayOutputFileSize">
@@ -60,14 +61,14 @@
             <div v-if="this.isSegaCd">
               <input-file
                 @load="readEmulatorSaveData($event, 'rawInternalSaveArrayBuffer')"
-                :errorMessage="this.errorMessage"
+                :errorMessage="this.segaCdErrorMessage"
                 placeholderText="Choose an internal memory save file to convert"
                 :leaveRoomForHelpIcon="false"
                 ref="inputFileSegaCdInternalMemory"
               />
               <input-file
-                @load="readEmulatorSaveData($event, 'rawRamCartSaveArrayBuffer')"
-                :errorMessage="this.errorMessage"
+                @load="readEmulatorSaveData($event, 'rawCartSaveArrayBuffer')"
+                :errorMessage="this.segaCdErrorMessage"
                 placeholderText="Choose a RAM cartridge save file to convert"
                 :leaveRoomForHelpIcon="false"
                 ref="inputFileSegaCdRamCart"
@@ -140,6 +141,7 @@ import MisterGameGearSaveData from '../save-formats/Mister/GameGear';
 import MisterSmsSaveData from '../save-formats/Mister/Sms';
 import MisterGenesisSaveData from '../save-formats/Mister/Genesis';
 import MisterSegaCdSaveData from '../save-formats/Mister/SegaCd';
+import MisterSegaSaturnSaveData from '../save-formats/Mister/SegaSaturn';
 import MisterPcEngineSaveData from '../save-formats/Mister/PcEngine';
 import MisterPs1SaveData from '../save-formats/Mister/Ps1';
 import MisterWonderSwanSaveData from '../save-formats/Mister/WonderSwan';
@@ -153,6 +155,7 @@ export default {
       misterPlatformPrevious: null,
       misterPlatformClass: null,
       errorMessage: null,
+      segaCdErrorMessage: null,
       outputFilename: null,
       outputFilesize: null,
       conversionDirection: 'convertToRaw',
@@ -173,7 +176,7 @@ export default {
   },
   computed: {
     isSegaCd: {
-      get() { return (this.misterPlatform === 'Mister-MCD'); },
+      get() { return (this.misterPlatform === 'Mister-MCD') || (this.misterPlatform === 'Mister-SAT'); },
     },
     displayOutputFileSize: {
       get() {
@@ -197,6 +200,7 @@ export default {
       this.misterPlatformPrevious = null;
       this.misterPlatformClass = null;
       this.errorMessage = null;
+      this.segaCdErrorMessage = null;
       this.outputFilename = null;
       this.outputFilesize = null;
       this.inputArrayBuffer = null;
@@ -214,7 +218,7 @@ export default {
     getSegaCdRawFileName() {
       const filenameSuffix = (this.segaCdSaveType === 'internal-memory') ? ' - internal memory' : ' - ram cartridge';
 
-      return `${Util.removeFilenameExtension(this.inputFilename)}${filenameSuffix}.${this.misterPlatformClass.getRawFileExtension(this.inputArrayBuffer)}`;
+      return `${Util.removeFilenameExtension(this.inputFilename)}${filenameSuffix}.${this.misterPlatformClass.getRawFileExtension(this.segaCdSaveType)}`;
     },
     misterPlatformChanged() {
       if (this.misterPlatform !== null) {
@@ -269,6 +273,11 @@ export default {
             break;
           }
 
+          case 'Mister-SAT': {
+            this.misterPlatformClass = MisterSegaSaturnSaveData;
+            break;
+          }
+
           case 'Mister-PCE': {
             this.misterPlatformClass = MisterPcEngineSaveData;
             break;
@@ -301,10 +310,7 @@ export default {
       // in the same location as a previous one, then the contents of the file box in the DOM carry over to the new box
       // even though it's a different element. So, we call reset() here
 
-      const currentlySegaCd = this.isSegaCd;
-      const previouslySegaCd = (this.misterPlatformPrevious === 'Mister-MCD');
-
-      if ((currentlySegaCd !== previouslySegaCd) && (this.conversionDirection !== 'convertToRaw')) {
+      if ((this.misterPlatform !== this.misterPlatformPrevious) && (this.conversionDirection !== 'convertToRaw')) {
         this.inputFileType = null;
         this.inputArrayBuffer = null;
         this.inputFilename = null;
@@ -325,8 +331,9 @@ export default {
 
       this.updateMisterSaveData();
     },
-    updateMisterSaveData() {
+    updateMisterSaveData(inputSegaCdType) {
       this.errorMessage = null;
+      this.segaCdErrorMessage = null;
       this.outputFilesize = null;
 
       if ((this.misterPlatformClass !== null) && (this.inputArrayBuffer !== null) && (this.inputFilename !== null) && (this.inputFileType !== null)) {
@@ -353,7 +360,11 @@ export default {
             this.outputFilesize = this.misterSaveData.getRawArrayBuffer().byteLength;
           }
         } catch (e) {
-          this.errorMessage = 'This file does not seem to be in the correct format';
+          if (inputSegaCdType === null) {
+            this.errorMessage = 'This file does not seem to be in the correct format';
+          } else {
+            this.segaCdErrorMessage = 'At least one of these files does not seem to be in the correct format';
+          }
           this.misterSaveData = null;
         }
       } else {
@@ -382,7 +393,7 @@ export default {
         this.inputSegaCd = {};
       }
 
-      this.updateMisterSaveData();
+      this.updateMisterSaveData(inputSegaCdType);
     },
     convertFile() {
       let finalMisterSaveData = this.misterSaveData;

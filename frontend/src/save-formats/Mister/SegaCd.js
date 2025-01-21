@@ -34,7 +34,7 @@ export default class MisterSegaCdSaveData {
   static createWithNewSize(misterSaveData, newSize) {
     // Just leave the mister data alone: it can't load anything other than the original 512kB ram cart size.
     // But other platforms/emulators may need a different ram cart size
-    const newRawRamCartArrayBuffer = SegaCdUtil.resize(misterSaveData.rawRamCartSaveArrayBuffer, newSize);
+    const newRawRamCartArrayBuffer = SegaCdUtil.resize(misterSaveData.rawCartSaveArrayBuffer, newSize);
 
     return new MisterSegaCdSaveData(misterSaveData.rawInternalSaveArrayBuffer, newRawRamCartArrayBuffer, misterSaveData.misterArrayBuffer);
   }
@@ -56,13 +56,13 @@ export default class MisterSegaCdSaveData {
     return new MisterSegaCdSaveData(SegaCdUtil.truncateToActualSize(misterArrayBuffer), SegaCdUtil.makeEmptySave(MisterSegaCdSaveData.RAM_CART_SIZE), misterArrayBuffer);
   }
 
-  static createFromRawData({ rawInternalSaveArrayBuffer = null, rawRamCartSaveArrayBuffer = null }) {
+  static createFromRawData({ rawInternalSaveArrayBuffer = null, rawCartSaveArrayBuffer = null }) {
     // We can output either a large (8kB + 512kB) save or a small (only 8kB) save depending on
     // whether we're passed an internal save buffer and/or a ram cart save buffer.
     // There are 4 cases, depending on which combination of raw file we are passed.
 
     let truncatedRawInternalSaveBuffer = null;
-    let truncatedRawRamCartSaveArrayBuffer = null;
+    let truncatedRawCartSaveArrayBuffer = null;
     let misterRamCartSaveArrayBuffer = null;
 
     if (rawInternalSaveArrayBuffer !== null) {
@@ -73,9 +73,9 @@ export default class MisterSegaCdSaveData {
       }
     }
 
-    if (rawRamCartSaveArrayBuffer !== null) {
-      truncatedRawRamCartSaveArrayBuffer = SegaCdUtil.truncateToActualSize(rawRamCartSaveArrayBuffer);
-      misterRamCartSaveArrayBuffer = SegaCdUtil.resize(truncatedRawRamCartSaveArrayBuffer, MisterSegaCdSaveData.RAM_CART_SIZE);
+    if (rawCartSaveArrayBuffer !== null) {
+      truncatedRawCartSaveArrayBuffer = SegaCdUtil.truncateToActualSize(rawCartSaveArrayBuffer);
+      misterRamCartSaveArrayBuffer = SegaCdUtil.resize(truncatedRawCartSaveArrayBuffer, MisterSegaCdSaveData.RAM_CART_SIZE);
     }
 
     // Now that we've got our pieces resized and ready, we can see what we've got and figure out
@@ -84,7 +84,7 @@ export default class MisterSegaCdSaveData {
     if (truncatedRawInternalSaveBuffer !== null) {
       if (misterRamCartSaveArrayBuffer !== null) {
         // We have both pieces, so we're creating a large mister file
-        return new MisterSegaCdSaveData(truncatedRawInternalSaveBuffer, truncatedRawRamCartSaveArrayBuffer, Util.concatArrayBuffers([truncatedRawInternalSaveBuffer, misterRamCartSaveArrayBuffer]));
+        return new MisterSegaCdSaveData(truncatedRawInternalSaveBuffer, truncatedRawCartSaveArrayBuffer, Util.concatArrayBuffers([truncatedRawInternalSaveBuffer, misterRamCartSaveArrayBuffer]));
       }
 
       // We have the internal save data but not the ram cart save data, so create a small mister file
@@ -96,7 +96,7 @@ export default class MisterSegaCdSaveData {
 
     if (misterRamCartSaveArrayBuffer !== null) {
       // We have only the ram cart data, so create a large mister file
-      return new MisterSegaCdSaveData(emptyInternalSaveBuffer, truncatedRawRamCartSaveArrayBuffer, Util.concatArrayBuffers([emptyInternalSaveBuffer, misterRamCartSaveArrayBuffer]));
+      return new MisterSegaCdSaveData(emptyInternalSaveBuffer, truncatedRawCartSaveArrayBuffer, Util.concatArrayBuffers([emptyInternalSaveBuffer, misterRamCartSaveArrayBuffer]));
     }
 
     // We were given neither an internal nor a ram cart save buffer, so return a small mister file
@@ -104,9 +104,9 @@ export default class MisterSegaCdSaveData {
   }
 
   // This constructor creates a new object from a binary representation of a MiSTer save data file
-  constructor(rawInternalSaveArrayBuffer, rawRamCartSaveArrayBuffer, misterArrayBuffer) {
+  constructor(rawInternalSaveArrayBuffer, rawCartSaveArrayBuffer, misterArrayBuffer) {
     this.rawInternalSaveArrayBuffer = rawInternalSaveArrayBuffer;
-    this.rawRamCartSaveArrayBuffer = rawRamCartSaveArrayBuffer;
+    this.rawCartSaveArrayBuffer = rawCartSaveArrayBuffer;
     this.misterArrayBuffer = misterArrayBuffer;
   }
 
@@ -116,7 +116,7 @@ export default class MisterSegaCdSaveData {
         return this.rawInternalSaveArrayBuffer;
 
       case MisterSegaCdSaveData.RAM_CART:
-        return this.rawRamCartSaveArrayBuffer;
+        return this.rawCartSaveArrayBuffer;
 
       default:
         throw new Error(`Unknown index: ${index}`);

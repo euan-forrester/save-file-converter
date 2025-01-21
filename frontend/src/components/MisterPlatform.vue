@@ -64,14 +64,14 @@ export default {
         { value: 'Mister-SMS', text: 'Sega Master System' },
         { value: 'Mister-MD', text: 'Sega Genesis/Mega Drive' },
         { value: 'Mister-MCD', text: 'Sega CD/Mega CD' },
+        // { value: 'Mister-SAT', text: 'Sega Saturn' }, // Reenable me to launch this feature
         // { value: 'Mister-32X', text: 'Sega 32X', disabled: true }, // Core currently does not support saving: https://github.com/MiSTer-devel/S32X_MiSTer
-        // { value: 'Mister-SAT', text: 'Sega Saturn', disabled: true }, // Core is currently in development: https://github.com/srg320/Saturn_MiSTer
         // { value: 'Mister-DC', text: 'Dreamcast', disabled: true }, // MiSTer hardware not powerful enough
         { value: 'Mister-PCE', text: 'Turbografx-16/PC Engine' },
         { value: 'Mister-PS1', text: 'PlayStation 1' },
         // { value: 'Mister-PS2', text: 'PlayStation 2', disabled: true }, // MiSTer hardware not powerful enough
         { value: 'Mister-WS', text: 'WonderSwan/WonderSwan Color' },
-        // { value: 'Mister-AJ', text: 'Jaguar', disabled: true }, // Core is in early stages, saving may not be supported yet: https://github.com/Kitrinx/Jaguar_MiSTer (?)
+        // { value: 'Mister-AJ', text: 'Jaguar', disabled: true }, // Core is in early stages, saving may not be supported yet: https://github.com/MiSTer-devel/Jaguar_MiSTer
         // { value: 'Mister-AL', text: 'Lynx', disabled: true }, // No commercial releases for Lynx with saving. A few homebrews do, but saving not implmented on the MiSTer core: https://github.com/MiSTer-devel/AtariLynx_MiSTer
       ],
     };
