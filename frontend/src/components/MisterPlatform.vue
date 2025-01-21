@@ -64,7 +64,7 @@ export default {
         { value: 'Mister-SMS', text: 'Sega Master System' },
         { value: 'Mister-MD', text: 'Sega Genesis/Mega Drive' },
         { value: 'Mister-MCD', text: 'Sega CD/Mega CD' },
-        { value: 'Mister-SAT', text: 'Sega Saturn' },
+        // { value: 'Mister-SAT', text: 'Sega Saturn' }, // Reenable me to launch this feature
         // { value: 'Mister-32X', text: 'Sega 32X', disabled: true }, // Core currently does not support saving: https://github.com/MiSTer-devel/S32X_MiSTer
         // { value: 'Mister-DC', text: 'Dreamcast', disabled: true }, // MiSTer hardware not powerful enough
         { value: 'Mister-PCE', text: 'Turbografx-16/PC Engine' },
