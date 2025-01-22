@@ -127,7 +127,7 @@
       <b-row>
         <b-col>
           <div class="help">
-            Help: how can I <router-link to="/original-hardware?sort=sega-cd">copy save files to and from a Sega CD console</router-link>?
+            Help: how can I <router-link to="/original-hardware?sort=segacd">copy save files to and from a Sega CD console</router-link>?
           </div>
         </b-col>
       </b-row>
