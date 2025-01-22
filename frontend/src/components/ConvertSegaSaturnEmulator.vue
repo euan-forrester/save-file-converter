@@ -88,7 +88,7 @@
       <b-row>
         <b-col>
           <div class="help">
-            Help: how can I <router-link to="/original-hardware?sort=sega-saturn">copy save files to and from a Sega Saturn console</router-link>?
+            Help: how can I <router-link to="/original-hardware?sort=saturn">copy save files to and from a Sega Saturn console</router-link>?
           </div>
         </b-col>
       </b-row>
