@@ -19,7 +19,7 @@ Here's the structure as assembled from reading https://github.com/slinga-homebre
 0x27:        language code
 0x28 - 0x2B: date code 1: when game was last saved
 0x2C - 0x2F: data size in bytes
-0x30 - 0x31: data size in blocks: we leave as zero
+0x30 - 0x31: data size in blocks: we leave as zero (we don't know whether this save will be written to internal memory or a backup cart, and they have different block sizes)
 0x32 - 0x33: padding
 0x34 - 0x37: date code 2: when Pseudo Saturn Kai last started
 0x38 - 0x3F: unused
