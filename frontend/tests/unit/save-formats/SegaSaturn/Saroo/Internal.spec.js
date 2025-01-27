@@ -18,6 +18,8 @@ const SAROO_1_GAME_2_SAVES = `${DIR}/SS_SAVE_1_game_2_saves.BIN`;
 const SAROO_1_GAME_2_SAVES_FILE_1 = `${DIR}/Shining Force III Scenario 1 (English v25.1)-1.raw`;
 const SAROO_1_GAME_2_SAVES_FILE_2 = `${DIR}/Shining Force III Scenario 1 (English v25.1)-2.raw`;
 
+const SAROO_HUGE_FILENAME = `${DIR}/SS_SAVE_huge.BIN`;
+
 describe('Sega Saturn - Saroo internal', () => {
   it('should parse an empty file', async () => {
     const sarooArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_FILENAME_EMPTY);
@@ -194,6 +196,32 @@ describe('Sega Saturn - Saroo internal', () => {
     expect(segaSaturnSaveData.getSaveFiles().length).to.equal(2);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getArrayBuffer(), sarooArrayBuffer)).to.equal(true);
+  });
+
+  it('should parse a Saroo internal file with a comment that is too long', async () => {
+    // It looks like the Saroo doesn't do sufficient error checking, and the game Nissan Presents: Over Drivin' GT-R
+    // (or, more specifically, its fan translation?) has a comment that is too long. The comment field is
+    // supposed to be 0xA bytes long but this one appears to be 0xF bytes long and so it stomps the next fields,
+    // which are the language and date
+
+    const sarooArrayBuffer = await ArrayBufferUtil.readArrayBuffer(SAROO_HUGE_FILENAME);
+
+    const segaSaturnSaveData = SarooSegaSaturnInternalSaveData.createFromSarooData(sarooArrayBuffer);
+
+    expect(segaSaturnSaveData.getVolumeInfo().totalSlots).to.equal(159);
+
+    expect(segaSaturnSaveData.getSaveFiles().length).to.equal(75);
+
+    // There's a ton of saves in this file, so let's just test the one with the issue
+
+    expect(segaSaturnSaveData.getSaveFiles()[22].name).to.equal('GTR______00');
+    expect(segaSaturnSaveData.getSaveFiles()[22].language).to.equal('Unknown');
+    expect(segaSaturnSaveData.getSaveFiles()[22].languageCode).to.equal(68); // The 'D' in 'DATA'
+    expect(segaSaturnSaveData.getSaveFiles()[22].comment).to.equal('OVERDRIVIN'); // In the file, this appears to be the string "OVERDRIVIN DATA"
+    expect(segaSaturnSaveData.getSaveFiles()[22].date.toUTCString()).to.equal('Wed, 05 Dec 4063 08:04:00 GMT'); // Garbage date because it has been stomped
+    expect(segaSaturnSaveData.getSaveFiles()[22].dateCode).to.equal(0x41544100); // The 'ATA' in 'DATA' followed by a null
+    expect(ArrayUtil.arraysEqual(segaSaturnSaveData.getSaveFiles()[22].blockList, ArrayUtil.createSequentialArray(2, 26))).to.equal(true);
+    expect(segaSaturnSaveData.getSaveFiles()[22].saveSize).to.equal(3270);
   });
 
   it('should upsert a new game into existing save files', async () => {
