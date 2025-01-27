@@ -8,6 +8,9 @@ const LANGUAGE_DECODE = new Map([
   [5, 'Italian'],
 ]);
 
+const UNKNOWN_LANGUAGE_STRING = 'Unknown';
+const UNKNOWN_LANGUAGE_CODE = 0xFF;
+
 const POSSIBLE_LANGUAGE_CODES = Array.from(LANGUAGE_DECODE.keys());
 
 // The epoch for Javascript Dates is Jan 1, 1970. For Saturn dates, it's Jan 1, 1980
@@ -19,14 +22,17 @@ export default class SegaSaturnUtil {
       return LANGUAGE_DECODE.get(languageEncoded);
     }
 
-    throw new Error(`Language code ${languageEncoded} is not a valid language`);
+    // There are save files where the comment field is too long and stomps on the language and date fields
+    // So we have to consider this to be valid
+
+    return UNKNOWN_LANGUAGE_STRING;
   }
 
   static getLanguageCode(languageString) {
     const languageEncoded = POSSIBLE_LANGUAGE_CODES.find((key) => LANGUAGE_DECODE.get(key) === languageString);
 
     if (languageEncoded === undefined) {
-      throw new Error(`Cannot find language code for language '${languageString}'`);
+      return UNKNOWN_LANGUAGE_CODE;
     }
 
     return languageEncoded;
