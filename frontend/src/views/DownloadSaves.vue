@@ -38,16 +38,6 @@
     <div class="blank-line"/>
     <b-row align-h="center">
       <b-col cols=12 md=5 lg=5 xl=4>
-        <b-link href="https://www.cheatcc.com/">Cheat{{'\xa0'}}Code{{'\xa0'}}Central</b-link>
-      </b-col>
-      <b-col cols=12 md=5 lg=5 xl=4>
-        Has saves for some specific systems:
-        <b-link href="http://news1.cheatcc.com/n64/sgf/index.html">N64</b-link>,{{'\xa0'}}<b-link href="http://news1.cheatcc.com/pc/sgf/index.html">PC</b-link>,{{'\xa0'}}<b-link href="http://news1.cheatcc.com/psx/sgf/index.html">PS1</b-link>
-      </b-col>
-    </b-row>
-    <div class="blank-line"/>
-    <b-row align-h="center">
-      <b-col cols=12 md=5 lg=5 xl=4>
         <b-link href="https://www.brewology.com/">Brewology</b-link>
       </b-col>
       <b-col cols=12 md=5 lg=5 xl=4>
@@ -62,7 +52,12 @@
       </b-col>
       <b-col cols=12 md=5 lg=5 xl=4>
         Has saves for some specific systems:
-        <b-link href="https://github.com/bucanero/apollo-saves/tree/master/PS1">PS1</b-link>,{{'\xa0'}}<b-link href="https://github.com/bucanero/apollo-saves/tree/master/PS2">PS2</b-link>,{{'\xa0'}}<b-link href="https://github.com/bucanero/apollo-saves/tree/master/PS3">PS3</b-link>,{{'\xa0'}}<b-link href="https://github.com/bucanero/apollo-saves/tree/master/PS4">PS4</b-link>,{{'\xa0'}}<b-link href="https://github.com/bucanero/apollo-saves/tree/master/PSP">PSP</b-link>,{{'\xa0'}}<b-link href="https://github.com/bucanero/apollo-saves/tree/master/PSV">PS Vita</b-link>
+        <b-link href="https://bucanero.github.io/apollo-saves/PS1/">PS1</b-link>,{{'\xa0'}}
+        <b-link href="https://bucanero.github.io/apollo-saves/PS2/">PS2</b-link>,{{'\xa0'}}
+        <b-link href="https://bucanero.github.io/apollo-saves/PS3/">PS3</b-link>,{{'\xa0'}}
+        <b-link href="https://bucanero.github.io/apollo-saves/PS4/">PS4</b-link>,{{'\xa0'}}
+        <b-link href="https://bucanero.github.io/apollo-saves/PSP/">PSP</b-link>,{{'\xa0'}}
+        <b-link href="https://bucanero.github.io/apollo-saves/PSV/">PS Vita</b-link>
       </b-col>
     </b-row>
     <div class="blank-line"/>
@@ -104,7 +99,7 @@
     <div class="blank-line"/>
     <b-row align-h="center">
       <b-col cols=12 md=5 lg=5 xl=4>
-        <b-link href="http://www.bucanero.com.ar/dreamcast/vmu/">El Bucanero</b-link>
+        <b-link href="https://bucanero.github.io/dreamcast-saves/">bucanero</b-link>
       </b-col>
       <b-col cols=12 md=5 lg=5 xl=4>
         Lots of Dreamcast games.
