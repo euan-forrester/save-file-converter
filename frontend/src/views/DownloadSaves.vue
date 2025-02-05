@@ -52,8 +52,8 @@
       </b-col>
       <b-col cols=12 md=5 lg=5 xl=4>
         Has saves for some specific systems:
-        <b-link href="https://bucanero.github.io/apollo-saves/PS1/">PS1</b-link>,{{'\xa0'}}
-        <b-link href="https://bucanero.github.io/apollo-saves/PS2/">PS2</b-link>,{{'\xa0'}}
+        <b-link href="https://github.com/bucanero/apollo-saves/tree/master/PS1">PS1</b-link>,{{'\xa0'}}
+        <b-link href="https://github.com/bucanero/apollo-saves/tree/master/PS2">PS2</b-link>,{{'\xa0'}}
         <b-link href="https://bucanero.github.io/apollo-saves/PS3/">PS3</b-link>,{{'\xa0'}}
         <b-link href="https://bucanero.github.io/apollo-saves/PS4/">PS4</b-link>,{{'\xa0'}}
         <b-link href="https://bucanero.github.io/apollo-saves/PSP/">PSP</b-link>,{{'\xa0'}}
