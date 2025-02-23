@@ -9,12 +9,20 @@ async function getModuleInstance() {
   // We want to use this formulation when in tests to get the file from our local machine in the src/ dir
 
   // Our tests run within jsdom, which mimics a browser environment
+  // But the wasm stuff expects node
   const isTest = typeof navigator === 'object' && (navigator.userAgent.includes('Node.js') || navigator.userAgent.includes('jsdom')); // https://github.com/jsdom/jsdom/issues/1537
 
   let moduleOverrides = {};
 
   if (isTest) {
-    process.versions.node = 'dummy'; // Hack to convince ENVIRONMENT_IS_NODE to be true in psp-encryption.js
+    // Hacks to bypass checks after ENVIRONMENT_IS_NODE in psp-encryption.js
+    process.release = {
+      name: 'node',
+    };
+    process.versions = {
+      node: 'v22.13.1',
+    };
+
     moduleOverrides = {
       locateFile: (s) => `src/save-formats/PSP/psp-encryption/${s}`,
     };
