@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import PspSaveData from '@/save-formats/PSP/Savefile';
+import PspEncryptionUtil from '@/save-formats/PSP/PspEncryptionUtil';
 import Util from '@/util/util';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
@@ -26,7 +27,7 @@ const REENCRYPTED_PARAM_SFO_FILENAME = {
 
 describe('PSP save decryption', () => {
   before(async () => {
-    await PspSaveData.init(KIRK_INIT_SEED); // Load in the wasm file and initialize the kirk engine deterministically (so that the encryption results aren't random)
+    await PspEncryptionUtil.init(KIRK_INIT_SEED); // Load in the wasm file and initialize the kirk engine deterministically (so that the encryption results aren't random)
   });
 
   it('should decrypt an encrypted PSP save file', async () => {

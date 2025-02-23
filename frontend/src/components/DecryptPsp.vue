@@ -148,6 +148,7 @@ import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import PspSaveData from '../save-formats/PSP/Savefile';
+import PspEncryptionUtil from '../save-formats/PSP/PspEncryptionUtil';
 import HelpButton from './HelpButton.vue';
 
 export default {
@@ -164,7 +165,7 @@ export default {
     };
   },
   async mounted() {
-    await PspSaveData.init();
+    await PspEncryptionUtil.init();
   },
   components: {
     ConversionDirection,
