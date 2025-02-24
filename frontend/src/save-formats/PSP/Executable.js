@@ -23,6 +23,8 @@ const PSP_SIZE_OFFSET = 0x2C;
 const COMPRESSION_ATTRIBUTES_IS_GZIP = 0x01;
 
 export default class PspExecutable {
+
+  // This is based on __KernelLoadELFFromPtr() from https://github.com/hrydgard/ppsspp/blob/2a372caef9acbc7ff20bcca3c25b2ab92294f283/Core/HLE/sceKernelModule.cpp#L1250
   static createFromEncryptedData(encryptedExecutableArrayBuffer) {
     // First get some information from our header
 
