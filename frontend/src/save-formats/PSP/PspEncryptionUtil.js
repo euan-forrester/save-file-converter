@@ -51,6 +51,7 @@ export default class PspEncryptionUtil {
 
     PspEncryptionUtil.decryptSaveData = PspEncryptionUtil.moduleInstance.cwrap('decrypt_save_buffer', 'number', ['number', 'number', 'number']);
     PspEncryptionUtil.encryptSaveData = PspEncryptionUtil.moduleInstance.cwrap('encrypt_save_buffer', 'number', ['number', 'number', 'number', 'number', 'number', 'string', 'number']);
+    PspEncryptionUtil.decryptExecutable = PspEncryptionUtil.moduleInstance.cwrap('decrypt_executable', 'number', ['number', 'number', 'number']);
   }
 
   static bufferToPtr(buffer) {

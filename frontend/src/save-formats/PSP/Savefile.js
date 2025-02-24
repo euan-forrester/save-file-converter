@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-
 import PspEncryptionUtil from './PspEncryptionUtil';
 
 // const INCORRECT_FORMAT_ERROR_MESSAGE = 'This does not appear to be a PSP save file';
