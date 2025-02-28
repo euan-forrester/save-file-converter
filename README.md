@@ -212,6 +212,13 @@ Everything on this site is free and open source with no advertising. If you find
 
 Some platforms (e.g. some MiSTer cores) append RTC data to the end of a save file. The above link describes a common format for RTC data.
 
+## PSP decompiling
+- Use ghidra:
+  - Download from: https://github.com/NationalSecurityAgency/ghidra/releases
+  - Add this extension: https://github.com/kotcrab/ghidra-allegrex
+  - Add these scripts: https://github.com/pspdev/psp-ghidra-scripts
+  - Libraries documentation: https://github.com/mathieulh/PSP-PRX-Libraries-Documentation-Project
+
 ## Offline use
 
 Occassionally there's a need to use the tool offline, such as when you'll be without an Internet connection for an extended period. There's 2 methods to achieve this:
