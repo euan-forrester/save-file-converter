@@ -183,7 +183,8 @@ import GoombaEmulatorSaveData from '../save-formats/FlashCarts/GBA/GoombaEmulato
 import PocketNesEmulatorSaveData from '../save-formats/FlashCarts/GBA/PocketNesEmulator';
 import SmsAdvanceEmulatorSaveData from '../save-formats/FlashCarts/GBA/SmsAdvanceEmulator';
 import NesFlashCartSaveData from '../save-formats/FlashCarts/NES';
-import SnesFlashCartSaveData from '../save-formats/FlashCarts/SNES';
+import SnesFlashCartSaveData from '../save-formats/FlashCarts/SNES/SNES';
+import SuperGameboyFlashCartSaveData from '../save-formats/FlashCarts/SNES/GB';
 import GenesisMegaEverdriveProGenesisFlashCartSaveData from '../save-formats/FlashCarts/Genesis/MegaEverdrivePro/Genesis';
 import GenesisMegaEverdriveProSegaCdFlashCartSaveData from '../save-formats/FlashCarts/Genesis/MegaEverdrivePro/SegaCd';
 import GenesisMegaEverdriveProNesFlashCartSaveData from '../save-formats/FlashCarts/Genesis/MegaEverdrivePro/NES';
@@ -326,6 +327,11 @@ export default {
 
           case 'FlashCart-SNES': {
             this.flashCartTypeClass = SnesFlashCartSaveData;
+            break;
+          }
+
+          case 'FlashCart-SuperGameBoy': {
+            this.flashCartTypeClass = SuperGameboyFlashCartSaveData;
             break;
           }
 
