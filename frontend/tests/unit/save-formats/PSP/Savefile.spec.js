@@ -1,11 +1,12 @@
 import { expect } from 'chai';
 import PspSaveData from '@/save-formats/PSP/Savefile';
+import PspEncryptionUtil from '@/save-formats/PSP/PspEncryptionUtil';
 import Util from '@/util/util';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 const DIR = './tests/data/save-formats/psp';
 
-const PSP_ENCRYPTION_WASM_BUILD_MDOE = 'release'; // For some reason, the outputted encrypted files are different if the psp-encryption lib is built in debug or release, but the results are still deterministic within those build modes
+const PSP_ENCRYPTION_WASM_BUILD_MODE = 'release'; // For some reason, the outputted encrypted files are different if the psp-encryption lib is built in debug or release, but the results are still deterministic within those build modes
 const KIRK_INIT_SEED = 0x12345678;
 
 const GAME_KEY = Buffer.from('01020304050607080900010203040506', 'hex'); // Apparently Castlevania: Dracula X Chronicles uses a super sekret encryption key for its save data
@@ -26,7 +27,7 @@ const REENCRYPTED_PARAM_SFO_FILENAME = {
 
 describe('PSP save decryption', () => {
   before(async () => {
-    await PspSaveData.init(KIRK_INIT_SEED); // Load in the wasm file and initialize the kirk engine deterministically (so that the encryption results aren't random)
+    await PspEncryptionUtil.init(KIRK_INIT_SEED); // Load in the wasm file and initialize the kirk engine deterministically (so that the encryption results aren't random)
   });
 
   it('should decrypt an encrypted PSP save file', async () => {
@@ -45,8 +46,8 @@ describe('PSP save decryption', () => {
     const unencryptedArrayBuffer = await ArrayBufferUtil.readArrayBuffer(UNENCRYPTED_FILENAME);
     const paramSfoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(PARAM_SFO_FILENAME);
 
-    const reencryptedArrayBuffer = await ArrayBufferUtil.readArrayBuffer(REENCRYPTED_FILENAME[PSP_ENCRYPTION_WASM_BUILD_MDOE]);
-    const reencryptedParamSfoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(REENCRYPTED_PARAM_SFO_FILENAME[PSP_ENCRYPTION_WASM_BUILD_MDOE]);
+    const reencryptedArrayBuffer = await ArrayBufferUtil.readArrayBuffer(REENCRYPTED_FILENAME[PSP_ENCRYPTION_WASM_BUILD_MODE]);
+    const reencryptedParamSfoArrayBuffer = await ArrayBufferUtil.readArrayBuffer(REENCRYPTED_PARAM_SFO_FILENAME[PSP_ENCRYPTION_WASM_BUILD_MODE]);
 
     const encryptedFilename = Util.getFilename(ENCRYPTED_FILENAME);
 
