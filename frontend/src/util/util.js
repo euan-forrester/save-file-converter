@@ -225,6 +225,14 @@ export default class Util {
     return (unequalIndex === undefined);
   }
 
+  static allBytesEqual(arrayBuffer, value) {
+    const u8 = new Uint8Array(arrayBuffer);
+
+    const unequalIndex = u8.find((element) => element !== value);
+
+    return (unequalIndex === undefined);
+  }
+
   static copyHeaderFromArrayBuffer(sourceArrayBuffer, headerByteCount, destinationArrayBuffer) {
     const headerArrayBuffer = sourceArrayBuffer.slice(0, headerByteCount);
     return Util.concatArrayBuffers([headerArrayBuffer, destinationArrayBuffer]);

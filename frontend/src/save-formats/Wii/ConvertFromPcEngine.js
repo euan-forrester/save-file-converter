@@ -107,6 +107,11 @@ export default (arrayBuffer) => {
   const outputDataView = new DataView(outputArrayBuffer);
   outputDataView.setUint16(POINTER_TO_FIRST_BYTE_AFTER_BRAM_OFFSET, BRAM_MEMORY_ADDRESS + BRAM_SIZE, LITTLE_ENDIAN);
 
+  const truncatedSaveData = outputArrayBuffer.slice(BRAM_SIZE);
+  if (!Util.allBytesEqual(truncatedSaveData, 0x00)) {
+    throw new Error('Attempting to truncate save that contains extra data');
+  }
+
   return {
     saveData: outputArrayBuffer.slice(0, BRAM_SIZE),
     fileExtension: 'sav',
