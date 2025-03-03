@@ -14,7 +14,7 @@ export default class GenesisMegaEverdriveProSmsFlashCartSaveData {
   static createFromFlashCartData(flashCartArrayBuffer) {
     let rawArrayBuffer = flashCartArrayBuffer;
 
-    if (GenesisUtil.isByteExpanded(flashCartArrayBuffer)) {
+    if (GenesisUtil.isByteExpanded(flashCartArrayBuffer) && !GenesisUtil.isEmpty(flashCartArrayBuffer)) {
       rawArrayBuffer = GenesisUtil.byteCollapse(flashCartArrayBuffer);
     }
 
