@@ -5,6 +5,8 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 const DIR = './tests/data/rom-formats/psp';
 
+const TIMEOUT_MS = 40000; // Decrypting executables in debug mode is pretty slow
+
 const KIRK_INIT_SEED = 0x12345678;
 
 const CASTLEVANIA_ENCRYPTED_EXECUTABLE_FILENAME = `${DIR}/retail/Castlevania - Dracula X Chronicles - EBOOT.BIN`;
@@ -19,7 +21,9 @@ const MEGA_MAN_UNENCRYPTED_EXECUTABLE_FILENAME = `${DIR}/retail/Mega Man Maveric
 const NEED_FOR_SPEED_ENCRYPTED_EXECUTABLE_FILENAME = `${DIR}/retail/Need for Speed Underground Rivals - EBOOT.BIN`;
 const NEED_FOR_SPEED_UNENCRYPTED_EXECUTABLE_FILENAME = `${DIR}/retail/Need for Speed Underground Rivals - EBOOT-decrypted.BIN`;
 
-describe('PSP executable decryption', () => {
+describe('PSP executable decryption', function () { // eslint-disable-line func-names, no-unused-expressions
+  this.timeout(TIMEOUT_MS); // Can't use arrow function above if referencing 'this' here
+
   before(async () => {
     await PspEncryptionUtil.init(KIRK_INIT_SEED); // Load in the wasm file and initialize the kirk engine deterministically (so that the encryption results aren't random)
   });
