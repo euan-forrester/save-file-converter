@@ -107,7 +107,9 @@ export default {
           { value: 'FlashCart-NES', text: 'NES game' },
         ],
         SNES: [
+          { value: null, text: 'Choose game type', disabled: true },
           { value: 'FlashCart-SNES', text: 'SNES game' },
+          { value: 'FlashCart-SuperGameBoy', text: 'Gameboy game' },
         ],
         GB: [
           { value: 'FlashCart-GB', text: 'Gameboy/Gameboy Color game' },

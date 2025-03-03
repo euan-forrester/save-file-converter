@@ -1,4 +1,4 @@
-import SaveFilesUtil from '../../util/SaveFiles';
+import SaveFilesUtil from '../../../util/SaveFiles';
 
 export default class SnesFlashCartSaveData {
   static createFromFlashCartData(flashCartArrayBuffer) {
