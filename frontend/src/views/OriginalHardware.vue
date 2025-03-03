@@ -278,12 +278,12 @@ export default {
           gba: true,
           lynx: false,
           gamegear: false,
-          sms: false, // Feb 1, 2022: Not currently possible via a SMS-to-Genesis adapter, although an SMS-specific adapter is in the workd
+          sms: false, // Feb 1, 2022: Not currently possible via a SMS-to-Genesis adapter, although an SMS-specific adapter is in the works
           genesis: true,
           segacd: false,
           saturn: false,
           dc: false,
-          tg16: false,
+          tg16: true,
           ps1: false,
           ps2: false,
         },
