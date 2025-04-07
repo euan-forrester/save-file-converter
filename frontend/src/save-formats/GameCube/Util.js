@@ -10,8 +10,8 @@ const UNKNOWN_REGION_CODE = 'X';
 
 const POSSIBLE_REGION_CODES = Array.from(REGION_DECODE.keys());
 
-// The epoch for Javascript Dates is Jan 1, 1970. For GameCube dates it's Dec 31, 1999 @ 11:59:59 PM
-const MILLISECONDS_BETWEEN_EPOCHS = 946684799000;
+// The epoch for Javascript Dates is Jan 1, 1970. For GameCube dates it's Jan 1, 1980
+const MILLISECONDS_BETWEEN_EPOCHS = 946684800000;
 
 export default class GameCubeUtil {
   static getRegionString(regionCode) {

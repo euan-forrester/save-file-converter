@@ -3,7 +3,10 @@
 /*
 The standard format for individual saves on the GameCube appears to be the .GCI format.
 
-Here's the structure as assembled from reading http://www.surugi.com/projects/gcifaq.html and here: https://github.com/suloku/gcmm/blob/master/source/gci.h#L12
+Here's the structure as assembled from reading
+- https://www.gc-forever.com/yagcd/chap12.html#sec12.3.1
+- http://www.surugi.com/projects/gcifaq.html
+- https://github.com/suloku/gcmm/blob/master/source/gci.h#L12
 
 0x00-0x02: Game code
 0x03:      Region code
