@@ -143,6 +143,12 @@ export default class Util {
     return uint8Array.slice(startOffset, end);
   }
 
+  static readString(uint8Array, startOffset, encoding, length) {
+    const textDecoder = new TextDecoder(encoding);
+
+    return textDecoder.decode(uint8Array.slice(startOffset, startOffset + length));
+  }
+
   static readNullTerminatedString(uint8Array, startOffset, encoding, maxLength = -1) {
     const textDecoder = new TextDecoder(encoding);
 

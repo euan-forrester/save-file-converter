@@ -155,7 +155,11 @@ Everything on this site is free and open source with no advertising. If you find
 - TG-16/PCE:
   - https://github.com/Widdiful/PCE_BRAM_Manager
 - Gamecube
-  - https://github.com/bodgit/gc
+  - Memory card image
+    - https://github.com/bodgit/gc
+  - .GCI individual save file
+    - http://www.surugi.com/projects/gcifaq.html
+    - https://github.com/suloku/gcmm/blob/master/source/gci.h#L12
   - https://github.com/kwsch/PKHeX (Save editor for Pokemon games. Can apparently parse GCN files among others. Needs a closer look)
 - Flash carts:
   - Goomba emulator (for GB/C games on GBA flash cart)
