@@ -33,7 +33,8 @@ describe('GameCube - .GCI', () => {
     expect(gameCubeSaveFiles[0].saveStartBlock).to.equal(146);
     expect(gameCubeSaveFiles[0].saveSizeBlocks).to.equal(7);
     expect(gameCubeSaveFiles[0].commentStart).to.equal(16);
-    expect(gameCubeSaveFiles[0].comment).to.equal('NFS Underground 2');
+    expect(gameCubeSaveFiles[0].comments[0]).to.equal('NFS Underground 2');
+    expect(gameCubeSaveFiles[0].comments[1]).to.equal('BUTCH');
 
     expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveFiles[0].rawData, rawArrayBuffer)).to.equal(true);
   });
