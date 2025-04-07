@@ -107,8 +107,11 @@ export default class GameCubeGciSaveData {
       const saveStartBlock = dataView.getUint16(SAVE_START_BLOCK_OFFSET, LITTLE_ENDIAN);
       const saveSizeBlocks = dataView.getUint16(SAVE_SIZE_BLOCKS_OFFSET, LITTLE_ENDIAN);
       const commentStart = dataView.getUint32(COMMENT_START_OFFSET, LITTLE_ENDIAN);
-      const commentOffset = COMMENT_START_OFFSET + COMMENT_START_OFFSET_LENGTH + commentStart;
-      const comment = Util.readNullTerminatedString(uint8Array, commentOffset, ENCODING, COMMENT_LENGTH);
+      const commentOffsets = [
+        COMMENT_START_OFFSET + COMMENT_START_OFFSET_LENGTH + commentStart,
+        COMMENT_START_OFFSET + COMMENT_START_OFFSET_LENGTH + commentStart + COMMENT_LENGTH,
+      ];
+      const comments = commentOffsets.map((commentOffset) => Util.readNullTerminatedString(uint8Array, commentOffset, ENCODING, COMMENT_LENGTH));
 
       const rawData = arrayBuffer.slice(DATA_OFFSET);
 
@@ -129,7 +132,7 @@ export default class GameCubeGciSaveData {
         saveStartBlock,
         saveSizeBlocks,
         commentStart,
-        comment,
+        comments,
         rawData,
       };
     });
