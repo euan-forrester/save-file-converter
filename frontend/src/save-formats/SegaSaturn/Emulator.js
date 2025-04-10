@@ -5,9 +5,11 @@ be able to read/write any emulator format for the Saturn transparently
 */
 
 import MednafenSegaSaturnSaveData from './Emulators/mednafen';
+import YabauseSegaSaturnSaveData from './Emulators/yabause';
 
 const EMULATOR_CLASSES = [
   MednafenSegaSaturnSaveData,
+  YabauseSegaSaturnSaveData,
 ];
 
 export default class EmulatorSegaSaturnSaveData {
