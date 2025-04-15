@@ -25,8 +25,8 @@ const POSSIBLE_ENCODING_CODES = Array.from(ENCODING_DECODE.keys());
 const MILLISECONDS_BETWEEN_EPOCHS = 946684800000;
 
 // Numbers to turn a OSTime into a regular time
-// Bus operates at 162 MHz. Read games read from address 0x800000F8: https://github.com/doldecomp/melee/blob/aa123d0cefebc03046794e5ebc712551fa9b36fa/src/dolphin/os/OSTime.h#L29
-// Which contains the value 162000000: https://www.gc-forever.com/yagcd/chap4.html
+// Bus operates at 162 MHz. Read games read this value from address 0x800000F8: https://github.com/doldecomp/melee/blob/aa123d0cefebc03046794e5ebc712551fa9b36fa/src/dolphin/os/OSTime.h#L29
+// which contains the number 162000000: https://www.gc-forever.com/yagcd/chap4.html
 const OS_BUS_CLOCK = 162000000n; // https://github.com/doldecomp/melee/blob/aa123d0cefebc03046794e5ebc712551fa9b36fa/src/dolphin/os/OSTime.h#L31
 const OS_TIMER_CLOCK = OS_BUS_CLOCK / 4n; // https://github.com/doldecomp/melee/blob/aa123d0cefebc03046794e5ebc712551fa9b36fa/src/dolphin/os/OSTime.h#L32
 
@@ -87,6 +87,7 @@ export default class GameCubeUtil {
 
   static getOsTimeFromDate(date) {
     const dateCode = GameCubeUtil.getDateCode(date);
-    return BigInt(dateCode) * OS_TIMER_CLOCK;
+    // BigInt is not defined in our default javascript eslint rules. Doing this properly by making a .eslintrc file specifying using newer rules leads to an awful mess of having to make a giant .eslintrc file to deal with error after error
+    return BigInt(dateCode) * OS_TIMER_CLOCK; // eslint-disable-line no-undef
   }
 }
