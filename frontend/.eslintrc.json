@@ -1,8 +1,0 @@
-{
-  "env": {
-    "es2020": true // For BigInt: https://futurestud.io/tutorials/eslint-how-to-fix-bigint-is-not-defined
-  },
-  "parserOptions": {
-    "sourceType": "module"
-  }
-}
