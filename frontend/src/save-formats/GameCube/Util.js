@@ -8,8 +8,6 @@ const REGION_DECODE = new Map([
 const UNKNOWN_REGION_STRING = 'Unknown';
 const UNKNOWN_REGION_CODE = 'X';
 
-const POSSIBLE_REGION_CODES = Array.from(REGION_DECODE.keys());
-
 // Taken from https://github.com/dolphin-emu/dolphin/blob/ee27f03a4387baca6371a06068274135ff9547a5/Source/Core/Core/HW/GCMemcard/GCMemcard.h#L186
 const ENCODING_DECODE = new Map([
   [0, 'US-ASCII'],
@@ -19,9 +17,20 @@ const ENCODING_DECODE = new Map([
 const UNKNOWN_ENCODING_STRING = 'Unknown';
 const UNKNOWN_ENCODING_CODE = -1;
 
-const POSSIBLE_ENCODING_CODES = Array.from(ENCODING_DECODE.keys());
+// Taken from https://www.gc-forever.com/yagcd/chap10.html#sec10.5
+const LANGUAGE_DECODE = new Map([
+  [0, 'English'],
+  [1, 'German'],
+  [2, 'French'],
+  [3, 'Spanish'],
+  [4, 'Italian'],
+  [5, 'Dutch'],
+]);
 
-// The epoch for Javascript Dates is Jan 1, 1970. For GameCube dates it's Jan 1, 1980: https://github.com/dolphin-emu/dolphin/blob/4f210df86a2d2362ef8087cf81b817b18c3d32e9/Source/Core/Core/HW/EXI/EXI_DeviceIPL.h#L27
+const UNKNOWN_LANGUAGE_STRING = 'Unknown';
+const UNKNOWN_LANGUAGE_CODE = -1;
+
+// The epoch for Javascript Dates is Jan 1, 1970. For GameCube dates it's Jan 1, 2000: https://github.com/dolphin-emu/dolphin/blob/4f210df86a2d2362ef8087cf81b817b18c3d32e9/Source/Core/Core/HW/EXI/EXI_DeviceIPL.h#L27
 const MILLISECONDS_BETWEEN_EPOCHS = 946684800000;
 
 // Numbers to turn a OSTime into a regular time
@@ -30,47 +39,55 @@ const MILLISECONDS_BETWEEN_EPOCHS = 946684800000;
 const OS_BUS_CLOCK = 162000000n; // https://github.com/doldecomp/melee/blob/aa123d0cefebc03046794e5ebc712551fa9b36fa/src/dolphin/os/OSTime.h#L31
 const OS_TIMER_CLOCK = OS_BUS_CLOCK / 4n; // https://github.com/doldecomp/melee/blob/aa123d0cefebc03046794e5ebc712551fa9b36fa/src/dolphin/os/OSTime.h#L32
 
+function getString(code, decodeMap, unknownString) {
+  if (decodeMap.has(code)) {
+    return decodeMap.get(code);
+  }
+
+  return unknownString;
+}
+
+function getCode(string, decodeMap, unknownCode) {
+  const possibleCodes = Array.from(decodeMap.keys());
+
+  const code = possibleCodes.find((key) => decodeMap.get(key) === string);
+
+  if (code === undefined) {
+    return unknownCode;
+  }
+
+  return code;
+}
+
 export default class GameCubeUtil {
   static getRegionString(regionCode) {
-    if (REGION_DECODE.has(regionCode)) {
-      return REGION_DECODE.get(regionCode);
-    }
-
-    return UNKNOWN_REGION_STRING;
+    return getString(regionCode, REGION_DECODE, UNKNOWN_REGION_STRING);
   }
 
   static getRegionCode(regionString) {
-    const regionCode = POSSIBLE_REGION_CODES.find((key) => REGION_DECODE.get(key) === regionString);
-
-    if (regionCode === undefined) {
-      return UNKNOWN_REGION_CODE;
-    }
-
-    return regionCode;
+    return getCode(regionString, REGION_DECODE, UNKNOWN_REGION_CODE);
   }
 
   static getEncodingString(encodingCode) {
-    if (ENCODING_DECODE.has(encodingCode)) {
-      return ENCODING_DECODE.get(encodingCode);
-    }
-
-    return UNKNOWN_ENCODING_STRING;
+    return getString(encodingCode, ENCODING_DECODE, UNKNOWN_ENCODING_STRING);
   }
 
   static getEncodingCode(encodingString) {
-    const encodingCode = POSSIBLE_ENCODING_CODES.find((key) => ENCODING_DECODE.get(key) === encodingString);
+    return getCode(encodingString, ENCODING_DECODE, UNKNOWN_ENCODING_CODE);
+  }
 
-    if (encodingCode === undefined) {
-      return UNKNOWN_ENCODING_CODE;
-    }
+  static getLanguageString(languageCode) {
+    return getString(languageCode, LANGUAGE_DECODE, UNKNOWN_LANGUAGE_STRING);
+  }
 
-    return encodingCode;
+  static getLanguageCode(languageString) {
+    return getCode(languageString, LANGUAGE_DECODE, UNKNOWN_LANGUAGE_CODE);
   }
 
   static getDate(dateEncoded) {
     // Date conversion from: http://www.surugi.com/projects/gcifaq.html
-    // The GameCube stores the date as the number of seconds since Dec 31, 1999 @ 11:59:59 PM. So to convert to a javascript Date,
-    // we multiply to get milliseconds, and add the number of milliseconds between Jan 1, 1970 and Dec 31, 1999 @ 11:59:59 PM
+    // The GameCube stores the date as the number of seconds since Jan 1, 2000. So to convert to a javascript Date,
+    // we multiply to get milliseconds, and add the number of milliseconds between Jan 1, 1970 and Jan 1, 2000
 
     return new Date((dateEncoded * 1000) + MILLISECONDS_BETWEEN_EPOCHS);
   }

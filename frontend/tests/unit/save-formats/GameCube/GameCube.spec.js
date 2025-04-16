@@ -17,9 +17,14 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles().length).to.equal(0);
 
     expect(gameCubeSaveData.getVolumeInfo().formatTime.toUTCString()).to.equal('Tue, 25 Aug 2020 17:46:54 GMT');
+    expect(gameCubeSaveData.getVolumeInfo().rtcBias).to.equal(0xFD39262); // This appears to be 6 seconds
+    expect(gameCubeSaveData.getVolumeInfo().language).to.equal('English');
+    expect(gameCubeSaveData.getVolumeInfo().viDtvStatus).to.equal(0);
     expect(gameCubeSaveData.getVolumeInfo().memcardSlot).to.equal(GameCubeSaveData.MEMCARD_SLOT_A);
     expect(gameCubeSaveData.getVolumeInfo().memcardSizeMegabits).to.equal(16);
     expect(gameCubeSaveData.getVolumeInfo().encodingString).to.equal('US-ASCII');
+    expect(gameCubeSaveData.getVolumeInfo().checksum).to.equal(0x07F9);
+    expect(gameCubeSaveData.getVolumeInfo().checksumInverse).to.equal(0xF709);
   });
 
   it('should correctly read an empty shift-jis GameCube file', async () => {
@@ -30,8 +35,13 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles().length).to.equal(0);
 
     expect(gameCubeSaveData.getVolumeInfo().formatTime.toUTCString()).to.equal('Tue, 07 Sep 2021 20:52:11 GMT');
+    expect(gameCubeSaveData.getVolumeInfo().rtcBias).to.equal(0xE8D9F980); // This appears to be 96 seconds
+    expect(gameCubeSaveData.getVolumeInfo().language).to.equal('English');
+    expect(gameCubeSaveData.getVolumeInfo().viDtvStatus).to.equal(3);
     expect(gameCubeSaveData.getVolumeInfo().memcardSlot).to.equal(GameCubeSaveData.MEMCARD_SLOT_A);
     expect(gameCubeSaveData.getVolumeInfo().memcardSizeMegabits).to.equal(16);
     expect(gameCubeSaveData.getVolumeInfo().encodingString).to.equal('shift-jis');
+    expect(gameCubeSaveData.getVolumeInfo().checksum).to.equal(0x354F);
+    expect(gameCubeSaveData.getVolumeInfo().checksumInverse).to.equal(0xC9B3);
   });
 });
