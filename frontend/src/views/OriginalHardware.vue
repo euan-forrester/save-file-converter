@@ -954,7 +954,7 @@ export default {
           },
           software: {
             name: 'GameCube Memory Manager',
-            link: 'https://wiibrew.org/wiki/GameCube_Memory_Manager',
+            link: 'https://github.com/suloku/gcmm',
             howToRun: 'Various methods for booting homebrew on GameCube',
             howToRunLink: 'https://www.gc-forever.com/wiki/index.php?title=Booting_homebrew',
           },
