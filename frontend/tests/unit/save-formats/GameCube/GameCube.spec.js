@@ -4,6 +4,7 @@ import HexUtil from '#/util/Hex';
 
 import GameCubeSaveData from '@/save-formats/GameCube/GameCube';
 import GameCubeUtil from '@/save-formats/GameCube/Util';
+import GameCubeHeader from '@/save-formats/GameCube/Components/Header';
 
 const DIR = './tests/data/save-formats/gamecube';
 
@@ -34,7 +35,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getVolumeInfo().rtcBias).to.equal(0xFD39262); // This appears to be 6 seconds
     expect(gameCubeSaveData.getVolumeInfo().language).to.equal('English');
     expect(gameCubeSaveData.getVolumeInfo().viDtvStatus).to.equal(0);
-    expect(gameCubeSaveData.getVolumeInfo().memcardSlot).to.equal(GameCubeSaveData.MEMCARD_SLOT_A);
+    expect(gameCubeSaveData.getVolumeInfo().memcardSlot).to.equal(GameCubeHeader.MEMCARD_SLOT_A);
     expect(gameCubeSaveData.getVolumeInfo().memcardSizeMegabits).to.equal(16);
     expect(gameCubeSaveData.getVolumeInfo().encodingString).to.equal('US-ASCII');
     expect(gameCubeSaveData.getVolumeInfo().updateCounter).to.equal(0xFFFF);
@@ -55,7 +56,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getVolumeInfo().rtcBias).to.equal(0xE8D9F980); // This appears to be 96 seconds
     expect(gameCubeSaveData.getVolumeInfo().language).to.equal('English');
     expect(gameCubeSaveData.getVolumeInfo().viDtvStatus).to.equal(3);
-    expect(gameCubeSaveData.getVolumeInfo().memcardSlot).to.equal(GameCubeSaveData.MEMCARD_SLOT_A);
+    expect(gameCubeSaveData.getVolumeInfo().memcardSlot).to.equal(GameCubeHeader.MEMCARD_SLOT_A);
     expect(gameCubeSaveData.getVolumeInfo().memcardSizeMegabits).to.equal(16);
     expect(gameCubeSaveData.getVolumeInfo().encodingString).to.equal('shift-jis');
     expect(gameCubeSaveData.getVolumeInfo().updateCounter).to.equal(0xFFFF);
@@ -76,7 +77,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getVolumeInfo().rtcBias).to.equal(0);
     expect(gameCubeSaveData.getVolumeInfo().language).to.equal('English');
     expect(gameCubeSaveData.getVolumeInfo().viDtvStatus).to.equal(0);
-    expect(gameCubeSaveData.getVolumeInfo().memcardSlot).to.equal(GameCubeSaveData.MEMCARD_SLOT_A);
+    expect(gameCubeSaveData.getVolumeInfo().memcardSlot).to.equal(GameCubeHeader.MEMCARD_SLOT_A);
     expect(gameCubeSaveData.getVolumeInfo().memcardSizeMegabits).to.equal(16);
     expect(gameCubeSaveData.getVolumeInfo().encodingString).to.equal('US-ASCII');
     expect(gameCubeSaveData.getVolumeInfo().updateCounter).to.equal(0xFFFF);
@@ -92,7 +93,7 @@ describe('GameCube', () => {
       rtcBias: 0,
       languageCode: GameCubeUtil.getLanguageCode('English'),
       viDtvStatus: 0,
-      memcardSlot: GameCubeSaveData.MEMCARD_SLOT_A,
+      memcardSlot: GameCubeHeader.MEMCARD_SLOT_A,
       memcardSizeMegabits: 16,
       encodingCode: GameCubeUtil.getEncodingCode('US-ASCII'),
       updateCounter: 0xFFFF,
@@ -111,7 +112,7 @@ describe('GameCube', () => {
       rtcBias: 0,
       languageCode: GameCubeUtil.getLanguageCode('English'),
       viDtvStatus: 0,
-      memcardSlot: GameCubeSaveData.MEMCARD_SLOT_A,
+      memcardSlot: GameCubeHeader.MEMCARD_SLOT_A,
       memcardSizeMegabits: 16,
       encodingCode: GameCubeUtil.getEncodingCode('US-ASCII'),
       updateCounter: 0xFFFF,
@@ -130,7 +131,7 @@ describe('GameCube', () => {
       rtcBias: 0,
       languageCode: GameCubeUtil.getLanguageCode('English'),
       viDtvStatus: 0,
-      memcardSlot: GameCubeSaveData.MEMCARD_SLOT_A,
+      memcardSlot: GameCubeHeader.MEMCARD_SLOT_A,
       memcardSizeMegabits: 16,
       encodingCode: GameCubeUtil.getEncodingCode('US-ASCII'),
       updateCounter: 0xFFFF,
@@ -149,7 +150,7 @@ describe('GameCube', () => {
       rtcBias: 0,
       languageCode: GameCubeUtil.getLanguageCode('English'),
       viDtvStatus: 0,
-      memcardSlot: GameCubeSaveData.MEMCARD_SLOT_A,
+      memcardSlot: GameCubeHeader.MEMCARD_SLOT_A,
       memcardSizeMegabits: 16,
       encodingCode: GameCubeUtil.getEncodingCode('US-ASCII'),
       updateCounter: 0xFFFF,

@@ -1,3 +1,7 @@
+/* eslint-disable no-bitwise */
+
+const LITTLE_ENDIAN = false;
+
 // Taken from http://www.surugi.com/projects/gcifaq.html
 const REGION_DECODE = new Map([
   ['J', 'Japan'],
@@ -106,5 +110,35 @@ export default class GameCubeUtil {
     const dateCode = GameCubeUtil.getDateCode(date);
     // BigInt is not defined in our default javascript eslint rules. Doing this properly by making a .eslintrc file specifying using newer rules leads to an awful mess of having to make a giant .eslintrc file to deal with error after error
     return BigInt(dateCode) * OS_TIMER_CLOCK; // eslint-disable-line no-undef
+  }
+
+  // Taken from https://github.com/dolphin-emu/dolphin/blob/4f210df86a2d2362ef8087cf81b817b18c3d32e9/Source/Core/Core/HW/GCMemcard/GCMemcard.cpp#L328
+  static calculateChecksums(arrayBuffer, beginOffset, length) {
+    let checksum = 0;
+    let checksumInverse = 0;
+
+    const dataView = new DataView(arrayBuffer);
+
+    for (let i = 0; i < length; i += 2) {
+      checksum += dataView.getUint16(beginOffset + i, LITTLE_ENDIAN);
+      checksumInverse += dataView.getUint16(beginOffset + i, LITTLE_ENDIAN) ^ 0xFFFF;
+
+      // Need to make sure we're always constrained to 16 bits
+      checksum &= 0xFFFF;
+      checksumInverse &= 0xFFFF;
+    }
+
+    if (checksum === 0xFFFF) {
+      checksum = 0;
+    }
+
+    if (checksumInverse === 0xFFFF) {
+      checksumInverse = 0;
+    }
+
+    return {
+      checksum,
+      checksumInverse,
+    };
   }
 }
