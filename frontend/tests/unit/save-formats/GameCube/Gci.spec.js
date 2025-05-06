@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 import GameCubeGciSaveData from '@/save-formats/GameCube/Gci';
+import GameCubeDirectoryEntry from '@/save-formats/GameCube/Components/DirectoryEntry';
 
 const DIR = './tests/data/save-formats/gamecube';
 
@@ -20,13 +21,13 @@ describe('GameCube - .GCI', () => {
     expect(gameCubeSaveFiles[0].gameCode).to.equal('GUG');
     expect(gameCubeSaveFiles[0].region).to.equal('North America');
     expect(gameCubeSaveFiles[0].publisherCode).to.equal('69');
-    expect(gameCubeSaveFiles[0].bannerGraphicFormatCode).to.equal(GameCubeGciSaveData.GRAPHIC_FORMAT_RGB);
+    expect(gameCubeSaveFiles[0].bannerGraphicFormatCode).to.equal(GameCubeDirectoryEntry.GRAPHIC_FORMAT_RGB);
     expect(gameCubeSaveFiles[0].fileName).to.equal('NFSU2BUTCH');
     expect(gameCubeSaveFiles[0].dateLastModified.toUTCString()).to.equal('Sat, 27 Sep 2008 14:27:56 GMT');
     expect(gameCubeSaveFiles[0].iconOffset).to.equal(128);
-    expect(gameCubeSaveFiles[0].iconFormatCode).to.equal(GameCubeGciSaveData.GRAPHIC_FORMAT_RGB);
-    expect(gameCubeSaveFiles[0].iconSpeedCode).to.equal(GameCubeGciSaveData.ICON_SPEED_MIDDLE);
-    expect(gameCubeSaveFiles[0].permissionAttributeBitfield).to.equal(GameCubeGciSaveData.PERMISSION_ATTRIBUTE_PUBLIC);
+    expect(gameCubeSaveFiles[0].iconFormatCode).to.equal(GameCubeDirectoryEntry.GRAPHIC_FORMAT_RGB);
+    expect(gameCubeSaveFiles[0].iconSpeedCode).to.equal(GameCubeDirectoryEntry.ICON_SPEED_MIDDLE);
+    expect(gameCubeSaveFiles[0].permissionAttributeBitfield).to.equal(GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC);
     expect(gameCubeSaveFiles[0].copyTimes).to.equal(0);
     expect(gameCubeSaveFiles[0].saveStartBlock).to.equal(146);
     expect(gameCubeSaveFiles[0].saveSizeBlocks).to.equal(7);
