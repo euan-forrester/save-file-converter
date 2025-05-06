@@ -29,7 +29,9 @@ Here's the structure as assembled from reading
 import GameCubeUtil from '../Util';
 import Util from '../../../util/util';
 
-const LITTLE_ENDIAN = false;
+import GameCubeBasics from './Basics';
+
+const { LITTLE_ENDIAN } = GameCubeBasics;
 const ENCODING = 'US-ASCII';
 
 const GAME_CODE_OFFSET = 0x00;
