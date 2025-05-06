@@ -36,4 +36,14 @@ export default class ArrayBufferUtil {
 
     return true;
   }
+
+  static printArrayBuffer(arrayBuffer) {
+    const u8 = new Uint8Array(arrayBuffer);
+
+    console.log(`Length: ${arrayBuffer.byteLength}`);
+
+    for (let i = 0; i < arrayBuffer.byteLength; i += 1) {
+      console.log(`[${i}]: ${u8[i]}`);
+    }
+  }
 }
