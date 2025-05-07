@@ -20,7 +20,7 @@ export default class YabauseSegaSaturnSaveData {
   }
 
   static createFromSegaSaturnData(arrayBuffer) {
-    // Cartridge saves from yabause are byte-expanded
+    // Saves from yabause are byte-expanded
 
     if (!GenesisUtil.isByteExpanded(arrayBuffer)) {
       throw new Error('This does not appear to be a yabause save file');
