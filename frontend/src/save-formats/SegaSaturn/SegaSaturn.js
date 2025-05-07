@@ -95,12 +95,8 @@ const ARCHIVE_ENTRY_BLOCK_LIST_OFFSET = 0x22;
 const ARCHIVE_ENTRY_BLOCK_LIST_END = 0x0000;
 const ARCHIVE_ENTRY_BLOCK_LIST_ENTRY_SIZE = 2; // Each entry in the block list is a uint16
 
-function getBlockSizeAndCheckHeader(arrayBuffer) {
-  // First block contains the MAGIC repeated for 0x40 bytes or longer
-  // Second block is all 0x00
-
-  // First get our block size from looking at the size of the file. This will also check that the file is long
-  // enough for our magic check in the next step
+function getBlockSize(arrayBuffer) {
+  // Get our block size from looking at the size of the file
 
   let blockSize = 0;
 
@@ -119,7 +115,18 @@ function getBlockSizeAndCheckHeader(arrayBuffer) {
       throw new Error(`Invalid file length of ${arrayBuffer.byteLength}. Cannot infer block size`);
   }
 
-  // Next check that there's the correct magic
+  return blockSize;
+}
+
+function checkHeader(arrayBuffer, blockSize) {
+  // First block contains the MAGIC repeated for 0x40 bytes or longer
+  // Second block is all 0x00
+
+  if (arrayBuffer.byteLength < (blockSize * RESERVED_BLOCKS.length)) {
+    throw new Error('This does not appear to be a valid Sega Saturn save file: it is not long enough to contain the required reserved blocks');
+  }
+
+  // Check our first block
 
   let currentOffset = 0;
 
@@ -141,7 +148,7 @@ function getBlockSizeAndCheckHeader(arrayBuffer) {
     throw new Error('This does not appear to be a valid Sega Saturn save file: didn\'t find enough magic.');
   }
 
-  // And finally check our second block
+  // Check our second block
 
   const uint8Array = new Uint8Array(arrayBuffer);
 
@@ -427,15 +434,21 @@ export default class SegaSaturnSaveData {
     */
   }
 
-  static createFromSegaSaturnData(arrayBuffer) {
-    const blockSize = getBlockSizeAndCheckHeader(arrayBuffer);
+  static createFromSegaSaturnData(arrayBuffer, forceBlockSize) {
+    let blockSize = forceBlockSize;
+
+    if (forceBlockSize === undefined) {
+      blockSize = getBlockSize(arrayBuffer);
+    }
+
+    checkHeader(arrayBuffer, blockSize);
 
     const { saveFiles, volumeInfo } = readSaveFiles(arrayBuffer, blockSize);
 
     return new SegaSaturnSaveData(arrayBuffer, saveFiles, volumeInfo);
   }
 
-  static createFromSaveFiles(saveFiles, blockSize) {
+  static createFromSaveFiles(saveFiles, blockSize, forceFileSize) {
     if (POSSIBLE_BLOCK_SIZES.find((possibleBlockSize) => possibleBlockSize === blockSize) === undefined) {
       throw new Error(`Cannot create Saturn save file: ${blockSize} bytes is not a valid block size`);
     }
@@ -451,7 +464,11 @@ export default class SegaSaturnSaveData {
 
     // Figure out how many blocks we need to use
 
-    const totalNumBlocks = TOTAL_BLOCKS.get(blockSize);
+    let totalNumBlocks = TOTAL_BLOCKS.get(blockSize);
+
+    if (forceFileSize !== undefined) {
+      totalNumBlocks = forceFileSize / blockSize;
+    }
 
     const blockList = makeReservedBlocks(blockSize).concat(saveFilesBlocks);
 
