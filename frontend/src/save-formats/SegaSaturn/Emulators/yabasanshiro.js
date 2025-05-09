@@ -3,7 +3,7 @@ The emulator yaba sanshiro reads/writes raw Saturn BIOS files which are byte-exp
 They're also a nonstandard length (0x800000 bytes, byte-expanded -- so 0x400000 regular) that's much longer than
 regular BIOS files (0x8000 bytes) or regular backup cart files (0x80000 bytes)
 
-I'm unsure of what cartridge saves look like from this emulator because I haven't seen an example yet
+It appears that at this time, this emulator doesn't emulate the backup cartridge for saves.
 */
 
 import SegaSaturnSaveData from '../SegaSaturn';
