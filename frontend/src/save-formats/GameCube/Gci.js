@@ -29,8 +29,11 @@ export default class GameCubeGciSaveData {
       const directoryEntry = GameCubeDirectoryEntry.readDirectoryEntry(arrayBuffer);
       const rawData = arrayBuffer.slice(DATA_OFFSET);
 
+      const comments = GameCubeDirectoryEntry.getComments(directoryEntry.commentStart, rawData);
+
       return {
         ...directoryEntry,
+        comments,
         rawData,
       };
     });

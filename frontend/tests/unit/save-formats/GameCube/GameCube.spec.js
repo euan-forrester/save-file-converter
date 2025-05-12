@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
+import ArrayUtil from '@/util/Array';
 import HexUtil from '#/util/Hex';
 
 import GameCubeSaveData from '@/save-formats/GameCube/GameCube';
@@ -101,9 +102,10 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[0].copyCounter).to.equal(0);
     expect(gameCubeSaveData.getSaveFiles()[0].saveStartBlock).to.equal(5);
     expect(gameCubeSaveData.getSaveFiles()[0].saveSizeBlocks).to.equal(7);
+    expect(ArrayUtil.arraysEqual(gameCubeSaveData.getSaveFiles()[0].blockNumberList, ArrayUtil.createSequentialArray(5, 7))).to.equal(true);
     expect(gameCubeSaveData.getSaveFiles()[0].commentStart).to.equal(4);
-    expect(gameCubeSaveData.getSaveFiles()[0].comments[0]).to.equal('');
-    expect(gameCubeSaveData.getSaveFiles()[0].comments[1]).to.equal('');
+    expect(gameCubeSaveData.getSaveFiles()[0].comments[0]).to.equal('Super Mario Sunshine');
+    expect(gameCubeSaveData.getSaveFiles()[0].comments[1]).to.equal('5/23 Save Data');
 
     expect(gameCubeSaveData.getSaveFiles()[1].gameCode).to.equal('GN3E'); // NHL Hitz 20-03
     expect(gameCubeSaveData.getSaveFiles()[1].region).to.equal('North America');
@@ -118,9 +120,10 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[1].copyCounter).to.equal(0);
     expect(gameCubeSaveData.getSaveFiles()[1].saveStartBlock).to.equal(12);
     expect(gameCubeSaveData.getSaveFiles()[1].saveSizeBlocks).to.equal(8);
+    expect(ArrayUtil.arraysEqual(gameCubeSaveData.getSaveFiles()[1].blockNumberList, ArrayUtil.createSequentialArray(12, 8))).to.equal(true);
     expect(gameCubeSaveData.getSaveFiles()[1].commentStart).to.equal(0);
-    expect(gameCubeSaveData.getSaveFiles()[1].comments[0]).to.equal('');
-    expect(gameCubeSaveData.getSaveFiles()[1].comments[1]).to.equal('');
+    expect(gameCubeSaveData.getSaveFiles()[1].comments[0]).to.equal('Hitz 2003');
+    expect(gameCubeSaveData.getSaveFiles()[1].comments[1]).to.equal('Settings and User File');
 
     expect(gameCubeSaveData.getSaveFiles()[2].gameCode).to.equal('GIKE'); // Ikaruga
     expect(gameCubeSaveData.getSaveFiles()[2].region).to.equal('North America');
@@ -135,9 +138,10 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[2].copyCounter).to.equal(0);
     expect(gameCubeSaveData.getSaveFiles()[2].saveStartBlock).to.equal(20);
     expect(gameCubeSaveData.getSaveFiles()[2].saveSizeBlocks).to.equal(4);
+    expect(ArrayUtil.arraysEqual(gameCubeSaveData.getSaveFiles()[2].blockNumberList, ArrayUtil.createSequentialArray(20, 4))).to.equal(true);
     expect(gameCubeSaveData.getSaveFiles()[2].commentStart).to.equal(0);
-    expect(gameCubeSaveData.getSaveFiles()[2].comments[0]).to.equal('');
-    expect(gameCubeSaveData.getSaveFiles()[2].comments[1]).to.equal('');
+    expect(gameCubeSaveData.getSaveFiles()[2].comments[0]).to.equal('IKARUGA\n');
+    expect(gameCubeSaveData.getSaveFiles()[2].comments[1]).to.equal('10/01/2003 21:22:38');
 
     expect(gameCubeSaveData.getSaveFiles()[3].gameCode).to.equal('GEDE'); // Eternal Darkness
     expect(gameCubeSaveData.getSaveFiles()[3].region).to.equal('North America');
@@ -152,9 +156,10 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[3].copyCounter).to.equal(0);
     expect(gameCubeSaveData.getSaveFiles()[3].saveStartBlock).to.equal(24);
     expect(gameCubeSaveData.getSaveFiles()[3].saveSizeBlocks).to.equal(15);
+    expect(ArrayUtil.arraysEqual(gameCubeSaveData.getSaveFiles()[3].blockNumberList, ArrayUtil.createSequentialArray(24, 15))).to.equal(true);
     expect(gameCubeSaveData.getSaveFiles()[3].commentStart).to.equal(0);
-    expect(gameCubeSaveData.getSaveFiles()[3].comments[0]).to.equal('');
-    expect(gameCubeSaveData.getSaveFiles()[3].comments[1]).to.equal('');
+    expect(gameCubeSaveData.getSaveFiles()[3].comments[0]).to.equal('Eternal Darkness');
+    expect(gameCubeSaveData.getSaveFiles()[3].comments[1]).to.equal('Game file');
 
     expect(gameCubeSaveData.getSaveFiles()[4].gameCode).to.equal('GRSE'); // Soul Calibur 2
     expect(gameCubeSaveData.getSaveFiles()[4].region).to.equal('North America');
@@ -169,9 +174,10 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[4].copyCounter).to.equal(0);
     expect(gameCubeSaveData.getSaveFiles()[4].saveStartBlock).to.equal(39);
     expect(gameCubeSaveData.getSaveFiles()[4].saveSizeBlocks).to.equal(4);
+    expect(ArrayUtil.arraysEqual(gameCubeSaveData.getSaveFiles()[4].blockNumberList, ArrayUtil.createSequentialArray(39, 4))).to.equal(true);
     expect(gameCubeSaveData.getSaveFiles()[4].commentStart).to.equal(0);
-    expect(gameCubeSaveData.getSaveFiles()[4].comments[0]).to.equal('');
-    expect(gameCubeSaveData.getSaveFiles()[4].comments[1]).to.equal('');
+    expect(gameCubeSaveData.getSaveFiles()[4].comments[0]).to.equal('SOULCALIBUR2 game data');
+    expect(gameCubeSaveData.getSaveFiles()[4].comments[1]).to.equal(' 2004.12.14 23:09:16');
 
     expect(gameCubeSaveData.getSaveFiles()[5].gameCode).to.equal('GH2E'); // Need for Speed: Hot Pursuit 2
     expect(gameCubeSaveData.getSaveFiles()[5].region).to.equal('North America');
@@ -186,9 +192,10 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[5].copyCounter).to.equal(0);
     expect(gameCubeSaveData.getSaveFiles()[5].saveStartBlock).to.equal(57);
     expect(gameCubeSaveData.getSaveFiles()[5].saveSizeBlocks).to.equal(7);
+    expect(ArrayUtil.arraysEqual(gameCubeSaveData.getSaveFiles()[5].blockNumberList, ArrayUtil.createSequentialArray(57, 7))).to.equal(true);
     expect(gameCubeSaveData.getSaveFiles()[5].commentStart).to.equal(0);
-    expect(gameCubeSaveData.getSaveFiles()[5].comments[0]).to.equal('');
-    expect(gameCubeSaveData.getSaveFiles()[5].comments[1]).to.equal('');
+    expect(gameCubeSaveData.getSaveFiles()[5].comments[0]).to.equal('NFS: HP2');
+    expect(gameCubeSaveData.getSaveFiles()[5].comments[1]).to.equal('Euan');
 
     expect(gameCubeSaveData.getSaveFiles()[6].gameCode).to.equal('G4SE'); // The Legend of Zelda: Four Swords Adventures
     expect(gameCubeSaveData.getSaveFiles()[6].region).to.equal('North America');
@@ -203,9 +210,10 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[6].copyCounter).to.equal(0);
     expect(gameCubeSaveData.getSaveFiles()[6].saveStartBlock).to.equal(64);
     expect(gameCubeSaveData.getSaveFiles()[6].saveSizeBlocks).to.equal(3);
+    expect(ArrayUtil.arraysEqual(gameCubeSaveData.getSaveFiles()[6].blockNumberList, ArrayUtil.createSequentialArray(64, 3))).to.equal(true);
     expect(gameCubeSaveData.getSaveFiles()[6].commentStart).to.equal(7168);
-    expect(gameCubeSaveData.getSaveFiles()[6].comments[0]).to.equal('');
-    expect(gameCubeSaveData.getSaveFiles()[6].comments[1]).to.equal('');
+    expect(gameCubeSaveData.getSaveFiles()[6].comments[0]).to.equal('Four Swords Adventures');
+    expect(gameCubeSaveData.getSaveFiles()[6].comments[1]).to.equal('12/28 Save Data');
   });
 
   // This image works on my physical gamecube memcard

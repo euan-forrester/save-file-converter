@@ -57,7 +57,6 @@ const SAVE_START_BLOCK_OFFSET = 0x36;
 const SAVE_SIZE_BLOCKS_OFFSET = 0x38;
 
 const COMMENT_START_OFFSET = 0x3C;
-const COMMENT_START_OFFSET_LENGTH = 4;
 const COMMENT_LENGTH = 32;
 
 const DIRECTORY_ENTRY_LENGTH = 0x40;
@@ -84,6 +83,17 @@ export default class GameCubeDirectoryEntry {
     return directoryEntry.blah;
   }
 
+  static getComments(commentStart, rawDataArrayBuffer) {
+    const uint8Array = new Uint8Array(rawDataArrayBuffer);
+
+    const commentOffsets = [
+      commentStart,
+      commentStart + COMMENT_LENGTH,
+    ];
+
+    return commentOffsets.map((commentOffset) => Util.readNullTerminatedString(uint8Array, commentOffset, ENCODING, COMMENT_LENGTH));
+  }
+
   static readDirectoryEntry(arrayBuffer) {
     const uint8Array = new Uint8Array(arrayBuffer);
     const dataView = new DataView(arrayBuffer);
@@ -91,10 +101,9 @@ export default class GameCubeDirectoryEntry {
     // An empty entry appears to be all 0xFF. Dolphin just checks the game code, so we will too
     // https://github.com/dolphin-emu/dolphin/blob/c9bdda63dc624995406c37f4e29e3b8c4696e6d0/Source/Core/Core/HW/GCMemcard/GCMemcard.cpp#L788
     // https://github.com/dolphin-emu/dolphin/blob/c9bdda63dc624995406c37f4e29e3b8c4696e6d0/Source/Core/Core/HW/GCMemcard/GCMemcard.h#L243
-    let isValidEntry = false;
-    for (let i = 0; i < GAME_CODE_LENGTH; i += 1) {
-      isValidEntry = isValidEntry || (uint8Array[i + GAME_CODE_OFFSET] !== 0xFF);
-    }
+    const isValidEntry = uint8Array
+      .slice(GAME_CODE_OFFSET, GAME_CODE_OFFSET + GAME_CODE_LENGTH)
+      .reduce((accumulator, byteVal) => (accumulator || (byteVal !== 0xFF)), false);
 
     if (!isValidEntry) {
       return null;
@@ -117,11 +126,6 @@ export default class GameCubeDirectoryEntry {
     const saveStartBlock = dataView.getUint16(SAVE_START_BLOCK_OFFSET, LITTLE_ENDIAN);
     const saveSizeBlocks = dataView.getUint16(SAVE_SIZE_BLOCKS_OFFSET, LITTLE_ENDIAN);
     const commentStart = dataView.getUint32(COMMENT_START_OFFSET, LITTLE_ENDIAN);
-    const commentOffsets = [
-      COMMENT_START_OFFSET + COMMENT_START_OFFSET_LENGTH + commentStart,
-      COMMENT_START_OFFSET + COMMENT_START_OFFSET_LENGTH + commentStart + COMMENT_LENGTH,
-    ];
-    const comments = commentOffsets.map((commentOffset) => Util.readNullTerminatedString(uint8Array, commentOffset, ENCODING, COMMENT_LENGTH));
 
     return {
       gameCode,
@@ -140,7 +144,6 @@ export default class GameCubeDirectoryEntry {
       saveStartBlock,
       saveSizeBlocks,
       commentStart,
-      comments,
     };
   }
 }
