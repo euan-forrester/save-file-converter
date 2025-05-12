@@ -159,8 +159,6 @@ export default class GameCubeHeader {
       memcardSizeMegabits,
       encodingCode,
       encodingString: GameCubeUtil.getEncodingString(encodingCode),
-      checksum,
-      checksumInverse,
     };
   }
 }

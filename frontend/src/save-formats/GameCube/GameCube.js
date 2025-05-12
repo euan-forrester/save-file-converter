@@ -10,8 +10,8 @@ Overall the format is fairly similar to the N64 mempack format, with the first 5
 Block 0: Header
 Block 1: Directory
 Block 2: Directory backup (repeat of block 1)
-Block 3: Block allocation map
-Block 4: Block allocation map backup (repeat of block 3)
+Block 3: Block allocation table
+Block 4: Block allocation table backup (repeat of block 3)
 */
 
 import Util from '../../util/util';
@@ -21,16 +21,15 @@ import Util from '../../util/util';
 import GameCubeBasics from './Components/Basics';
 import GameCubeHeader from './Components/Header';
 import GameCubeDirectory from './Components/Directory';
+import GameCubeBlockAllocationTable from './Components/BlockAllocationTable';
 
 const { BLOCK_SIZE } = GameCubeBasics;
 
 const HEADER_BLOCK_NUMBER = 0;
 const DIRECTORY_BLOCK_NUMBER = 1;
 const DIRECTORY_BACKUP_BLOCK_NUMBER = 2;
-/*
 const BLOCK_ALLOCATION_TABLE_BLOCK_NUMBER = 3;
 const BLOCK_ALLOCATION_TABLE_BACKUP_BLOCK_NUMBER = 4;
-*/
 
 const BLOCK_PADDING_VALUE = 0x00;
 
@@ -113,14 +112,25 @@ export default class GameCubeSaveData {
 
   static createFromGameCubeData(arrayBuffer) {
     const headerBlock = getBlock(arrayBuffer, HEADER_BLOCK_NUMBER);
-    const volumeInfo = GameCubeHeader.readHeader(headerBlock);
+    const headerInfo = GameCubeHeader.readHeader(headerBlock);
 
     const directoryInfo = getActiveBlock(
       GameCubeDirectory.readDirectory(getBlock(arrayBuffer, DIRECTORY_BLOCK_NUMBER)),
       GameCubeDirectory.readDirectory(getBlock(arrayBuffer, DIRECTORY_BACKUP_BLOCK_NUMBER)),
     );
 
-    const saveFiles = readSaveFiles(directoryInfo.directoryEntries);
+    const blockAllocationTableInfo = getActiveBlock(
+      GameCubeBlockAllocationTable.readBlockAllocationTable(getBlock(arrayBuffer, BLOCK_ALLOCATION_TABLE_BLOCK_NUMBER)),
+      GameCubeBlockAllocationTable.readBlockAllocationTable(getBlock(arrayBuffer, BLOCK_ALLOCATION_TABLE_BACKUP_BLOCK_NUMBER)),
+    );
+
+    const volumeInfo = {
+      ...headerInfo,
+      numFreeBlocks: blockAllocationTableInfo.numFreeBlocks,
+      lastAllocatedBlock: blockAllocationTableInfo.lastAllocatedBlock,
+    };
+
+    const saveFiles = readSaveFiles(directoryInfo.directoryEntries, blockAllocationTableInfo.blockAllocationTable);
 
     return new GameCubeSaveData(arrayBuffer, saveFiles, volumeInfo);
   }

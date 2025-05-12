@@ -37,8 +37,8 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getVolumeInfo().memcardSlot).to.equal(GameCubeHeader.MEMCARD_SLOT_A);
     expect(gameCubeSaveData.getVolumeInfo().memcardSizeMegabits).to.equal(16);
     expect(gameCubeSaveData.getVolumeInfo().encodingString).to.equal('US-ASCII');
-    expect(gameCubeSaveData.getVolumeInfo().checksum).to.equal(0x07F9);
-    expect(gameCubeSaveData.getVolumeInfo().checksumInverse).to.equal(0xF709);
+    expect(gameCubeSaveData.getVolumeInfo().numFreeBlocks).to.equal(251);
+    expect(gameCubeSaveData.getVolumeInfo().lastAllocatedBlock).to.equal(6);
 
     expect(gameCubeSaveData.getSaveFiles().length).to.equal(0); // Note that there is an entry in the main directory, but the backup directory is empty and has a higher update counter
   });
@@ -59,8 +59,8 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getVolumeInfo().memcardSlot).to.equal(GameCubeHeader.MEMCARD_SLOT_A);
     expect(gameCubeSaveData.getVolumeInfo().memcardSizeMegabits).to.equal(16);
     expect(gameCubeSaveData.getVolumeInfo().encodingString).to.equal('shift-jis');
-    expect(gameCubeSaveData.getVolumeInfo().checksum).to.equal(0x354F);
-    expect(gameCubeSaveData.getVolumeInfo().checksumInverse).to.equal(0xC9B3);
+    expect(gameCubeSaveData.getVolumeInfo().numFreeBlocks).to.equal(251);
+    expect(gameCubeSaveData.getVolumeInfo().lastAllocatedBlock).to.equal(4);
   });
 
   it('should correctly a GameCube file with 10 saves', async () => {
@@ -77,8 +77,8 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getVolumeInfo().memcardSlot).to.equal(GameCubeHeader.MEMCARD_SLOT_A);
     expect(gameCubeSaveData.getVolumeInfo().memcardSizeMegabits).to.equal(16);
     expect(gameCubeSaveData.getVolumeInfo().encodingString).to.equal('US-ASCII');
-    expect(gameCubeSaveData.getVolumeInfo().checksum).to.equal(0x2FD4);
-    expect(gameCubeSaveData.getVolumeInfo().checksumInverse).to.equal(0xCF2E);
+    expect(gameCubeSaveData.getVolumeInfo().numFreeBlocks).to.equal(191);
+    expect(gameCubeSaveData.getVolumeInfo().lastAllocatedBlock).to.equal(130);
 
     expect(gameCubeSaveData.getSaveFiles().length).to.equal(10);
 
