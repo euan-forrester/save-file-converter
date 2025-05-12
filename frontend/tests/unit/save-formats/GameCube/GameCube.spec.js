@@ -1,3 +1,5 @@
+/* eslint-disable no-bitwise */
+
 import { expect } from 'chai';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 import ArrayUtil from '@/util/Array';
@@ -214,6 +216,64 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[6].commentStart).to.equal(7168);
     expect(gameCubeSaveData.getSaveFiles()[6].comments[0]).to.equal('Four Swords Adventures');
     expect(gameCubeSaveData.getSaveFiles()[6].comments[1]).to.equal('12/28 Save Data');
+
+    expect(gameCubeSaveData.getSaveFiles()[7].gameCode).to.equal('GF7E'); // Star Fox: Assault
+    expect(gameCubeSaveData.getSaveFiles()[7].region).to.equal('North America');
+    expect(gameCubeSaveData.getSaveFiles()[7].publisherCode).to.equal('01');
+    expect(gameCubeSaveData.getSaveFiles()[7].bannerAndIconFlags).to.equal(0x05);
+    expect(gameCubeSaveData.getSaveFiles()[7].fileName).to.equal('starfox.dat');
+    expect(gameCubeSaveData.getSaveFiles()[7].dateLastModified.toUTCString()).to.equal('Tue, 28 Dec 2049 03:56:17 GMT');
+    expect(gameCubeSaveData.getSaveFiles()[7].iconOffset).to.equal(112);
+    expect(gameCubeSaveData.getSaveFiles()[7].iconFormatCode).to.equal(0x15);
+    expect(gameCubeSaveData.getSaveFiles()[7].iconSpeedCode).to.equal(0x3F);
+    expect(gameCubeSaveData.getSaveFiles()[7].permissionAttributeBitfield).to.equal(GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC);
+    expect(gameCubeSaveData.getSaveFiles()[7].copyCounter).to.equal(0);
+    expect(gameCubeSaveData.getSaveFiles()[7].saveStartBlock).to.equal(123);
+    expect(gameCubeSaveData.getSaveFiles()[7].saveSizeBlocks).to.equal(5);
+    expect(ArrayUtil.arraysEqual(gameCubeSaveData.getSaveFiles()[7].blockNumberList, ArrayUtil.createSequentialArray(123, 5))).to.equal(true);
+    expect(gameCubeSaveData.getSaveFiles()[7].commentStart).to.equal(0);
+    expect(gameCubeSaveData.getSaveFiles()[7].comments[0]).to.equal('STAR FOX: ASSAULT');
+    expect(gameCubeSaveData.getSaveFiles()[7].comments[1]).to.equal('12/28/2049 03:56:16');
+
+    expect(gameCubeSaveData.getSaveFiles()[8].gameCode).to.equal('GFZE'); // F-Zero GX
+    expect(gameCubeSaveData.getSaveFiles()[8].region).to.equal('North America');
+    expect(gameCubeSaveData.getSaveFiles()[8].publisherCode).to.equal('8P');
+    expect(gameCubeSaveData.getSaveFiles()[8].bannerAndIconFlags).to.equal(0x02);
+    expect(gameCubeSaveData.getSaveFiles()[8].fileName).to.equal('f_zero.dat');
+    expect(gameCubeSaveData.getSaveFiles()[8].dateLastModified.toUTCString()).to.equal('Fri, 24 Dec 2049 11:20:49 GMT');
+    expect(gameCubeSaveData.getSaveFiles()[8].iconOffset).to.equal(144);
+    expect(gameCubeSaveData.getSaveFiles()[8].iconFormatCode).to.equal(0x02);
+    expect(gameCubeSaveData.getSaveFiles()[8].iconSpeedCode).to.equal(GameCubeDirectoryEntry.ICON_SPEED_SLOW);
+    expect(gameCubeSaveData.getSaveFiles()[8].permissionAttributeBitfield).to.equal(
+      GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC
+      | GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_NO_COPY
+      | GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_NO_MOVE,
+    );
+    expect(gameCubeSaveData.getSaveFiles()[8].copyCounter).to.equal(0);
+    expect(gameCubeSaveData.getSaveFiles()[8].saveStartBlock).to.equal(119);
+    expect(gameCubeSaveData.getSaveFiles()[8].saveSizeBlocks).to.equal(4);
+    expect(ArrayUtil.arraysEqual(gameCubeSaveData.getSaveFiles()[8].blockNumberList, ArrayUtil.createSequentialArray(119, 4))).to.equal(true);
+    expect(gameCubeSaveData.getSaveFiles()[8].commentStart).to.equal(4);
+    expect(gameCubeSaveData.getSaveFiles()[8].comments[0]).to.equal('F-ZERO GX');
+    expect(gameCubeSaveData.getSaveFiles()[8].comments[1]).to.equal('49/12/24 Euan');
+
+    expect(gameCubeSaveData.getSaveFiles()[9].gameCode).to.equal('GSWE'); // Star Wars Rogue Squadron II: Rogue Leader
+    expect(gameCubeSaveData.getSaveFiles()[9].region).to.equal('North America');
+    expect(gameCubeSaveData.getSaveFiles()[9].publisherCode).to.equal('64');
+    expect(gameCubeSaveData.getSaveFiles()[9].bannerAndIconFlags).to.equal(0x01);
+    expect(gameCubeSaveData.getSaveFiles()[9].fileName).to.equal('RogueLeader');
+    expect(gameCubeSaveData.getSaveFiles()[9].dateLastModified.toUTCString()).to.equal('Tue, 28 Dec 2049 22:44:54 GMT');
+    expect(gameCubeSaveData.getSaveFiles()[9].iconOffset).to.equal(112);
+    expect(gameCubeSaveData.getSaveFiles()[9].iconFormatCode).to.equal(0x5555);
+    expect(gameCubeSaveData.getSaveFiles()[9].iconSpeedCode).to.equal(0x5555);
+    expect(gameCubeSaveData.getSaveFiles()[9].permissionAttributeBitfield).to.equal(GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC);
+    expect(gameCubeSaveData.getSaveFiles()[9].copyCounter).to.equal(0);
+    expect(gameCubeSaveData.getSaveFiles()[9].saveStartBlock).to.equal(128);
+    expect(gameCubeSaveData.getSaveFiles()[9].saveSizeBlocks).to.equal(3);
+    expect(ArrayUtil.arraysEqual(gameCubeSaveData.getSaveFiles()[9].blockNumberList, ArrayUtil.createSequentialArray(128, 3))).to.equal(true);
+    expect(gameCubeSaveData.getSaveFiles()[9].commentStart).to.equal(0);
+    expect(gameCubeSaveData.getSaveFiles()[9].comments[0]).to.equal('Star Wars: Rogue Leader');
+    expect(gameCubeSaveData.getSaveFiles()[9].comments[1]).to.equal('Save Data');
   });
 
   // This image works on my physical gamecube memcard
