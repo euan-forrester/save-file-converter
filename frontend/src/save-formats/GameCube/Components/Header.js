@@ -16,11 +16,15 @@ Example flash IDs can be found in the tests for this module.
 0x0020-0x0021: Slot number (0: Slot A, 1: Slot B)
 0x0022-0x0023: Size of memcard in megabits
 0x0024-0x0025: Encoding (0: ASCII, 1: shift-jis)
-0x0026-0x01F9: padding (0xFF)
-0x01FA-0x01FB: Update counter: https://github.com/bodgit/gc/blob/main/header.go#L32 (initialized to 0xFFFF: https://github.com/bodgit/gc/blob/98581357d5ae1e6c1c7579358eeebcf0d16fc9a9/memcard.go#L266). Used to determine whether to use the main or backup directory or blockmap
+0x0026-0x01FB: padding (0xFF)
 0x01FC-0x01FD: Additive checksum
 0x01FE-0x01FF: Inverse checksum
 0x0200-0x3DFF: padding (0xFF)
+
+Some sources put a potential update counter at 0x01FA-0x01FB, but even they say it's always 0xFFFF and so likely part of the padding.
+Given that the actual update counters in the directory and block allocation table blocks are in different positions, in different orders
+with respect to the checksums, I don't think it makes sense to assume that there is one in this block.
+Particularly when there's no need for it because there is only a single header and not a backup
 */
 
 import Util from '../../../util/util';
@@ -46,7 +50,6 @@ const MEMCARD_SLOT_A = 0;
 const MEMCARD_SLOT_B = 1;
 const MEMCARD_SIZE_OFFSET = 0x0022;
 const ENCODING_OFFSET = 0x0024;
-const UPDATE_COUNTER_OFFSET = 0x1FA;
 const CHECKSUM_OFFSET = 0x01FC;
 const CHECKSUM_INVERSE_OFFSET = 0x01FE;
 const CHECKSUMMED_DATA_BEGIN_OFFSET = 0; // Checksummed data offset and size are taken from https://github.com/dolphin-emu/dolphin/blob/4f210df86a2d2362ef8087cf81b817b18c3d32e9/Source/Core/Core/HW/GCMemcard/GCMemcard.cpp#L1284
@@ -108,7 +111,6 @@ export default class GameCubeHeader {
     headerDataView.setUint16(MEMCARD_SLOT_OFFSET, volumeInfo.memcardSlot, LITTLE_ENDIAN);
     headerDataView.setUint16(MEMCARD_SIZE_OFFSET, volumeInfo.memcardSizeMegabits, LITTLE_ENDIAN);
     headerDataView.setUint16(ENCODING_OFFSET, volumeInfo.encodingCode, LITTLE_ENDIAN);
-    headerDataView.setUint16(UPDATE_COUNTER_OFFSET, volumeInfo.updateCounter, LITTLE_ENDIAN);
 
     const { checksum, checksumInverse } = GameCubeUtil.calculateChecksums(headerArrayBuffer, CHECKSUMMED_DATA_BEGIN_OFFSET, CHECKSUMMED_DATA_SIZE);
 
@@ -129,7 +131,6 @@ export default class GameCubeHeader {
     const memcardSlot = dataView.getUint16(MEMCARD_SLOT_OFFSET, LITTLE_ENDIAN);
     const memcardSizeMegabits = dataView.getUint16(MEMCARD_SIZE_OFFSET, LITTLE_ENDIAN);
     const encodingCode = dataView.getUint16(ENCODING_OFFSET, LITTLE_ENDIAN);
-    const updateCounter = dataView.getUint16(UPDATE_COUNTER_OFFSET, LITTLE_ENDIAN);
     const checksum = dataView.getUint16(CHECKSUM_OFFSET, LITTLE_ENDIAN);
     const checksumInverse = dataView.getUint16(CHECKSUM_INVERSE_OFFSET, LITTLE_ENDIAN);
 
@@ -158,7 +159,6 @@ export default class GameCubeHeader {
       memcardSizeMegabits,
       encodingCode,
       encodingString: GameCubeUtil.getEncodingString(encodingCode),
-      updateCounter,
       checksum,
       checksumInverse,
     };

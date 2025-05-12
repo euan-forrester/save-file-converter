@@ -50,7 +50,8 @@ function getActiveBlock(mainInfo, backupInfo) {
   // https://github.com/dolphin-emu/dolphin/blob/ee27f03a4387baca6371a06068274135ff9547a5/Source/Core/Core/HW/GCMemcard/GCMemcardDirectory.cpp#L468
   // https://github.com/dolphin-emu/dolphin/blob/ee27f03a4387baca6371a06068274135ff9547a5/Source/Core/Core/HW/GCMemcard/GCMemcardDirectory.cpp#L590
 
-  // I wonder what happens when this counter wraps around. 16 bits is only 65535 possible updates. My childhood memory card that I didn't use very much is at 333.
+  // The updateCounter is compared as a 16-bit signed value by the GameCube BIOS, with no protection against overflow: https://github.com/dolphin-emu/dolphin/blob/ee27f03a4387baca6371a06068274135ff9547a5/Source/Core/Core/HW/GCMemcard/GCMemcard.cpp#L252
+  // That's only 32767 updates. My childhood memory card that I didn't use very much is 1% of the way there at 333.
 
   // There are some interesting rules about when the GameCube BIOS considers the whole card to be corrupted:
   // https://github.com/dolphin-emu/dolphin/blob/ee27f03a4387baca6371a06068274135ff9547a5/Source/Core/Core/HW/GCMemcard/GCMemcard.cpp#L152
@@ -60,7 +61,13 @@ function getActiveBlock(mainInfo, backupInfo) {
 
   // As for the rule about a mismatch in block counts from the directory entry vs the block allocation table, let's ignore that one as well
   // until we get feedback that fixing the error would be helpful to users. In general, we tend to parse and re-create a memory card image
-  // when returning it to users and so whatever we output will be free of inconsistencies like this.
+  // when returning it to users and so whatever we output will be free of inconsistencies like this. I guess if there's an inconsistency
+  // there it's hard to know whether to prefer the directory entry or the block allocation table (i.e. assume directory entry is correct and so
+  // use the other block allocation table, which is what we will do by default). Might need somewhat complex logic there,
+  // and I'd like to get feedback that it would be helpful before adding this complexity.
+
+  // It's worth noting in all this that Dolphin has considered but never implemented "fixing" corrupted images.
+  // I suspect there is not much demand for this.
 
   if ((mainInfo !== null) && (backupInfo !== null)) {
     // If both blocks were not corrupted, then return the one with the higher updateCounter
