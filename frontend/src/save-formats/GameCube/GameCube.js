@@ -21,6 +21,7 @@ import GameCubeUtil from './Util';
 import GameCubeBasics from './Components/Basics';
 import GameCubeHeader from './Components/Header';
 import GameCubeDirectory from './Components/Directory';
+import GameCubeDirectoryEntry from './Components/DirectoryEntry';
 import GameCubeBlockAllocationTable from './Components/BlockAllocationTable';
 
 const { BLOCK_SIZE } = GameCubeBasics;
@@ -96,11 +97,50 @@ function getActiveBlock(mainInfo, backupInfo) {
   throw new Error('This memory card image appears to be corrupted');
 }
 
-function readSaveFiles(directoryEntries) {
-  return directoryEntries.map((directoryEntry) => ({
-    ...directoryEntry,
-    rawData: null,
-  }));
+function getBlockNumberList(saveStartBlock, blockAllocationTable) {
+  let nextBlockNum = saveStartBlock;
+
+  const blockNumberList = [];
+
+  do {
+    const currentBlockNum = nextBlockNum;
+    const currentBlockTableEntry = blockAllocationTable[currentBlockNum - NUM_RESERVED_BLOCKS];
+
+    if (currentBlockTableEntry === GameCubeBlockAllocationTable.TABLE_ENTRY_BLOCK_IS_FREE) {
+      throw new Error('File appears to be corrupted: block list for file contains entry marked as free');
+    }
+
+    blockNumberList.push(currentBlockNum);
+
+    nextBlockNum = currentBlockTableEntry;
+  } while (nextBlockNum !== GameCubeBlockAllocationTable.TABLE_ENTRY_LAST_BLOCK);
+
+  return blockNumberList;
+}
+
+function getSaveData(saveStartBlock, blockAllocationTable, arrayBuffer) {
+  const blockNumberList = getBlockNumberList(saveStartBlock, blockAllocationTable);
+
+  const blockList = blockNumberList.map((blockNumber) => getBlock(arrayBuffer, blockNumber));
+
+  return {
+    blockNumberList,
+    rawData: Util.concatArrayBuffers(blockList),
+  };
+}
+
+function readSaveFiles(directoryEntries, blockAllocationTable, arrayBuffer) {
+  return directoryEntries.map((directoryEntry) => {
+    const saveData = getSaveData(directoryEntry.saveStartBlock, blockAllocationTable, arrayBuffer);
+
+    const comments = GameCubeDirectoryEntry.getComments(directoryEntry.commentStart, saveData.rawData);
+
+    return {
+      ...directoryEntry,
+      comments,
+      ...saveData,
+    };
+  });
 }
 
 export default class GameCubeSaveData {
@@ -136,7 +176,7 @@ export default class GameCubeSaveData {
       lastAllocatedBlock: blockAllocationTableInfo.lastAllocatedBlock,
     };
 
-    const saveFiles = readSaveFiles(directoryInfo.directoryEntries, blockAllocationTableInfo.blockAllocationTable);
+    const saveFiles = readSaveFiles(directoryInfo.directoryEntries, blockAllocationTableInfo.blockAllocationTable, arrayBuffer);
 
     return new GameCubeSaveData(arrayBuffer, saveFiles, volumeInfo);
   }
