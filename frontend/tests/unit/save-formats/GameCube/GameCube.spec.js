@@ -37,7 +37,6 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getVolumeInfo().memcardSlot).to.equal(GameCubeHeader.MEMCARD_SLOT_A);
     expect(gameCubeSaveData.getVolumeInfo().memcardSizeMegabits).to.equal(16);
     expect(gameCubeSaveData.getVolumeInfo().encodingString).to.equal('US-ASCII');
-    expect(gameCubeSaveData.getVolumeInfo().updateCounter).to.equal(0xFFFF);
     expect(gameCubeSaveData.getVolumeInfo().checksum).to.equal(0x07F9);
     expect(gameCubeSaveData.getVolumeInfo().checksumInverse).to.equal(0xF709);
 
@@ -60,7 +59,6 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getVolumeInfo().memcardSlot).to.equal(GameCubeHeader.MEMCARD_SLOT_A);
     expect(gameCubeSaveData.getVolumeInfo().memcardSizeMegabits).to.equal(16);
     expect(gameCubeSaveData.getVolumeInfo().encodingString).to.equal('shift-jis');
-    expect(gameCubeSaveData.getVolumeInfo().updateCounter).to.equal(0xFFFF);
     expect(gameCubeSaveData.getVolumeInfo().checksum).to.equal(0x354F);
     expect(gameCubeSaveData.getVolumeInfo().checksumInverse).to.equal(0xC9B3);
   });
@@ -79,7 +77,6 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getVolumeInfo().memcardSlot).to.equal(GameCubeHeader.MEMCARD_SLOT_A);
     expect(gameCubeSaveData.getVolumeInfo().memcardSizeMegabits).to.equal(16);
     expect(gameCubeSaveData.getVolumeInfo().encodingString).to.equal('US-ASCII');
-    expect(gameCubeSaveData.getVolumeInfo().updateCounter).to.equal(0xFFFF);
     expect(gameCubeSaveData.getVolumeInfo().checksum).to.equal(0x2FD4);
     expect(gameCubeSaveData.getVolumeInfo().checksumInverse).to.equal(0xCF2E);
 
@@ -216,7 +213,6 @@ describe('GameCube', () => {
       memcardSlot: GameCubeHeader.MEMCARD_SLOT_A,
       memcardSizeMegabits: 16,
       encodingCode: GameCubeUtil.getEncodingCode('US-ASCII'),
-      updateCounter: 0xFFFF,
     };
 
     const gameCubeSaveData = GameCubeSaveData.createFromSaveFiles([], volumeInfo);
@@ -235,7 +231,6 @@ describe('GameCube', () => {
       memcardSlot: GameCubeHeader.MEMCARD_SLOT_A,
       memcardSizeMegabits: 16,
       encodingCode: GameCubeUtil.getEncodingCode('US-ASCII'),
-      updateCounter: 0xFFFF,
     };
 
     const gameCubeSaveData = GameCubeSaveData.createFromSaveFiles([], volumeInfo);
@@ -254,7 +249,6 @@ describe('GameCube', () => {
       memcardSlot: GameCubeHeader.MEMCARD_SLOT_A,
       memcardSizeMegabits: 16,
       encodingCode: GameCubeUtil.getEncodingCode('US-ASCII'),
-      updateCounter: 0xFFFF,
     };
 
     const gameCubeSaveData = GameCubeSaveData.createFromSaveFiles([], volumeInfo);
@@ -273,7 +267,6 @@ describe('GameCube', () => {
       memcardSlot: GameCubeHeader.MEMCARD_SLOT_A,
       memcardSizeMegabits: 16,
       encodingCode: GameCubeUtil.getEncodingCode('US-ASCII'),
-      updateCounter: 0xFFFF,
     };
 
     const gameCubeSaveData = GameCubeSaveData.createFromSaveFiles([], volumeInfo);

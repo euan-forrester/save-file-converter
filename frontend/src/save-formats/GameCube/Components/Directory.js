@@ -46,7 +46,7 @@ export default class GameCubeDirectory {
   static readDirectory(arrayBuffer) {
     const dataView = new DataView(arrayBuffer);
 
-    const updateCounter = dataView.getUint16(UPDATE_COUNTER_OFFSET, LITTLE_ENDIAN);
+    const updateCounter = dataView.getInt16(UPDATE_COUNTER_OFFSET, LITTLE_ENDIAN); // GameCube BIOS compares these as signed values: https://github.com/dolphin-emu/dolphin/blob/ee27f03a4387baca6371a06068274135ff9547a5/Source/Core/Core/HW/GCMemcard/GCMemcard.h#L325
     const checksum = dataView.getUint16(CHECKSUM_OFFSET, LITTLE_ENDIAN);
     const checksumInverse = dataView.getUint16(CHECKSUM_INVERSE_OFFSET, LITTLE_ENDIAN);
 
