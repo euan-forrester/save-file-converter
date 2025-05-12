@@ -16,7 +16,7 @@ Block 4: Block allocation table backup (repeat of block 3)
 
 import Util from '../../util/util';
 
-// import GameCubeUtil from './Util';
+import GameCubeUtil from './Util';
 
 import GameCubeBasics from './Components/Basics';
 import GameCubeHeader from './Components/Header';
@@ -30,6 +30,8 @@ const DIRECTORY_BLOCK_NUMBER = 1;
 const DIRECTORY_BACKUP_BLOCK_NUMBER = 2;
 const BLOCK_ALLOCATION_TABLE_BLOCK_NUMBER = 3;
 const BLOCK_ALLOCATION_TABLE_BACKUP_BLOCK_NUMBER = 4;
+
+const NUM_RESERVED_BLOCKS = 5;
 
 const BLOCK_PADDING_VALUE = 0x00;
 
@@ -124,8 +126,12 @@ export default class GameCubeSaveData {
       GameCubeBlockAllocationTable.readBlockAllocationTable(getBlock(arrayBuffer, BLOCK_ALLOCATION_TABLE_BACKUP_BLOCK_NUMBER)),
     );
 
+    const numTotalBlocks = (GameCubeUtil.megabitsToBytes(headerInfo.memcardSizeMegabits) / BLOCK_SIZE) - NUM_RESERVED_BLOCKS;
+
     const volumeInfo = {
       ...headerInfo,
+      numTotalBlocks,
+      numUsedBlocks: numTotalBlocks - blockAllocationTableInfo.numFreeBlocks,
       numFreeBlocks: blockAllocationTableInfo.numFreeBlocks,
       lastAllocatedBlock: blockAllocationTableInfo.lastAllocatedBlock,
     };
@@ -138,7 +144,7 @@ export default class GameCubeSaveData {
   static createFromSaveFiles(saveFiles, volumeInfo) {
     const headerBlock = GameCubeHeader.writeHeader(volumeInfo);
 
-    const totalSizeBytes = ((volumeInfo.memcardSizeMegabits / 8) * 1024 * 1024);
+    const totalSizeBytes = GameCubeUtil.megabitsToBytes(volumeInfo.memcardSizeMegabits);
 
     let memcardArrayBuffer = headerBlock;
 

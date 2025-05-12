@@ -141,4 +141,12 @@ export default class GameCubeUtil {
       checksumInverse,
     };
   }
+
+  static megabitsToBytes(numMegabits) {
+    return ((numMegabits / 8) * 1024 * 1024);
+  }
+
+  static bytesToMegabits(numBytes) {
+    return (numBytes / (1024 * 1024)) * 8;
+  }
 }

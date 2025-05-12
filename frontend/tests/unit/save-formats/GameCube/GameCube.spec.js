@@ -37,6 +37,8 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getVolumeInfo().memcardSlot).to.equal(GameCubeHeader.MEMCARD_SLOT_A);
     expect(gameCubeSaveData.getVolumeInfo().memcardSizeMegabits).to.equal(16);
     expect(gameCubeSaveData.getVolumeInfo().encodingString).to.equal('US-ASCII');
+    expect(gameCubeSaveData.getVolumeInfo().numTotalBlocks).to.equal(251);
+    expect(gameCubeSaveData.getVolumeInfo().numUsedBlocks).to.equal(0);
     expect(gameCubeSaveData.getVolumeInfo().numFreeBlocks).to.equal(251);
     expect(gameCubeSaveData.getVolumeInfo().lastAllocatedBlock).to.equal(6);
 
@@ -59,6 +61,8 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getVolumeInfo().memcardSlot).to.equal(GameCubeHeader.MEMCARD_SLOT_A);
     expect(gameCubeSaveData.getVolumeInfo().memcardSizeMegabits).to.equal(16);
     expect(gameCubeSaveData.getVolumeInfo().encodingString).to.equal('shift-jis');
+    expect(gameCubeSaveData.getVolumeInfo().numTotalBlocks).to.equal(251);
+    expect(gameCubeSaveData.getVolumeInfo().numUsedBlocks).to.equal(0);
     expect(gameCubeSaveData.getVolumeInfo().numFreeBlocks).to.equal(251);
     expect(gameCubeSaveData.getVolumeInfo().lastAllocatedBlock).to.equal(4);
   });
@@ -77,6 +81,8 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getVolumeInfo().memcardSlot).to.equal(GameCubeHeader.MEMCARD_SLOT_A);
     expect(gameCubeSaveData.getVolumeInfo().memcardSizeMegabits).to.equal(16);
     expect(gameCubeSaveData.getVolumeInfo().encodingString).to.equal('US-ASCII');
+    expect(gameCubeSaveData.getVolumeInfo().numTotalBlocks).to.equal(251);
+    expect(gameCubeSaveData.getVolumeInfo().numUsedBlocks).to.equal(60);
     expect(gameCubeSaveData.getVolumeInfo().numFreeBlocks).to.equal(191);
     expect(gameCubeSaveData.getVolumeInfo().lastAllocatedBlock).to.equal(130);
 
