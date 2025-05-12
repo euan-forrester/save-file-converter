@@ -28,7 +28,10 @@ import Util from '../../../util/util';
 import GameCubeUtil from '../Util';
 import GameCubeBasics from './Basics';
 
-const { LITTLE_ENDIAN, BLOCK_SIZE } = GameCubeBasics;
+const {
+  BLOCK_SIZE,
+  LITTLE_ENDIAN,
+} = GameCubeBasics;
 
 const HEADER_PADDING_VALUE = 0xFF;
 

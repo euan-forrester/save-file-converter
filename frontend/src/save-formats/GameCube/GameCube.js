@@ -18,17 +18,18 @@ import Util from '../../util/util';
 
 // import GameCubeUtil from './Util';
 
-import GameCubeHeader from './Components/Header';
 import GameCubeBasics from './Components/Basics';
+import GameCubeHeader from './Components/Header';
+import GameCubeDirectory from './Components/Directory';
 
 const { BLOCK_SIZE } = GameCubeBasics;
 
 const HEADER_BLOCK_NUMBER = 0;
-/*
 const DIRECTORY_BLOCK_NUMBER = 1;
 const DIRECTORY_BACKUP_BLOCK_NUMBER = 2;
-const BLOCK_ALLOCATION_MAP_BLOCK_NUMBER = 3;
-const BLOCK_ALLOCATION_MAP_BACKUP_BLOCK_NUMBER = 4;
+/*
+const BLOCK_ALLOCATION_TABLE_BLOCK_NUMBER = 3;
+const BLOCK_ALLOCATION_TABLE_BACKUP_BLOCK_NUMBER = 4;
 */
 
 const BLOCK_PADDING_VALUE = 0x00;
@@ -42,8 +43,56 @@ function createBlock() {
   return Util.getFilledArrayBuffer(BLOCK_SIZE, BLOCK_PADDING_VALUE);
 }
 
-function readSaveFiles() {
-  return [];
+function getActiveBlock(mainInfo, backupInfo) {
+  // If the update counter is equal on the two blocks we're supposed to pick the first one:
+  // https://github.com/dolphin-emu/dolphin/blob/ee27f03a4387baca6371a06068274135ff9547a5/Source/Core/Core/HW/GCMemcard/GCMemcard.cpp#L156
+  // Dolphin sometimes picks one or the other:
+  // https://github.com/dolphin-emu/dolphin/blob/ee27f03a4387baca6371a06068274135ff9547a5/Source/Core/Core/HW/GCMemcard/GCMemcardDirectory.cpp#L468
+  // https://github.com/dolphin-emu/dolphin/blob/ee27f03a4387baca6371a06068274135ff9547a5/Source/Core/Core/HW/GCMemcard/GCMemcardDirectory.cpp#L590
+
+  // I wonder what happens when this counter wraps around. 16 bits is only 65535 possible updates. My childhood memory card that I didn't use very much is at 333.
+
+  // There are some interesting rules about when the GameCube BIOS considers the whole card to be corrupted:
+  // https://github.com/dolphin-emu/dolphin/blob/ee27f03a4387baca6371a06068274135ff9547a5/Source/Core/Core/HW/GCMemcard/GCMemcard.cpp#L152
+
+  // I think it makes sense to be a bit more lenient here, and so allow this tool to potentially "fix" a corrupted card.
+  // So let's ignore the rule about 2 corrupted blocks -> whole card considered corrupted.
+
+  // As for the rule about a mismatch in block counts from the directory entry vs the block allocation table, let's ignore that one as well
+  // until we get feedback that fixing the error would be helpful to users. In general, we tend to parse and re-create a memory card image
+  // when returning it to users and so whatever we output will be free of inconsistencies like this.
+
+  if ((mainInfo !== null) && (backupInfo !== null)) {
+    // If both blocks were not corrupted, then return the one with the higher updateCounter
+    // (while preferring the first one if the updateCounter is equal)
+
+    if (backupInfo.updateCounter > mainInfo.updateCounter) {
+      return backupInfo;
+    }
+
+    return mainInfo;
+  }
+
+  // If one block is corrupted, then return the other one
+
+  if (backupInfo !== null) {
+    return backupInfo;
+  }
+
+  if (mainInfo !== null) {
+    return mainInfo;
+  }
+
+  // If both are corrupted then the card is considered corrupted
+
+  throw new Error('This memory card image appears to be corrupted');
+}
+
+function readSaveFiles(directoryEntries) {
+  return directoryEntries.map((directoryEntry) => ({
+    ...directoryEntry,
+    rawData: null,
+  }));
 }
 
 export default class GameCubeSaveData {
@@ -59,7 +108,12 @@ export default class GameCubeSaveData {
     const headerBlock = getBlock(arrayBuffer, HEADER_BLOCK_NUMBER);
     const volumeInfo = GameCubeHeader.readHeader(headerBlock);
 
-    const saveFiles = readSaveFiles(arrayBuffer);
+    const directoryInfo = getActiveBlock(
+      GameCubeDirectory.readDirectory(getBlock(arrayBuffer, DIRECTORY_BLOCK_NUMBER)),
+      GameCubeDirectory.readDirectory(getBlock(arrayBuffer, DIRECTORY_BACKUP_BLOCK_NUMBER)),
+    );
+
+    const saveFiles = readSaveFiles(directoryInfo.directoryEntries);
 
     return new GameCubeSaveData(arrayBuffer, saveFiles, volumeInfo);
   }
