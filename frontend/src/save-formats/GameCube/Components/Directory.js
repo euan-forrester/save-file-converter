@@ -43,7 +43,7 @@ export default class GameCubeDirectory {
     return directoryEntries.blah;
   }
 
-  static readDirectory(arrayBuffer) {
+  static readDirectory(arrayBuffer, encoding) {
     const dataView = new DataView(arrayBuffer);
 
     const updateCounter = dataView.getInt16(UPDATE_COUNTER_OFFSET, LITTLE_ENDIAN); // GameCube BIOS compares these as signed values: https://github.com/dolphin-emu/dolphin/blob/ee27f03a4387baca6371a06068274135ff9547a5/Source/Core/Core/HW/GCMemcard/GCMemcard.h#L325
@@ -53,7 +53,7 @@ export default class GameCubeDirectory {
     const directoryEntries = ArrayUtil.createSequentialArray(0, MAX_DIRECTORY_ENTRIES).map((i) => {
       const directoryEntryArrayBuffer = arrayBuffer.slice(i * DIRECTORY_ENTRY_LENGTH, (i + 1) * DIRECTORY_ENTRY_LENGTH);
 
-      return GameCubeDirectoryEntry.readDirectoryEntry(directoryEntryArrayBuffer);
+      return GameCubeDirectoryEntry.readDirectoryEntry(directoryEntryArrayBuffer, encoding);
     }).filter((directoryEntry) => directoryEntry !== null);
 
     const calculatedChecksums = GameCubeUtil.calculateChecksums(arrayBuffer, CHECKSUMMED_DATA_BEGIN_OFFSET, CHECKSUMMED_DATA_SIZE);

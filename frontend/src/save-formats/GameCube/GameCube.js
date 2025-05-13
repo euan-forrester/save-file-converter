@@ -129,11 +129,11 @@ function getSaveData(saveStartBlock, blockAllocationTable, arrayBuffer) {
   };
 }
 
-function readSaveFiles(directoryEntries, blockAllocationTable, arrayBuffer) {
+function readSaveFiles(directoryEntries, blockAllocationTable, arrayBuffer, encoding) {
   return directoryEntries.map((directoryEntry) => {
     const saveData = getSaveData(directoryEntry.saveStartBlock, blockAllocationTable, arrayBuffer);
 
-    const comments = GameCubeDirectoryEntry.getComments(directoryEntry.commentStart, saveData.rawData);
+    const comments = GameCubeDirectoryEntry.getComments(directoryEntry.commentStart, saveData.rawData, encoding);
 
     return {
       ...directoryEntry,
@@ -153,12 +153,21 @@ export default class GameCubeSaveData {
   }
 
   static createFromGameCubeData(arrayBuffer) {
-    const headerBlock = getBlock(arrayBuffer, HEADER_BLOCK_NUMBER);
-    const headerInfo = GameCubeHeader.readHeader(headerBlock);
+    if (arrayBuffer.byteLength < (NUM_RESERVED_BLOCKS * BLOCK_SIZE)) {
+      throw new Error('This does not appear to be a GameCube memory card image');
+    }
+
+    const headerInfo = GameCubeHeader.readHeader(getBlock(arrayBuffer, HEADER_BLOCK_NUMBER));
+
+    const numTotalBytes = GameCubeUtil.megabitsToBytes(headerInfo.memcardSizeMegabits);
+
+    if (arrayBuffer.byteLength < numTotalBytes) {
+      throw new Error('This does not appear to be a GameCube memory card image');
+    }
 
     const directoryInfo = getActiveBlock(
-      GameCubeDirectory.readDirectory(getBlock(arrayBuffer, DIRECTORY_BLOCK_NUMBER)),
-      GameCubeDirectory.readDirectory(getBlock(arrayBuffer, DIRECTORY_BACKUP_BLOCK_NUMBER)),
+      GameCubeDirectory.readDirectory(getBlock(arrayBuffer, DIRECTORY_BLOCK_NUMBER), headerInfo.encodingString),
+      GameCubeDirectory.readDirectory(getBlock(arrayBuffer, DIRECTORY_BACKUP_BLOCK_NUMBER), headerInfo.encodingString),
     );
 
     const blockAllocationTableInfo = getActiveBlock(
@@ -166,7 +175,7 @@ export default class GameCubeSaveData {
       GameCubeBlockAllocationTable.readBlockAllocationTable(getBlock(arrayBuffer, BLOCK_ALLOCATION_TABLE_BACKUP_BLOCK_NUMBER)),
     );
 
-    const numTotalBlocks = (GameCubeUtil.megabitsToBytes(headerInfo.memcardSizeMegabits) / BLOCK_SIZE) - NUM_RESERVED_BLOCKS;
+    const numTotalBlocks = (numTotalBytes / BLOCK_SIZE) - NUM_RESERVED_BLOCKS;
 
     const volumeInfo = {
       ...headerInfo,
@@ -176,7 +185,7 @@ export default class GameCubeSaveData {
       lastAllocatedBlock: blockAllocationTableInfo.lastAllocatedBlock,
     };
 
-    const saveFiles = readSaveFiles(directoryInfo.directoryEntries, blockAllocationTableInfo.blockAllocationTable, arrayBuffer);
+    const saveFiles = readSaveFiles(directoryInfo.directoryEntries, blockAllocationTableInfo.blockAllocationTable, arrayBuffer, headerInfo.encodingString);
 
     return new GameCubeSaveData(arrayBuffer, saveFiles, volumeInfo);
   }
