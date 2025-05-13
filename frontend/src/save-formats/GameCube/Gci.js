@@ -14,6 +14,8 @@ https://github.com/suloku/gcmm/blob/95c737c2af0ebecfa2ef02a8c6c30496d0036e87/sou
 
 import GameCubeDirectoryEntry from './Components/DirectoryEntry';
 
+const ENCODING = 'US-ASCII'; // I don't know how one would tell if the strings are encoded with shift-jis. I would imagine the vast majority of files out there are ascii. Curious to get feedback if there are some using shift-jis
+
 const DATA_OFFSET = GameCubeDirectoryEntry.LENGTH;
 
 export default class GameCubeGciSaveData {
@@ -26,10 +28,10 @@ export default class GameCubeGciSaveData {
 
   static convertGcisToSaveFiles(arrayBuffers) {
     return arrayBuffers.map((arrayBuffer) => {
-      const directoryEntry = GameCubeDirectoryEntry.readDirectoryEntry(arrayBuffer);
+      const directoryEntry = GameCubeDirectoryEntry.readDirectoryEntry(arrayBuffer, ENCODING);
       const rawData = arrayBuffer.slice(DATA_OFFSET);
 
-      const comments = GameCubeDirectoryEntry.getComments(directoryEntry.commentStart, rawData);
+      const comments = GameCubeDirectoryEntry.getComments(directoryEntry.commentStart, rawData, ENCODING);
 
       return {
         ...directoryEntry,

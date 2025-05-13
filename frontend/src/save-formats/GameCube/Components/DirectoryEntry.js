@@ -9,8 +9,7 @@ Here's the structure as assembled from reading
 - http://www.surugi.com/projects/gcifaq.html
 - https://github.com/suloku/gcmm/blob/master/source/gci.h#L12
 
-0x00-0x02: Game code
-0x03:      Region code
+0x00-0x03: Game code (last character is the region code)
 0x04-0x05: Publisher ID
 0x06:      unused (0xFF)
 0x07:      Banner and icon flags: https://github.com/dolphin-emu/dolphin/blob/ee27f03a4387baca6371a06068274135ff9547a5/Source/Core/Core/HW/GCMemcard/GCMemcard.h#L254
@@ -33,7 +32,8 @@ import Util from '../../../util/util';
 import GameCubeBasics from './Basics';
 
 const { LITTLE_ENDIAN } = GameCubeBasics;
-const ENCODING = 'US-ASCII';
+
+const GAME_AND_PUBLISHER_CODE_ENCODING = 'US-ASCII'; // I don't know for sure if these fields are always encoded as ascii, but it seems like a reasonable guess
 
 const GAME_CODE_OFFSET = 0x00;
 const GAME_CODE_LENGTH = 4;
@@ -83,7 +83,7 @@ export default class GameCubeDirectoryEntry {
     return directoryEntry.blah;
   }
 
-  static getComments(commentStart, rawDataArrayBuffer) {
+  static getComments(commentStart, rawDataArrayBuffer, encoding) {
     const uint8Array = new Uint8Array(rawDataArrayBuffer);
 
     const commentOffsets = [
@@ -91,10 +91,10 @@ export default class GameCubeDirectoryEntry {
       commentStart + COMMENT_LENGTH,
     ];
 
-    return commentOffsets.map((commentOffset) => Util.readNullTerminatedString(uint8Array, commentOffset, ENCODING, COMMENT_LENGTH));
+    return commentOffsets.map((commentOffset) => Util.readNullTerminatedString(uint8Array, commentOffset, encoding, COMMENT_LENGTH));
   }
 
-  static readDirectoryEntry(arrayBuffer) {
+  static readDirectoryEntry(arrayBuffer, encoding) {
     const uint8Array = new Uint8Array(arrayBuffer);
     const dataView = new DataView(arrayBuffer);
 
@@ -109,11 +109,11 @@ export default class GameCubeDirectoryEntry {
       return null;
     }
 
-    const gameCode = Util.readString(uint8Array, GAME_CODE_OFFSET, ENCODING, GAME_CODE_LENGTH);
-    const regionCode = Util.readString(uint8Array, REGION_CODE_OFFSET, ENCODING, REGION_CODE_LENGTH);
-    const publisherCode = Util.readString(uint8Array, PUBLISHER_CODE_OFFSET, ENCODING, PUBLISHER_CODE_LENGTH);
+    const gameCode = Util.readString(uint8Array, GAME_CODE_OFFSET, GAME_AND_PUBLISHER_CODE_ENCODING, GAME_CODE_LENGTH);
+    const regionCode = Util.readString(uint8Array, REGION_CODE_OFFSET, GAME_AND_PUBLISHER_CODE_ENCODING, REGION_CODE_LENGTH);
+    const publisherCode = Util.readString(uint8Array, PUBLISHER_CODE_OFFSET, GAME_AND_PUBLISHER_CODE_ENCODING, PUBLISHER_CODE_LENGTH);
     const bannerAndIconFlags = dataView.getUint8(BANNER_AND_ICON_FLAGS_OFFSET);
-    const fileName = Util.readNullTerminatedString(uint8Array, FILE_NAME_OFFSET, ENCODING, FILE_NAME_LENGTH);
+    const fileName = Util.readNullTerminatedString(uint8Array, FILE_NAME_OFFSET, encoding, FILE_NAME_LENGTH); // I am unclear whether this is always encoded with ascii, or if it can be shift-jis
     const dateLastModifiedCode = dataView.getUint32(DATE_LAST_MODIFIED_OFFSET, LITTLE_ENDIAN);
 
     const iconStartOffset = dataView.getUint32(ICON_START_OFFSET, LITTLE_ENDIAN);
