@@ -60,6 +60,7 @@ const COMMENT_START_OFFSET = 0x3C;
 const COMMENT_LENGTH = 32;
 
 const DIRECTORY_ENTRY_LENGTH = 0x40;
+const DIRECTORY_ENTRY_PADDING_VALUE = 0xFF;
 
 export default class GameCubeDirectoryEntry {
   static ICON_SPEED_NONE = 0x00;
@@ -78,9 +79,29 @@ export default class GameCubeDirectoryEntry {
 
   static LENGTH = DIRECTORY_ENTRY_LENGTH;
 
-  static writeDirectoryEntry(directoryEntry) {
-    console.log('Dude');
-    return directoryEntry.blah;
+  static writeDirectoryEntry(saveFile, encoding) {
+    let arrayBuffer = Util.getFilledArrayBuffer(DIRECTORY_ENTRY_LENGTH, DIRECTORY_ENTRY_PADDING_VALUE);
+
+    arrayBuffer = Util.setString(arrayBuffer, GAME_CODE_OFFSET, saveFile.gameCode, GAME_AND_PUBLISHER_CODE_ENCODING, GAME_CODE_LENGTH);
+    arrayBuffer = Util.setString(arrayBuffer, PUBLISHER_CODE_OFFSET, saveFile.publisherCode, GAME_AND_PUBLISHER_CODE_ENCODING, PUBLISHER_CODE_LENGTH);
+    arrayBuffer = Util.setString(arrayBuffer, FILE_NAME_OFFSET, saveFile.fileName, encoding, FILE_NAME_LENGTH); // I am unclear whether this is always encoded with ascii, or if it can be shift-jis
+
+    const dataView = new DataView(arrayBuffer);
+
+    dataView.setUint8(BANNER_AND_ICON_FLAGS_OFFSET, saveFile.bannerAndIconFlags);
+    dataView.setUint32(DATE_LAST_MODIFIED_OFFSET, saveFile.dateLastModifiedCode, LITTLE_ENDIAN);
+
+    dataView.setUint32(ICON_START_OFFSET, saveFile.iconStartOffset, LITTLE_ENDIAN);
+    dataView.setUint16(ICON_FORMAT_OFFSET, saveFile.iconFormatCode, LITTLE_ENDIAN);
+    dataView.setUint16(ICON_SPEED_OFFSET, saveFile.iconSpeedCode, LITTLE_ENDIAN);
+
+    dataView.setUint8(PERMISSION_ATTRIBUTE_BITFIELD_OFFSET, saveFile.permissionAttributeBitfield);
+    dataView.setUint8(COPY_COUNTER_OFFSET, saveFile.copyCounter);
+    dataView.setUint16(SAVE_START_BLOCK_OFFSET, saveFile.saveStartBlock, LITTLE_ENDIAN);
+    dataView.setUint16(SAVE_SIZE_BLOCKS_OFFSET, saveFile.saveSizeBlocks, LITTLE_ENDIAN);
+    dataView.setUint32(COMMENT_START_OFFSET, saveFile.commentStart, LITTLE_ENDIAN);
+
+    return arrayBuffer;
   }
 
   static getComments(commentStart, rawDataArrayBuffer, encoding) {
