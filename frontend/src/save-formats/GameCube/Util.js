@@ -1,6 +1,12 @@
 /* eslint-disable no-bitwise */
 
-const LITTLE_ENDIAN = false;
+import GameCubeBasics from './Components/Basics';
+
+const {
+  BLOCK_SIZE,
+  NUM_RESERVED_BLOCKS,
+  LITTLE_ENDIAN,
+} = GameCubeBasics;
 
 // Taken from http://www.surugi.com/projects/gcifaq.html
 const REGION_DECODE = new Map([
@@ -148,5 +154,14 @@ export default class GameCubeUtil {
 
   static bytesToMegabits(numBytes) {
     return (numBytes / (1024 * 1024)) * 8;
+  }
+
+  static getTotalSizes(numMegabits) {
+    const numTotalBytes = GameCubeUtil.megabitsToBytes(numMegabits);
+
+    return {
+      numTotalBytes,
+      numTotalBlocks: (numTotalBytes / BLOCK_SIZE) - NUM_RESERVED_BLOCKS,
+    };
   }
 }

@@ -17,6 +17,7 @@ https://github.com/dolphin-emu/dolphin/blob/c9bdda63dc624995406c37f4e29e3b8c4696
 0x1FFE-0x1FFF: Inverse checksum
 */
 
+import Util from '../../../util/util';
 import ArrayUtil from '../../../util/Array';
 
 import GameCubeUtil from '../Util';
@@ -26,10 +27,15 @@ import GameCubeDirectoryEntry from './DirectoryEntry';
 
 const {
   LITTLE_ENDIAN,
+  BLOCK_SIZE,
 } = GameCubeBasics;
+
+const DIRECTORY_PADDING_VALUE = 0xFF;
 
 const MAX_DIRECTORY_ENTRIES = 127;
 const DIRECTORY_ENTRY_LENGTH = GameCubeDirectoryEntry.LENGTH;
+
+const DEFAULT_UPDATE_COUNTER = 0;
 
 const UPDATE_COUNTER_OFFSET = 0x1FFA;
 const CHECKSUM_OFFSET = 0x1FFC;
@@ -38,9 +44,31 @@ const CHECKSUMMED_DATA_BEGIN_OFFSET = 0; // Checksummed data offset and size are
 const CHECKSUMMED_DATA_SIZE = CHECKSUM_OFFSET - CHECKSUMMED_DATA_BEGIN_OFFSET;
 
 export default class GameCubeDirectory {
-  static writeDirectory(directoryEntries) {
-    console.log('Dude');
-    return directoryEntries.blah;
+  static writeDirectory(saveFiles, encoding) {
+    if (saveFiles.length > MAX_DIRECTORY_ENTRIES) {
+      throw new Error(`Unable to fit ${saveFiles.length} saves into a single memory card image. Max is ${MAX_DIRECTORY_ENTRIES}`);
+    }
+
+    let arrayBuffer = Util.getFilledArrayBuffer(BLOCK_SIZE, DIRECTORY_PADDING_VALUE);
+
+    saveFiles.forEach((saveFile, i) => {
+      const directoryEntry = GameCubeDirectoryEntry.writeDirectoryEntry(saveFile, encoding);
+
+      arrayBuffer = Util.setArrayBufferPortion(arrayBuffer, directoryEntry, i * GameCubeDirectoryEntry.LENGTH, 0, GameCubeDirectoryEntry.LENGTH);
+    });
+
+    // Lastly, set our update counter and then finally checksums
+
+    const dataView = new DataView(arrayBuffer);
+
+    dataView.setInt16(UPDATE_COUNTER_OFFSET, DEFAULT_UPDATE_COUNTER, LITTLE_ENDIAN); // GameCube BIOS compares these as signed values: https://github.com/dolphin-emu/dolphin/blob/ee27f03a4387baca6371a06068274135ff9547a5/Source/Core/Core/HW/GCMemcard/GCMemcard.h#L325
+
+    const { checksum, checksumInverse } = GameCubeUtil.calculateChecksums(arrayBuffer, CHECKSUMMED_DATA_BEGIN_OFFSET, CHECKSUMMED_DATA_SIZE);
+
+    dataView.setUint16(CHECKSUM_OFFSET, checksum, LITTLE_ENDIAN);
+    dataView.setUint16(CHECKSUM_INVERSE_OFFSET, checksumInverse, LITTLE_ENDIAN);
+
+    return arrayBuffer;
   }
 
   static readDirectory(arrayBuffer, encoding) {

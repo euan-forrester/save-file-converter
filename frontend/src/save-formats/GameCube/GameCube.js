@@ -24,15 +24,13 @@ import GameCubeDirectory from './Components/Directory';
 import GameCubeDirectoryEntry from './Components/DirectoryEntry';
 import GameCubeBlockAllocationTable from './Components/BlockAllocationTable';
 
-const { BLOCK_SIZE } = GameCubeBasics;
+const { BLOCK_SIZE, NUM_RESERVED_BLOCKS } = GameCubeBasics;
 
 const HEADER_BLOCK_NUMBER = 0;
 const DIRECTORY_BLOCK_NUMBER = 1;
 const DIRECTORY_BACKUP_BLOCK_NUMBER = 2;
 const BLOCK_ALLOCATION_TABLE_BLOCK_NUMBER = 3;
 const BLOCK_ALLOCATION_TABLE_BACKUP_BLOCK_NUMBER = 4;
-
-const NUM_RESERVED_BLOCKS = 5;
 
 const BLOCK_PADDING_VALUE = 0x00;
 
@@ -159,7 +157,7 @@ export default class GameCubeSaveData {
 
     const headerInfo = GameCubeHeader.readHeader(getBlock(arrayBuffer, HEADER_BLOCK_NUMBER));
 
-    const numTotalBytes = GameCubeUtil.megabitsToBytes(headerInfo.memcardSizeMegabits);
+    const { numTotalBytes, numTotalBlocks } = GameCubeUtil.getTotalSizes(headerInfo.memcardSizeMegabits);
 
     if (arrayBuffer.byteLength < numTotalBytes) {
       throw new Error('This does not appear to be a GameCube memory card image');
@@ -175,8 +173,6 @@ export default class GameCubeSaveData {
       GameCubeBlockAllocationTable.readBlockAllocationTable(getBlock(arrayBuffer, BLOCK_ALLOCATION_TABLE_BACKUP_BLOCK_NUMBER)),
     );
 
-    const numTotalBlocks = (numTotalBytes / BLOCK_SIZE) - NUM_RESERVED_BLOCKS;
-
     const volumeInfo = {
       ...headerInfo,
       numTotalBlocks,
@@ -191,13 +187,56 @@ export default class GameCubeSaveData {
   }
 
   static createFromSaveFiles(saveFiles, volumeInfo) {
+    // Begin by dividing up the data from our save files into blocks, so we know how many there are
+
+    let currentBlock = NUM_RESERVED_BLOCKS;
+
+    const saveFilesWithBlockInfo = saveFiles.map((saveFile) => {
+      const saveStartBlock = currentBlock;
+
+      const blockList = [];
+
+      for (let currentOffset = 0; currentOffset < saveFile.rawData.byteLength; currentOffset += BLOCK_SIZE) {
+        blockList.push(saveFile.rawData.slice(currentOffset, currentOffset + BLOCK_SIZE));
+      }
+
+      if (blockList.length > 0) {
+        let finalBlock = blockList.pop();
+
+        finalBlock = Util.padArrayBuffer(finalBlock, BLOCK_SIZE, BLOCK_PADDING_VALUE);
+
+        blockList.push(finalBlock);
+      }
+
+      currentBlock += blockList.length;
+
+      return {
+        ...saveFile,
+        saveStartBlock,
+        saveSizeBlocks: blockList.length,
+        blockList,
+      };
+    });
+
+    // The memord card image is the reserved blocks, followed by the data blocks, followed by empty blocks
+
+    const { numTotalBytes, numTotalBlocks } = GameCubeUtil.getTotalSizes(volumeInfo.memcardSizeMegabits);
+
     const headerBlock = GameCubeHeader.writeHeader(volumeInfo);
+    const directoryBlock = GameCubeDirectory.writeDirectory(saveFilesWithBlockInfo, volumeInfo.encodingString);
+    const blockAllocationTableBlock = GameCubeBlockAllocationTable.writeBlockAllocationTable(saveFilesWithBlockInfo, numTotalBlocks);
 
-    const totalSizeBytes = GameCubeUtil.megabitsToBytes(volumeInfo.memcardSizeMegabits);
+    let memcardArrayBuffer = Util.concatArrayBuffers([headerBlock, directoryBlock, directoryBlock, blockAllocationTableBlock, blockAllocationTableBlock]);
 
-    let memcardArrayBuffer = headerBlock;
+    saveFilesWithBlockInfo.forEach((saveFile) => { memcardArrayBuffer = Util.concatArrayBuffers([memcardArrayBuffer, ...saveFile.blockList]); });
 
-    while (memcardArrayBuffer.byteLength < totalSizeBytes) {
+    if (memcardArrayBuffer.byteLength > numTotalBytes) {
+      throw new Error(`Unable to create a ${volumeInfo.memcardSizeMegabit} card for these save files. Requires ${memcardArrayBuffer.byteLength} bytes but card is only ${numTotalBytes} bytes`);
+    }
+
+    // Fill in the rest of the file with empty blocks until it's big enough
+
+    while (memcardArrayBuffer.byteLength < numTotalBytes) {
       memcardArrayBuffer = Util.concatArrayBuffers([memcardArrayBuffer, createBlock()]);
     }
 
