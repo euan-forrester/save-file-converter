@@ -24,7 +24,7 @@ describe('GameCube - .GCI', () => {
     expect(gameCubeSaveFiles[0].bannerAndIconFlags).to.equal(0x02);
     expect(gameCubeSaveFiles[0].fileName).to.equal('NFSU2BUTCH');
     expect(gameCubeSaveFiles[0].dateLastModified.toUTCString()).to.equal('Sat, 27 Sep 2008 14:27:56 GMT');
-    expect(gameCubeSaveFiles[0].iconOffset).to.equal(128);
+    expect(gameCubeSaveFiles[0].iconStartOffset).to.equal(80);
     expect(gameCubeSaveFiles[0].iconFormatCode).to.equal(0x02);
     expect(gameCubeSaveFiles[0].iconSpeedCode).to.equal(GameCubeDirectoryEntry.ICON_SPEED_MIDDLE);
     expect(gameCubeSaveFiles[0].permissionAttributeBitfield).to.equal(GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC);

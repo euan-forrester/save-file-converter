@@ -17,6 +17,7 @@ const EMPTY_SHIFT_JIS_FILENAME = `${DIR}/jpn-empty-0251b-16mb.raw`;
 const EMPTY_CARDS_FLASH_ID = HexUtil.hexToArrayBuffer('000000000000000000000000');
 
 const MEMCARD_IMAGE_FILENAME = `${DIR}/memcard-image.raw`;
+const MEMCARD_IMAGE_RECREATED_FILENAME = `${DIR}/memcard-image-recreated.raw`;
 const MEMCARD_FLASH_ID = HexUtil.hexToArrayBuffer('ddc9f91faad6bb8dfe35f8c5');
 const MEMCARD_SAVE_FILENAME = [
   `${DIR}/memcard-image-0.bin`,
@@ -82,7 +83,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getVolumeInfo().lastAllocatedBlock).to.equal(4);
   });
 
-  it('should correctly a GameCube file with 10 saves', async () => {
+  it('should correctly read a GameCube file with 10 saves', async () => {
     const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEMCARD_IMAGE_FILENAME);
     const rawArrayBuffers = await Promise.all(MEMCARD_SAVE_FILENAME.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
 
@@ -110,7 +111,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[0].bannerAndIconFlags).to.equal(0x01);
     expect(gameCubeSaveData.getSaveFiles()[0].fileName).to.equal('super_mario_sunshine');
     expect(gameCubeSaveData.getSaveFiles()[0].dateLastModified.toUTCString()).to.equal('Sun, 23 May 2004 22:38:54 GMT');
-    expect(gameCubeSaveData.getSaveFiles()[0].iconOffset).to.equal(116);
+    expect(gameCubeSaveData.getSaveFiles()[0].iconStartOffset).to.equal(68);
     expect(gameCubeSaveData.getSaveFiles()[0].iconFormatCode).to.equal(0x05);
     expect(gameCubeSaveData.getSaveFiles()[0].iconSpeedCode).to.equal(0xF);
     expect(gameCubeSaveData.getSaveFiles()[0].permissionAttributeBitfield).to.equal(GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC);
@@ -129,7 +130,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[1].bannerAndIconFlags).to.equal(0x00);
     expect(gameCubeSaveData.getSaveFiles()[1].fileName).to.equal('hitz20-03.db');
     expect(gameCubeSaveData.getSaveFiles()[1].dateLastModified.toUTCString()).to.equal('Sat, 27 Sep 2003 21:13:16 GMT');
-    expect(gameCubeSaveData.getSaveFiles()[1].iconOffset).to.equal(112);
+    expect(gameCubeSaveData.getSaveFiles()[1].iconStartOffset).to.equal(64);
     expect(gameCubeSaveData.getSaveFiles()[1].iconFormatCode).to.equal(0x02);
     expect(gameCubeSaveData.getSaveFiles()[1].iconSpeedCode).to.equal(GameCubeDirectoryEntry.ICON_SPEED_SLOW);
     expect(gameCubeSaveData.getSaveFiles()[1].permissionAttributeBitfield).to.equal(GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC);
@@ -148,7 +149,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[2].bannerAndIconFlags).to.equal(0x06);
     expect(gameCubeSaveData.getSaveFiles()[2].fileName).to.equal('ikaruga_save_data');
     expect(gameCubeSaveData.getSaveFiles()[2].dateLastModified.toUTCString()).to.equal('Wed, 01 Oct 2003 21:22:40 GMT');
-    expect(gameCubeSaveData.getSaveFiles()[2].iconOffset).to.equal(112);
+    expect(gameCubeSaveData.getSaveFiles()[2].iconStartOffset).to.equal(64);
     expect(gameCubeSaveData.getSaveFiles()[2].iconFormatCode).to.equal(0xAA);
     expect(gameCubeSaveData.getSaveFiles()[2].iconSpeedCode).to.equal(0xFF);
     expect(gameCubeSaveData.getSaveFiles()[2].permissionAttributeBitfield).to.equal(GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC);
@@ -167,7 +168,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[3].bannerAndIconFlags).to.equal(0x01);
     expect(gameCubeSaveData.getSaveFiles()[3].fileName).to.equal('Eternal Darkness');
     expect(gameCubeSaveData.getSaveFiles()[3].dateLastModified.toUTCString()).to.equal('Mon, 26 Apr 2004 23:02:32 GMT');
-    expect(gameCubeSaveData.getSaveFiles()[3].iconOffset).to.equal(112);
+    expect(gameCubeSaveData.getSaveFiles()[3].iconStartOffset).to.equal(64);
     expect(gameCubeSaveData.getSaveFiles()[3].iconFormatCode).to.equal(0x01);
     expect(gameCubeSaveData.getSaveFiles()[3].iconSpeedCode).to.equal(GameCubeDirectoryEntry.ICON_SPEED_SLOW);
     expect(gameCubeSaveData.getSaveFiles()[3].permissionAttributeBitfield).to.equal(GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC);
@@ -186,7 +187,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[4].bannerAndIconFlags).to.equal(0x05);
     expect(gameCubeSaveData.getSaveFiles()[4].fileName).to.equal('sc2_0.dat');
     expect(gameCubeSaveData.getSaveFiles()[4].dateLastModified.toUTCString()).to.equal('Tue, 14 Dec 2004 23:09:17 GMT');
-    expect(gameCubeSaveData.getSaveFiles()[4].iconOffset).to.equal(112);
+    expect(gameCubeSaveData.getSaveFiles()[4].iconStartOffset).to.equal(64);
     expect(gameCubeSaveData.getSaveFiles()[4].iconFormatCode).to.equal(0x5555);
     expect(gameCubeSaveData.getSaveFiles()[4].iconSpeedCode).to.equal(0xAAAF);
     expect(gameCubeSaveData.getSaveFiles()[4].permissionAttributeBitfield).to.equal(GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC);
@@ -205,7 +206,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[5].bannerAndIconFlags).to.equal(0x02);
     expect(gameCubeSaveData.getSaveFiles()[5].fileName).to.equal('Euan');
     expect(gameCubeSaveData.getSaveFiles()[5].dateLastModified.toUTCString()).to.equal('Sun, 12 Dec 2004 23:42:32 GMT');
-    expect(gameCubeSaveData.getSaveFiles()[5].iconOffset).to.equal(112);
+    expect(gameCubeSaveData.getSaveFiles()[5].iconStartOffset).to.equal(64);
     expect(gameCubeSaveData.getSaveFiles()[5].iconFormatCode).to.equal(0xA);
     expect(gameCubeSaveData.getSaveFiles()[5].iconSpeedCode).to.equal(0xA);
     expect(gameCubeSaveData.getSaveFiles()[5].permissionAttributeBitfield).to.equal(GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC);
@@ -224,7 +225,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[6].bannerAndIconFlags).to.equal(0x01);
     expect(gameCubeSaveData.getSaveFiles()[6].fileName).to.equal('gc4sword');
     expect(gameCubeSaveData.getSaveFiles()[6].dateLastModified.toUTCString()).to.equal('Tue, 28 Dec 2049 20:38:08 GMT');
-    expect(gameCubeSaveData.getSaveFiles()[6].iconOffset).to.equal(48);
+    expect(gameCubeSaveData.getSaveFiles()[6].iconStartOffset).to.equal(0);
     expect(gameCubeSaveData.getSaveFiles()[6].iconFormatCode).to.equal(0x1);
     expect(gameCubeSaveData.getSaveFiles()[6].iconSpeedCode).to.equal(GameCubeDirectoryEntry.ICON_SPEED_SLOW);
     expect(gameCubeSaveData.getSaveFiles()[6].permissionAttributeBitfield).to.equal(GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC);
@@ -243,7 +244,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[7].bannerAndIconFlags).to.equal(0x05);
     expect(gameCubeSaveData.getSaveFiles()[7].fileName).to.equal('starfox.dat');
     expect(gameCubeSaveData.getSaveFiles()[7].dateLastModified.toUTCString()).to.equal('Tue, 28 Dec 2049 03:56:17 GMT');
-    expect(gameCubeSaveData.getSaveFiles()[7].iconOffset).to.equal(112);
+    expect(gameCubeSaveData.getSaveFiles()[7].iconStartOffset).to.equal(64);
     expect(gameCubeSaveData.getSaveFiles()[7].iconFormatCode).to.equal(0x15);
     expect(gameCubeSaveData.getSaveFiles()[7].iconSpeedCode).to.equal(0x3F);
     expect(gameCubeSaveData.getSaveFiles()[7].permissionAttributeBitfield).to.equal(GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC);
@@ -262,7 +263,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[8].bannerAndIconFlags).to.equal(0x02);
     expect(gameCubeSaveData.getSaveFiles()[8].fileName).to.equal('f_zero.dat');
     expect(gameCubeSaveData.getSaveFiles()[8].dateLastModified.toUTCString()).to.equal('Fri, 24 Dec 2049 11:20:49 GMT');
-    expect(gameCubeSaveData.getSaveFiles()[8].iconOffset).to.equal(144);
+    expect(gameCubeSaveData.getSaveFiles()[8].iconStartOffset).to.equal(96);
     expect(gameCubeSaveData.getSaveFiles()[8].iconFormatCode).to.equal(0x02);
     expect(gameCubeSaveData.getSaveFiles()[8].iconSpeedCode).to.equal(GameCubeDirectoryEntry.ICON_SPEED_SLOW);
     expect(gameCubeSaveData.getSaveFiles()[8].permissionAttributeBitfield).to.equal(
@@ -285,7 +286,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[9].bannerAndIconFlags).to.equal(0x01);
     expect(gameCubeSaveData.getSaveFiles()[9].fileName).to.equal('RogueLeader');
     expect(gameCubeSaveData.getSaveFiles()[9].dateLastModified.toUTCString()).to.equal('Tue, 28 Dec 2049 22:44:54 GMT');
-    expect(gameCubeSaveData.getSaveFiles()[9].iconOffset).to.equal(112);
+    expect(gameCubeSaveData.getSaveFiles()[9].iconStartOffset).to.equal(64);
     expect(gameCubeSaveData.getSaveFiles()[9].iconFormatCode).to.equal(0x5555);
     expect(gameCubeSaveData.getSaveFiles()[9].iconSpeedCode).to.equal(0x5555);
     expect(gameCubeSaveData.getSaveFiles()[9].permissionAttributeBitfield).to.equal(GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC);
@@ -301,6 +302,8 @@ describe('GameCube', () => {
 
   // This image works on my physical gamecube memcard
   it('should create a GameCube file with the same flash ID', async () => {
+    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(NEW_MEMCARD_IMAGE_SAME_FLASH_ID);
+
     const volumeInfo = {
       cardFlashId: MEMCARD_FLASH_ID,
       formatOsTimeCode: 1438288056135933n,
@@ -314,11 +317,13 @@ describe('GameCube', () => {
 
     const gameCubeSaveData = GameCubeSaveData.createFromSaveFiles([], volumeInfo);
 
-    ArrayBufferUtil.writeArrayBuffer(NEW_MEMCARD_IMAGE_SAME_FLASH_ID, gameCubeSaveData.getArrayBuffer());
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer));
   });
 
   // This image works on my physical gamecube memcard
   it('should create a GameCube file with the same flash ID and different format time', async () => {
+    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(NEW_MEMCARD_IMAGE_SAME_FLASH_ID_DIFFERENT_DATE);
+
     const volumeInfo = {
       cardFlashId: MEMCARD_FLASH_ID,
       formatOsTimeCode: GameCubeUtil.getOsTimeFromDate(new Date('June 26, 2019 12:00:00 GMT')),
@@ -332,11 +337,13 @@ describe('GameCube', () => {
 
     const gameCubeSaveData = GameCubeSaveData.createFromSaveFiles([], volumeInfo);
 
-    ArrayBufferUtil.writeArrayBuffer(NEW_MEMCARD_IMAGE_SAME_FLASH_ID_DIFFERENT_DATE, gameCubeSaveData.getArrayBuffer());
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer));
   });
 
   // This image does not work on my physical gamecube memcard
   it('should create a GameCube file with a different flash ID', async () => {
+    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(NEW_MEMCARD_IMAGE_DIFFERENT_FLASH_ID);
+
     const volumeInfo = {
       cardFlashId: DIFFERENT_MEMCARD_FLASH_ID,
       formatOsTimeCode: 1438288056135933n,
@@ -350,11 +357,13 @@ describe('GameCube', () => {
 
     const gameCubeSaveData = GameCubeSaveData.createFromSaveFiles([], volumeInfo);
 
-    ArrayBufferUtil.writeArrayBuffer(NEW_MEMCARD_IMAGE_DIFFERENT_FLASH_ID, gameCubeSaveData.getArrayBuffer());
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer));
   });
 
   // This image does not work on my physical gamecube memcard
   it('should create a GameCube file with a different flash ID and different date', async () => {
+    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(NEW_MEMCARD_IMAGE_DIFFERENT_FLASH_ID_DIFFERENT_DATE);
+
     const volumeInfo = {
       cardFlashId: DIFFERENT_MEMCARD_FLASH_ID,
       formatOsTimeCode: GameCubeUtil.getOsTimeFromDate(new Date('June 26, 2019 12:00:00 GMT')),
@@ -368,6 +377,175 @@ describe('GameCube', () => {
 
     const gameCubeSaveData = GameCubeSaveData.createFromSaveFiles([], volumeInfo);
 
-    ArrayBufferUtil.writeArrayBuffer(NEW_MEMCARD_IMAGE_DIFFERENT_FLASH_ID_DIFFERENT_DATE, gameCubeSaveData.getArrayBuffer());
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer));
+  });
+
+  // This should be an almost-indentical image to the one read from my physical memcard. However, there are
+  // some gaps in the blocks from my original card that are't present here.
+  // Note in particular that the F-Zero save doesn't need to be fixed because the card serial number (format time + flash ID)
+  // is the same as the card it was copied from
+  it('should create a GameCube file with 10 saves', async () => {
+    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEMCARD_IMAGE_RECREATED_FILENAME);
+    const rawArrayBuffers = await Promise.all(MEMCARD_SAVE_FILENAME.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
+
+    const volumeInfo = {
+      cardFlashId: MEMCARD_FLASH_ID,
+      formatOsTimeCode: 1438288056135933n,
+      rtcBias: 0,
+      languageCode: GameCubeUtil.getLanguageCode('English'),
+      viDtvStatus: 0,
+      memcardSlot: GameCubeHeader.MEMCARD_SLOT_A,
+      memcardSizeMegabits: 16,
+      encodingCode: GameCubeUtil.getEncodingCode('US-ASCII'),
+    };
+
+    const saveFiles = [
+      {
+        gameCode: 'GMSE', // Super Mario Sunshine
+        regionCode: GameCubeUtil.getRegionCode('North America'),
+        publisherCode: '01',
+        bannerAndIconFlags: 0x01,
+        fileName: 'super_mario_sunshine',
+        dateLastModifiedCode: GameCubeUtil.getDateCode(new Date('Sun, 23 May 2004 22:38:54 GMT')),
+        iconStartOffset: 68,
+        iconFormatCode: 0x05,
+        iconSpeedCode: 0xF,
+        permissionAttributeBitfield: GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC,
+        commentStart: 4,
+        rawData: rawArrayBuffers[0],
+      },
+      {
+        gameCode: 'GN3E', // NHL Hitz 20-03
+        regionCode: GameCubeUtil.getRegionCode('North America'),
+        publisherCode: '5D',
+        bannerAndIconFlags: 0x00,
+        fileName: 'hitz20-03.db',
+        dateLastModifiedCode: GameCubeUtil.getDateCode(new Date('Sat, 27 Sep 2003 21:13:16 GMT')),
+        iconStartOffset: 64,
+        iconFormatCode: 0x02,
+        iconSpeedCode: GameCubeDirectoryEntry.ICON_SPEED_SLOW,
+        permissionAttributeBitfield: GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC,
+        commentStart: 0,
+        rawData: rawArrayBuffers[1],
+      },
+      {
+        gameCode: 'GIKE', // Ikaruga
+        regionCode: GameCubeUtil.getRegionCode('North America'),
+        publisherCode: '70',
+        bannerAndIconFlags: 0x06,
+        fileName: 'ikaruga_save_data',
+        dateLastModifiedCode: GameCubeUtil.getDateCode(new Date('Wed, 01 Oct 2003 21:22:40 GMT')),
+        iconStartOffset: 64,
+        iconFormatCode: 0xAA,
+        iconSpeedCode: 0xFF,
+        permissionAttributeBitfield: GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC,
+        commentStart: 0,
+        rawData: rawArrayBuffers[2],
+      },
+      {
+        gameCode: 'GEDE', // Eternal Darkness
+        regionCode: GameCubeUtil.getRegionCode('North America'),
+        publisherCode: '01',
+        bannerAndIconFlags: 0x01,
+        fileName: 'Eternal Darkness',
+        dateLastModifiedCode: GameCubeUtil.getDateCode(new Date('Mon, 26 Apr 2004 23:02:32 GMT')),
+        iconStartOffset: 64,
+        iconFormatCode: 0x01,
+        iconSpeedCode: GameCubeDirectoryEntry.ICON_SPEED_SLOW,
+        permissionAttributeBitfield: GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC,
+        commentStart: 0,
+        rawData: rawArrayBuffers[3],
+      },
+      {
+        gameCode: 'GRSE', // Soul Calibur 2
+        regionCode: GameCubeUtil.getRegionCode('North America'),
+        publisherCode: 'AF',
+        bannerAndIconFlags: 0x05,
+        fileName: 'sc2_0.dat',
+        dateLastModifiedCode: GameCubeUtil.getDateCode(new Date('Tue, 14 Dec 2004 23:09:17 GMT')),
+        iconStartOffset: 64,
+        iconFormatCode: 0x5555,
+        iconSpeedCode: 0xAAAF,
+        permissionAttributeBitfield: GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC,
+        commentStart: 0,
+        rawData: rawArrayBuffers[4],
+      },
+      {
+        gameCode: 'GH2E', // Need for Speed: Hot Pursuit 2
+        regionCode: GameCubeUtil.getRegionCode('North America'),
+        publisherCode: '69',
+        bannerAndIconFlags: 0x02,
+        fileName: 'Euan',
+        dateLastModifiedCode: GameCubeUtil.getDateCode(new Date('Sun, 12 Dec 2004 23:42:32 GMT')),
+        iconStartOffset: 64,
+        iconFormatCode: 0xA,
+        iconSpeedCode: 0xA,
+        permissionAttributeBitfield: GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC,
+        commentStart: 0,
+        rawData: rawArrayBuffers[5],
+      },
+      {
+        gameCode: 'G4SE', // The Legend of Zelda: Four Swords Adventures
+        regionCode: GameCubeUtil.getRegionCode('North America'),
+        publisherCode: '01',
+        bannerAndIconFlags: 0x01,
+        fileName: 'gc4sword',
+        dateLastModifiedCode: GameCubeUtil.getDateCode(new Date('Tue, 28 Dec 2049 20:38:08 GMT')),
+        iconStartOffset: 0,
+        iconFormatCode: 0x1,
+        iconSpeedCode: GameCubeDirectoryEntry.ICON_SPEED_SLOW,
+        permissionAttributeBitfield: GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC,
+        commentStart: 7168,
+        rawData: rawArrayBuffers[6],
+      },
+      {
+        gameCode: 'GF7E', // Star Fox: Assault
+        regionCode: GameCubeUtil.getRegionCode('North America'),
+        publisherCode: '01',
+        bannerAndIconFlags: 0x05,
+        fileName: 'starfox.dat',
+        dateLastModifiedCode: GameCubeUtil.getDateCode(new Date('Tue, 28 Dec 2049 03:56:17 GMT')),
+        iconStartOffset: 64,
+        iconFormatCode: 0x15,
+        iconSpeedCode: 0x3F,
+        permissionAttributeBitfield: GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC,
+        commentStart: 0,
+        rawData: rawArrayBuffers[7],
+      },
+      {
+        gameCode: 'GFZE', // F-Zero GX
+        regionCode: GameCubeUtil.getRegionCode('North America'),
+        publisherCode: '8P',
+        bannerAndIconFlags: 0x02,
+        fileName: 'f_zero.dat',
+        dateLastModifiedCode: GameCubeUtil.getDateCode(new Date('Fri, 24 Dec 2049 11:20:49 GMT')),
+        iconStartOffset: 96,
+        iconFormatCode: 0x02,
+        iconSpeedCode: GameCubeDirectoryEntry.ICON_SPEED_SLOW,
+        permissionAttributeBitfield: GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC | GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_NO_COPY | GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_NO_MOVE,
+        commentStart: 4,
+        rawData: rawArrayBuffers[8],
+      },
+      {
+        gameCode: 'GSWE', // Star Wars Rogue Squadron II: Rogue Leader
+        regionCode: GameCubeUtil.getRegionCode('North America'),
+        publisherCode: '64',
+        bannerAndIconFlags: 0x01,
+        fileName: 'RogueLeader',
+        dateLastModifiedCode: GameCubeUtil.getDateCode(new Date('Tue, 28 Dec 2049 22:44:54 GMT')),
+        iconStartOffset: 64,
+        iconFormatCode: 0x5555,
+        iconSpeedCode: 0x5555,
+        permissionAttributeBitfield: GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC,
+        commentStart: 0,
+        rawData: rawArrayBuffers[9],
+      },
+    ];
+
+    const gameCubeSaveData = GameCubeSaveData.createFromSaveFiles(saveFiles, volumeInfo);
+
+    expect(gameCubeSaveData.getSaveFiles().length).to.equal(10);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer));
   });
 });
