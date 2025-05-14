@@ -55,10 +55,12 @@ export default class GameCubeBlockAllocationTable {
     const arrayBuffer = Util.getFilledArrayBuffer(BLOCK_SIZE, TABLE_ENTRY_BLOCK_IS_FREE);
     const dataView = new DataView(arrayBuffer);
 
+    // Build individual block lists for each save
+
     let numBlocksUsed = 0;
 
     const nextBlockNumberLists = saveFiles.map((saveFile) => {
-      const nextBlockNumberList = saveFile.blockList.map((block, i) => numBlocksUsed + i + 1);
+      const nextBlockNumberList = saveFile.blockList.map((block, i) => NUM_RESERVED_BLOCKS + numBlocksUsed + i + 1);
       numBlocksUsed += saveFile.blockList.length;
 
       if (nextBlockNumberList.length > 0) {
@@ -69,7 +71,17 @@ export default class GameCubeBlockAllocationTable {
       return nextBlockNumberList;
     });
 
-    let currentOffset = 0;
+    // Make sure the total number of entries needed isn't too big
+
+    const blockAllocationTableSize = nextBlockNumberLists.reduce((accumulator, nextBlockNumberList) => accumulator + nextBlockNumberList.length, 0);
+
+    if (blockAllocationTableSize > NUM_BLOCK_ALLOCATION_TABLE_ENTRIES) {
+      throw new Error(`Cannot fit all save files in memory card image. Desired block allocation table size: ${blockAllocationTableSize} entries, but max is ${NUM_BLOCK_ALLOCATION_TABLE_ENTRIES}`);
+    }
+
+    // Write out all the lists into the single table
+
+    let currentOffset = BLOCK_ALLOCATION_TABLE_OFFSET;
 
     nextBlockNumberLists.forEach((nextBlockNumberList) => {
       nextBlockNumberList.forEach((nextBlockNumber) => {
@@ -81,7 +93,7 @@ export default class GameCubeBlockAllocationTable {
     // Lastly, set our update counter and then finally checksums
 
     dataView.setUint16(NUM_FREE_BLOCKS_OFFSET, numTotalBlocks - numBlocksUsed, LITTLE_ENDIAN);
-    dataView.setUint16(LAST_ALLOCATED_BLOCK_OFFSET, numBlocksUsed + NUM_RESERVED_BLOCKS, LITTLE_ENDIAN);
+    dataView.setUint16(LAST_ALLOCATED_BLOCK_OFFSET, numBlocksUsed - 1 + NUM_RESERVED_BLOCKS, LITTLE_ENDIAN);
 
     dataView.setInt16(UPDATE_COUNTER_OFFSET, DEFAULT_UPDATE_COUNTER, LITTLE_ENDIAN); // GameCube BIOS compares these as signed values: https://github.com/dolphin-emu/dolphin/blob/ee27f03a4387baca6371a06068274135ff9547a5/Source/Core/Core/HW/GCMemcard/GCMemcard.h#L359
 

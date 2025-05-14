@@ -47,7 +47,6 @@ const FILE_NAME_LENGTH = 32;
 const DATE_LAST_MODIFIED_OFFSET = 0x28;
 
 const ICON_START_OFFSET = 0x2C;
-const ICON_START_OFFSET_LENGTH = 4;
 const ICON_FORMAT_OFFSET = 0x30;
 const ICON_SPEED_OFFSET = 0x32;
 
@@ -61,6 +60,7 @@ const COMMENT_LENGTH = 32;
 
 const DIRECTORY_ENTRY_LENGTH = 0x40;
 const DIRECTORY_ENTRY_PADDING_VALUE = 0xFF;
+const DIRECTORY_ENTRY_FILE_NAME_FILL_VALUE = 0x00; // The filename should be filled with null characters so we don't read past the end of our string
 
 export default class GameCubeDirectoryEntry {
   static ICON_SPEED_NONE = 0x00;
@@ -81,6 +81,8 @@ export default class GameCubeDirectoryEntry {
 
   static writeDirectoryEntry(saveFile, encoding) {
     let arrayBuffer = Util.getFilledArrayBuffer(DIRECTORY_ENTRY_LENGTH, DIRECTORY_ENTRY_PADDING_VALUE);
+
+    arrayBuffer = Util.fillArrayBufferPortion(arrayBuffer, FILE_NAME_OFFSET, FILE_NAME_LENGTH, DIRECTORY_ENTRY_FILE_NAME_FILL_VALUE);
 
     arrayBuffer = Util.setString(arrayBuffer, GAME_CODE_OFFSET, saveFile.gameCode, GAME_AND_PUBLISHER_CODE_ENCODING, GAME_CODE_LENGTH);
     arrayBuffer = Util.setString(arrayBuffer, PUBLISHER_CODE_OFFSET, saveFile.publisherCode, GAME_AND_PUBLISHER_CODE_ENCODING, PUBLISHER_CODE_LENGTH);
@@ -138,7 +140,6 @@ export default class GameCubeDirectoryEntry {
     const dateLastModifiedCode = dataView.getUint32(DATE_LAST_MODIFIED_OFFSET, LITTLE_ENDIAN);
 
     const iconStartOffset = dataView.getUint32(ICON_START_OFFSET, LITTLE_ENDIAN);
-    const iconOffset = ICON_START_OFFSET + ICON_START_OFFSET_LENGTH + iconStartOffset;
     const iconFormatCode = dataView.getUint16(ICON_FORMAT_OFFSET, LITTLE_ENDIAN);
     const iconSpeedCode = dataView.getUint16(ICON_SPEED_OFFSET, LITTLE_ENDIAN);
 
@@ -157,7 +158,7 @@ export default class GameCubeDirectoryEntry {
       fileName,
       dateLastModifiedCode,
       dateLastModified: GameCubeUtil.getDate(dateLastModifiedCode),
-      iconOffset,
+      iconStartOffset,
       iconFormatCode,
       iconSpeedCode,
       permissionAttributeBitfield,
