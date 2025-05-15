@@ -28,6 +28,10 @@ export default class GameCubeGciSaveData {
 
   static convertGcisToSaveFiles(arrayBuffers, overrideCommentEncoding) {
     return arrayBuffers.map((arrayBuffer) => {
+      // It does not appear that we can automatically detect the encoding of the comments.
+      // The encoding-japanese package that we use to encode/decode shift-jis strings can in theory
+      // detect encoding, but for our example save files it returns "UTF32" for US-ASCII comments,
+      // and any one of "UTF32", "UTF16", or "SJIS" for the Japanese ones (which are all in shift-jis)
       const commentEncoding = (overrideCommentEncoding !== undefined) ? overrideCommentEncoding : GAME_CODE_AND_FILE_NAME_ENCODING;
 
       const directoryEntry = GameCubeDirectoryEntry.readDirectoryEntry(arrayBuffer, GAME_CODE_AND_FILE_NAME_ENCODING);
