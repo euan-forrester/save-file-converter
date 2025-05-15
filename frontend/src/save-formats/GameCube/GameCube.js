@@ -164,8 +164,8 @@ export default class GameCubeSaveData {
     }
 
     const directoryInfo = getActiveBlock(
-      GameCubeDirectory.readDirectory(getBlock(arrayBuffer, DIRECTORY_BLOCK_NUMBER), headerInfo.encodingString),
-      GameCubeDirectory.readDirectory(getBlock(arrayBuffer, DIRECTORY_BACKUP_BLOCK_NUMBER), headerInfo.encodingString),
+      GameCubeDirectory.readDirectory(getBlock(arrayBuffer, DIRECTORY_BLOCK_NUMBER)),
+      GameCubeDirectory.readDirectory(getBlock(arrayBuffer, DIRECTORY_BACKUP_BLOCK_NUMBER)),
     );
 
     const blockAllocationTableInfo = getActiveBlock(
@@ -223,7 +223,7 @@ export default class GameCubeSaveData {
     const { numTotalBytes, numTotalBlocks } = GameCubeUtil.getTotalSizes(volumeInfo.memcardSizeMegabits);
 
     const headerBlock = GameCubeHeader.writeHeader(volumeInfo);
-    const directoryBlock = GameCubeDirectory.writeDirectory(saveFilesWithBlockInfo, volumeInfo.encodingString);
+    const directoryBlock = GameCubeDirectory.writeDirectory(saveFilesWithBlockInfo);
     const blockAllocationTableBlock = GameCubeBlockAllocationTable.writeBlockAllocationTable(saveFilesWithBlockInfo, numTotalBlocks);
 
     let memcardArrayBuffer = Util.concatArrayBuffers([headerBlock, directoryBlock, directoryBlock, blockAllocationTableBlock, blockAllocationTableBlock]);

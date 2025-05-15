@@ -33,7 +33,7 @@ import GameCubeBasics from './Basics';
 
 const { LITTLE_ENDIAN } = GameCubeBasics;
 
-const GAME_AND_PUBLISHER_CODE_ENCODING = 'US-ASCII'; // I don't know for sure if these fields are always encoded as ascii, but it seems like a reasonable guess
+const ENCODING = 'US-ASCII'; // From tests in Gci.spec.js with various Japanese-only games, I believe all the fields in this object are encoded as ASCII. Only the comments appear to be encoded as shift-jis in Japanese games
 
 const GAME_CODE_OFFSET = 0x00;
 const GAME_CODE_LENGTH = 4;
@@ -79,14 +79,14 @@ export default class GameCubeDirectoryEntry {
 
   static LENGTH = DIRECTORY_ENTRY_LENGTH;
 
-  static writeDirectoryEntry(saveFile, encoding) {
+  static writeDirectoryEntry(saveFile) {
     let arrayBuffer = Util.getFilledArrayBuffer(DIRECTORY_ENTRY_LENGTH, DIRECTORY_ENTRY_PADDING_VALUE);
 
     arrayBuffer = Util.fillArrayBufferPortion(arrayBuffer, FILE_NAME_OFFSET, FILE_NAME_LENGTH, DIRECTORY_ENTRY_FILE_NAME_FILL_VALUE);
 
-    arrayBuffer = Util.setString(arrayBuffer, GAME_CODE_OFFSET, saveFile.gameCode, GAME_AND_PUBLISHER_CODE_ENCODING, GAME_CODE_LENGTH);
-    arrayBuffer = Util.setString(arrayBuffer, PUBLISHER_CODE_OFFSET, saveFile.publisherCode, GAME_AND_PUBLISHER_CODE_ENCODING, PUBLISHER_CODE_LENGTH);
-    arrayBuffer = Util.setString(arrayBuffer, FILE_NAME_OFFSET, saveFile.fileName, encoding, FILE_NAME_LENGTH); // I am unclear whether this is always encoded with ascii, or if it can be shift-jis
+    arrayBuffer = Util.setString(arrayBuffer, GAME_CODE_OFFSET, saveFile.gameCode, ENCODING, GAME_CODE_LENGTH);
+    arrayBuffer = Util.setString(arrayBuffer, PUBLISHER_CODE_OFFSET, saveFile.publisherCode, ENCODING, PUBLISHER_CODE_LENGTH);
+    arrayBuffer = Util.setString(arrayBuffer, FILE_NAME_OFFSET, saveFile.fileName, ENCODING, FILE_NAME_LENGTH);
 
     const dataView = new DataView(arrayBuffer);
 
@@ -117,7 +117,7 @@ export default class GameCubeDirectoryEntry {
     return commentOffsets.map((commentOffset) => Util.readNullTerminatedString(uint8Array, commentOffset, encoding, COMMENT_LENGTH));
   }
 
-  static readDirectoryEntry(arrayBuffer, encoding) {
+  static readDirectoryEntry(arrayBuffer) {
     const uint8Array = new Uint8Array(arrayBuffer);
     const dataView = new DataView(arrayBuffer);
 
@@ -132,11 +132,11 @@ export default class GameCubeDirectoryEntry {
       return null;
     }
 
-    const gameCode = Util.readString(uint8Array, GAME_CODE_OFFSET, GAME_AND_PUBLISHER_CODE_ENCODING, GAME_CODE_LENGTH);
-    const regionCode = Util.readString(uint8Array, REGION_CODE_OFFSET, GAME_AND_PUBLISHER_CODE_ENCODING, REGION_CODE_LENGTH);
-    const publisherCode = Util.readString(uint8Array, PUBLISHER_CODE_OFFSET, GAME_AND_PUBLISHER_CODE_ENCODING, PUBLISHER_CODE_LENGTH);
+    const gameCode = Util.readString(uint8Array, GAME_CODE_OFFSET, ENCODING, GAME_CODE_LENGTH);
+    const regionCode = Util.readString(uint8Array, REGION_CODE_OFFSET, ENCODING, REGION_CODE_LENGTH);
+    const publisherCode = Util.readString(uint8Array, PUBLISHER_CODE_OFFSET, ENCODING, PUBLISHER_CODE_LENGTH);
     const bannerAndIconFlags = dataView.getUint8(BANNER_AND_ICON_FLAGS_OFFSET);
-    const fileName = Util.readNullTerminatedString(uint8Array, FILE_NAME_OFFSET, encoding, FILE_NAME_LENGTH); // I am unclear whether this is always encoded with ascii, or if it can be shift-jis
+    const fileName = Util.readNullTerminatedString(uint8Array, FILE_NAME_OFFSET, ENCODING, FILE_NAME_LENGTH);
     const dateLastModifiedCode = dataView.getUint32(DATE_LAST_MODIFIED_OFFSET, LITTLE_ENDIAN);
 
     const iconStartOffset = dataView.getUint32(ICON_START_OFFSET, LITTLE_ENDIAN);

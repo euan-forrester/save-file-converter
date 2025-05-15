@@ -44,7 +44,7 @@ const CHECKSUMMED_DATA_BEGIN_OFFSET = 0; // Checksummed data offset and size are
 const CHECKSUMMED_DATA_SIZE = CHECKSUM_OFFSET - CHECKSUMMED_DATA_BEGIN_OFFSET;
 
 export default class GameCubeDirectory {
-  static writeDirectory(saveFiles, encoding) {
+  static writeDirectory(saveFiles) {
     if (saveFiles.length > MAX_DIRECTORY_ENTRIES) {
       throw new Error(`Unable to fit ${saveFiles.length} saves into a single memory card image. Max is ${MAX_DIRECTORY_ENTRIES}`);
     }
@@ -52,7 +52,7 @@ export default class GameCubeDirectory {
     let arrayBuffer = Util.getFilledArrayBuffer(BLOCK_SIZE, DIRECTORY_PADDING_VALUE);
 
     saveFiles.forEach((saveFile, i) => {
-      const directoryEntry = GameCubeDirectoryEntry.writeDirectoryEntry(saveFile, encoding);
+      const directoryEntry = GameCubeDirectoryEntry.writeDirectoryEntry(saveFile);
 
       arrayBuffer = Util.setArrayBufferPortion(arrayBuffer, directoryEntry, i * GameCubeDirectoryEntry.LENGTH, 0, GameCubeDirectoryEntry.LENGTH);
     });
@@ -71,7 +71,7 @@ export default class GameCubeDirectory {
     return arrayBuffer;
   }
 
-  static readDirectory(arrayBuffer, encoding) {
+  static readDirectory(arrayBuffer) {
     const dataView = new DataView(arrayBuffer);
 
     const updateCounter = dataView.getInt16(UPDATE_COUNTER_OFFSET, LITTLE_ENDIAN); // GameCube BIOS compares these as signed values: https://github.com/dolphin-emu/dolphin/blob/ee27f03a4387baca6371a06068274135ff9547a5/Source/Core/Core/HW/GCMemcard/GCMemcard.h#L325
@@ -81,7 +81,7 @@ export default class GameCubeDirectory {
     const directoryEntries = ArrayUtil.createSequentialArray(0, MAX_DIRECTORY_ENTRIES).map((i) => {
       const directoryEntryArrayBuffer = arrayBuffer.slice(i * DIRECTORY_ENTRY_LENGTH, (i + 1) * DIRECTORY_ENTRY_LENGTH);
 
-      return GameCubeDirectoryEntry.readDirectoryEntry(directoryEntryArrayBuffer, encoding);
+      return GameCubeDirectoryEntry.readDirectoryEntry(directoryEntryArrayBuffer);
     }).filter((directoryEntry) => directoryEntry !== null);
 
     const calculatedChecksums = GameCubeUtil.calculateChecksums(arrayBuffer, CHECKSUMMED_DATA_BEGIN_OFFSET, CHECKSUMMED_DATA_SIZE);

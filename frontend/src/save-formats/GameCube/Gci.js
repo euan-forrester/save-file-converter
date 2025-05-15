@@ -14,7 +14,7 @@ https://github.com/suloku/gcmm/blob/95c737c2af0ebecfa2ef02a8c6c30496d0036e87/sou
 
 import GameCubeDirectoryEntry from './Components/DirectoryEntry';
 
-const ENCODING = 'US-ASCII'; // I don't know how one would tell if the strings are encoded with shift-jis. I would imagine the vast majority of files out there are ascii. Curious to get feedback if there are some using shift-jis
+const GAME_CODE_AND_FILE_NAME_ENCODING = 'US-ASCII'; // In theory we could parse the whole object with shift-jis because the ASCII stuff will be decoded correctly, with the exception of backslash and tilde and then anything in "extended" ASCII above 0x7F
 
 const DATA_OFFSET = GameCubeDirectoryEntry.LENGTH;
 
@@ -26,12 +26,14 @@ export default class GameCubeGciSaveData {
     });
   }
 
-  static convertGcisToSaveFiles(arrayBuffers) {
+  static convertGcisToSaveFiles(arrayBuffers, overrideCommentEncoding) {
     return arrayBuffers.map((arrayBuffer) => {
-      const directoryEntry = GameCubeDirectoryEntry.readDirectoryEntry(arrayBuffer, ENCODING);
+      const commentEncoding = (overrideCommentEncoding !== undefined) ? overrideCommentEncoding : GAME_CODE_AND_FILE_NAME_ENCODING;
+
+      const directoryEntry = GameCubeDirectoryEntry.readDirectoryEntry(arrayBuffer, GAME_CODE_AND_FILE_NAME_ENCODING);
       const rawData = arrayBuffer.slice(DATA_OFFSET);
 
-      const comments = GameCubeDirectoryEntry.getComments(directoryEntry.commentStart, rawData, ENCODING);
+      const comments = GameCubeDirectoryEntry.getComments(directoryEntry.commentStart, rawData, commentEncoding);
 
       return {
         ...directoryEntry,
