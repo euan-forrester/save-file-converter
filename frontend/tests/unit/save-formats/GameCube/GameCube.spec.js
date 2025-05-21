@@ -16,9 +16,10 @@ const EMPTY_ASCII_FILENAME = `${DIR}/usa-empty-0251b-16mb.raw`;
 const EMPTY_SHIFT_JIS_FILENAME = `${DIR}/jpn-empty-0251b-16mb.raw`;
 const EMPTY_CARDS_FLASH_ID = HexUtil.hexToArrayBuffer('000000000000000000000000');
 
+const MEMCARD_FLASH_ID = HexUtil.hexToArrayBuffer('ddc9f91faad6bb8dfe35f8c5');
 const MEMCARD_IMAGE_FILENAME = `${DIR}/memcard-image.raw`;
 const MEMCARD_IMAGE_RECREATED_FILENAME = `${DIR}/memcard-image-recreated.raw`;
-const MEMCARD_FLASH_ID = HexUtil.hexToArrayBuffer('ddc9f91faad6bb8dfe35f8c5');
+const MEMCARD_IMAGE_RECREATED_FZERO_FILENAME = `${DIR}/memcard-image-recreated-fzero.raw`;
 const MEMCARD_SAVE_FILENAME = [
   `${DIR}/memcard-image-0.bin`,
   `${DIR}/memcard-image-1.bin`,
@@ -32,11 +33,11 @@ const MEMCARD_SAVE_FILENAME = [
   `${DIR}/memcard-image-9.bin`,
 ];
 
+const DIFFERENT_MEMCARD_FLASH_ID = HexUtil.hexToArrayBuffer('ddc9f91faad6bb8dfe35f8c6'); // Just different from MEMCARD_FLASH_ID by a single digit
 const NEW_MEMCARD_IMAGE_SAME_FLASH_ID = `${DIR}/mine-same-flash-id.raw`;
 const NEW_MEMCARD_IMAGE_SAME_FLASH_ID_DIFFERENT_DATE = `${DIR}/mine-same-flash-id-different-date.raw`;
 const NEW_MEMCARD_IMAGE_DIFFERENT_FLASH_ID = `${DIR}/mine-different-flash-id.raw`;
 const NEW_MEMCARD_IMAGE_DIFFERENT_FLASH_ID_DIFFERENT_DATE = `${DIR}/mine-different-flash-id-different-date.raw`;
-const DIFFERENT_MEMCARD_FLASH_ID = HexUtil.hexToArrayBuffer('ddc9f91faad6bb8dfe35f8c6'); // Just different from MEMCARD_FLASH_ID by a single digit
 
 describe('GameCube', () => {
   it('should correctly read an empty ASCII GameCube file', async () => {
@@ -545,6 +546,47 @@ describe('GameCube', () => {
     const gameCubeSaveData = GameCubeSaveData.createFromSaveFiles(saveFiles, volumeInfo);
 
     expect(gameCubeSaveData.getSaveFiles().length).to.equal(10);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer));
+  });
+
+  // This image just has my F-Zero save, but with a different format time (and thus a different serial).
+  // With this game, it requires that the actual save data be updated to reflect the card's serial
+  it('should create a GameCube file with F-Zero and a different serial', async () => {
+    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEMCARD_IMAGE_RECREATED_FZERO_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEMCARD_SAVE_FILENAME[8]);
+
+    const volumeInfo = {
+      cardFlashId: MEMCARD_FLASH_ID,
+      formatOsTimeCode: GameCubeUtil.getOsTimeFromDate(new Date('June 26, 2019 12:00:00 GMT')),
+      rtcBias: 0,
+      languageCode: GameCubeUtil.getLanguageCode('English'),
+      viDtvStatus: 0,
+      memcardSlot: GameCubeHeader.MEMCARD_SLOT_A,
+      memcardSizeMegabits: 16,
+      encodingCode: GameCubeUtil.getEncodingCode('US-ASCII'),
+    };
+
+    const saveFiles = [
+      {
+        gameCode: 'GFZE', // F-Zero GX
+        regionCode: GameCubeUtil.getRegionCode('North America'),
+        publisherCode: '8P',
+        bannerAndIconFlags: 0x02,
+        fileName: 'f_zero.dat',
+        dateLastModifiedCode: GameCubeUtil.getDateCode(new Date('Fri, 24 Dec 2049 11:20:49 GMT')),
+        iconStartOffset: 96,
+        iconFormatCode: 0x02,
+        iconSpeedCode: GameCubeDirectoryEntry.ICON_SPEED_SLOW,
+        permissionAttributeBitfield: GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC | GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_NO_COPY | GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_NO_MOVE,
+        commentStart: 4,
+        rawData: rawArrayBuffer,
+      },
+    ];
+
+    const gameCubeSaveData = GameCubeSaveData.createFromSaveFiles(saveFiles, volumeInfo);
+
+    expect(gameCubeSaveData.getSaveFiles().length).to.equal(1);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer));
   });

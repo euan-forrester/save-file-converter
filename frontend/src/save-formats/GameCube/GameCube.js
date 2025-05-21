@@ -23,6 +23,7 @@ import GameCubeHeader from './Components/Header';
 import GameCubeDirectory from './Components/Directory';
 import GameCubeDirectoryEntry from './Components/DirectoryEntry';
 import GameCubeBlockAllocationTable from './Components/BlockAllocationTable';
+import GameSpecificFixups from './GameSpecificFixups';
 
 const { BLOCK_SIZE, NUM_RESERVED_BLOCKS } = GameCubeBasics;
 
@@ -187,11 +188,16 @@ export default class GameCubeSaveData {
   }
 
   static createFromSaveFiles(saveFiles, volumeInfo) {
+    const headerBlock = GameCubeHeader.writeHeader(volumeInfo);
+
+    // Fixup any save files that need it
+    const saveFilesWithFixUps = saveFiles.map((saveFile) => GameSpecificFixups.fixupSaveFile(saveFile, headerBlock));
+
     // Begin by dividing up the data from our save files into blocks, so we know how many there are
 
     let currentBlock = NUM_RESERVED_BLOCKS;
 
-    const saveFilesWithBlockInfo = saveFiles.map((saveFile) => {
+    const saveFilesWithBlockInfo = saveFilesWithFixUps.map((saveFile) => {
       const saveStartBlock = currentBlock;
 
       const blockList = [];
@@ -222,7 +228,6 @@ export default class GameCubeSaveData {
 
     const { numTotalBytes, numTotalBlocks } = GameCubeUtil.getTotalSizes(volumeInfo.memcardSizeMegabits);
 
-    const headerBlock = GameCubeHeader.writeHeader(volumeInfo);
     const directoryBlock = GameCubeDirectory.writeDirectory(saveFilesWithBlockInfo);
     const blockAllocationTableBlock = GameCubeBlockAllocationTable.writeBlockAllocationTable(saveFilesWithBlockInfo, numTotalBlocks);
 
@@ -240,7 +245,7 @@ export default class GameCubeSaveData {
       memcardArrayBuffer = Util.concatArrayBuffers([memcardArrayBuffer, createBlock()]);
     }
 
-    return new GameCubeSaveData(memcardArrayBuffer, saveFiles, volumeInfo);
+    return new GameCubeSaveData(memcardArrayBuffer, saveFilesWithBlockInfo, volumeInfo);
   }
 
   constructor(arrayBuffer, saveFiles, volumeInfo) {

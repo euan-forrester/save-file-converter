@@ -126,7 +126,7 @@ export default class GameCubeDirectoryEntry {
     // https://github.com/dolphin-emu/dolphin/blob/c9bdda63dc624995406c37f4e29e3b8c4696e6d0/Source/Core/Core/HW/GCMemcard/GCMemcard.h#L243
     const isValidEntry = uint8Array
       .slice(GAME_CODE_OFFSET, GAME_CODE_OFFSET + GAME_CODE_LENGTH)
-      .reduce((accumulator, byteVal) => (accumulator || (byteVal !== 0xFF)), false);
+      .some((i) => i !== 0xFF);
 
     if (!isValidEntry) {
       return null;
