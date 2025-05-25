@@ -49,7 +49,7 @@ Everything on this site is free and open source with no advertising. If you find
   - Parsing PS2 save data: https://babyno.top/en/posts/2023/09/exporting-file-from-ps2-memcard/
   - Parser with 3D icon viewer: https://github.com/caol64/ps2mc-browser
   - Save Tools: https://www.ps2savetools.com/
-  - mymc save tool: 
+  - mymc save tool:
     - http://www.csclub.uwaterloo.ca:11068/mymc/
     - https://github.com/ps2dev/mymc
     - https://git.sr.ht/~thestr4ng3r/mymcplus (port of mymc with some enhancements)
@@ -137,7 +137,7 @@ Everything on this site is free and open source with no advertising. If you find
   - Potential save formats (based on what Saturn Save Converter does):
     - These ones to initially support:
       - BUP (is this the standardized format? Used by Psuedo Saturn Kai -> this is the tool used by ODEs as well?)
-        - https://github.com/slinga-homebrew/Save-Game-BUP-Scripts/blob/main/bup_header.h#L94 
+        - https://github.com/slinga-homebrew/Save-Game-BUP-Scripts/blob/main/bup_header.h#L94
       - SaroSave (Saroo flash cart)
         - https://github.com/tpunix/SAROO/blob/master/tools/savetool/sr_bup.c#L135
         - https://github.com/tpunix/SAROO/blob/6f6e18289bbdc9b23b4c91b9da343a1362ed921c/doc/SAROO%E6%8A%80%E6%9C%AF%E7%82%B9%E6%BB%B4.txt#L448 (translation posted at https://www.reddit.com/r/SegaSaturn/comments/1acty0v/comment/kjz73ft/)
@@ -184,12 +184,14 @@ Everything on this site is free and open source with no advertising. If you find
   - https://segaretro.org/CD_BackUp_RAM_Cart
   - https://github.com/ekeeke/Genesis-Plus-GX/issues/449
   - savesplitter tool here: https://krikzz.com/pub/support/mega-everdrive/pro-series/
+- Dreamcast
+  - https://github.com/DerekPascarella/VMU-Disc-Builder
 - Analogue Pocket:
   - List of available cores: https://openfpga-cores-inventory.github.io/analogue-pocket/
     - Note that there are sometimes multiple cores for a particular platform (e.g. Genesis)
 - Visual Boy Advance emulator
   - Explanation of its format: https://emulation.gametechwiki.com/index.php/Game_Boy_Advance_emulators#Save_formats
-  - Code that does the conversion: 
+  - Code that does the conversion:
     - https://github.com/Thysbelon/gbaconv-web
     - https://github.com/libretro/vbam-libretro/blob/25fefc1b3dcdc6362c44845687bea70dd350c33a/src/libretro/gbaconv/gbaconv.c
   - Online converter: https://thysbelon.github.io/gbaconv-web/
@@ -203,7 +205,7 @@ Everything on this site is free and open source with no advertising. If you find
   - The Delta emulator uses .svs for save states. Instructions for creating a raw save instead: https://www.reddit.com/r/Delta_Emulator/comments/1helbo1/svs_to_sav/
 
 ## Cart reader notes
- 
+
 - Retrode2
   - Genesis: SRAM/FRAM saves are byte expanded by doubling: "HELLO" becomes "HHEELLLLOO" rather than " H E L L O" like in many emulators/flash carts
 - Retroblaster
