@@ -4,7 +4,7 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 import GameCubeGciSaveData from '@/save-formats/GameCube/Gci';
 import FZeroGxFixups from '@/save-formats/GameCube/GameSpecificFixups/FZeroGx';
 
-const DIR = './tests/data/save-formats/gamecube';
+const DIR = './tests/data/save-formats/gamecube/GameSpecificFixups';
 
 const GCI_FILENAME = `${DIR}/f_zero_gx_usa.gci`;
 

@@ -4,7 +4,7 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 import GameCubeGciSaveData from '@/save-formats/GameCube/Gci';
 import GameCubeDirectoryEntry from '@/save-formats/GameCube/Components/DirectoryEntry';
 
-const DIR = './tests/data/save-formats/gamecube';
+const DIR = './tests/data/save-formats/gamecube/gci';
 
 const GCI_FILENAME = `${DIR}/need_for_speed_underground_2_usa.gci`; // I heard the AI in this game is pretty good
 const RAW_FILENAME = `${DIR}/need_for_speed_underground_2_usa.bin`;

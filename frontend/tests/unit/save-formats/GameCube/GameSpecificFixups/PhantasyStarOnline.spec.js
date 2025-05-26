@@ -4,7 +4,7 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 import GameCubeSaveData from '@/save-formats/GameCube/GameCube';
 import PhantasyStarOnlineFixups from '@/save-formats/GameCube/GameSpecificFixups/PhantasyStarOnline';
 
-const DIR = './tests/data/save-formats/gamecube';
+const DIR = './tests/data/save-formats/gamecube/GameSpecificFixups';
 
 // I would like to be able to find a PSO3 file as well, but even one for the original PSO was hard to find
 
