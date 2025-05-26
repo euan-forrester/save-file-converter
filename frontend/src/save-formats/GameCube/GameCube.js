@@ -15,6 +15,7 @@ Block 4: Block allocation table backup (repeat of block 3)
 */
 
 import Util from '../../util/util';
+import PlatformSaveSizes from '../PlatformSaveSizes';
 
 import GameCubeUtil from './Util';
 
@@ -142,13 +143,22 @@ function readSaveFiles(directoryEntries, blockAllocationTable, arrayBuffer, enco
   });
 }
 
-export default class GameCubeSaveData {
-  static createWithNewSize(/* gameCubeSaveData, newSize */) {
-    /*
-    const newRawSaveData = SegaSaturnUtil.resize(gameCubeSaveData.getArrayBuffer(), newSize);
+function checkDesiredSize(sizeBytes) {
+  if (!PlatformSaveSizes.gamecube.includes(sizeBytes)) {
+    throw new Error(`${sizeBytes} bytes (${GameCubeUtil.bytesToMegabits(sizeBytes)} megabits) is not a valid size for a gamecube memory card image`);
+  }
+}
 
-    return GameCubeSaveData.createFromGameCubeData(newRawSaveData);
-    */
+export default class GameCubeSaveData {
+  static createWithNewSize(gameCubeSaveData, newSize) {
+    checkDesiredSize(newSize);
+
+    const volumeInfo = {
+      ...gameCubeSaveData.getVolumeInfo(),
+      memcardSizeMegabits: GameCubeUtil.bytesToMegabits(newSize),
+    };
+
+    return GameCubeSaveData.createFromSaveFiles(gameCubeSaveData.getSaveFiles(), volumeInfo);
   }
 
   static createFromGameCubeData(arrayBuffer) {
@@ -188,6 +198,10 @@ export default class GameCubeSaveData {
   }
 
   static createFromSaveFiles(saveFiles, volumeInfo) {
+    const { numTotalBytes, numTotalBlocks } = GameCubeUtil.getTotalSizes(volumeInfo.memcardSizeMegabits);
+
+    checkDesiredSize(numTotalBytes);
+
     const headerBlock = GameCubeHeader.writeHeader(volumeInfo);
 
     // Fixup any save files that need it
@@ -226,8 +240,6 @@ export default class GameCubeSaveData {
 
     // The memord card image is the reserved blocks, followed by the data blocks, followed by empty blocks
 
-    const { numTotalBytes, numTotalBlocks } = GameCubeUtil.getTotalSizes(volumeInfo.memcardSizeMegabits);
-
     const directoryBlock = GameCubeDirectory.writeDirectory(saveFilesWithBlockInfo);
     const blockAllocationTableBlock = GameCubeBlockAllocationTable.writeBlockAllocationTable(saveFilesWithBlockInfo, numTotalBlocks);
 
@@ -236,7 +248,7 @@ export default class GameCubeSaveData {
     saveFilesWithBlockInfo.forEach((saveFile) => { memcardArrayBuffer = Util.concatArrayBuffers([memcardArrayBuffer, ...saveFile.blockList]); });
 
     if (memcardArrayBuffer.byteLength > numTotalBytes) {
-      throw new Error(`Unable to create a ${volumeInfo.memcardSizeMegabit} card for these save files. Requires ${memcardArrayBuffer.byteLength} bytes but card is only ${numTotalBytes} bytes`);
+      throw new Error(`Unable to create a ${volumeInfo.memcardSizeMegabit} megabit card for these save files. Requires ${memcardArrayBuffer.byteLength} bytes but card is only ${numTotalBytes} bytes`);
     }
 
     // Fill in the rest of the file with empty blocks until it's big enough

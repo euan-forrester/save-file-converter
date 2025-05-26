@@ -19,6 +19,7 @@ const EMPTY_CARDS_FLASH_ID = HexUtil.hexToArrayBuffer('000000000000000000000000'
 const MEMCARD_FLASH_ID = HexUtil.hexToArrayBuffer('ddc9f91faad6bb8dfe35f8c5');
 const MEMCARD_IMAGE_FILENAME = `${DIR}/memcard-image.raw`;
 const MEMCARD_IMAGE_RECREATED_FILENAME = `${DIR}/memcard-image-recreated.raw`;
+const MEMCARD_IMAGE_RECREATED_RESIZED_FILENAME = `${DIR}/memcard-image-recreated-resized.raw`;
 const MEMCARD_IMAGE_RECREATED_FZERO_FILENAME = `${DIR}/memcard-image-recreated-fzero.raw`;
 const MEMCARD_SAVE_FILENAME = [
   `${DIR}/memcard-image-0.bin`,
@@ -589,5 +590,23 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles().length).to.equal(1);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer));
+  });
+
+  it('should resize a GameCube file with 10 saves', async () => {
+    // There are a handful of differences between the 2 memcard images:
+    // - Different size indicated in header
+    // - Different checksums in header as result of different size
+    // - Different num blocks remaining indicated in block allocation table (and the backup copy of this table)
+    // - Different checksums in the block allocation table and backup as a result of different num blocks remaining
+    // - Extra empty data at the end of the larger image
+
+    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEMCARD_IMAGE_RECREATED_FILENAME);
+    const arrayBufferResized = await ArrayBufferUtil.readArrayBuffer(MEMCARD_IMAGE_RECREATED_RESIZED_FILENAME);
+
+    const gameCubeSaveData = GameCubeSaveData.createFromGameCubeData(arrayBuffer);
+
+    const gameCubeDataResized = GameCubeSaveData.createWithNewSize(gameCubeSaveData, 8388608); // 64 megabits/1019 blocks
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeDataResized.getArrayBuffer(), arrayBufferResized));
   });
 });

@@ -94,9 +94,23 @@ const PLATFORM_SAVE_SIZES = {
     262144,
     524288,
   ],
+  gamecube: [
+    // From https://en.wikipedia.org/wiki/GameCube#Hardware
+    524288, // 4 megabits
+    2097152, // 16 megabits
+    8388608, // 64 megabits
+  ],
 };
 
-const ALL_SIZES = Object.keys(PLATFORM_SAVE_SIZES).reduce((accumulator, currentPlatform) => { accumulator.push(...PLATFORM_SAVE_SIZES[currentPlatform]); return accumulator; }, []);
+// These are for memory card images and not cartridges
+const OMIT_FROM_ALL_SIZES = [
+  'segacd',
+  'gamecube',
+];
+
+const ALL_SIZES_KEYS = Object.keys(PLATFORM_SAVE_SIZES).filter((key) => !OMIT_FROM_ALL_SIZES.includes(key));
+
+const ALL_SIZES = ALL_SIZES_KEYS.reduce((accumulator, currentPlatform) => { accumulator.push(...PLATFORM_SAVE_SIZES[currentPlatform]); return accumulator; }, []);
 const ALL_SIZES_NO_DUPLICATES_SORTED = [...new Set(ALL_SIZES)].sort((a, b) => a - b);
 
 PLATFORM_SAVE_SIZES.all = ALL_SIZES_NO_DUPLICATES_SORTED;
