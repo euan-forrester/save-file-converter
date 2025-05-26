@@ -31,8 +31,8 @@ function calculateHeaderSerials(headerBlock) {
   let serial2 = 0;
 
   for (let currentOffset = 0; currentOffset < HEADER_SERIAL_DATA_LENGTH; currentOffset += 8) {
-    serial1 ^= headerBlockDataView.getUint32(currentOffset + 0, LITTLE_ENDIAN);
-    serial2 ^= headerBlockDataView.getUint32(currentOffset + 4, LITTLE_ENDIAN);
+    serial1 = (serial1 ^ headerBlockDataView.getUint32(currentOffset + 0, LITTLE_ENDIAN)) & 0xFFFFFFFF;
+    serial2 = (serial2 ^ headerBlockDataView.getUint32(currentOffset + 4, LITTLE_ENDIAN)) & 0xFFFFFFFF;
   }
 
   return { serial1, serial2 };
