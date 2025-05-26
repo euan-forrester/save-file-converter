@@ -18,6 +18,8 @@ https://github.com/suloku/gcmm/blob/95c737c2af0ebecfa2ef02a8c6c30496d0036e87/sou
 0x40-EOF:  Game data (including the comment and icons)
 */
 
+import Util from '../../util/util';
+
 import GameCubeBasics from './Components/Basics';
 import GameCubeDirectoryEntry from './Components/DirectoryEntry';
 
@@ -30,8 +32,15 @@ const DATA_OFFSET = GameCubeDirectoryEntry.LENGTH;
 export default class GameCubeGciSaveData {
   static convertSaveFilesToGcis(saveFiles) {
     return saveFiles.map((saveFile) => {
-      console.log('Dude');
-      return saveFile.blah;
+      const saveFileWithBlockInfo = {
+        ...saveFile,
+        saveStartBlock: 0,
+        saveSizeBlocks: saveFile.rawData.byteLength / BLOCK_SIZE,
+      };
+
+      const directoryEntryArrayBuffer = GameCubeDirectoryEntry.writeDirectoryEntry(saveFileWithBlockInfo);
+
+      return Util.concatArrayBuffers([directoryEntryArrayBuffer, saveFileWithBlockInfo.rawData]);
     });
   }
 

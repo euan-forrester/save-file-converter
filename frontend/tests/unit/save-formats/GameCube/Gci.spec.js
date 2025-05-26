@@ -3,10 +3,12 @@ import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 import GameCubeGciSaveData from '@/save-formats/GameCube/Gci';
 import GameCubeDirectoryEntry from '@/save-formats/GameCube/Components/DirectoryEntry';
+import GameCubeUtil from '@/save-formats/GameCube/Util';
 
 const DIR = './tests/data/save-formats/gamecube/gci';
 
 const GCI_FILENAME = `${DIR}/need_for_speed_underground_2_usa.gci`; // I heard the AI in this game is pretty good
+const GCI_FILENAME_RECREATED = `${DIR}/need_for_speed_underground_2_usa-recreated.gci`;
 const RAW_FILENAME = `${DIR}/need_for_speed_underground_2_usa.bin`;
 
 // The goal with having multiple Japanese saves is to attempt to determine whether fileName
@@ -51,6 +53,36 @@ describe('GameCube - .GCI', () => {
     expect(gameCubeSaveFiles[0].comments[1]).to.equal('BUTCH');
 
     expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveFiles[0].rawData, rawArrayBuffer)).to.equal(true);
+  });
+
+  it('should correctly write a .GCI file', async () => {
+    // The only difference between the original file and the one we recreate is
+    // that saveStartBlock is set to something in the original whereas we set it to 0
+
+    const gciArrayBuffer = await ArrayBufferUtil.readArrayBuffer(GCI_FILENAME_RECREATED);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_FILENAME);
+
+    const saveFiles = [
+      {
+        gameCode: 'GUGE',
+        publisherCode: '69',
+        bannerAndIconFlags: 0x02,
+        fileName: 'NFSU2BUTCH',
+        dateLastModifiedCode: GameCubeUtil.getDateCode(new Date('Sat, 27 Sep 2008 14:27:56 GMT')),
+        iconStartOffset: 80,
+        iconFormatCode: 0x02,
+        iconSpeedCode: GameCubeDirectoryEntry.ICON_SPEED_MIDDLE,
+        permissionAttributeBitfield: GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC,
+        commentStart: 16,
+        rawData: rawArrayBuffer,
+      },
+    ];
+
+    const gameCubeSaveFiles = GameCubeGciSaveData.convertSaveFilesToGcis(saveFiles);
+
+    expect(gameCubeSaveFiles.length).to.equal(1);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveFiles[0], gciArrayBuffer)).to.equal(true);
   });
 
   it('should correctly read a Japanese .GCI file', async () => {
