@@ -35,8 +35,8 @@ export default class FZeroGxFixups {
 
     // Set the new serial numbers
 
-    saveFileRawDataView.setUint16(1 * BLOCK_SIZE + 0x0066, (headerSerials.serial1 >> 16) & 0xFFFF, LITTLE_ENDIAN); // Deconstruct the offsets to make it easier to check this code against Dolphin's
-    saveFileRawDataView.setUint16(3 * BLOCK_SIZE + 0x1580, (headerSerials.serial2 >> 16) & 0xFFFF, LITTLE_ENDIAN);
+    saveFileRawDataView.setUint16(1 * BLOCK_SIZE + 0x0066, (headerSerials.serial1 >>> 16) & 0xFFFF, LITTLE_ENDIAN); // Deconstruct the offsets to make it easier to check this code against Dolphin's
+    saveFileRawDataView.setUint16(3 * BLOCK_SIZE + 0x1580, (headerSerials.serial2 >>> 16) & 0xFFFF, LITTLE_ENDIAN);
     saveFileRawDataView.setUint16(1 * BLOCK_SIZE + 0x0060, headerSerials.serial1 & 0xFFFF, LITTLE_ENDIAN);
     saveFileRawDataView.setUint16(1 * BLOCK_SIZE + 0x0200, headerSerials.serial2 & 0xFFFF, LITTLE_ENDIAN);
 
@@ -49,9 +49,9 @@ export default class FZeroGxFixups {
 
       for (let j = 8; j > 0; j -= 1) {
         if ((checksum & 1) !== 0) {
-          checksum = (checksum >> 1) ^ 0x8408;
+          checksum = ((checksum >>> 1) ^ 0x8408) >>> 0; // xor will interpret number as negative if high bit is set, but we want unsigned
         } else {
-          checksum >>= 1;
+          checksum >>>= 1;
         }
       }
     }

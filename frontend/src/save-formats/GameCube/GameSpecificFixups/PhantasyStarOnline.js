@@ -23,9 +23,9 @@ function initializeCrc32LookUpTable() {
     checksum = i;
     for (let j = 8; j > 0; j -= 1) {
       if ((checksum & 1) !== 0) {
-        checksum = (checksum >> 1) ^ 0xEDB88320;
+        checksum = ((checksum >>> 1) ^ 0xEDB88320) >>> 0; // xor will interpret number as negative if high bit is set, but we want unsigned
       } else {
-        checksum >>= 1;
+        checksum >>>= 1;
       }
     }
 
@@ -65,10 +65,11 @@ export default class PhantasyStarOnlineFixups {
     let checksum = 0xDEBB20E3;
 
     for (let i = 0x004C; i < (0x0164 + extraChecksumLength); i += 1) {
-      checksum = ((checksum >> 8) & 0xFFFFFF) ^ CRC32_LOOK_UP_TABLE[(checksum ^ saveFileRawDataUint8Array[1 * BLOCK_SIZE + i]) % CRC32_LOOK_UP_TABLE_SIZE];
+      const lookupTableIndex = ((checksum ^ saveFileRawDataUint8Array[1 * BLOCK_SIZE + i]) >>> 0) % CRC32_LOOK_UP_TABLE_SIZE;
+      checksum = (((checksum >>> 8) & 0xFFFFFF) ^ CRC32_LOOK_UP_TABLE[lookupTableIndex]) >>> 0;
     }
 
-    saveFileRawDataView.setUint32(1 * BLOCK_SIZE + 0x0048, checksum & 0xFFFFFFFF, LITTLE_ENDIAN);
+    saveFileRawDataView.setUint32(1 * BLOCK_SIZE + 0x0048, (checksum ^ 0xFFFFFFFF) >>> 0, LITTLE_ENDIAN);
 
     return fixedSaveFile;
   }
