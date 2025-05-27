@@ -95,10 +95,14 @@ const PLATFORM_SAVE_SIZES = {
     524288,
   ],
   gamecube: [
-    // From https://en.wikipedia.org/wiki/GameCube#Hardware
-    524288, // 4 megabits
-    2097152, // 16 megabits
-    8388608, // 64 megabits
+    // From https://github.com/dolphin-emu/dolphin/blob/53b54406bd546b507822a3bd30311aa0cd96ee71/Source/Core/Core/HW/GCMemcard/GCMemcard.cpp#L95
+    // Offical sizes are listed here: https://en.wikipedia.org/wiki/GameCube#Hardware
+    524288, // 4 megabits (59 blocks)
+    1048576, // 8 megabits (123 blocks)
+    2097152, // 16 megabits (251 blocks)
+    4194304, // 32 megabits (507 blocks)
+    8388608, // 64 megabits (1019 blocks)
+    16777216, // 128 megabits (2043 blocks)
   ],
 };
 
