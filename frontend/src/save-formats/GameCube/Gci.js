@@ -29,12 +29,14 @@ const GAME_CODE_AND_FILE_NAME_ENCODING = 'US-ASCII'; // In theory we could parse
 
 const DATA_OFFSET = GameCubeDirectoryEntry.LENGTH;
 
+const DEFAULT_START_BLOCK_NUMBER = 0; // Doesn't matter: the concept of where the save is located doesn't mean anything in this format
+
 export default class GameCubeGciSaveData {
   static convertSaveFilesToGcis(saveFiles) {
     return saveFiles.map((saveFile) => {
       const saveFileWithBlockInfo = {
         ...saveFile,
-        saveStartBlock: 0,
+        saveStartBlock: DEFAULT_START_BLOCK_NUMBER,
         saveSizeBlocks: saveFile.rawData.byteLength / BLOCK_SIZE,
       };
 
