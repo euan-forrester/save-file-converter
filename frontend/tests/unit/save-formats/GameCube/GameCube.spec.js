@@ -21,6 +21,8 @@ const MEMCARD_IMAGE_FILENAME = `${DIR}/memcard-image.raw`;
 const MEMCARD_IMAGE_RECREATED_FILENAME = `${DIR}/memcard-image-recreated.raw`;
 const MEMCARD_IMAGE_RECREATED_RESIZED_FILENAME = `${DIR}/memcard-image-recreated-resized.raw`;
 const MEMCARD_IMAGE_RECREATED_FZERO_FILENAME = `${DIR}/memcard-image-recreated-fzero.raw`;
+const MEMCARD_IMAGE_RECREATED_FZERO_NO_SERIAL_FILENAME = `${DIR}/memcard-image-recreated-fzero-no-serial.raw`;
+const NEW_MEMCARD_IMAGE_NO_SERIAL_FILENAME = `${DIR}/memcard-image-empty-no-serial.raw`;
 const MEMCARD_SAVE_FILENAME = [
   `${DIR}/memcard-image-0.bin`,
   `${DIR}/memcard-image-1.bin`,
@@ -124,7 +126,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[0].commentStart).to.equal(4);
     expect(gameCubeSaveData.getSaveFiles()[0].comments[0]).to.equal('Super Mario Sunshine');
     expect(gameCubeSaveData.getSaveFiles()[0].comments[1]).to.equal('5/23 Save Data');
-    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getSaveFiles()[0].rawData, rawArrayBuffers[0]));
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getSaveFiles()[0].rawData, rawArrayBuffers[0])).to.equal(true);
 
     expect(gameCubeSaveData.getSaveFiles()[1].gameCode).to.equal('GN3E'); // NHL Hitz 20-03
     expect(gameCubeSaveData.getSaveFiles()[1].region).to.equal('North America');
@@ -143,7 +145,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[1].commentStart).to.equal(0);
     expect(gameCubeSaveData.getSaveFiles()[1].comments[0]).to.equal('Hitz 2003');
     expect(gameCubeSaveData.getSaveFiles()[1].comments[1]).to.equal('Settings and User File');
-    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getSaveFiles()[1].rawData, rawArrayBuffers[1]));
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getSaveFiles()[1].rawData, rawArrayBuffers[1])).to.equal(true);
 
     expect(gameCubeSaveData.getSaveFiles()[2].gameCode).to.equal('GIKE'); // Ikaruga
     expect(gameCubeSaveData.getSaveFiles()[2].region).to.equal('North America');
@@ -162,7 +164,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[2].commentStart).to.equal(0);
     expect(gameCubeSaveData.getSaveFiles()[2].comments[0]).to.equal('IKARUGA\n');
     expect(gameCubeSaveData.getSaveFiles()[2].comments[1]).to.equal('10/01/2003 21:22:38');
-    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getSaveFiles()[2].rawData, rawArrayBuffers[2]));
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getSaveFiles()[2].rawData, rawArrayBuffers[2])).to.equal(true);
 
     expect(gameCubeSaveData.getSaveFiles()[3].gameCode).to.equal('GEDE'); // Eternal Darkness
     expect(gameCubeSaveData.getSaveFiles()[3].region).to.equal('North America');
@@ -181,7 +183,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[3].commentStart).to.equal(0);
     expect(gameCubeSaveData.getSaveFiles()[3].comments[0]).to.equal('Eternal Darkness');
     expect(gameCubeSaveData.getSaveFiles()[3].comments[1]).to.equal('Game file');
-    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getSaveFiles()[3].rawData, rawArrayBuffers[3]));
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getSaveFiles()[3].rawData, rawArrayBuffers[3])).to.equal(true);
 
     expect(gameCubeSaveData.getSaveFiles()[4].gameCode).to.equal('GRSE'); // Soul Calibur 2
     expect(gameCubeSaveData.getSaveFiles()[4].region).to.equal('North America');
@@ -200,7 +202,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[4].commentStart).to.equal(0);
     expect(gameCubeSaveData.getSaveFiles()[4].comments[0]).to.equal('SOULCALIBUR2 game data');
     expect(gameCubeSaveData.getSaveFiles()[4].comments[1]).to.equal(' 2004.12.14 23:09:16');
-    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getSaveFiles()[4].rawData, rawArrayBuffers[4]));
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getSaveFiles()[4].rawData, rawArrayBuffers[4])).to.equal(true);
 
     expect(gameCubeSaveData.getSaveFiles()[5].gameCode).to.equal('GH2E'); // Need for Speed: Hot Pursuit 2
     expect(gameCubeSaveData.getSaveFiles()[5].region).to.equal('North America');
@@ -219,7 +221,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[5].commentStart).to.equal(0);
     expect(gameCubeSaveData.getSaveFiles()[5].comments[0]).to.equal('NFS: HP2');
     expect(gameCubeSaveData.getSaveFiles()[5].comments[1]).to.equal('Euan');
-    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getSaveFiles()[5].rawData, rawArrayBuffers[5]));
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getSaveFiles()[5].rawData, rawArrayBuffers[5])).to.equal(true);
 
     expect(gameCubeSaveData.getSaveFiles()[6].gameCode).to.equal('G4SE'); // The Legend of Zelda: Four Swords Adventures
     expect(gameCubeSaveData.getSaveFiles()[6].region).to.equal('North America');
@@ -238,7 +240,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[6].commentStart).to.equal(7168);
     expect(gameCubeSaveData.getSaveFiles()[6].comments[0]).to.equal('Four Swords Adventures');
     expect(gameCubeSaveData.getSaveFiles()[6].comments[1]).to.equal('12/28 Save Data');
-    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getSaveFiles()[6].rawData, rawArrayBuffers[6]));
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getSaveFiles()[6].rawData, rawArrayBuffers[6])).to.equal(true);
 
     expect(gameCubeSaveData.getSaveFiles()[7].gameCode).to.equal('GF7E'); // Star Fox: Assault
     expect(gameCubeSaveData.getSaveFiles()[7].region).to.equal('North America');
@@ -257,7 +259,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[7].commentStart).to.equal(0);
     expect(gameCubeSaveData.getSaveFiles()[7].comments[0]).to.equal('STAR FOX: ASSAULT');
     expect(gameCubeSaveData.getSaveFiles()[7].comments[1]).to.equal('12/28/2049 03:56:16');
-    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getSaveFiles()[7].rawData, rawArrayBuffers[7]));
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getSaveFiles()[7].rawData, rawArrayBuffers[7])).to.equal(true);
 
     expect(gameCubeSaveData.getSaveFiles()[8].gameCode).to.equal('GFZE'); // F-Zero GX
     expect(gameCubeSaveData.getSaveFiles()[8].region).to.equal('North America');
@@ -280,7 +282,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[8].commentStart).to.equal(4);
     expect(gameCubeSaveData.getSaveFiles()[8].comments[0]).to.equal('F-ZERO GX');
     expect(gameCubeSaveData.getSaveFiles()[8].comments[1]).to.equal('49/12/24 Euan');
-    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getSaveFiles()[8].rawData, rawArrayBuffers[8]));
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getSaveFiles()[8].rawData, rawArrayBuffers[8])).to.equal(true);
 
     expect(gameCubeSaveData.getSaveFiles()[9].gameCode).to.equal('GSWE'); // Star Wars Rogue Squadron II: Rogue Leader
     expect(gameCubeSaveData.getSaveFiles()[9].region).to.equal('North America');
@@ -299,7 +301,7 @@ describe('GameCube', () => {
     expect(gameCubeSaveData.getSaveFiles()[9].commentStart).to.equal(0);
     expect(gameCubeSaveData.getSaveFiles()[9].comments[0]).to.equal('Star Wars: Rogue Leader');
     expect(gameCubeSaveData.getSaveFiles()[9].comments[1]).to.equal('Save Data');
-    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getSaveFiles()[9].rawData, rawArrayBuffers[9]));
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getSaveFiles()[9].rawData, rawArrayBuffers[9])).to.equal(true);
   });
 
   // This image works on my physical gamecube memcard
@@ -319,7 +321,7 @@ describe('GameCube', () => {
 
     const gameCubeSaveData = GameCubeSaveData.createFromSaveFiles([], volumeInfo);
 
-    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer));
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer)).to.equal(true);
   });
 
   // This image works on my physical gamecube memcard
@@ -339,7 +341,7 @@ describe('GameCube', () => {
 
     const gameCubeSaveData = GameCubeSaveData.createFromSaveFiles([], volumeInfo);
 
-    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer));
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer)).to.equal(true);
   });
 
   // This image does not work on my physical gamecube memcard
@@ -359,7 +361,7 @@ describe('GameCube', () => {
 
     const gameCubeSaveData = GameCubeSaveData.createFromSaveFiles([], volumeInfo);
 
-    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer));
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer)).to.equal(true);
   });
 
   // This image does not work on my physical gamecube memcard
@@ -379,7 +381,7 @@ describe('GameCube', () => {
 
     const gameCubeSaveData = GameCubeSaveData.createFromSaveFiles([], volumeInfo);
 
-    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer));
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer)).to.equal(true);
   });
 
   // This should be an almost-indentical image to the one read from my physical memcard. However, there are
@@ -548,7 +550,7 @@ describe('GameCube', () => {
 
     expect(gameCubeSaveData.getSaveFiles().length).to.equal(10);
 
-    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer));
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer)).to.equal(true);
   });
 
   // This image just has my F-Zero save, but with a different format time (and thus a different serial).
@@ -559,7 +561,7 @@ describe('GameCube', () => {
 
     const volumeInfo = {
       cardFlashId: MEMCARD_FLASH_ID,
-      formatOsTimeCode: GameCubeUtil.getOsTimeFromDate(new Date('June 26, 2019 12:00:00 GMT')),
+      formatOsTimeCode: GameCubeUtil.getOsTimeFromDate(new Date('June 26, 2019 12:00:00 GMT')), // Different date, so we get a different serial
       rtcBias: 0,
       languageCode: GameCubeUtil.getLanguageCode('English'),
       viDtvStatus: 0,
@@ -589,7 +591,66 @@ describe('GameCube', () => {
 
     expect(gameCubeSaveData.getSaveFiles().length).to.equal(1);
 
-    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer));
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer)).to.equal(true);
+  });
+
+  it('should create a GameCube file with an empty serial and format time for the Memcard Pro GC', async () => {
+    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(NEW_MEMCARD_IMAGE_NO_SERIAL_FILENAME);
+
+    const volumeInfo = {
+      // No cardFlashId specified, so formatOsTimeCode is unneeded
+      rtcBias: 0,
+      languageCode: GameCubeUtil.getLanguageCode('English'),
+      viDtvStatus: 0,
+      memcardSlot: GameCubeHeader.MEMCARD_SLOT_A,
+      memcardSizeMegabits: 16,
+      encodingCode: GameCubeUtil.getEncodingCode('US-ASCII'),
+    };
+
+    const gameCubeSaveData = GameCubeSaveData.createFromSaveFiles([], volumeInfo);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer)).to.equal(true);
+  });
+
+  // This image just has my F-Zero save, but with no serial number or format time so that the Memcard Pro GC will accept it
+  // With this game, it requires that the actual save data be updated to reflect the card's serial
+  it('should create a GameCube file with F-Zero and an empty serial and format time for the Memcard Pro GC', async () => {
+    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEMCARD_IMAGE_RECREATED_FZERO_NO_SERIAL_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEMCARD_SAVE_FILENAME[8]);
+
+    const volumeInfo = {
+      // No cardFlashId specified
+      formatOsTimeCode: GameCubeUtil.getOsTimeFromDate(new Date('June 26, 2019 12:00:00 GMT')), // format time is ignored because cardFlashId is not specified
+      rtcBias: 0,
+      languageCode: GameCubeUtil.getLanguageCode('English'),
+      viDtvStatus: 0,
+      memcardSlot: GameCubeHeader.MEMCARD_SLOT_A,
+      memcardSizeMegabits: 16,
+      encodingCode: GameCubeUtil.getEncodingCode('US-ASCII'),
+    };
+
+    const saveFiles = [
+      {
+        gameCode: 'GFZE', // F-Zero GX
+        regionCode: GameCubeUtil.getRegionCode('North America'),
+        publisherCode: '8P',
+        bannerAndIconFlags: 0x02,
+        fileName: 'f_zero.dat',
+        dateLastModifiedCode: GameCubeUtil.getDateCode(new Date('Fri, 24 Dec 2049 11:20:49 GMT')),
+        iconStartOffset: 96,
+        iconFormatCode: 0x02,
+        iconSpeedCode: GameCubeDirectoryEntry.ICON_SPEED_SLOW,
+        permissionAttributeBitfield: GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_PUBLIC | GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_NO_COPY | GameCubeDirectoryEntry.PERMISSION_ATTRIBUTE_NO_MOVE,
+        commentStart: 4,
+        rawData: rawArrayBuffer,
+      },
+    ];
+
+    const gameCubeSaveData = GameCubeSaveData.createFromSaveFiles(saveFiles, volumeInfo);
+
+    expect(gameCubeSaveData.getSaveFiles().length).to.equal(1);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer)).to.equal(true);
   });
 
   it('should resize a GameCube file with 10 saves', async () => {
@@ -607,6 +668,6 @@ describe('GameCube', () => {
 
     const gameCubeDataResized = GameCubeSaveData.createWithNewSize(gameCubeSaveData, 8388608); // 64 megabits/1019 blocks
 
-    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeDataResized.getArrayBuffer(), arrayBufferResized));
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeDataResized.getArrayBuffer(), arrayBufferResized)).to.equal(true);
   });
 });
