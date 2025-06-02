@@ -62,20 +62,21 @@
       </b-row>
       <b-row>
         <b-col class="nav-row">
+          <router-link to="/gamecube">GameCube{{'\xa0'}}<span class="new-text">(New)</span></router-link> |
           <router-link to="/psp">PSP{{'\xa0'}}-{{'\xa0'}}Save{{'\xa0'}}decryption</router-link>
         </b-col>
       </b-row>
       <b-row>
         <b-col class="nav-row">
           <router-link to="/download-saves">Download{{'\xa0'}}saves</router-link> |
-          <router-link to="/original-hardware">Copy{{'\xa0'}}saves{{'\xa0'}}to/from{{'\xa0'}}original{{'\xa0'}}hardware</router-link>
+          <router-link to="/original-hardware">Copy{{'\xa0'}}saves{{'\xa0'}}to/from{{'\xa0'}}original{{'\xa0'}}hardware</router-link> |
+          <router-link to="/utilities/erase-save">Erase{{'\xa0'}}save from cartridge</router-link>
         </b-col>
       </b-row>
       <b-row class="nav-row">
         <b-col>
           <router-link to="/other-converters">Other{{'\xa0'}}converters</router-link> |
-          <router-link to="/utilities/erase-save">Erase{{'\xa0'}}save from cartridge</router-link> |
-          <router-link to="/utilities/advanced">Advanced{{'\xa0'}}<span class="new-text">(New)</span></router-link>
+          <router-link to="/utilities/advanced">Advanced</router-link>
         </b-col>
       </b-row>
       <b-row>

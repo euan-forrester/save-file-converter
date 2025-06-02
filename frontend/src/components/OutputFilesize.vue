@@ -54,6 +54,9 @@ export default {
       type: String,
       default: null,
     },
+    customFormatter: {
+      default: null,
+    },
   },
   components: {
     HelpButton,
@@ -93,8 +96,10 @@ export default {
         return [];
       }
 
+      const formatText = (this.customFormatter !== null) ? this.customFormatter : this.getDropdownText;
+
       const sizes = PlatformSaveSizes[this.platform].filter((s) => this.valuesToRemove.indexOf(s) < 0);
-      return [{ value: null, text: 'Output file size', disabled: true }].concat(sizes.map((s) => ({ value: s, text: this.getDropdownText(s) })));
+      return [{ value: null, text: 'Output file size', disabled: true }].concat(sizes.map((s) => ({ value: s, text: formatText(s) })));
     },
   },
 };
