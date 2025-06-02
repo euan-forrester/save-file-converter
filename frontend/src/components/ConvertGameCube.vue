@@ -12,14 +12,14 @@
           </b-row>
           <div v-if="this.conversionDirection === 'convertToRaw'">
             <input-file
-              @load="readSegaCdSaveData($event)"
+              @load="readGameCubeSaveData($event)"
               :errorMessage="this.errorMessage"
               placeholderText="Choose a file to convert (*.raw, *.gcp)"
               :leaveRoomForHelpIcon="false"
               acceptExtension=".raw,.gcp"
             />
             <file-list
-              :display="this.segaCdSaveDataLargest !== null"
+              :display="this.gameCubeSaveDataLargest !== null"
               :files="this.getFileListNames()"
               v-model="selectedSaveData"
               @change="changeSelectedSaveData($event)"
@@ -32,6 +32,7 @@
               @input="changeOutputFilesize($event)"
               platform="gamecube"
               :customFormatter="formatSize"
+              overrideHelpText="Select the size of memory card that you wish to create"
             />
           </div>
         </b-col>
@@ -79,6 +80,7 @@
                 @input="changeOutputFilesize($event)"
                 platform="gamecube"
                 :customFormatter="formatSize"
+                overrideHelpText="Select the size of memory card that you wish to create"
               />
             </div>
           </div>
@@ -92,7 +94,7 @@
               acceptExtension=".gci"
             />
             <file-list
-              :display="this.segaCdSaveDataLargest !== null"
+              :display="this.gameCubeSaveDataLargest !== null"
               :files="this.getFileListNames()"
               :enabled="false"
             />
@@ -158,10 +160,11 @@ import OutputFilesize from './OutputFilesize.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import FileList from './FileList.vue';
 import IndividualSavesOrMemoryCardSelector from './IndividualSavesOrMemoryCardSelector.vue';
-import SegaCdSaveData from '../save-formats/SegaCd/SegaCd';
-import SegaCdUtil from '../util/SegaCd';
 
+import GameCubeSaveData from '../save-formats/GameCube/GameCube';
+import GameCubeGciSaveData from '../save-formats/GameCube/Gci';
 import GameCubeUtil from '../save-formats/GameCube/Util';
+import GameCubeHeader from '../save-formats/GameCube/Components/Header';
 
 import PlatformSaveSizes from '../save-formats/PlatformSaveSizes';
 
@@ -171,8 +174,8 @@ export default {
   name: 'ConvertGameCube',
   data() {
     return {
-      segaCdSaveDataLargest: null,
-      segaCdSaveDataResized: null,
+      gameCubeSaveDataLargest: null,
+      gameCubeSaveDataResized: null,
       errorMessage: null,
       inputFilename: null,
       outputFilename: null,
@@ -196,21 +199,15 @@ export default {
     convertButtonDisabled() {
       const haveDataSelected = (this.conversionDirection === 'convertToRaw') ? true : this.selectedSaveData === null;
 
-      const segaCdSaveData = (this.individualSavesOrMemoryCard === 'individual-saves') ? this.segaCdSaveDataLargest : this.segaCdSaveDataResized;
+      const gameCubeSaveData = (this.individualSavesOrMemoryCard === 'individual-saves') ? this.gameCubeSaveDataLargest : this.gameCubeSaveDataResized;
 
-      return !segaCdSaveData || segaCdSaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
+      return !gameCubeSaveData || gameCubeSaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
     },
     individualSavesOrMemoryCardText() {
       return (this.individualSavesOrMemoryCard === 'individual-saves') ? this.individualSavesText : this.memoryCardText;
     },
-    internalSaveSize() {
-      return SegaCdUtil.INTERNAL_SAVE_SIZE;
-    },
-    largestRamCartSaveSize() {
-      return PlatformSaveSizes.segacd.at(-1); // Last element of array
-    },
-    smallestRamCartSaveSize() {
-      return PlatformSaveSizes.segacd[1]; // First element is the internal memory size
+    largestSaveSize() {
+      return PlatformSaveSizes.gamecube.at(-1); // Last element of array
     },
   },
   methods: {
@@ -221,20 +218,12 @@ export default {
       return `${numTotalBlocks} blocks (${sizeMegabits} megabits)`;
     },
     getFileNameFromSaveFile(saveFile) {
-      return `${saveFile.filename}-${saveFile.dataIsEncoded ? 'ECC' : 'RAW'}.bin`;
-    },
-    getSaveFileFromFileName(filename) {
-      const rawIndex = filename.indexOf('-RAW');
-      const eccIndex = filename.indexOf('-ECC');
+      // Let's just copy the same format that Dolphin uses:
+      // https://github.com/dolphin-emu/dolphin/blob/58a70db588dbcdbebcb25531f85dbab5d236b60e/Source/Core/Core/HW/GCMemcard/GCMemcardUtils.cpp#L305
 
-      if ((rawIndex < 0) === (eccIndex < 0)) {
-        throw new Error('This does not appear to be the filename of a Sega CD individual save');
-      }
+      const sanitizedFilename = Util.convertDescriptionToFilename(`${saveFile.publisherCode}-${saveFile.gameCode}-${saveFile.fileName}`);
 
-      return {
-        filename: filename.slice(0, Math.max(rawIndex, eccIndex)),
-        dataIsEncoded: (eccIndex >= 0),
-      };
+      return `${sanitizedFilename}.gci`;
     },
     getFileSizeErrorMessage() {
       const sizeMegabits = GameCubeUtil.bytesToMegabits(this.outputFilesize);
@@ -242,14 +231,14 @@ export default {
 
       return `A GameCube memory card of size ${numTotalBlocks} blocks (${sizeMegabits} megabits) is not large enough to contain all of the files specified`;
     },
-    getSegaCdDataResized() {
-      this.segaCdSaveDataResized = null;
-      if (this.segaCdSaveDataLargest !== null) {
+    getGameCubeDataResized() {
+      this.gameCubeSaveDataResized = null;
+      if (this.gameCubeSaveDataLargest !== null) {
         try {
-          this.segaCdSaveDataResized = SegaCdSaveData.createWithNewSize(this.segaCdSaveDataLargest, this.outputFilesize);
+          this.gameCubeSaveDataResized = GameCubeSaveData.createWithNewSize(this.gameCubeSaveDataLargest, this.outputFilesize);
         } catch (e) {
           this.errorMessage = this.getFileSizeErrorMessage();
-          this.segaCdSaveDataResized = null;
+          this.gameCubeSaveDataResized = null;
           this.selectedSaveData = null;
         }
       }
@@ -258,7 +247,7 @@ export default {
       this.outputFilesize = newValue;
       this.errorMessage = null;
 
-      this.getSegaCdDataResized();
+      this.getGameCubeDataResized();
     },
     changeIndividualSavesOrMemoryCard(newValue) {
       this.errorMessage = null;
@@ -272,24 +261,24 @@ export default {
           }
         } else {
           if (this.inputFilename !== null) {
-            this.outputFilename = Util.changeFilenameExtension(this.inputFilename, 'brm');
+            this.outputFilename = Util.changeFilenameExtension(this.inputFilename, 'raw');
           }
           this.selectedSaveData = null;
-          this.getSegaCdDataResized();
+          this.getGameCubeDataResized();
         }
       }
     },
     getFileListNames() {
-      if ((this.segaCdSaveDataLargest !== null) && (this.segaCdSaveDataLargest.getSaveFiles() !== null)) {
-        return this.segaCdSaveDataLargest.getSaveFiles().map((x) => ({ displayText: `${x.filename}` }));
+      if ((this.gameCubeSaveDataLargest !== null) && (this.gameCubeSaveDataLargest.getSaveFiles() !== null)) {
+        return this.gameCubeSaveDataLargest.getSaveFiles().map((x) => ({ displayText: `${x.comments[0]} - ${x.comments[1]}` }));
       }
 
       return [];
     },
     changeConversionDirection(newDirection) {
       this.conversionDirection = newDirection;
-      this.segaCdSaveDataLargest = null;
-      this.segaCdSaveDataResized = null;
+      this.gameCubeSaveDataLargest = null;
+      this.gameCubeSaveDataResized = null;
       this.errorMessage = null;
       this.inputFilename = null;
       this.outputFilename = null;
@@ -299,9 +288,9 @@ export default {
     },
     changeSelectedSaveData(newSaveData) {
       if (newSaveData !== null) {
-        if ((this.segaCdSaveDataLargest !== null) && (this.segaCdSaveDataLargest.getSaveFiles().length > 0)) {
+        if ((this.gameCubeSaveDataLargest !== null) && (this.gameCubeSaveDataLargest.getSaveFiles().length > 0)) {
           this.selectedSaveData = newSaveData;
-          this.outputFilename = this.getFileNameFromSaveFile(this.segaCdSaveDataLargest.getSaveFiles()[this.selectedSaveData]);
+          this.outputFilename = this.getFileNameFromSaveFile(this.gameCubeSaveDataLargest.getSaveFiles()[this.selectedSaveData]);
           this.changeIndividualSavesOrMemoryCard('individual-saves');
         } else {
           this.selectedSaveData = null;
@@ -309,23 +298,23 @@ export default {
         }
       }
     },
-    readSegaCdSaveData(event) {
+    readGameCubeSaveData(event) {
       this.errorMessage = null;
       this.selectedSaveData = null;
       this.inputFilename = event.filename;
       try {
-        this.segaCdSaveDataLargest = SegaCdSaveData.createFromSegaCdData(event.arrayBuffer);
+        this.gameCubeSaveDataLargest = GameCubeSaveData.createFromGameCubeData(event.arrayBuffer);
 
         this.individualSavesOrMemoryCard = null;
 
-        this.changeIndividualSavesOrMemoryCard('memory-card');
-        this.changeOutputFilesize(this.segaCdSaveDataLargest.getArrayBuffer().byteLength);
+        this.changeIndividualSavesOrMemoryCard('individual-saves');
+        this.changeOutputFilesize(this.gameCubeSaveDataLargest.getArrayBuffer().byteLength);
 
-        this.getSegaCdDataResized();
+        this.getGameCubeDataResized();
       } catch (e) {
         this.errorMessage = 'File appears to not be in the correct format';
-        this.segaCdSaveDataLargest = null;
-        this.segaCdSaveDataResized = null;
+        this.gameCubeSaveDataLargest = null;
+        this.gameCubeSaveDataResized = null;
         this.selectedSaveData = null;
       }
     },
@@ -334,23 +323,34 @@ export default {
       this.selectedSaveData = null;
       this.inputFilename = null;
       try {
-        const saveFiles = event.map((f) => ({
-          ...this.getSaveFileFromFileName(f.filename),
-          fileData: f.arrayBuffer,
-        }));
+        const saveFileArrayBuffers = event.map((f) => f.arrayBuffer);
+        const saveFiles = GameCubeGciSaveData.convertGcisToSaveFiles(saveFileArrayBuffers); // Note that here we assume the default encoding. We probably can't deduce the encoding automatically: see comments in this function
 
-        this.segaCdSaveDataLargest = SegaCdSaveData.createFromSaveFiles(saveFiles, this.largestRamCartSaveSize);
+        // Let's hardcode the language/encoding/memcard slot to avoid cluttering our UI
+        // Reevaluate if we get feedback that being able to set these would be helpful
+        const volumeInfo = {
+          // cardFlashId, // FIXME: Need to optionally get this from another memcard image
+          formatOsTimeCode: GameCubeUtil.getOsTimeFromDate(new Date()), // Represents now, by the brower's clock. Will be ignored if no cardFlashId specified: see GameCubeHeader.writeHeader()
+          rtcBias: 0,
+          languageCode: GameCubeUtil.getLanguageCode('English'),
+          viDtvStatus: 0,
+          memcardSlot: GameCubeHeader.MEMCARD_SLOT_A,
+          memcardSizeMegabits: GameCubeUtil.bytesToMegabits(this.largestSaveSize),
+          encodingCode: GameCubeUtil.getEncodingCode('US-ASCII'),
+        };
 
-        if (this.segaCdSaveDataLargest.getSaveFiles().length > 0) {
-          this.outputFilename = `${Util.convertDescriptionToFilename(this.segaCdSaveDataLargest.getSaveFiles()[0].filename)}.brm`;
+        this.gameCubeSaveDataLargest = GameCubeSaveData.createFromSaveFiles(saveFiles, volumeInfo);
+
+        if (this.gameCubeSaveDataLargest.getSaveFiles().length > 0) {
+          this.outputFilename = `${Util.removeFilenameExtension(this.getFileNameFromSaveFile(this.gameCubeSaveDataLargest.getSaveFiles()[0]))}.raw`;
         } else {
-          this.outputFilename = 'output.brm';
+          this.outputFilename = 'output.raw';
         }
 
-        this.getSegaCdDataResized();
+        this.getGameCubeDataResized();
       } catch (e) {
         this.errorMessage = e.message;
-        this.segaCdSaveDataLargest = null;
+        this.gameCubeSaveDataLargest = null;
         this.selectedSaveData = null;
       }
     },
@@ -358,9 +358,10 @@ export default {
       let outputArrayBuffer = null;
 
       if ((this.conversionDirection === 'convertToRaw') && (this.individualSavesOrMemoryCard === 'individual-saves')) {
-        outputArrayBuffer = this.segaCdSaveDataLargest.getSaveFiles()[this.selectedSaveData].fileData;
+        const individualArrayBuffers = GameCubeGciSaveData.convertSaveFilesToGcis(this.gameCubeSaveDataLargest.getSaveFiles());
+        outputArrayBuffer = individualArrayBuffers[this.selectedSaveData];
       } else {
-        outputArrayBuffer = this.segaCdSaveDataResized.getArrayBuffer();
+        outputArrayBuffer = this.gameCubeSaveDataResized.getArrayBuffer();
       }
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });

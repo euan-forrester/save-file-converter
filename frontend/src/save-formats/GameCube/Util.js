@@ -103,7 +103,7 @@ export default class GameCubeUtil {
   }
 
   static getDateCode(date) {
-    return (date.valueOf() - MILLISECONDS_BETWEEN_EPOCHS) / 1000;
+    return Math.floor((date.valueOf() - MILLISECONDS_BETWEEN_EPOCHS) / 1000);
   }
 
   static getDateFromOsTime(osTime) {
