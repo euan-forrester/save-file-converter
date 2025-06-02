@@ -34,6 +34,15 @@
               :customFormatter="formatSize"
               overrideHelpText="Select the size of memory card that you wish to create"
             />
+            <input-file
+              @load="readGameCubeExampleFileSaveData($event)"
+              :errorMessage="this.errorMessageExampleFile"
+              placeholderText="Optional: example file (*.raw, *.gcp)"
+              :leaveRoomForHelpIcon="false"
+              acceptExtension=".raw,.gcp"
+              helpText="When copying a .raw file to an original memory card, the file must contain a special ID number specific to that individual memory card.
+              Provide an example file here from that memory card so that the ID number can be copied from it. This is not required when using an emulator or the Memcard Pro GC."
+            />
           </div>
         </b-col>
         <b-col sm=12 md=2 lg=2 xl=2 align-self="start">
@@ -174,7 +183,9 @@ export default {
     return {
       gameCubeSaveDataLargest: null,
       gameCubeSaveDataResized: null,
+      gameCubeSaveDataExample: null,
       errorMessage: null,
+      errorMessageExampleFile: null,
       inputFilename: null,
       outputFilename: null,
       outputFilesize: DEFAULT_OUTPUT_FILE_SIZE,
@@ -282,7 +293,9 @@ export default {
       this.conversionDirection = newDirection;
       this.gameCubeSaveDataLargest = null;
       this.gameCubeSaveDataResized = null;
+      this.gameCubeSaveDataExample = null;
       this.errorMessage = null;
+      this.errorMessageExampleFile = null;
       this.inputFilename = null;
       this.outputFilename = null;
       this.outputFilesize = DEFAULT_OUTPUT_FILE_SIZE;
@@ -299,6 +312,18 @@ export default {
           this.selectedSaveData = null;
           this.outputFilename = null;
         }
+      }
+    },
+    readGameCubeExampleFileSaveData(event) {
+      this.errorMessageExampleFile = null;
+
+      try {
+        this.gameCubeSaveDataExample = GameCubeSaveData.createFromGameCubeData(event.arrayBuffer);
+
+        this.changeOutputFilesize(this.gameCubeSaveDataExample.getArrayBuffer().byteLength);
+      } catch (e) {
+        this.errorMessageExampleFile = 'File appears to not be in the correct format';
+        this.gameCubeSaveDataExample = null;
       }
     },
     readGameCubeSaveData(event) {
@@ -331,8 +356,7 @@ export default {
 
         // Let's hardcode the language/encoding/memcard slot to avoid cluttering our UI
         // Reevaluate if we get feedback that being able to set these would be helpful
-        const volumeInfo = {
-          // cardFlashId, // FIXME: Need to optionally get this from another memcard image
+        let volumeInfo = {
           formatOsTimeCode: GameCubeUtil.getOsTimeFromDate(new Date()), // Represents now, by the brower's clock. Will be ignored if no cardFlashId specified: see GameCubeHeader.writeHeader()
           rtcBias: 0,
           languageCode: GameCubeUtil.getLanguageCode('English'),
@@ -341,6 +365,13 @@ export default {
           memcardSizeMegabits: GameCubeUtil.bytesToMegabits(this.largestSaveSize),
           encodingCode: GameCubeUtil.getEncodingCode('US-ASCII'),
         };
+
+        if (this.gameCubeSaveDataExample !== null) {
+          volumeInfo = {
+            ...volumeInfo,
+            cardFlashId: this.gameCubeSaveDataExample.getVolumeInfo().cardFlashId,
+          };
+        }
 
         this.gameCubeSaveDataLargest = GameCubeSaveData.createFromSaveFiles(saveFiles, volumeInfo);
 
