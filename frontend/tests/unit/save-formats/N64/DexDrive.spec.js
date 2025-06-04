@@ -119,8 +119,6 @@ describe('N64 - DexDrive save format', () => {
     expect(dexDriveSaveData.getSaveFiles()[0].regionName).to.equal('North America');
     expect(dexDriveSaveData.getSaveFiles()[0].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(dexDriveSaveData.getSaveFiles()[0].rawData, rawNoteArrayBuffer)).to.equal(true);
-
-    ArrayBufferUtil.writeArrayBuffer(RAW_COMMENT_NOTE_FILENAME, dexDriveSaveData.getSaveFiles()[0].rawData);
   });
 
   it('should convert a file containing two saves that are 27 and 20 pages', async () => {
