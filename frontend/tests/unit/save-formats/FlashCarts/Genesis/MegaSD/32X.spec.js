@@ -43,8 +43,6 @@ describe('Flash cart - Genesis - Mega SD - 32X', () => {
     const flashCartSaveData = GenesisMegaSd32xFlashCartSaveData.createFromFlashCartData(flashCartArrayBuffer);
 
     expect(ArrayBufferUtil.arrayBuffersEqual(flashCartSaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
-
-    ArrayBufferUtil.writeArrayBuffer(MEGA_SD_RAW_NEW_FRAM_FILENAME, flashCartSaveData.getRawArrayBuffer());
   });
 
   it('should convert a raw FRAM save back to the Mega SD new style', async () => {

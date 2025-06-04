@@ -26,8 +26,7 @@ describe('Sega Saturn - yaba sanshiro', () => {
   });
 
   it('should create an empty internal memory file', async () => {
-    // const segaSaturnArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMPTY_INTERNAL_MEMORY_FILE_FILENAME);
-
+    const segaSaturnArrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMPTY_INTERNAL_MEMORY_FILE_FILENAME);
     const segaSaturnSaveData = YabaSanshiroSegaSaturnSaveData.createFromSaveFiles([]);
 
     expect(segaSaturnSaveData.getVolumeInfo().blockSize).to.equal(0x40);
@@ -38,8 +37,6 @@ describe('Sega Saturn - yaba sanshiro', () => {
 
     expect(segaSaturnSaveData.getSaveFiles().length).to.equal(0);
 
-    // expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getArrayBuffer(), segaSaturnArrayBuffer)).to.equal(true);
-
-    ArrayBufferUtil.writeArrayBuffer(EMPTY_INTERNAL_MEMORY_FILE_FILENAME, segaSaturnSaveData.getArrayBuffer());
+    expect(ArrayBufferUtil.arrayBuffersEqual(segaSaturnSaveData.getArrayBuffer(), segaSaturnArrayBuffer)).to.equal(true);
   });
 });

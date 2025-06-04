@@ -59,8 +59,6 @@ describe('PSP executable decryption', function () { // eslint-disable-line func-
 
       const pspExecutable = PspExecutable.createFromEncryptedData(encryptedArrayBuffer);
 
-      ArrayBufferUtil.writeArrayBuffer(FINAL_FANTASY_TACTICS_UNENCRYPTED_EXECUTABLE_FILENAME, pspExecutable.getUnencryptedArrayBuffer());
-
       expect(ArrayBufferUtil.arrayBuffersEqual(pspExecutable.getUnencryptedArrayBuffer(), unencryptedArrayBuffer)).to.equal(true);
       expect(pspExecutable.getExecutableInfo().compressionAttributes).to.equal(2);
       expect(pspExecutable.getExecutableInfo().elfSize).to.equal(3835044);
@@ -80,8 +78,6 @@ describe('PSP executable decryption', function () { // eslint-disable-line func-
 
       const pspExecutable = PspExecutable.createFromEncryptedData(encryptedArrayBuffer);
 
-      ArrayBufferUtil.writeArrayBuffer(MEGA_MAN_UNENCRYPTED_EXECUTABLE_FILENAME, pspExecutable.getUnencryptedArrayBuffer());
-
       expect(ArrayBufferUtil.arrayBuffersEqual(pspExecutable.getUnencryptedArrayBuffer(), unencryptedArrayBuffer)).to.equal(true);
       expect(pspExecutable.getExecutableInfo().compressionAttributes).to.equal(0);
       expect(pspExecutable.getExecutableInfo().elfSize).to.equal(2293524);
@@ -100,8 +96,6 @@ describe('PSP executable decryption', function () { // eslint-disable-line func-
       const unencryptedArrayBuffer = await ArrayBufferUtil.readArrayBuffer(NEED_FOR_SPEED_UNENCRYPTED_EXECUTABLE_FILENAME);
 
       const pspExecutable = PspExecutable.createFromEncryptedData(encryptedArrayBuffer);
-
-      ArrayBufferUtil.writeArrayBuffer(NEED_FOR_SPEED_UNENCRYPTED_EXECUTABLE_FILENAME, pspExecutable.getUnencryptedArrayBuffer());
 
       expect(ArrayBufferUtil.arrayBuffersEqual(pspExecutable.getUnencryptedArrayBuffer(), unencryptedArrayBuffer)).to.equal(true);
       expect(pspExecutable.getExecutableInfo().compressionAttributes).to.equal(0);
