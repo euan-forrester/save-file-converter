@@ -175,6 +175,8 @@ import GameCubeGciSaveData from '../save-formats/GameCube/Gci';
 import GameCubeUtil from '../save-formats/GameCube/Util';
 import GameCubeHeader from '../save-formats/GameCube/Components/Header';
 
+import PlatformSaveSizes from '../save-formats/PlatformSaveSizes';
+
 const DEFAULT_OUTPUT_FILE_SIZE = 2097152; // 251 blocks (16 megabits)
 
 export default {
@@ -216,12 +218,7 @@ export default {
       return (this.individualSavesOrMemoryCard === 'individual-saves') ? this.individualSavesText : this.memoryCardText;
     },
     largestSaveSize() {
-      // Performance degrades significantly when using larger files, so instead of using the actual largest possible file size
-      // let's set this to be something that works a bit faster
-
-      // return PlatformSaveSizes.gamecube.at(-1); // Last element of array
-
-      return DEFAULT_OUTPUT_FILE_SIZE;
+      return PlatformSaveSizes.gamecube.at(-1); // Last element of array
     },
   },
   methods: {

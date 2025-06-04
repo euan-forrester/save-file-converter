@@ -41,8 +41,8 @@ function getBlock(arrayBuffer, blockNumber) {
   return arrayBuffer.slice(startOffset, startOffset + BLOCK_SIZE);
 }
 
-function createBlock() {
-  return Util.getFilledArrayBuffer(BLOCK_SIZE, BLOCK_PADDING_VALUE);
+function createBlocks(numBlocks) {
+  return Util.getFilledArrayBuffer(BLOCK_SIZE * numBlocks, BLOCK_PADDING_VALUE);
 }
 
 function getActiveBlock(mainInfo, backupInfo) {
@@ -251,11 +251,11 @@ export default class GameCubeSaveData {
       throw new Error(`Unable to create a ${volumeInfo.memcardSizeMegabit} megabit card for these save files. Requires ${memcardArrayBuffer.byteLength} bytes but card is only ${numTotalBytes} bytes`);
     }
 
-    // Fill in the rest of the file with empty blocks until it's big enough
+    // Fill in the rest of the file with empty blocks
 
-    while (memcardArrayBuffer.byteLength < numTotalBytes) {
-      memcardArrayBuffer = Util.concatArrayBuffers([memcardArrayBuffer, createBlock()]);
-    }
+    const remainingBlocks = Math.floor((numTotalBytes - memcardArrayBuffer.byteLength) / BLOCK_SIZE);
+
+    memcardArrayBuffer = Util.concatArrayBuffers([memcardArrayBuffer, createBlocks(remainingBlocks)]);
 
     return new GameCubeSaveData(memcardArrayBuffer, saveFilesWithBlockInfo, volumeInfo);
   }
