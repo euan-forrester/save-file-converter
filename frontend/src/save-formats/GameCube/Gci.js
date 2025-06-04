@@ -24,7 +24,7 @@ import GameCubeDirectoryEntry from './Components/DirectoryEntry';
 
 const { BLOCK_SIZE } = GameCubeBasics;
 
-const GAME_CODE_AND_FILE_NAME_ENCODING = 'US-ASCII'; // In theory we could parse the whole object with shift-jis because the ASCII stuff will be decoded correctly, with the exception of backslash and tilde and then anything in "extended" ASCII above 0x7F
+const GAME_CODE_AND_FILE_NAME_ENCODING = 'shift-jis'; // Let's parse the whole object with shift-jis because the ASCII stuff will be decoded correctly, with the exception of backslash and tilde and then anything in "extended" ASCII above 0x7F
 
 const DATA_OFFSET = GameCubeDirectoryEntry.LENGTH;
 
