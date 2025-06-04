@@ -94,9 +94,27 @@ const PLATFORM_SAVE_SIZES = {
     262144,
     524288,
   ],
+  gamecube: [
+    // From https://github.com/dolphin-emu/dolphin/blob/53b54406bd546b507822a3bd30311aa0cd96ee71/Source/Core/Core/HW/GCMemcard/GCMemcard.cpp#L95
+    // Offical sizes are listed here: https://en.wikipedia.org/wiki/GameCube#Hardware
+    524288, // 4 megabits (59 blocks)
+    1048576, // 8 megabits (123 blocks)
+    2097152, // 16 megabits (251 blocks)
+    4194304, // 32 megabits (507 blocks)
+    8388608, // 64 megabits (1019 blocks)
+    16777216, // 128 megabits (2043 blocks)
+  ],
 };
 
-const ALL_SIZES = Object.keys(PLATFORM_SAVE_SIZES).reduce((accumulator, currentPlatform) => { accumulator.push(...PLATFORM_SAVE_SIZES[currentPlatform]); return accumulator; }, []);
+// These are for memory card images and not cartridges
+const OMIT_FROM_ALL_SIZES = [
+  'segacd',
+  'gamecube',
+];
+
+const ALL_SIZES_KEYS = Object.keys(PLATFORM_SAVE_SIZES).filter((key) => !OMIT_FROM_ALL_SIZES.includes(key));
+
+const ALL_SIZES = ALL_SIZES_KEYS.reduce((accumulator, currentPlatform) => { accumulator.push(...PLATFORM_SAVE_SIZES[currentPlatform]); return accumulator; }, []);
 const ALL_SIZES_NO_DUPLICATES_SORTED = [...new Set(ALL_SIZES)].sort((a, b) => a - b);
 
 PLATFORM_SAVE_SIZES.all = ALL_SIZES_NO_DUPLICATES_SORTED;

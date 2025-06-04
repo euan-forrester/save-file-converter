@@ -125,6 +125,11 @@ const routes = [
     component: () => import(/* webpackChunkName: "nintendo-switch-online" */ '../views/NintendoSwitchOnline.vue'),
   },
   {
+    path: '/gamecube',
+    name: 'GameCube',
+    component: () => import(/* webpackChunkName: "gamecube" */ '../views/GameCube.vue'),
+  },
+  {
     path: '/srm-sav',
     name: '.srm to/from .sav',
     component: () => import(/* webpackChunkName: "srm-sav" */ '../views/SrmSav.vue'),
