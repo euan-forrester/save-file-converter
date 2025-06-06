@@ -163,6 +163,8 @@ Everything on this site is free and open source with no advertising. If you find
   - .GCI individual save file
     - http://www.surugi.com/projects/gcifaq.html
     - https://github.com/suloku/gcmm/blob/master/source/gci.h#L12
+  - Recovery tool
+    - https://github.com/GerbilSoft/mcrecover
 - Flash carts:
   - Goomba emulator (for GB/C games on GBA flash cart)
     - https://github.com/libertyernie/goombasav (save converter)
