@@ -24,7 +24,22 @@ import GameCubeDirectoryEntry from './Components/DirectoryEntry';
 
 const { BLOCK_SIZE } = GameCubeBasics;
 
-const GAME_CODE_AND_FILE_NAME_ENCODING = 'shift-jis'; // Let's parse the whole object with shift-jis because the ASCII stuff will be decoded correctly, with the exception of backslash and tilde and then anything in "extended" ASCII above 0x7F
+// Figuring out the encoding of the comments is tricky. In a real save file the encoding is specified in the header.
+// However, this user-defined format takes the directory entry from the real format but omits the header.
+
+// It does not appear that we can automatically detect the encoding of the comments.
+// The encoding-japanese package that we use to encode/decode shift-jis strings can in theory
+// detect encoding, but for our example save files it returns "UTF32" for US-ASCII comments,
+// and any one of "UTF32", "UTF16", or "SJIS" for the Japanese ones (which are all in shift-jis)
+
+// We could parse them always using shift-jis because the ASCII stuff will be decoded correctly, with the exception of backslash and tilde and then anything in "extended" ASCII above 0x7F
+
+// But we can maybe do slightly better by trying to infer the encoding from the region of the game.
+// Games from the Japan region we'll decode as shift-jis, and the other 2 regions (North American and Europe) we'll decode as US-ASCII
+
+const GAME_CODE_AND_FILE_NAME_ENCODING = 'US-ASCII';
+
+const SHIFT_JIS_COMMENT_REGION = 'Japan';
 
 const DATA_OFFSET = GameCubeDirectoryEntry.LENGTH;
 
@@ -46,26 +61,22 @@ export default class GameCubeGciSaveData {
   }
 
   // Based on https://github.com/dolphin-emu/dolphin/blob/master/Source/Core/Core/HW/GCMemcard/GCMemcardUtils.cpp#L131
-  static convertGcisToSaveFiles(arrayBuffers, overrideCommentEncoding) {
-    const commentEncoding = (overrideCommentEncoding !== undefined) ? overrideCommentEncoding : GAME_CODE_AND_FILE_NAME_ENCODING;
-
+  static convertGcisToSaveFiles(arrayBuffers) {
     return arrayBuffers.map((arrayBuffer) => {
-      // It does not appear that we can automatically detect the encoding of the comments.
-      // The encoding-japanese package that we use to encode/decode shift-jis strings can in theory
-      // detect encoding, but for our example save files it returns "UTF32" for US-ASCII comments,
-      // and any one of "UTF32", "UTF16", or "SJIS" for the Japanese ones (which are all in shift-jis)
       const directoryEntry = GameCubeDirectoryEntry.readDirectoryEntry(arrayBuffer, GAME_CODE_AND_FILE_NAME_ENCODING);
       const rawData = arrayBuffer.slice(DATA_OFFSET);
+      const inferredCommentEncoding = (directoryEntry.region === SHIFT_JIS_COMMENT_REGION) ? 'shift-jis' : 'US-ASCII';
 
       if (rawData.byteLength !== (directoryEntry.saveSizeBlocks * BLOCK_SIZE)) {
         throw new Error(`File appears to be corrupt. Save size specified as ${directoryEntry.saveSizeBlocks} blocks (${directoryEntry.saveSizeBlocks * BLOCK_SIZE} bytes)`
           + ` but save data is ${rawData.byteLength} bytes`);
       }
 
-      const comments = GameCubeDirectoryEntry.getComments(directoryEntry.commentStart, rawData, commentEncoding);
+      const comments = GameCubeDirectoryEntry.getComments(directoryEntry.commentStart, rawData, inferredCommentEncoding);
 
       return {
         ...directoryEntry,
+        inferredCommentEncoding,
         comments,
         rawData,
       };

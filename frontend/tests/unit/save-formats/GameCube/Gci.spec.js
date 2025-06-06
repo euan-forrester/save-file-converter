@@ -49,6 +49,7 @@ describe('GameCube - .GCI', () => {
     expect(gameCubeSaveFiles[0].saveStartBlock).to.equal(146);
     expect(gameCubeSaveFiles[0].saveSizeBlocks).to.equal(7);
     expect(gameCubeSaveFiles[0].commentStart).to.equal(16);
+    expect(gameCubeSaveFiles[0].inferredCommentEncoding).to.equal('US-ASCII');
     expect(gameCubeSaveFiles[0].comments[0]).to.equal('NFS Underground 2');
     expect(gameCubeSaveFiles[0].comments[1]).to.equal('BUTCH');
 
@@ -89,7 +90,7 @@ describe('GameCube - .GCI', () => {
     const gciArrayBuffer = await ArrayBufferUtil.readArrayBuffer(JAPANESE_GCI_FILENAME);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(JAPANESE_RAW_FILENAME);
 
-    const gameCubeSaveFiles = GameCubeGciSaveData.convertGcisToSaveFiles([gciArrayBuffer], 'shift-jis');
+    const gameCubeSaveFiles = GameCubeGciSaveData.convertGcisToSaveFiles([gciArrayBuffer]);
 
     expect(gameCubeSaveFiles.length).to.equal(1);
 
@@ -107,6 +108,7 @@ describe('GameCube - .GCI', () => {
     expect(gameCubeSaveFiles[0].saveStartBlock).to.equal(5);
     expect(gameCubeSaveFiles[0].saveSizeBlocks).to.equal(1);
     expect(gameCubeSaveFiles[0].commentStart).to.equal(0);
+    expect(gameCubeSaveFiles[0].inferredCommentEncoding).to.equal('shift-jis');
     expect(gameCubeSaveFiles[0].comments[0]).to.equal('BLEACH GC 黄昏にまみえる死神'); // "BLEACH GC The Grim Reaper in the Dusk"
     expect(gameCubeSaveFiles[0].comments[1]).to.equal('セーブデータ'); // "Save Data"
 
@@ -117,7 +119,7 @@ describe('GameCube - .GCI', () => {
     const gciArrayBuffer = await ArrayBufferUtil.readArrayBuffer(JAPANESE_GCI_FILENAME_2);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(JAPANESE_RAW_FILENAME_2);
 
-    const gameCubeSaveFiles = GameCubeGciSaveData.convertGcisToSaveFiles([gciArrayBuffer], 'shift-jis');
+    const gameCubeSaveFiles = GameCubeGciSaveData.convertGcisToSaveFiles([gciArrayBuffer]);
 
     expect(gameCubeSaveFiles.length).to.equal(1);
 
@@ -135,6 +137,7 @@ describe('GameCube - .GCI', () => {
     expect(gameCubeSaveFiles[0].saveStartBlock).to.equal(170);
     expect(gameCubeSaveFiles[0].saveSizeBlocks).to.equal(2);
     expect(gameCubeSaveFiles[0].commentStart).to.equal(0);
+    expect(gameCubeSaveFiles[0].inferredCommentEncoding).to.equal('shift-jis');
     expect(gameCubeSaveFiles[0].comments[0]).to.equal('ドカポンＤＸ　ストーリーモード'); // "Dokapon DX Story Mode"
     expect(gameCubeSaveFiles[0].comments[1]).to.equal('8月10日 6時26分のデータ'); // "Data as of 6:26 on August 10th"
 
@@ -145,7 +148,7 @@ describe('GameCube - .GCI', () => {
     const gciArrayBuffer = await ArrayBufferUtil.readArrayBuffer(JAPANESE_GCI_FILENAME_3);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(JAPANESE_RAW_FILENAME_3);
 
-    const gameCubeSaveFiles = GameCubeGciSaveData.convertGcisToSaveFiles([gciArrayBuffer], 'shift-jis');
+    const gameCubeSaveFiles = GameCubeGciSaveData.convertGcisToSaveFiles([gciArrayBuffer]);
 
     expect(gameCubeSaveFiles.length).to.equal(1);
 
@@ -163,6 +166,7 @@ describe('GameCube - .GCI', () => {
     expect(gameCubeSaveFiles[0].saveStartBlock).to.equal(5);
     expect(gameCubeSaveFiles[0].saveSizeBlocks).to.equal(2);
     expect(gameCubeSaveFiles[0].commentStart).to.equal(0);
+    expect(gameCubeSaveFiles[0].inferredCommentEncoding).to.equal('shift-jis');
     expect(gameCubeSaveFiles[0].comments[0]).to.equal('ヒカルの碁３　システムデータ\n'); // "Hikaru no Go 3 System Data"
     expect(gameCubeSaveFiles[0].comments[1]).to.equal('2014年7月2日'); // "July 2, 2014"
 
@@ -173,7 +177,7 @@ describe('GameCube - .GCI', () => {
     const gciArrayBuffer = await ArrayBufferUtil.readArrayBuffer(JAPANESE_GCI_FILENAME_4);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(JAPANESE_RAW_FILENAME_4);
 
-    const gameCubeSaveFiles = GameCubeGciSaveData.convertGcisToSaveFiles([gciArrayBuffer], 'shift-jis');
+    const gameCubeSaveFiles = GameCubeGciSaveData.convertGcisToSaveFiles([gciArrayBuffer]);
 
     expect(gameCubeSaveFiles.length).to.equal(1);
 
@@ -191,6 +195,7 @@ describe('GameCube - .GCI', () => {
     expect(gameCubeSaveFiles[0].saveStartBlock).to.equal(8);
     expect(gameCubeSaveFiles[0].saveSizeBlocks).to.equal(2);
     expect(gameCubeSaveFiles[0].commentStart).to.equal(0);
+    expect(gameCubeSaveFiles[0].inferredCommentEncoding).to.equal('shift-jis');
     expect(gameCubeSaveFiles[0].comments[0]).to.equal('金色のガッシュベル！！          '); // "Zatch Bell!!"
     expect(gameCubeSaveFiles[0].comments[1]).to.equal(' セーブデータ                  '); // "Save Data"
 
