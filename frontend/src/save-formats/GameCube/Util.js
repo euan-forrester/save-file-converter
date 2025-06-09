@@ -8,11 +8,18 @@ const {
   LITTLE_ENDIAN,
 } = GameCubeBasics;
 
-// Taken from http://www.surugi.com/projects/gcifaq.html
+// Taken from http://www.surugi.com/projects/gcifaq.html and the FAQ from https://gc-saves.com/
 const REGION_DECODE = new Map([
   ['J', 'Japan'],
   ['E', 'North America'],
   ['P', 'Europe'],
+  ['D', 'Germany'],
+  ['F', 'France'],
+  ['H', 'Netherlands'],
+  ['I', 'Italy'],
+  ['S', 'Spain'],
+  ['K', 'Korea'],
+  ['U', 'Korea'],
 ]);
 
 const UNKNOWN_REGION_STRING = 'Unknown';
