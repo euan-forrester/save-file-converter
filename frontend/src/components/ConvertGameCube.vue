@@ -17,6 +17,7 @@
               placeholderText="Choose a file to convert (*.raw, *.gcp)"
               :leaveRoomForHelpIcon="false"
               acceptExtension=".raw,.gcp"
+              ref="inputFileGameCubeSaveData"
             />
             <file-list
               :display="this.gameCubeSaveDataLargest !== null"
@@ -42,6 +43,7 @@
               acceptExtension=".raw,.gcp"
               helpText="When copying a .raw file to an original memory card, the file must contain a special ID number specific to that individual memory card.
               Provide an example file here from that memory card so that the ID number can be copied from it. This is not required when using an emulator or the Memcard Pro GC."
+              ref="inputFileGameCubeExampleSaveData"
             />
           </div>
         </b-col>
@@ -298,6 +300,14 @@ export default {
       this.outputFilesize = DEFAULT_OUTPUT_FILE_SIZE;
       this.selectedSaveData = null;
       this.individualSavesOrMemoryCard = 'individual-saves';
+
+      // The refs become undefined when the components are removed using a v-if
+      if (this.$refs.inputFileGameCubeSaveData) {
+        this.$refs.inputFileGameCubeSaveData.reset();
+      }
+      if (this.$refs.inputFileGameCubeExampleSaveData) {
+        this.$refs.inputFileGameCubeExampleSaveData.reset();
+      }
     },
     changeSelectedSaveData(newSaveData) {
       if (newSaveData !== null) {
