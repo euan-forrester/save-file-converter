@@ -14,6 +14,11 @@ import PlatformSaveSizes from '../../PlatformSaveSizes';
 
 const LITTLE_ENDIAN = true;
 
+// Note that there exists another version of this emulator that puts the size at 0x61014 and the save data at 0x61040
+// We may want to make a Map of SAVE_SIZE_OFFSET to SAVE_OFFSET, and probe each potential SAVE_SIZE_OFFSET to see if
+// it has a valid GBA save file size
+// See discussion at https://github.com/euan-forrester/save-file-converter/issues/380
+
 const SAVE_SIZE_OFFSET = 0x61004;
 const SAVE_OFFSET = 0x61030;
 
