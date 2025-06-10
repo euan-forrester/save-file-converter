@@ -139,7 +139,7 @@ export default {
       }
     },
     convertFile() {
-      const outputArrayBuffer = (this.conversionDirection === 'convertToRaw') ? this.retron5SaveData.getRawSaveData() : this.retron5SaveData.getArrayBuffer();
+      const outputArrayBuffer = (this.conversionDirection === 'convertToRaw') ? this.retron5SaveData.getRawArrayBuffer() : this.retron5SaveData.getRetron5ArrayBuffer();
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 

@@ -23,79 +23,64 @@ import PaddingUtil from '../util/Padding';
 import CompressionZlibUtil from '../util/CompressionZlib';
 
 const LITTLE_ENDIAN = true;
-const MAGIC = 0x354E5452; // "RTN5", except backwards
+
+const MAGIC = 'RTN5';
+const MAGIC_ENCODING = 'US-ASCII';
 const FORMAT_VERSION = 1;
 const FLAG_ZLIB_PACKED = 0x01;
-const DATA_HEADER_SIZE = 24;
+
+const MAGIC_OFFSET = 0;
+const FORMAT_VERSION_OFFSET = 4;
+const FLAGS_OFFSET = 6;
+const ORIGINAL_SIZE_OFFSET = 8;
+const PACKED_SIZE_OFFSET = 12;
+const DATA_OFFSET_OFFSET = 16;
+const CRC32_OFFSET = 20;
+
+const HEADER_SIZE = 24;
 
 export default class Retron5SaveData {
   static createFromRetron5Data(retron5ArrayBuffer) {
-    return new Retron5SaveData(retron5ArrayBuffer);
-  }
-
-  static createFromEmulatorData(emulatorArrayBuffer) {
-    const originalChecksum = crc32.buf(new Uint8Array(emulatorArrayBuffer)) >>> 0; // '>>> 0' interprets the result as an unsigned integer: https://stackoverflow.com/questions/1822350/what-is-the-javascript-operator-and-how-do-you-use-it
-    const originalSize = emulatorArrayBuffer.byteLength;
-
-    const packedArrayBuffer = CompressionZlibUtil.compress(emulatorArrayBuffer);
-
-    const retron5HeaderArrayBuffer = new ArrayBuffer(DATA_HEADER_SIZE); // Need to have an ArrayBuffer with a size as a multiple of 4 to have a Uint32View into it, so need to have a separate one for the header
-
-    const headerUint32View = new Uint32Array(retron5HeaderArrayBuffer);
-    const headerUint16View = new Uint16Array(retron5HeaderArrayBuffer);
-
-    headerUint32View[0] = MAGIC;
-    headerUint16View[2] = FORMAT_VERSION;
-    headerUint16View[3] = FLAG_ZLIB_PACKED;
-    headerUint32View[2] = originalSize;
-    headerUint32View[3] = packedArrayBuffer.byteLength;
-    headerUint32View[4] = DATA_HEADER_SIZE;
-    headerUint32View[5] = originalChecksum;
-
-    const retron5ArrayBuffer = Util.concatArrayBuffers([retron5HeaderArrayBuffer, packedArrayBuffer]);
-
-    // A bit inefficient to promptly go and decompress and re-CRC32 the save data
-    return new Retron5SaveData(retron5ArrayBuffer);
-  }
-
-  // This constructor creates a new object from a binary representation of a Retron5 save data file
-  constructor(arrayBuffer) {
-    this.arrayBuffer = arrayBuffer;
-    this.dataView = new DataView(arrayBuffer);
+    const dataView = new DataView(retron5ArrayBuffer);
 
     // First make sure that the stuff in the header all makes sense
 
-    if (this.getMagic() !== MAGIC) {
-      throw new Error('This does not appear to be a Retron5 save file');
-    }
+    Util.checkMagic(retron5ArrayBuffer, MAGIC_OFFSET, MAGIC, MAGIC_ENCODING);
 
-    if (this.getFormatVersion() > FORMAT_VERSION) {
+    const formatVersion = dataView.getUint16(FORMAT_VERSION_OFFSET, LITTLE_ENDIAN);
+    const flags = dataView.getUint16(FLAGS_OFFSET, LITTLE_ENDIAN);
+    const originalSize = dataView.getUint32(ORIGINAL_SIZE_OFFSET, LITTLE_ENDIAN);
+    const packedSize = dataView.getUint32(PACKED_SIZE_OFFSET, LITTLE_ENDIAN);
+    const dataOffset = dataView.getUint32(DATA_OFFSET_OFFSET, LITTLE_ENDIAN);
+    const checksumRead = dataView.getUint32(CRC32_OFFSET, LITTLE_ENDIAN);
+
+    if (formatVersion > FORMAT_VERSION) {
       throw new Error('Sorry this tool does not support this format of Retron5 save files');
     }
 
-    if (this.getDataOffset() !== DATA_HEADER_SIZE) {
+    if (dataOffset !== HEADER_SIZE) {
       throw new Error('Sorry this file appears to be corrupted');
     }
 
-    const packedDataSize = this.arrayBuffer.byteLength - DATA_HEADER_SIZE;
-    if (this.getPackedSize() !== packedDataSize) {
+    const dataSize = retron5ArrayBuffer.byteLength - HEADER_SIZE;
+    if (packedSize !== dataSize) {
       throw new Error('Sorry this file appears to be corrupted');
     }
 
     // Now decompress the saved data and check its size and CRC32
 
-    let rawSaveData = new Uint8Array(this.arrayBuffer.slice(this.getDataOffset()));
-    if ((this.getFlags() & FLAG_ZLIB_PACKED) !== 0) {
-      rawSaveData = CompressionZlibUtil.decompress(rawSaveData);
+    let rawArrayBuffer = new Uint8Array(retron5ArrayBuffer.slice(dataOffset));
+    if ((flags & FLAG_ZLIB_PACKED) !== 0) {
+      rawArrayBuffer = CompressionZlibUtil.decompress(rawArrayBuffer);
     }
 
-    if (rawSaveData.byteLength !== this.getOriginalSize()) {
+    if (rawArrayBuffer.byteLength !== originalSize) {
       throw new Error('Sorry this file appears to be corrupted');
     }
 
-    const checksum = crc32.buf(rawSaveData) >>> 0; // '>>> 0' interprets the result as an unsigned integer: https://stackoverflow.com/questions/1822350/what-is-the-javascript-operator-and-how-do-you-use-it
+    const checksumCalculated = crc32.buf(rawArrayBuffer) >>> 0; // '>>> 0' interprets the result as an unsigned integer: https://stackoverflow.com/questions/1822350/what-is-the-javascript-operator-and-how-do-you-use-it
 
-    if (checksum !== this.getCrc32()) {
+    if (checksumCalculated !== checksumRead) {
       throw new Error('Sorry this file appears to be corrupted');
     }
 
@@ -104,55 +89,55 @@ export default class Retron5SaveData {
     // So far one user has provided a file which decompressed to 0x22000 bytes and the first 0x20000 bytes were
     // just all 0x00. Slicing out the final 0x2000 bytes resulted in a file that loads correctly in an emulator.
 
-    if (!MathUtil.isPowerOf2(rawSaveData.byteLength)) {
-      const padding = PaddingUtil.getPadFromStartValueAndCount(rawSaveData);
+    if (!MathUtil.isPowerOf2(rawArrayBuffer.byteLength)) {
+      const padding = PaddingUtil.getPadFromStartValueAndCount(rawArrayBuffer);
 
       // Note that this will catch padding values of 0x00 or 0xFF, but we've only seen 1 file in the wild and it
       // had a padding value of 0x00. Not sure if we should restrict this to only check for that.
 
       if (padding.count > 0) {
-        rawSaveData = PaddingUtil.removePaddingFromStart(rawSaveData, padding.count);
+        rawArrayBuffer = PaddingUtil.removePaddingFromStart(rawArrayBuffer, padding.count);
       }
     }
 
     // Everything looks good
 
-    this.rawSaveData = rawSaveData;
+    return new Retron5SaveData(retron5ArrayBuffer, rawArrayBuffer);
   }
 
-  getMagic() {
-    return this.dataView.getUint32(0, LITTLE_ENDIAN);
+  static createFromEmulatorData(rawArrayBuffer) {
+    const originalChecksum = crc32.buf(new Uint8Array(rawArrayBuffer)) >>> 0; // '>>> 0' interprets the result as an unsigned integer: https://stackoverflow.com/questions/1822350/what-is-the-javascript-operator-and-how-do-you-use-it
+
+    const packedArrayBuffer = CompressionZlibUtil.compress(rawArrayBuffer);
+
+    let headerArrayBuffer = new ArrayBuffer(HEADER_SIZE); // Need to have an ArrayBuffer with a size as a multiple of 4 to have a Uint32View into it, so need to have a separate one for the header
+
+    headerArrayBuffer = Util.setMagic(headerArrayBuffer, MAGIC_OFFSET, MAGIC, MAGIC_ENCODING);
+
+    const headerDataView = new DataView(headerArrayBuffer);
+
+    headerDataView.setUint16(FORMAT_VERSION_OFFSET, FORMAT_VERSION, LITTLE_ENDIAN);
+    headerDataView.setUint16(FLAGS_OFFSET, FLAG_ZLIB_PACKED, LITTLE_ENDIAN);
+    headerDataView.setUint32(ORIGINAL_SIZE_OFFSET, rawArrayBuffer.byteLength, LITTLE_ENDIAN);
+    headerDataView.setUint32(PACKED_SIZE_OFFSET, packedArrayBuffer.byteLength, LITTLE_ENDIAN);
+    headerDataView.setUint32(DATA_OFFSET_OFFSET, HEADER_SIZE, LITTLE_ENDIAN);
+    headerDataView.setUint32(CRC32_OFFSET, originalChecksum, LITTLE_ENDIAN);
+
+    const retron5ArrayBuffer = Util.concatArrayBuffers([headerArrayBuffer, packedArrayBuffer]);
+
+    return new Retron5SaveData(retron5ArrayBuffer, rawArrayBuffer);
   }
 
-  getFormatVersion() {
-    return this.dataView.getUint16(4, LITTLE_ENDIAN);
+  constructor(retron5ArrayBuffer, rawArrayBuffer) {
+    this.retron5ArrayBuffer = retron5ArrayBuffer;
+    this.rawArrayBuffer = rawArrayBuffer;
   }
 
-  getFlags() {
-    return this.dataView.getUint16(6, LITTLE_ENDIAN);
+  getRawArrayBuffer() {
+    return this.rawArrayBuffer;
   }
 
-  getOriginalSize() {
-    return this.dataView.getUint32(8, LITTLE_ENDIAN);
-  }
-
-  getPackedSize() {
-    return this.dataView.getUint32(12, LITTLE_ENDIAN);
-  }
-
-  getDataOffset() {
-    return this.dataView.getUint32(16, LITTLE_ENDIAN);
-  }
-
-  getCrc32() {
-    return this.dataView.getUint32(20, LITTLE_ENDIAN);
-  }
-
-  getRawSaveData() {
-    return this.rawSaveData;
-  }
-
-  getArrayBuffer() {
-    return this.arrayBuffer;
+  getRetron5ArrayBuffer() {
+    return this.retron5ArrayBuffer;
   }
 }

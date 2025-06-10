@@ -17,7 +17,7 @@ describe('Retron 5 save format', () => {
 
     const retron5SaveData = Retron5SaveData.createFromRetron5Data(retron5ArrayBuffer);
 
-    expect(ArrayBufferUtil.arrayBuffersEqual(retron5SaveData.getRawSaveData(), rawArrayBuffer)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(retron5SaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
 
   it('should convert a raw file to a Retron 5 file', async () => {
@@ -26,7 +26,7 @@ describe('Retron 5 save format', () => {
 
     const retron5SaveData = Retron5SaveData.createFromEmulatorData(rawArrayBuffer);
 
-    expect(ArrayBufferUtil.arrayBuffersEqual(retron5SaveData.getArrayBuffer(), retron5ArrayBuffer)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(retron5SaveData.getRetron5ArrayBuffer(), retron5ArrayBuffer)).to.equal(true);
   });
 
   it('should convert a Retron 5 file with extra padding to a raw file without padding', async () => {
@@ -35,6 +35,6 @@ describe('Retron 5 save format', () => {
 
     const retron5SaveData = Retron5SaveData.createFromRetron5Data(retron5ArrayBuffer);
 
-    expect(ArrayBufferUtil.arrayBuffersEqual(retron5SaveData.getRawSaveData(), rawArrayBuffer)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(retron5SaveData.getRawArrayBuffer(), rawArrayBuffer)).to.equal(true);
   });
 });
