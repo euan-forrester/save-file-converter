@@ -14,7 +14,6 @@ The subsequent 123 pages are the actual save data
 */
 
 import Util from '../../util/util';
-import N64Util from '../../util/N64';
 
 import N64Basics from './Components/Basics';
 import N64IdArea from './Components/IdArea';
@@ -37,8 +36,6 @@ const NOTE_TABLE_PAGES = [3, 4];
 
 const MAX_DATA_SIZE = (NUM_PAGES - FIRST_SAVE_DATA_PAGE) * PAGE_SIZE;
 
-const FILENAME_ENCODING = 'utf8'; // Encoding to use when creating a filename for an individual note
-
 // Using various cheating devices, it's possible to copy a save stored on a cartridge onto
 // a controller pak. There are many potential cart save sizes (see http://micro-64.com/database/gamesave.shtml),
 // but only the ones below will fit onto a controller pak: the next size up (32768 bytes) doesn't fit because of the 5
@@ -52,11 +49,6 @@ const CART_SAVE_SIZES = [
   512,
   2048,
 ];
-
-const GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE = '\x3B\xAD\xD1\xE5';
-const GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE = '\xFA\xDE';
-const BLACKBAG_CART_SAVE_GAME_SERIAL_CODE = '\xDE\xAD\xBE\xEF'; // #cute
-const BLACKBAG_CART_SAVE_PUBLISHER_CODE = '\x12\x34'; // #cute
 
 function getPage(pageNumber, arrayBuffer) {
   const offset = pageNumber * PAGE_SIZE;
@@ -72,7 +64,7 @@ function concatPages(pageNumbers, arrayBuffer) {
 // devices used to do so may truncate the file to eliminate portions that are all padding.
 // We'll add that padding back for better compatibility with emulators.
 function padCartSave(saveFile) {
-  if (!N64MempackSaveData.isCartSave(saveFile)) { /* eslint-disable-line no-use-before-define */
+  if (!N64GameSerialCodeUtil.isCartSave(saveFile)) { /* eslint-disable-line no-use-before-define */
     return saveFile;
   }
 
@@ -98,45 +90,10 @@ function padCartSave(saveFile) {
   return saveFile;
 }
 
-function parseNoteNameAndExtension(noteNameAndExtension) {
-  // Here we are going to assume that if there's one . then it's intended to split the name from the extension (e.g. "T2-WAREHOUSE.P" for Tony Hawk)
-  // and if there are 0 or > 1 .'s then it's just all the filename (e.g. "S.F. RUSH" for San Francisco Rush)
-
-  const noteNameAndExtensionParts = noteNameAndExtension.split('.');
-
-  let noteName = noteNameAndExtension;
-  let noteNameExtension = '';
-
-  if (noteNameAndExtensionParts.length === 2) {
-    [noteName, noteNameExtension] = noteNameAndExtensionParts;
-  }
-
-  return {
-    noteName,
-    noteNameExtension,
-  };
-}
-
 export default class N64MempackSaveData {
   static NUM_NOTES = NUM_NOTES;
 
   static TOTAL_SIZE = NUM_PAGES * PAGE_SIZE;
-
-  static GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE = GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE;
-
-  static GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE = GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE;
-
-  static GAMESHARK_ACTIONREPLAY_CART_SAVE_REGION_CODE = N64GameSerialCodeUtil.getRegionCode(GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
-
-  static GAMESHARK_ACTIONREPLAY_CART_SAVE_MEDIA_CODE = N64GameSerialCodeUtil.getMediaCode(GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
-
-  static BLACKBAG_CART_SAVE_GAME_SERIAL_CODE = BLACKBAG_CART_SAVE_GAME_SERIAL_CODE;
-
-  static BLACKBAG_CART_SAVE_PUBLISHER_CODE = BLACKBAG_CART_SAVE_PUBLISHER_CODE;
-
-  static BLACKBAG_CART_SAVE_REGION_CODE = N64GameSerialCodeUtil.getRegionCode(BLACKBAG_CART_SAVE_GAME_SERIAL_CODE);
-
-  static BLACKBAG_CART_SAVE_MEDIA_CODE = N64GameSerialCodeUtil.getMediaCode(BLACKBAG_CART_SAVE_GAME_SERIAL_CODE);
 
   static createFromN64MempackData(mempackArrayBuffer) {
     return new N64MempackSaveData(mempackArrayBuffer);
@@ -227,109 +184,6 @@ export default class N64MempackSaveData {
 
   getSaveFiles() {
     return this.saveFiles;
-  }
-
-  static isCartSave(saveFile) {
-    return ((saveFile.gameSerialCode === GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE) || (saveFile.gameSerialCode === BLACKBAG_CART_SAVE_GAME_SERIAL_CODE));
-  }
-
-  static getDisplayName(saveFile) {
-    if (saveFile.noteNameExtension.length > 0) {
-      return `${saveFile.noteName}.${saveFile.noteNameExtension}`;
-    }
-
-    return saveFile.noteName;
-  }
-
-  static createFilename(saveFile) {
-    if (N64MempackSaveData.isCartSave(saveFile)) {
-      // Here we want to make a user-friendly name, meaning having the correct extension for an emulator to load
-
-      // NOTE: if we get into trouble again here with having a . in between the note name and the note name extension,
-      // we'll again need to deal with the issue of users having legacy filenames on their machines
-
-      return `${N64MempackSaveData.getDisplayName(saveFile)}.${N64Util.getFileExtension(saveFile.rawData)}`; // It's always going to be .eep because that's all that can fit in a mempack image: the next size up is the size of an entire mempack, which doesn't leave room for the system information
-    }
-
-    // We need to encode all the stuff that goes into the note table into our file name.
-    // Some of these portions can contain non-ASCII characters (For example, the publisher
-    // code can be 0x0000), so encoding it as hex makes for an easy (if long) filename.
-
-    const noteNameEncoded = Buffer.from(saveFile.noteName, FILENAME_ENCODING).toString('hex');
-    const noteNameExtensionEncoded = Buffer.from(saveFile.noteNameExtension, FILENAME_ENCODING).toString('hex');
-    const gameSerialCodeEncoded = Buffer.from(saveFile.gameSerialCode, FILENAME_ENCODING).toString('hex');
-    const publisherCodeEncoded = Buffer.from(saveFile.publisherCode, FILENAME_ENCODING).toString('hex');
-
-    return `RAW-${noteNameEncoded}-${noteNameExtensionEncoded}-${gameSerialCodeEncoded}-${publisherCodeEncoded}`;
-  }
-
-  static parseFilename(filename) {
-    if (filename.startsWith('RAW-')) {
-      const filenamePortions = filename.split('-');
-
-      // We originally had a bug where the notename was encoded as "<notename>.<notenameextension>" which caused issues
-      // when the notename itself had a . in it, such as "S.F. Rush". Users may have legacy filenames on their system, and
-      // so we have to support either the old format or the new format
-
-      try {
-        if (filenamePortions.length === 4) {
-          // Old style
-
-          const noteNameAndExtension = Buffer.from(filenamePortions[1], 'hex').toString(FILENAME_ENCODING);
-          const gameSerialCode = Buffer.from(filenamePortions[2], 'hex').toString(FILENAME_ENCODING);
-          const publisherCode = Buffer.from(filenamePortions[3], 'hex').toString(FILENAME_ENCODING);
-
-          const { noteName, noteNameExtension } = parseNoteNameAndExtension(noteNameAndExtension);
-
-          return {
-            noteName,
-            noteNameExtension,
-            gameSerialCode,
-            publisherCode,
-          };
-        }
-
-        if (filenamePortions.length === 5) {
-          // New style
-
-          const noteName = Buffer.from(filenamePortions[1], 'hex').toString(FILENAME_ENCODING);
-          const noteNameExtension = Buffer.from(filenamePortions[2], 'hex').toString(FILENAME_ENCODING);
-          const gameSerialCode = Buffer.from(filenamePortions[3], 'hex').toString(FILENAME_ENCODING);
-          const publisherCode = Buffer.from(filenamePortions[4], 'hex').toString(FILENAME_ENCODING);
-
-          return {
-            noteName,
-            noteNameExtension,
-            gameSerialCode,
-            publisherCode,
-          };
-        }
-
-        throw new Error('Wrong number of parts in filename');
-      } catch (e) {
-        throw new Error('Filename not in correct format. Format should be \'RAW-XXXX-XXXX-XXXX\' or \'RAW-XXXX-XXXX-XXXX-XXXX\'');
-      }
-    } else {
-      // Otherwise, we have to assume it's a cart save. So, it could set its game/publisher code to
-      // be either Gameshark or Black Bag. The Black Bag file manager is I believe a defunct program
-      // that ran on individual computers, and would be hard for most people to get running on their
-      // modern machines. Whereas if we assign it to Gameshark, then someone could use the Gameshark
-      // hardware to load it onto a real cart, regardless of whether the file was originally from
-      // the Black Bag software.
-      //
-      // So, we'll just assign everything to Gameshark
-
-      const noteNameAndExtension = Util.removeFilenameExtension(filename).trim().toUpperCase(); // There's no lower case arabic characters in the N64 text encoding
-
-      const { noteName, noteNameExtension } = parseNoteNameAndExtension(noteNameAndExtension);
-
-      return {
-        noteName,
-        noteNameExtension,
-        gameSerialCode: GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE,
-        publisherCode: GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE,
-      };
-    }
   }
 
   getArrayBuffer() {
