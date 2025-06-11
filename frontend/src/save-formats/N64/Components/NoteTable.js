@@ -2,11 +2,10 @@
 
 import Util from '../../../util/util';
 
-import N64TextDecoder from '../TextDecoder';
-
 import N64Basics from './Basics';
 import N64InodeTable from './InodeTable';
 import N64GameSerialCodeUtil from './GameSerialCodeUtil';
+import N64TextDecoder from './TextDecoder';
 
 const {
   LITTLE_ENDIAN,
