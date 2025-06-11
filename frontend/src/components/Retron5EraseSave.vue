@@ -77,7 +77,7 @@ import { saveAs } from 'file-saver';
 import SaveFilesUtil from '../util/SaveFiles';
 import Util from '../util/util';
 import InputFile from './InputFile.vue';
-import Retron5SaveData from '../save-formats/Retron5';
+import Retron5SaveData from '../save-formats/Retron5/Retron5';
 
 export default {
   name: 'Retron5EraseSave',
@@ -104,9 +104,9 @@ export default {
       }
     },
     convertFile() {
-      const outputRawSave = SaveFilesUtil.getEraseCartridgeSave(this.retron5SaveData.getRawSaveData());
+      const outputRawSave = SaveFilesUtil.getEraseCartridgeSave(this.retron5SaveData.getRawArrayBuffer());
 
-      const outputArrayBuffer = Retron5SaveData.createFromEmulatorData(outputRawSave).getArrayBuffer();
+      const outputArrayBuffer = Retron5SaveData.createFromEmulatorData(outputRawSave).getRetron5ArrayBuffer();
 
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 
