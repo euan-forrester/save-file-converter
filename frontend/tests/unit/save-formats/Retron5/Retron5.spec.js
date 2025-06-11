@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import Retron5SaveData from '@/save-formats/Retron5';
+import Retron5SaveData from '@/save-formats/Retron5/Retron5';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
 const DIR = './tests/data/save-formats/retron5';

@@ -94,7 +94,7 @@ import Util from '../util/util';
 import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
-import Retron5SaveData from '../save-formats/Retron5';
+import Retron5SaveData from '../save-formats/Retron5/Retron5';
 
 export default {
   name: 'ConvertRetron5',

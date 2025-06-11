@@ -17,10 +17,10 @@ typedef struct
 */
 
 import crc32 from 'crc-32';
-import Util from '../util/util';
-import MathUtil from '../util/Math';
-import PaddingUtil from '../util/Padding';
-import CompressionZlibUtil from '../util/CompressionZlib';
+import Util from '../../util/util';
+import MathUtil from '../../util/Math';
+import PaddingUtil from '../../util/Padding';
+import CompressionZlibUtil from '../../util/CompressionZlib';
 
 const LITTLE_ENDIAN = true;
 
