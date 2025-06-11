@@ -6,4 +6,6 @@ export default class N64Basics {
   static NUM_PAGES = 128;
 
   static PAGE_SIZE = 256;
+
+  static FIRST_SAVE_DATA_PAGE = 5;
 }

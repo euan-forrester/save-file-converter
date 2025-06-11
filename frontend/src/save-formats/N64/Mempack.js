@@ -19,12 +19,14 @@ import N64TextDecoder from './TextDecoder';
 
 import N64Basics from './Components/Basics';
 import N64IdArea from './Components/IdArea';
+import N64InodeTable from './Components/InodeTable';
 
 const {
   LITTLE_ENDIAN,
   NUM_NOTES,
   NUM_PAGES,
   PAGE_SIZE,
+  FIRST_SAVE_DATA_PAGE,
 } = N64Basics;
 
 // The first 5 pages are special header info
@@ -32,7 +34,6 @@ const ID_AREA_PAGE = 0;
 const INODE_TABLE_PAGE = 1;
 const INODE_TABLE_BACKUP_PAGE = 2; // Page 2 is a repeat of page 1, checked in case we encounter corruption of page 1
 const NOTE_TABLE_PAGES = [3, 4];
-const FIRST_SAVE_DATA_PAGE = 5;
 
 const MAX_DATA_SIZE = (NUM_PAGES - FIRST_SAVE_DATA_PAGE) * PAGE_SIZE;
 
@@ -49,9 +50,6 @@ const NOTE_TABLE_NOTE_NAME_EXTENSION_OFFSET = 12;
 const NOTE_TABLE_NOTE_NAME_EXTENSION_LENGTH = 4;
 const NOTE_TABLE_NOTE_NAME_OFFSET = 16;
 const NOTE_TABLE_NOTE_NAME_LENGTH = 16;
-
-const INODE_TABLE_ENTRY_STOP = 1;
-const INODE_TABLE_ENTRY_EMPTY = 3;
 
 const GAME_SERIAL_CODE_MEDIA_INDEX = 0;
 const GAME_SERIAL_CODE_REGION_INDEX = 3;
@@ -109,14 +107,6 @@ function getPage(pageNumber, arrayBuffer) {
 function concatPages(pageNumbers, arrayBuffer) {
   const pages = pageNumbers.map((i) => getPage(i, arrayBuffer));
   return Util.concatArrayBuffers(pages);
-}
-
-function getNextPageNumber(inodePageDataView, pageNumber) {
-  return inodePageDataView.getUint16(pageNumber * 2, LITTLE_ENDIAN);
-}
-
-function setNextPageNumber(inodePageDataView, pageNumber, nextPageNumber) {
-  inodePageDataView.setUint16(pageNumber * 2, nextPageNumber, LITTLE_ENDIAN);
 }
 
 function createEmptyBlock(size) {
@@ -221,11 +211,11 @@ function readNoteTable(inodePageArrayBuffer, noteTableArrayBuffer) {
     const noteIndex = currentByte / NOTE_TABLE_BLOCK_SIZE;
 
     const startingPage = noteTableDataView.getUint16(currentByte + NOTE_TABLE_STARTING_PAGE_OFFSET, LITTLE_ENDIAN);
-    const nextPage = getNextPageNumber(inodePageDataView, startingPage);
+    const nextPage = N64InodeTable.getNextPageNumber(inodePageDataView, startingPage);
 
     const firstPageValid = (startingPage >= FIRST_SAVE_DATA_PAGE) && (startingPage < NUM_PAGES);
     const unusedBytesAreZero = (noteTableDataView.getUint16(currentByte + NOTE_TABLE_UNUSED_OFFSET, LITTLE_ENDIAN) === 0);
-    const nextPageValid = (nextPage === INODE_TABLE_ENTRY_STOP) || ((nextPage >= FIRST_SAVE_DATA_PAGE) && (nextPage < NUM_PAGES));
+    const nextPageValid = (nextPage === N64InodeTable.INODE_TABLE_ENTRY_STOP) || ((nextPage >= FIRST_SAVE_DATA_PAGE) && (nextPage < NUM_PAGES));
 
     if (firstPageValid && unusedBytesAreZero && nextPageValid) {
       noteKeys.push(startingPage);
@@ -304,129 +294,6 @@ function createNoteTablePage(saveFilesWithStartingPage) {
   return Util.concatArrayBuffers(noteBlocks);
 }
 
-// Taken from https://github.com/bryc/mempak/blob/master/js/parser.js#L269
-//
-// The implementation there performs quite a number of consistency checks on this data, and if
-// an anomoly is found then it switches to using the backup inode page. Because these checks therefore
-// influence how the data is parsed, we'll replicate them here
-function checkIndexes(inodeArrayBuffer, noteTableKeys) {
-  const inodePageDataView = new DataView(inodeArrayBuffer);
-
-  const found = {
-    parsed: [],
-    empty: [],
-    stops: [],
-    keys: [],
-    values: [],
-    duplicates: {},
-  };
-
-  // First, go through each entry and make sure that all the values are within range,
-  // and there are no duplicates
-
-  for (let currentPage = FIRST_SAVE_DATA_PAGE; currentPage < NUM_PAGES; currentPage += 1) {
-    const nextPage = getNextPageNumber(inodePageDataView, currentPage);
-
-    if (nextPage === INODE_TABLE_ENTRY_STOP) {
-      found.stops.push(currentPage);
-      found.keys.push(currentPage);
-    } else if (nextPage === INODE_TABLE_ENTRY_EMPTY) {
-      found.empty.push(currentPage);
-    } else if ((nextPage >= FIRST_SAVE_DATA_PAGE) && (nextPage < NUM_PAGES)) {
-      if (found.duplicates[nextPage]) {
-        throw new Error(`Found duplicate entries in inode table. Both ${found.duplicates[nextPage]} and ${currentPage} point to page ${nextPage}`);
-      }
-
-      found.values.push(nextPage);
-      found.keys.push(currentPage);
-      found.duplicates[nextPage] = currentPage;
-    } else {
-      throw new Error(`Inode table contains illegal value: ${nextPage} at page ${currentPage}`);
-    }
-  }
-
-  // Figure out which keys we found are ones that begin a sequence, and then compare this against
-  // what we found when parsing the note table. We should have found the same number of both
-  // start keys and stops in the inode table as we found start keys in the note table.
-
-  const startKeysFound = found.keys.filter((x) => !found.values.includes(x));
-
-  if ((noteTableKeys.length !== startKeysFound.length) || (noteTableKeys.length !== found.stops.length)) {
-    throw new Error(`Found ${noteTableKeys.length} starting keys in the note table, but found ${startKeysFound.length} starting keys and ${found.stops.length} stop keys in inode table`);
-  }
-
-  startKeysFound.forEach((x) => {
-    if (!noteTableKeys.includes(x)) {
-      throw new Error(`Found start key ${x} in inode table which doesn't exist in note table`);
-    }
-  });
-
-  // Get the index sequence for each note
-
-  const noteIndexes = {};
-  startKeysFound.forEach((startingPage) => {
-    const indexes = [startingPage];
-    let currentPage = startingPage;
-    let nextPage = getNextPageNumber(inodePageDataView, currentPage);
-
-    while (nextPage !== INODE_TABLE_ENTRY_STOP) { // We've already validated that all of these are >= FIRST_SAVE_DATA_PAGE and < NUM_PAGES
-      indexes.push(nextPage);
-      currentPage = nextPage;
-      nextPage = getNextPageNumber(inodePageDataView, currentPage);
-    }
-
-    noteIndexes[startingPage] = indexes;
-    found.parsed.push(...indexes);
-  });
-
-  // Check that we parsed and found the same number of keys
-  if (found.parsed.length !== found.keys.length) {
-    throw new Error(`We encountered ${found.parsed.length} keys when following the various index sequences, but found ${found.keys.length} keys when looking through the entire inode table.`);
-  }
-
-  // We've passed all of our validations, so the last remaining part is the checksums
-  // Apparently valid files can have invalid checksums, so we won't actually check the checksums
-  // For DexDrive files, we parse the file and then re-create it entirely to avoid having to fix these sorts of things manually
-
-  return noteIndexes;
-}
-
-function createInodeTablePage(saveFiles) {
-  // Here we can cheat a little and figure out what the linked list *would* look like if we actually
-  // split each file into chunks
-
-  let inodeTablePage = new ArrayBuffer(PAGE_SIZE);
-  const startingPages = [];
-
-  inodeTablePage = Util.fillArrayBuffer(inodeTablePage, 0);
-
-  const inodeTablePageDataView = new DataView(inodeTablePage);
-
-  let currentPage = FIRST_SAVE_DATA_PAGE;
-
-  saveFiles.forEach((saveFile) => {
-    startingPages.push(currentPage);
-
-    for (let currentByteInFile = 0; currentByteInFile < (saveFile.rawData.byteLength - PAGE_SIZE); currentByteInFile += PAGE_SIZE) {
-      setNextPageNumber(inodeTablePageDataView, currentPage, currentPage + 1);
-      currentPage += 1;
-    }
-
-    setNextPageNumber(inodeTablePageDataView, currentPage, INODE_TABLE_ENTRY_STOP);
-    currentPage += 1;
-  });
-
-  while (currentPage < NUM_PAGES) {
-    setNextPageNumber(inodeTablePageDataView, currentPage, INODE_TABLE_ENTRY_EMPTY);
-    currentPage += 1;
-  }
-
-  return {
-    inodeTablePage,
-    startingPages,
-  };
-}
-
 function parseNoteNameAndExtension(noteNameAndExtension) {
   // Here we are going to assume that if there's one . then it's intended to split the name from the extension (e.g. "T2-WAREHOUSE.P" for Tony Hawk)
   // and if there are 0 or > 1 .'s then it's just all the filename (e.g. "S.F. RUSH" for San Francisco Rush)
@@ -497,7 +364,7 @@ export default class N64MempackSaveData {
     // Now make our header pages
 
     const idAreaPage = N64IdArea.createIdAreaPage(randomNumberGenerator);
-    const { inodeTablePage, startingPages } = createInodeTablePage(saveFiles);
+    const { inodeTablePage, startingPages } = N64InodeTable.createInodeTablePage(saveFiles);
 
     const saveFilesWithStartingPage = saveFiles.map((x, i) => ({ ...x, startingPage: startingPages[i] }));
 
@@ -534,12 +401,12 @@ export default class N64MempackSaveData {
     let noteIndexes = {};
 
     try {
-      noteIndexes = checkIndexes(inodeArrayBuffer, noteInfo.noteKeys);
+      noteIndexes = N64InodeTable.checkIndexes(inodeArrayBuffer, noteInfo.noteKeys);
     } catch (e) {
       // If we encounter something that appears to be corrupted in the main inode table, then
       // try again with the backup table
       try {
-        noteIndexes = checkIndexes(inodeBackupArrayBuffer, noteInfo.noteKeys);
+        noteIndexes = N64InodeTable.checkIndexes(inodeBackupArrayBuffer, noteInfo.noteKeys);
       } catch (e2) {
         throw new Error('Both primary and backup inode tables appear to be corrupted. Error from backup table follows', { cause: e2 });
       }
