@@ -1,3 +1,5 @@
+import Util from '../../../util/util';
+
 export default class N64Basics {
   static LITTLE_ENDIAN = false;
 
@@ -8,4 +10,8 @@ export default class N64Basics {
   static PAGE_SIZE = 256;
 
   static FIRST_SAVE_DATA_PAGE = 5;
+
+  static createEmptyBlock(size) {
+    return Util.getFilledArrayBuffer(size, 0x00);
+  }
 }

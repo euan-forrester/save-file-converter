@@ -15,14 +15,14 @@ The subsequent 123 pages are the actual save data
 
 import Util from '../../util/util';
 import N64Util from '../../util/N64';
-import N64TextDecoder from './TextDecoder';
 
 import N64Basics from './Components/Basics';
 import N64IdArea from './Components/IdArea';
 import N64InodeTable from './Components/InodeTable';
+import N64NoteTable from './Components/NoteTable';
+import N64GameSerialCodeUtil from './Components/GameSerialCodeUtil';
 
 const {
-  LITTLE_ENDIAN,
   NUM_NOTES,
   NUM_PAGES,
   PAGE_SIZE,
@@ -36,23 +36,6 @@ const INODE_TABLE_BACKUP_PAGE = 2; // Page 2 is a repeat of page 1, checked in c
 const NOTE_TABLE_PAGES = [3, 4];
 
 const MAX_DATA_SIZE = (NUM_PAGES - FIRST_SAVE_DATA_PAGE) * PAGE_SIZE;
-
-const NOTE_TABLE_BLOCK_SIZE = 32;
-const NOTE_TABLE_GAME_SERIAL_CODE_OFFSET = 0;
-const NOTE_TABLE_GAME_SERIAL_CODE_LENGTH = 4;
-const NOTE_TABLE_PUBLISHER_CODE_OFFSET = 4;
-const NOTE_TABLE_PUBLISHER_CODE_LENGTH = 2;
-const NOTE_TABLE_STARTING_PAGE_OFFSET = 6;
-const NOTE_TABLE_STATUS_OFFSET = 8;
-const NOTE_TABLE_OCCUPIED_BIT = 0x2;
-const NOTE_TABLE_UNUSED_OFFSET = 10;
-const NOTE_TABLE_NOTE_NAME_EXTENSION_OFFSET = 12;
-const NOTE_TABLE_NOTE_NAME_EXTENSION_LENGTH = 4;
-const NOTE_TABLE_NOTE_NAME_OFFSET = 16;
-const NOTE_TABLE_NOTE_NAME_LENGTH = 16;
-
-const GAME_SERIAL_CODE_MEDIA_INDEX = 0;
-const GAME_SERIAL_CODE_REGION_INDEX = 3;
 
 const FILENAME_ENCODING = 'utf8'; // Encoding to use when creating a filename for an individual note
 
@@ -70,30 +53,6 @@ const CART_SAVE_SIZES = [
   2048,
 ];
 
-// Taken from https://github.com/bryc/mempak/blob/master/js/codedb.js#L88
-const REGION_CODE_TO_NAME = {
-  A: 'All regions',
-  B: 'Brazil', // Unlicensed?
-  C: 'China', // Unused?
-  D: 'Germany',
-  E: 'North America',
-  F: 'France',
-  G: 'Gateway 64 (NTSC)',
-  H: 'Netherlands', // Unused. GC/Wii only.
-  I: 'Italy',
-  J: 'Japan',
-  K: 'South Korea', // Unused. GC/Wii only.
-  L: 'Gateway 64 (PAL)',
-  P: 'Europe',
-  R: 'Russia', // Unused. Wii only.
-  S: 'Spain',
-  U: 'Australia', // Although some AU games used standard P codes.
-  W: 'Taiwan', // Unused. GC/Wii only.
-  X: 'Europe', // Alternative PAL version (Other languages)
-  Y: 'Europe', // Alternative PAL version (Other languages)
-  Z: 'Europe', // Unused. Alternative PAL version 3. Possibly Wii only.
-};
-
 const GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE = '\x3B\xAD\xD1\xE5';
 const GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE = '\xFA\xDE';
 const BLACKBAG_CART_SAVE_GAME_SERIAL_CODE = '\xDE\xAD\xBE\xEF'; // #cute
@@ -107,10 +66,6 @@ function getPage(pageNumber, arrayBuffer) {
 function concatPages(pageNumbers, arrayBuffer) {
   const pages = pageNumbers.map((i) => getPage(i, arrayBuffer));
   return Util.concatArrayBuffers(pages);
-}
-
-function createEmptyBlock(size) {
-  return Util.getFilledArrayBuffer(size, 0x00);
 }
 
 // See comments above: cart saves can be stored in a controller pak file, but the cheat
@@ -130,7 +85,7 @@ function padCartSave(saveFile) {
       let paddedRawData = saveFile.rawData;
 
       while (paddedRawData.byteLength < CART_SAVE_SIZES[i]) {
-        paddedRawData = Util.concatArrayBuffers([paddedRawData, createEmptyBlock(PAGE_SIZE)]);
+        paddedRawData = Util.concatArrayBuffers([paddedRawData, N64Basics.createEmptyBlock(PAGE_SIZE)]);
       }
 
       return {
@@ -141,157 +96,6 @@ function padCartSave(saveFile) {
   }
 
   return saveFile;
-}
-
-function decodeString(uint8Array) {
-  // These fixups are made to be compatible with the strings fed to https://github.com/bryc/mempak/blob/master/js/codedb.js
-  // in case we want to use those lookup tables.
-  // Note that there's only 1 code there (the publisher for Wave Race 64) that actually uses the - at this time,
-  // but may as well make the output here match exactly just in case.
-  const uint8ArrayFixup = uint8Array.slice();
-
-  const sum = uint8Array.reduce((accumulator, n) => accumulator + n);
-
-  // These indicate that something was corrupted in the file and needs manual fixing
-  // This only seems to affect one entry: the publisher for Wave Race 64. We'll maintain this fixup for compatibility with https://github.com/bryc/mempak/blob/master/js/codedb.js
-  // FIXME: This repair only affects a copy of the data (a slice) and not the actual data written out
-  if (sum === 0) {
-    uint8ArrayFixup[uint8ArrayFixup.length - 1] |= 1;
-  }
-
-  return {
-    stringCode: String.fromCharCode(...uint8Array),
-    stringCodeFixup: String.fromCharCode(...uint8ArrayFixup).replace(/\0/g, '-'),
-  };
-}
-
-function encodeString(string, encodedLength) {
-  const output = new Uint8Array(encodedLength);
-
-  output.fill(0);
-
-  for (let i = 0; i < string.length; i += 1) {
-    const charCode = string.charCodeAt(i);
-
-    output[i] = ((charCode <= 255) ? charCode : 0);
-  }
-
-  return output;
-}
-
-function getRegionCode(gameSerialCode) {
-  return gameSerialCode.charAt(GAME_SERIAL_CODE_REGION_INDEX);
-}
-
-function getMediaCode(gameSerialCode) {
-  return gameSerialCode.charAt(GAME_SERIAL_CODE_MEDIA_INDEX);
-}
-
-function getRegionName(gameSerialCode) {
-  const regionCode = getRegionCode(gameSerialCode);
-
-  if (regionCode in REGION_CODE_TO_NAME) {
-    return REGION_CODE_TO_NAME[regionCode];
-  }
-
-  return 'Unknown region';
-}
-
-// Taken from https://github.com/bryc/mempak/blob/master/js/parser.js#L173
-function readNoteTable(inodePageArrayBuffer, noteTableArrayBuffer) {
-  const noteKeys = [];
-  const notes = [];
-
-  const noteTableArray = new Uint8Array(noteTableArrayBuffer);
-
-  const noteTableDataView = new DataView(noteTableArrayBuffer);
-  const inodePageDataView = new DataView(inodePageArrayBuffer);
-
-  for (let currentByte = 0; currentByte < noteTableArrayBuffer.byteLength; currentByte += NOTE_TABLE_BLOCK_SIZE) {
-    const noteIndex = currentByte / NOTE_TABLE_BLOCK_SIZE;
-
-    const startingPage = noteTableDataView.getUint16(currentByte + NOTE_TABLE_STARTING_PAGE_OFFSET, LITTLE_ENDIAN);
-    const nextPage = N64InodeTable.getNextPageNumber(inodePageDataView, startingPage);
-
-    const firstPageValid = (startingPage >= FIRST_SAVE_DATA_PAGE) && (startingPage < NUM_PAGES);
-    const unusedBytesAreZero = (noteTableDataView.getUint16(currentByte + NOTE_TABLE_UNUSED_OFFSET, LITTLE_ENDIAN) === 0);
-    const nextPageValid = (nextPage === N64InodeTable.INODE_TABLE_ENTRY_STOP) || ((nextPage >= FIRST_SAVE_DATA_PAGE) && (nextPage < NUM_PAGES));
-
-    if (firstPageValid && unusedBytesAreZero && nextPageValid) {
-      noteKeys.push(startingPage);
-
-      const gameSerialCodeArray = noteTableArray.slice(currentByte + NOTE_TABLE_GAME_SERIAL_CODE_OFFSET, currentByte + NOTE_TABLE_GAME_SERIAL_CODE_OFFSET + NOTE_TABLE_GAME_SERIAL_CODE_LENGTH);
-      const publisherCodeArray = noteTableArray.slice(currentByte + NOTE_TABLE_PUBLISHER_CODE_OFFSET, currentByte + NOTE_TABLE_PUBLISHER_CODE_OFFSET + NOTE_TABLE_PUBLISHER_CODE_LENGTH);
-
-      const { stringCode: gameSerialCode, stringCodeFixup: gameSerialCodeFixup } = decodeString(gameSerialCodeArray);
-      const { stringCode: publisherCode, stringCodeFixup: publisherCodeFixup } = decodeString(publisherCodeArray);
-
-      const noteName = N64TextDecoder.decode(
-        noteTableArray.slice(
-          currentByte + NOTE_TABLE_NOTE_NAME_OFFSET,
-          currentByte + NOTE_TABLE_NOTE_NAME_OFFSET + NOTE_TABLE_NOTE_NAME_LENGTH,
-        ),
-      );
-
-      const noteNameExtension = N64TextDecoder.decode(
-        noteTableArray.slice(
-          currentByte + NOTE_TABLE_NOTE_NAME_EXTENSION_OFFSET,
-          currentByte + NOTE_TABLE_NOTE_NAME_EXTENSION_OFFSET + NOTE_TABLE_NOTE_NAME_EXTENSION_LENGTH,
-        ),
-      );
-
-      notes.push({
-        noteIndex,
-        startingPage,
-        gameSerialCode,
-        gameSerialCodeFixup,
-        publisherCode,
-        publisherCodeFixup,
-        noteName,
-        noteNameExtension,
-        region: getRegionCode(gameSerialCode),
-        regionName: getRegionName(gameSerialCode),
-        media: getMediaCode(gameSerialCode),
-      });
-    }
-  }
-
-  return {
-    noteKeys,
-    notes,
-  };
-}
-
-function createNoteTablePage(saveFilesWithStartingPage) {
-  const noteBlocks = saveFilesWithStartingPage.map((saveFile) => {
-    const noteBlock = createEmptyBlock(NOTE_TABLE_BLOCK_SIZE);
-    const noteBlockDataView = new DataView(noteBlock);
-    const noteBlockArray = new Uint8Array(noteBlock);
-
-    const noteNameEncoded = N64TextDecoder.encode(saveFile.noteName, NOTE_TABLE_NOTE_NAME_LENGTH);
-    const noteNameExtensionEncoded = N64TextDecoder.encode(saveFile.noteNameExtension, NOTE_TABLE_NOTE_NAME_EXTENSION_LENGTH);
-
-    const gameSerialEncoded = encodeString(saveFile.gameSerialCode, NOTE_TABLE_GAME_SERIAL_CODE_LENGTH);
-    const publisherCodeEncoded = encodeString(saveFile.publisherCode, NOTE_TABLE_PUBLISHER_CODE_LENGTH);
-
-    noteBlockArray.set(gameSerialEncoded, NOTE_TABLE_GAME_SERIAL_CODE_OFFSET);
-    noteBlockArray.set(publisherCodeEncoded, NOTE_TABLE_PUBLISHER_CODE_OFFSET);
-
-    noteBlockDataView.setUint16(NOTE_TABLE_STARTING_PAGE_OFFSET, saveFile.startingPage, LITTLE_ENDIAN);
-
-    noteBlockArray[NOTE_TABLE_STATUS_OFFSET] = NOTE_TABLE_OCCUPIED_BIT;
-
-    noteBlockArray.set(noteNameEncoded, NOTE_TABLE_NOTE_NAME_OFFSET);
-    noteBlockArray.set(noteNameExtensionEncoded, NOTE_TABLE_NOTE_NAME_EXTENSION_OFFSET);
-
-    return noteBlock;
-  });
-
-  while (noteBlocks.length < NUM_NOTES) {
-    noteBlocks.push(createEmptyBlock(NOTE_TABLE_BLOCK_SIZE));
-  }
-
-  return Util.concatArrayBuffers(noteBlocks);
 }
 
 function parseNoteNameAndExtension(noteNameAndExtension) {
@@ -322,17 +126,17 @@ export default class N64MempackSaveData {
 
   static GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE = GAMESHARK_ACTIONREPLAY_CART_SAVE_PUBLISHER_CODE;
 
-  static GAMESHARK_ACTIONREPLAY_CART_SAVE_REGION_CODE = getRegionCode(GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
+  static GAMESHARK_ACTIONREPLAY_CART_SAVE_REGION_CODE = N64GameSerialCodeUtil.getRegionCode(GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
 
-  static GAMESHARK_ACTIONREPLAY_CART_SAVE_MEDIA_CODE = getMediaCode(GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
+  static GAMESHARK_ACTIONREPLAY_CART_SAVE_MEDIA_CODE = N64GameSerialCodeUtil.getMediaCode(GAMESHARK_ACTIONREPLAY_CART_SAVE_GAME_SERIAL_CODE);
 
   static BLACKBAG_CART_SAVE_GAME_SERIAL_CODE = BLACKBAG_CART_SAVE_GAME_SERIAL_CODE;
 
   static BLACKBAG_CART_SAVE_PUBLISHER_CODE = BLACKBAG_CART_SAVE_PUBLISHER_CODE;
 
-  static BLACKBAG_CART_SAVE_REGION_CODE = getRegionCode(BLACKBAG_CART_SAVE_GAME_SERIAL_CODE);
+  static BLACKBAG_CART_SAVE_REGION_CODE = N64GameSerialCodeUtil.getRegionCode(BLACKBAG_CART_SAVE_GAME_SERIAL_CODE);
 
-  static BLACKBAG_CART_SAVE_MEDIA_CODE = getMediaCode(BLACKBAG_CART_SAVE_GAME_SERIAL_CODE);
+  static BLACKBAG_CART_SAVE_MEDIA_CODE = N64GameSerialCodeUtil.getMediaCode(BLACKBAG_CART_SAVE_GAME_SERIAL_CODE);
 
   static createFromN64MempackData(mempackArrayBuffer) {
     return new N64MempackSaveData(mempackArrayBuffer);
@@ -368,7 +172,7 @@ export default class N64MempackSaveData {
 
     const saveFilesWithStartingPage = saveFiles.map((x, i) => ({ ...x, startingPage: startingPages[i] }));
 
-    const noteTablePage = createNoteTablePage(saveFilesWithStartingPage);
+    const noteTablePage = N64NoteTable.createNoteTablePage(saveFilesWithStartingPage);
 
     // Technically, we should split each save into separate pages, then concat all 128 pages together to get the final
     // arraybuffer. But, we can cheat and just concat the existing saves together instead of splitting them apart first
@@ -376,7 +180,7 @@ export default class N64MempackSaveData {
     let dataPages = Util.concatArrayBuffers(saveFiles.map((x) => x.rawData));
 
     while (dataPages.byteLength < MAX_DATA_SIZE) {
-      dataPages = Util.concatArrayBuffers([dataPages, createEmptyBlock(PAGE_SIZE)]);
+      dataPages = Util.concatArrayBuffers([dataPages, N64Basics.createEmptyBlock(PAGE_SIZE)]);
     }
 
     const arrayBuffer = Util.concatArrayBuffers([idAreaPage, inodeTablePage, inodeTablePage, noteTablePage, dataPages]);
@@ -397,7 +201,7 @@ export default class N64MempackSaveData {
     const inodeBackupArrayBuffer = getPage(INODE_TABLE_BACKUP_PAGE, mempackArrayBuffer);
     const noteTableArrayBuffer = concatPages(NOTE_TABLE_PAGES, mempackArrayBuffer);
 
-    const noteInfo = readNoteTable(inodeArrayBuffer, noteTableArrayBuffer);
+    const noteInfo = N64NoteTable.readNoteTable(inodeArrayBuffer, noteTableArrayBuffer);
     let noteIndexes = {};
 
     try {
