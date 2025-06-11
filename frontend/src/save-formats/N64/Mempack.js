@@ -17,11 +17,15 @@ import Util from '../../util/util';
 import N64Util from '../../util/N64';
 import N64TextDecoder from './TextDecoder';
 
-const LITTLE_ENDIAN = false;
+import N64Basics from './Components/Basics';
+import N64IdArea from './Components/IdArea';
 
-const NUM_NOTES = 16; // A "note" is a save slot. It consists of >= 1 pages
-const NUM_PAGES = 128;
-const PAGE_SIZE = 256;
+const {
+  LITTLE_ENDIAN,
+  NUM_NOTES,
+  NUM_PAGES,
+  PAGE_SIZE,
+} = N64Basics;
 
 // The first 5 pages are special header info
 const ID_AREA_PAGE = 0;
@@ -31,16 +35,6 @@ const NOTE_TABLE_PAGES = [3, 4];
 const FIRST_SAVE_DATA_PAGE = 5;
 
 const MAX_DATA_SIZE = (NUM_PAGES - FIRST_SAVE_DATA_PAGE) * PAGE_SIZE;
-
-const ID_AREA_BLOCK_SIZE = 32;
-const ID_AREA_CHECKSUM_OFFSETS = [0x20, 0x60, 0x80, 0xC0]; // 4 different checksum in the ID Area, and if any of them match then the data is deemed valid
-const ID_AREA_CHECKSUM_LENGTH = 28;
-const ID_AREA_DEVICE_OFFSET = 25;
-const ID_AREA_BANK_SIZE_OFFSET = 26;
-const ID_AREA_CHECKSUM_DESIRED_SUM_A_OFFSET = 28;
-const ID_AREA_CHECKSUM_DESIRED_SUM_B_OFFSET = 30;
-const DEVICE_CONTROLLER_PAK = 0x1;
-const BANK_SIZE = 0x1;
 
 const NOTE_TABLE_BLOCK_SIZE = 32;
 const NOTE_TABLE_GAME_SERIAL_CODE_OFFSET = 0;
@@ -193,100 +187,6 @@ function encodeString(string, encodedLength) {
   }
 
   return output;
-}
-
-// From https://github.com/bryc/mempak/blob/master/js/parser.js#L130
-function calculateChecksumsOfBlock(arrayBuffer) {
-  const dataView = new DataView(arrayBuffer);
-
-  let sumA = 0x0;
-  let sumB = 0xFFF2;
-
-  for (let i = 0; i < ID_AREA_CHECKSUM_LENGTH; i += 2) {
-    sumA += dataView.getUint16(i, LITTLE_ENDIAN);
-    sumA &= 0xFFFF;
-  }
-
-  sumB -= sumA;
-
-  return {
-    sumA,
-    sumB,
-  };
-}
-
-// Taken from https://github.com/bryc/mempak/blob/master/js/parser.js#L147
-// Calculate checksums of 4 byte arrays and compare them against the checksum
-// listed in the file. They're redundant, so if any are correct then the file
-// is deems not corrupted.
-function checkIdArea(arrayBuffer) {
-  let foundValidBlock = false;
-
-  const dataView = new DataView(arrayBuffer);
-
-  ID_AREA_CHECKSUM_OFFSETS.forEach((offset) => {
-    const block = arrayBuffer.slice(offset, offset + ID_AREA_BLOCK_SIZE);
-    const { sumA, sumB } = calculateChecksumsOfBlock(block);
-
-    const desiredSumA = dataView.getUint16(offset + ID_AREA_CHECKSUM_DESIRED_SUM_A_OFFSET, LITTLE_ENDIAN);
-    let desiredSumB = dataView.getUint16(offset + ID_AREA_CHECKSUM_DESIRED_SUM_B_OFFSET, LITTLE_ENDIAN);
-
-    // Find incorrect checksums found in many DexDrive files
-    // https://github.com/bryc/mempak/blob/master/js/parser.js#L127
-    if ((desiredSumB !== sumB) && ((desiredSumB ^ 0x0C) === sumB) && (desiredSumA === sumA)) {
-      desiredSumB ^= 0xC;
-    }
-
-    foundValidBlock = foundValidBlock || ((desiredSumA === sumA) && (desiredSumB === sumB));
-  });
-
-  if (!foundValidBlock) {
-    throw new Error('File appears to be corrupt - checksums in ID Area do not match');
-  }
-}
-
-function randomByte(randomNumberGenerator = null) {
-  const rng = (randomNumberGenerator !== null) ? randomNumberGenerator : Math.random;
-
-  return 0 | rng() * 256;
-}
-
-// Based on https://github.com/bryc/mempak/blob/master/js/state.js#L13
-function createIdAreaPage(randomNumberGenerator = null) {
-  // This page is 4 copies of the same block at different offsets
-
-  const checksumBlock = new ArrayBuffer(ID_AREA_BLOCK_SIZE);
-  const checksumBlockDataView = new DataView(checksumBlock);
-
-  checksumBlockDataView.setUint8(1, randomByte(randomNumberGenerator) & 0x3F);
-  checksumBlockDataView.setUint8(5, randomByte(randomNumberGenerator) & 0x7);
-  checksumBlockDataView.setUint8(6, randomByte(randomNumberGenerator));
-  checksumBlockDataView.setUint8(7, randomByte(randomNumberGenerator));
-  checksumBlockDataView.setUint8(8, randomByte(randomNumberGenerator) & 0xF);
-  checksumBlockDataView.setUint8(9, randomByte(randomNumberGenerator));
-  checksumBlockDataView.setUint8(10, randomByte(randomNumberGenerator));
-  checksumBlockDataView.setUint8(11, randomByte(randomNumberGenerator));
-  checksumBlockDataView.setUint8(ID_AREA_DEVICE_OFFSET, DEVICE_CONTROLLER_PAK);
-  checksumBlockDataView.setUint8(ID_AREA_BANK_SIZE_OFFSET, BANK_SIZE);
-
-  const { sumA, sumB } = calculateChecksumsOfBlock(checksumBlock);
-
-  checksumBlockDataView.setUint16(ID_AREA_CHECKSUM_DESIRED_SUM_A_OFFSET, sumA, LITTLE_ENDIAN);
-  checksumBlockDataView.setUint16(ID_AREA_CHECKSUM_DESIRED_SUM_B_OFFSET, sumB, LITTLE_ENDIAN);
-
-  // Now we can make our empty page
-
-  let pageArrayBuffer = new ArrayBuffer(PAGE_SIZE);
-
-  pageArrayBuffer = Util.fillArrayBuffer(pageArrayBuffer, 0);
-
-  // Now copy our block to the various offsets it needs to be at
-
-  ID_AREA_CHECKSUM_OFFSETS.forEach((offset) => {
-    pageArrayBuffer = Util.setArrayBufferPortion(pageArrayBuffer, checksumBlock, offset, 0, ID_AREA_BLOCK_SIZE);
-  });
-
-  return pageArrayBuffer;
 }
 
 function getRegionCode(gameSerialCode) {
@@ -596,7 +496,7 @@ export default class N64MempackSaveData {
 
     // Now make our header pages
 
-    const idAreaPage = createIdAreaPage(randomNumberGenerator);
+    const idAreaPage = N64IdArea.createIdAreaPage(randomNumberGenerator);
     const { inodeTablePage, startingPages } = createInodeTablePage(saveFiles);
 
     const saveFilesWithStartingPage = saveFiles.map((x, i) => ({ ...x, startingPage: startingPages[i] }));
@@ -623,7 +523,7 @@ export default class N64MempackSaveData {
     // There are 5 pages of header information, then the rest are game save data
 
     // The first page, the ID Area, is a series of checksums plus some other stuff we'll ignore
-    checkIdArea(getPage(ID_AREA_PAGE, mempackArrayBuffer));
+    N64IdArea.checkIdArea(getPage(ID_AREA_PAGE, mempackArrayBuffer));
 
     // Now, check the note table
     const inodeArrayBuffer = getPage(INODE_TABLE_PAGE, mempackArrayBuffer);
