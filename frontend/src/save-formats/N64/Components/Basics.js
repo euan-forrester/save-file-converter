@@ -9,6 +9,8 @@ export default class N64Basics {
 
   static PAGE_SIZE = 256;
 
+  static TOTAL_MEMPACK_SIZE = N64Basics.NUM_PAGES * N64Basics.PAGE_SIZE;
+
   static FIRST_SAVE_DATA_PAGE = 5;
 
   static createEmptyBlock(size) {

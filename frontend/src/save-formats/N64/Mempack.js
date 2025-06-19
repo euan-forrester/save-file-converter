@@ -20,6 +20,7 @@ import N64IdArea from './Components/IdArea';
 import N64InodeTable from './Components/InodeTable';
 import N64NoteTable from './Components/NoteTable';
 import N64GameSerialCodeUtil from './Components/GameSerialCodeUtil';
+import N64IndividualSaveFilename from './IndividualSaveFilename';
 
 const {
   NUM_NOTES,
@@ -91,10 +92,6 @@ function padCartSave(saveFile) {
 }
 
 export default class N64MempackSaveData {
-  static NUM_NOTES = NUM_NOTES;
-
-  static TOTAL_SIZE = NUM_PAGES * PAGE_SIZE;
-
   static createFromN64MempackData(mempackArrayBuffer) {
     return new N64MempackSaveData(mempackArrayBuffer);
   }
@@ -118,7 +115,7 @@ export default class N64MempackSaveData {
       }
 
       if (x.rawData.byteLength % PAGE_SIZE !== 0) {
-        throw new Error(`All saves must be multiples of ${PAGE_SIZE} bytes, but save '${N64MempackSaveData.getDisplayName(x)}' is ${x.rawData.byteLength} bytes`);
+        throw new Error(`All saves must be multiples of ${PAGE_SIZE} bytes, but save '${N64IndividualSaveFilename.getDisplayName(x)}' is ${x.rawData.byteLength} bytes`);
       }
     });
 
