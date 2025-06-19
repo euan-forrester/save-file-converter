@@ -10,8 +10,14 @@ It is:
 - Normal N64 .MPK memory card data
 */
 
+import N64Basics from './Components/Basics';
 import N64MempackSaveData from './Mempack';
 import Util from '../../util/util';
+
+const {
+  NUM_NOTES,
+  TOTAL_MEMPACK_SIZE,
+} = N64Basics;
 
 // DexDrive header
 
@@ -32,7 +38,7 @@ function getComments(headerArrayBuffer) {
   const comments = [];
   const textDecoder = new TextDecoder(COMMENT_ENCODING);
 
-  for (let i = 0; i < N64MempackSaveData.NUM_NOTES; i += 1) {
+  for (let i = 0; i < NUM_NOTES; i += 1) {
     const commentStartOffset = getCommentStartOffset(i);
     const commentArrayBuffer = headerArrayBuffer.slice(commentStartOffset, commentStartOffset + COMMENT_LENGTH);
 
@@ -65,13 +71,13 @@ export default class N64DexDriveSaveData {
 
     // Make an array of our comments, arranged by the starting block of each save
 
-    const comments = Array.from({ length: N64MempackSaveData.NUM_NOTES }, () => null);
+    const comments = Array.from({ length: NUM_NOTES }, () => null);
 
     const mempackSaveDataFilesWithComments = mempackSaveData.getSaveFiles().map((file, i) => ({ ...file, comment: saveFiles[i].comment })); // Our list of save files from the memcard data is in the same order as the files were passed in
 
     mempackSaveDataFilesWithComments.forEach((file) => { comments[file.noteIndex] = file.comment; });
 
-    for (let i = 0; i < N64MempackSaveData.NUM_NOTES; i += 1) {
+    for (let i = 0; i < NUM_NOTES; i += 1) {
       if (comments[i] !== null) {
         const encodedComment = commentTextEncoder.encode(comments[i]).slice(0, COMMENT_LENGTH);
 
@@ -99,13 +105,13 @@ export default class N64DexDriveSaveData {
     try {
       Util.checkMagic(dexDriveHeaderArrayBuffer, 0, HEADER_MAGIC, MAGIC_ENCODING);
     } catch (e) {
-      if (arrayBuffer.byteLength === N64MempackSaveData.TOTAL_SIZE) {
+      if (arrayBuffer.byteLength === TOTAL_MEMPACK_SIZE) {
         // Some files, found on gamefaqs primarily, are labeled as being dexdrive but are actually
         // raw memcard images. This is likely due to gamefaqs' policy of only allowing "legitimate" saves
         // and not those that could have come from an emulator.
         dexDriveHeaderArrayBuffer = Util.getFilledArrayBuffer(HEADER_LENGTH, 0x00);
         mempackArrayBuffer = arrayBuffer;
-      } else if (arrayBuffer.byteLength !== (HEADER_LENGTH + N64MempackSaveData.TOTAL_SIZE)) {
+      } else if (arrayBuffer.byteLength !== (HEADER_LENGTH + TOTAL_MEMPACK_SIZE)) {
         // For some files found on the Internet they just contain a completely blank header. Not sure what
         // program makes them. But they're parseable by the rest of the code here even though they don't
         // contain the correct magic

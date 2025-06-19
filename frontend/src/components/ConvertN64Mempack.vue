@@ -129,6 +129,8 @@ import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import FileList from './FileList.vue';
 import N64MempackSaveData from '../save-formats/N64/Mempack';
+import N64GameSerialCodeUtil from '../save-formats/N64/Components/GameSerialCodeUtil';
+import N64IndividualSaveFilename from '../save-formats/N64/IndividualSaveFilename';
 
 export default {
   name: 'ConvertN64Mempack',
@@ -156,7 +158,7 @@ export default {
     },
     userAllowedToChangeFilename() {
       return !this.mempackSaveData
-        || ((this.mempackSaveData.getSaveFiles().length > 0) && (this.selectedSaveData !== null) && N64MempackSaveData.isCartSave(this.mempackSaveData.getSaveFiles()[this.selectedSaveData]));
+        || ((this.mempackSaveData.getSaveFiles().length > 0) && (this.selectedSaveData !== null) && N64GameSerialCodeUtil.isCartSave(this.mempackSaveData.getSaveFiles()[this.selectedSaveData]));
     },
   },
   methods: {
@@ -164,7 +166,7 @@ export default {
       if ((this.mempackSaveData !== null) && (this.mempackSaveData.getSaveFiles() !== null)) {
         return this.mempackSaveData.getSaveFiles().map(
           (x) => ({
-            displayText: N64MempackSaveData.isCartSave(x) ? `Cartridge save: ${N64MempackSaveData.getDisplayName(x)}` : `${N64MempackSaveData.getDisplayName(x)} (${x.regionName})`,
+            displayText: N64GameSerialCodeUtil.isCartSave(x) ? `Cartridge save: ${N64IndividualSaveFilename.getDisplayName(x)}` : `${N64IndividualSaveFilename.getDisplayName(x)} (${x.regionName})`,
           }),
         );
       }
@@ -182,7 +184,7 @@ export default {
     changeSelectedSaveData(newSaveData) {
       if (this.mempackSaveData.getSaveFiles().length > 0) {
         this.selectedSaveData = newSaveData;
-        this.outputFilename = N64MempackSaveData.createFilename(this.mempackSaveData.getSaveFiles()[this.selectedSaveData]);
+        this.outputFilename = N64IndividualSaveFilename.createFilename(this.mempackSaveData.getSaveFiles()[this.selectedSaveData]);
       } else {
         this.selectedSaveData = null;
         this.outputFilename = null;
@@ -206,7 +208,7 @@ export default {
       this.selectedSaveData = null;
       this.inputFilename = null;
       try {
-        let saveFiles = event.map((f) => ({ parsedFilename: N64MempackSaveData.parseFilename(f.filename), rawData: f.arrayBuffer }));
+        let saveFiles = event.map((f) => ({ parsedFilename: N64IndividualSaveFilename.parseFilename(f.filename), rawData: f.arrayBuffer }));
 
         saveFiles = saveFiles.map((f) => ({
           noteName: f.parsedFilename.noteName,
