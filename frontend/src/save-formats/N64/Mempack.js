@@ -103,10 +103,12 @@ export default class N64MempackSaveData {
       throw new Error(`Found ${saveFiles.length} notes, but max is ${NUM_NOTES}`);
     }
 
-    const totalSize = saveFiles.reduce((accumulator, x) => accumulator + x.rawData.byteLength);
+    const totalSize = saveFiles.reduce((accumulator, x) => accumulator + x.rawData.byteLength, 0);
+
+    console.log(`Adding saves of total length ${totalSize} and max length is ${MAX_DATA_SIZE}`);
 
     if (totalSize > MAX_DATA_SIZE) {
-      throw new Error(`Total size of notes is ${totalSize} bytes, but max is ${MAX_DATA_SIZE}`);
+      throw new Error(`These files are too large to fit in a single N64 Controller Pak: total size is ${totalSize} bytes, but max is ${MAX_DATA_SIZE}`);
     }
 
     saveFiles.forEach((x) => {

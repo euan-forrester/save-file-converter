@@ -101,4 +101,23 @@ describe('N64 - Mempack save format', () => {
     expect(mempackSaveData.getSaveFiles()[1].media).to.equal('N');
     expect(ArrayBufferUtil.arrayBuffersEqual(mempackSaveData.getSaveFiles()[1].rawData, rawNote2ArrayBuffer)).to.equal(true);
   });
+
+  it('should return an understandable error message if the total size is too big', async () => {
+    const invalidIndividualSaveArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_TWO_FILES_FILENAME);
+
+    const saveFiles = [
+      {
+        noteName: 'T2-\'',
+        noteNameExtension: 'G',
+        gameSerialCode: 'NTQE',
+        publisherCode: '52',
+        rawData: invalidIndividualSaveArrayBuffer,
+      },
+    ];
+
+    expect(() => N64MempackSaveData.createFromSaveFiles(saveFiles, randomNumberGenerator)).to.throw(
+      Error,
+      'These files are too large to fit in a single N64 Controller Pak: total size is 32768 bytes, but max is 31488',
+    );
+  });
 });
