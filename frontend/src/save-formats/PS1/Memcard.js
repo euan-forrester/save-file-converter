@@ -97,7 +97,7 @@ function checkFile(file) {
 function xorAllBytes(arrayBuffer) {
   const array = new Uint8Array(arrayBuffer);
 
-  return array.reduce((acc, n) => acc ^ n);
+  return array.reduce((acc, n) => acc ^ n, 0);
 }
 
 function encodeFilename(filename, filenameTextEncoder) {
@@ -268,7 +268,7 @@ export default class Ps1MemcardSaveData {
 
     saveFiles.forEach((f) => checkFile(f));
 
-    const totalSize = saveFiles.reduce((total, f) => total + f.filesize);
+    const totalSize = saveFiles.reduce((total, f) => total + f.filesize, 0);
     if (totalSize > (NUM_BLOCKS * BLOCK_SIZE)) {
       throw new Error(`Total size of files is ${totalSize} bytes (${totalSize / BLOCK_SIZE} blocks) but max size is ${NUM_BLOCKS * BLOCK_SIZE} bytes (${NUM_BLOCKS} blocks)`);
     }

@@ -35,7 +35,7 @@ function decodeString(uint8Array) {
   // but may as well make the output here match exactly just in case.
   const uint8ArrayFixup = uint8Array.slice();
 
-  const sum = uint8Array.reduce((accumulator, n) => accumulator + n);
+  const sum = uint8Array.reduce((accumulator, n) => accumulator + n, 0);
 
   // These indicate that something was corrupted in the file and needs manual fixing
   // This only seems to affect one entry: the publisher for Wave Race 64. We'll maintain this fixup for compatibility with https://github.com/bryc/mempak/blob/master/js/codedb.js
