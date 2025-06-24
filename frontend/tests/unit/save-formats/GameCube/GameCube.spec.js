@@ -3,7 +3,6 @@
 import { expect } from 'chai';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 import ArrayUtil from '@/util/Array';
-import HexUtil from '#/util/Hex';
 
 import GameCubeSaveData from '@/save-formats/GameCube/GameCube';
 import GameCubeUtil from '@/save-formats/GameCube/Util';
@@ -14,9 +13,9 @@ const DIR = './tests/data/save-formats/gamecube';
 
 const EMPTY_ASCII_FILENAME = `${DIR}/usa-empty-0251b-16mb.raw`;
 const EMPTY_SHIFT_JIS_FILENAME = `${DIR}/jpn-empty-0251b-16mb.raw`;
-const EMPTY_CARDS_FLASH_ID = HexUtil.hexToArrayBuffer('000000000000000000000000');
+const EMPTY_CARDS_FLASH_ID = Buffer.from('000000000000000000000000', 'hex');
 
-const MEMCARD_FLASH_ID = HexUtil.hexToArrayBuffer('ddc9f91faad6bb8dfe35f8c5');
+const MEMCARD_FLASH_ID = Buffer.from('ddc9f91faad6bb8dfe35f8c5', 'hex');
 const MEMCARD_IMAGE_FILENAME = `${DIR}/memcard-image.raw`;
 const MEMCARD_IMAGE_RECREATED_FILENAME = `${DIR}/memcard-image-recreated.raw`;
 const MEMCARD_IMAGE_RECREATED_RESIZED_FILENAME = `${DIR}/memcard-image-recreated-resized.raw`;
@@ -36,7 +35,7 @@ const MEMCARD_SAVE_FILENAME = [
   `${DIR}/memcard-image-9.bin`,
 ];
 
-const DIFFERENT_MEMCARD_FLASH_ID = HexUtil.hexToArrayBuffer('ddc9f91faad6bb8dfe35f8c6'); // Just different from MEMCARD_FLASH_ID by a single digit
+const DIFFERENT_MEMCARD_FLASH_ID = Buffer.from('ddc9f91faad6bb8dfe35f8c6', 'hex'); // Just different from MEMCARD_FLASH_ID by a single digit
 const NEW_MEMCARD_IMAGE_SAME_FLASH_ID = `${DIR}/mine-same-flash-id.raw`;
 const NEW_MEMCARD_IMAGE_SAME_FLASH_ID_DIFFERENT_DATE = `${DIR}/mine-same-flash-id-different-date.raw`;
 const NEW_MEMCARD_IMAGE_DIFFERENT_FLASH_ID = `${DIR}/mine-different-flash-id.raw`;
