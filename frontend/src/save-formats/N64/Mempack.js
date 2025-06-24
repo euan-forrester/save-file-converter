@@ -105,8 +105,6 @@ export default class N64MempackSaveData {
 
     const totalSize = saveFiles.reduce((accumulator, x) => accumulator + x.rawData.byteLength, 0);
 
-    console.log(`Adding saves of total length ${totalSize} and max length is ${MAX_DATA_SIZE}`);
-
     if (totalSize > MAX_DATA_SIZE) {
       throw new Error(`These files are too large to fit in a single N64 Controller Pak: total size is ${totalSize} bytes, but max is ${MAX_DATA_SIZE}`);
     }
