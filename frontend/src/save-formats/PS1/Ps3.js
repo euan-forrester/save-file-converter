@@ -10,14 +10,19 @@ found here: https://psdevwiki.com/ps3/PS1_Savedata#PS1_Single_Save_.3F_.28.PSV.2
 
 */
 
+import Ps1Basics from './Components/Basics';
 import Ps1MemcardSaveData from './Memcard';
 import SonyUtil from './Components/SonyUtil';
 import Util from '../../util/util';
 
+const {
+  LITTLE_ENDIAN,
+  FRAME_SIZE,
+} = Ps1Basics;
+
 // PS3 header
 
 const HEADER_LENGTH = 0x84;
-const LITTLE_ENDIAN = true;
 
 const HEADER_MAGIC = '\x00VSP\x00\x00\x00\x00';
 const MAGIC_ENCODING = 'US-ASCII';
@@ -39,7 +44,7 @@ const PLATFORM_INDICATOR_2_PS1 = 0x1;
 const SAVE_SIZE_OFFSET = 0x40; // Size of the PS1/2 data in the save (so, excluding the PS3 header)
 const SAVE_START_BYTE_OFFSET = 0x44; // How many bytes after the start of the file that the actual PS1/2 save starts
 const SAVE_HEADER_SIZE_OFFSET = 0x48; // How big the initial "SC" header is within the save data
-const SAVE_HEADER_SIZE_PS1 = Ps1MemcardSaveData.FRAME_SIZE * 4;
+const SAVE_HEADER_SIZE_PS1 = FRAME_SIZE * 4;
 
 const FILENAME_PRODUCT_CODE_OFFSET = 0x64;
 const FILENAME_PRODUCT_CODE_LENGTH = 0x0C;
