@@ -14,7 +14,7 @@ based on https://github.com/dots-tb/vita-mcr2vmp
 // just a portion of it as implemented in https://github.com/crypto-browserify/createHash
 
 import Ps1MemcardSaveData from './Memcard';
-import SonyUtil from './SonyUtil';
+import SonyUtil from './Components/SonyUtil';
 import Util from '../../util/util';
 
 // PSP header

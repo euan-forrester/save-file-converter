@@ -9,7 +9,15 @@ The DexDrive data format is:
 */
 
 import Ps1MemcardSaveData from './Memcard';
+import Ps1DirectoryBlock from './Components/DirectoryBlock';
+import Ps1Basics from './Components/Basics';
 import Util from '../../util/util';
+
+const {
+  NUM_DATA_BLOCKS,
+  TOTAL_SIZE,
+  LITTLE_ENDIAN,
+} = Ps1Basics;
 
 // DexDrive header
 
@@ -37,7 +45,7 @@ function getComments(headerArrayBuffer) {
   const comments = [];
   const textDecoder = new TextDecoder(COMMENT_ENCODING);
 
-  for (let i = 0; i < Ps1MemcardSaveData.NUM_BLOCKS; i += 1) {
+  for (let i = 0; i < NUM_DATA_BLOCKS; i += 1) {
     const commentStartOffset = getCommentStartOffset(i);
     const commentArrayBuffer = headerArrayBuffer.slice(commentStartOffset, commentStartOffset + COMMENT_LENGTH);
 
@@ -48,8 +56,6 @@ function getComments(headerArrayBuffer) {
 }
 
 export default class Ps1DexDriveSaveData {
-  static NUM_BLOCKS = Ps1MemcardSaveData.NUM_BLOCKS;
-
   static createFromDexDriveData(dexDriveArrayBuffer) {
     return new Ps1DexDriveSaveData(dexDriveArrayBuffer);
   }
@@ -75,7 +81,7 @@ export default class Ps1DexDriveSaveData {
 
     // Make an array of our comments, arranged by the starting block of each save
 
-    const comments = Array.from({ length: Ps1MemcardSaveData.NUM_BLOCKS }, () => null);
+    const comments = Array.from({ length: NUM_DATA_BLOCKS }, () => null);
 
     const memcardSaveDataFilesWithComments = memcardSaveData.getSaveFiles().map((file, i) => ({ ...file, comment: saveFiles[i].comment })); // Our list of save files from the memcard data is in the same order as the files were passed in
 
@@ -90,12 +96,12 @@ export default class Ps1DexDriveSaveData {
     headerArray[20] = 0x1;
     headerArray[21] = 0x4D; // M
 
-    for (let i = 0; i < Ps1MemcardSaveData.NUM_BLOCKS; i += 1) {
+    for (let i = 0; i < NUM_DATA_BLOCKS; i += 1) {
       const directoryFrame = memcardSaveData.getDirectoryFrame(i);
-      const directoryFrameArray = new Uint8Array(directoryFrame);
+      const directoryDataView = new DataView(directoryFrame);
 
-      const availableFlags = directoryFrameArray[Ps1MemcardSaveData.DIRECTORY_FRAME_AVAILABLE_OFFSET];
-      const nextLinkedBlock = directoryFrameArray[Ps1MemcardSaveData.DIRECTORY_FRAME_NEXT_BLOCK_OFFSET]; // This is actually a 16-bit number, but it's in little endian so the first byte contains all the info we need (0xFF if no next block)
+      const availableFlags = directoryDataView.getUint8(Ps1DirectoryBlock.DIRECTORY_FRAME_AVAILABLE_OFFSET);
+      const nextLinkedBlock = directoryDataView.getUint16(Ps1DirectoryBlock.DIRECTORY_FRAME_NEXT_BLOCK_OFFSET, LITTLE_ENDIAN);
 
       headerArray[AVAILABLE_BLOCKS_OFFSET + i] = availableFlags;
       headerArray[LINK_BLOCKS_OFFSET + i] = nextLinkedBlock;
@@ -133,13 +139,13 @@ export default class Ps1DexDriveSaveData {
     try {
       Util.checkMagic(dexDriveHeaderArrayBuffer, 0, HEADER_MAGIC, MAGIC_ENCODING);
     } catch (e) {
-      if (arrayBuffer.byteLength === Ps1MemcardSaveData.TOTAL_SIZE) {
+      if (arrayBuffer.byteLength === TOTAL_SIZE) {
         // Some files, found on gamefaqs primarily, are labeled as being dexdrive but are actually
         // raw memcard images. This is likely due to gamefaqs' policy of only allowing "legitimate" saves
         // and not those that could have come from an emulator.
         dexDriveHeaderArrayBuffer = Util.getFilledArrayBuffer(HEADER_LENGTH, 0x00);
         memcardArrayBuffer = arrayBuffer;
-      } else if (arrayBuffer.byteLength !== (HEADER_LENGTH + Ps1MemcardSaveData.TOTAL_SIZE)) {
+      } else if (arrayBuffer.byteLength !== (HEADER_LENGTH + TOTAL_SIZE)) {
         // For some files found on the Internet they just contain a completely blank header. Not sure what
         // program makes them. But they're parseable by the rest of the code here even though they don't
         // contain the correct magic
