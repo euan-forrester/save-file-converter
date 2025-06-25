@@ -14,7 +14,7 @@ import Ps1Basics from './Components/Basics';
 import Util from '../../util/util';
 
 const {
-  NUM_BLOCKS,
+  NUM_DATA_BLOCKS,
   TOTAL_SIZE,
   LITTLE_ENDIAN,
 } = Ps1Basics;
@@ -45,7 +45,7 @@ function getComments(headerArrayBuffer) {
   const comments = [];
   const textDecoder = new TextDecoder(COMMENT_ENCODING);
 
-  for (let i = 0; i < NUM_BLOCKS; i += 1) {
+  for (let i = 0; i < NUM_DATA_BLOCKS; i += 1) {
     const commentStartOffset = getCommentStartOffset(i);
     const commentArrayBuffer = headerArrayBuffer.slice(commentStartOffset, commentStartOffset + COMMENT_LENGTH);
 
@@ -81,7 +81,7 @@ export default class Ps1DexDriveSaveData {
 
     // Make an array of our comments, arranged by the starting block of each save
 
-    const comments = Array.from({ length: NUM_BLOCKS }, () => null);
+    const comments = Array.from({ length: NUM_DATA_BLOCKS }, () => null);
 
     const memcardSaveDataFilesWithComments = memcardSaveData.getSaveFiles().map((file, i) => ({ ...file, comment: saveFiles[i].comment })); // Our list of save files from the memcard data is in the same order as the files were passed in
 
@@ -96,7 +96,7 @@ export default class Ps1DexDriveSaveData {
     headerArray[20] = 0x1;
     headerArray[21] = 0x4D; // M
 
-    for (let i = 0; i < NUM_BLOCKS; i += 1) {
+    for (let i = 0; i < NUM_DATA_BLOCKS; i += 1) {
       const directoryFrame = memcardSaveData.getDirectoryFrame(i);
       const directoryDataView = new DataView(directoryFrame);
 

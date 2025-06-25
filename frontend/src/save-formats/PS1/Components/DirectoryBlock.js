@@ -7,7 +7,8 @@ import Util from '../../../util/util';
 const {
   LITTLE_ENDIAN,
   BLOCK_SIZE,
-  NUM_BLOCKS,
+  NUM_DATA_BLOCKS,
+  NUM_TOTAL_BLOCKS,
   FRAME_SIZE,
   MAGIC_ENCODING,
 } = Ps1Basics;
@@ -208,7 +209,7 @@ export default class Ps1DirectoryBlock {
 
     // Fill in any remaining space as empty directory frames + save blocks
 
-    while (directoryFrames.length < (NUM_BLOCKS + 1)) { // +1 because we have the magic frame on there first
+    while (directoryFrames.length < NUM_TOTAL_BLOCKS) { // NUM_TOTAL_BLOCKS rather than NUM_DATA_BLOCKS because we have the magic frame on there first, which corresponds to the header block
       directoryFrames.push(createDirectoryFrameEmpty());
     }
 
@@ -232,7 +233,7 @@ export default class Ps1DirectoryBlock {
 
     // Go through all the directory frames, and for each block that contains data then get the raw save data and decode its description
 
-    for (let i = 0; i < NUM_BLOCKS; i += 1) {
+    for (let i = 0; i < NUM_DATA_BLOCKS; i += 1) {
       let directoryFrame = getDirectoryFrame(headerArrayBuffer, i);
       let directoryFrameDataView = new DataView(directoryFrame);
 

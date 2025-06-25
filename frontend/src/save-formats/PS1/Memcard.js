@@ -11,7 +11,8 @@ import Util from '../../util/util';
 
 const {
   BLOCK_SIZE,
-  NUM_BLOCKS,
+  NUM_DATA_BLOCKS,
+  NUM_TOTAL_BLOCKS,
 } = Ps1Basics;
 
 function checkFile(file) {
@@ -41,8 +42,8 @@ export default class Ps1MemcardSaveData {
     saveFiles.forEach((f) => checkFile(f));
 
     const totalSize = saveFiles.reduce((total, f) => total + f.rawData.byteLength, 0);
-    if (totalSize > (NUM_BLOCKS * BLOCK_SIZE)) {
-      throw new Error(`Total size of files is ${totalSize} bytes (${totalSize / BLOCK_SIZE} blocks) but max size is ${NUM_BLOCKS * BLOCK_SIZE} bytes (${NUM_BLOCKS} blocks)`);
+    if (totalSize > (NUM_DATA_BLOCKS * BLOCK_SIZE)) {
+      throw new Error(`Total size of files is ${totalSize} bytes (${totalSize / BLOCK_SIZE} blocks) but max size is ${NUM_DATA_BLOCKS * BLOCK_SIZE} bytes (${NUM_DATA_BLOCKS} blocks)`);
     }
 
     // Create our directory frames + save blocks
@@ -64,7 +65,7 @@ export default class Ps1MemcardSaveData {
     this.arrayBuffer = arrayBuffer;
 
     const headerArrayBuffer = arrayBuffer.slice(0, BLOCK_SIZE); // The first block describes the layout of the card, and is hidden from the user
-    const dataBlocksArrayBuffer = arrayBuffer.slice(BLOCK_SIZE, BLOCK_SIZE * (NUM_BLOCKS + 1)); // The remaining blocks contain the actual save data
+    const dataBlocksArrayBuffer = arrayBuffer.slice(BLOCK_SIZE, BLOCK_SIZE * NUM_TOTAL_BLOCKS); // The remaining blocks contain the actual save data
 
     const saveFilesFromDirectory = Ps1DirectoryBlock.readDirectoryBlock(headerArrayBuffer);
 

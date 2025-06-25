@@ -4,7 +4,7 @@ import Util from '../../../util/util';
 
 const {
   BLOCK_SIZE,
-  NUM_BLOCKS,
+  NUM_DATA_BLOCKS,
   MAGIC_ENCODING,
 } = Ps1Basics;
 
@@ -78,7 +78,7 @@ export default class Ps1SaveBlocks {
       }
     });
 
-    while (saveBlocks.length < NUM_BLOCKS) {
+    while (saveBlocks.length < NUM_DATA_BLOCKS) {
       saveBlocks.push(createSaveBlockEmpty());
     }
 
