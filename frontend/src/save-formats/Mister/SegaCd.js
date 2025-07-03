@@ -65,16 +65,31 @@ export default class MisterSegaCdSaveData {
     let truncatedRawCartSaveArrayBuffer = null;
     let misterRamCartSaveArrayBuffer = null;
 
-    if (rawInternalSaveArrayBuffer !== null) {
-      truncatedRawInternalSaveBuffer = SegaCdUtil.truncateToActualSize(rawInternalSaveArrayBuffer);
+    // since either file (or both files) could have errors, throw an object with all errors collected
+    const conversionErrors = { internalSaveError: null, ramCartError: null };
 
-      if (truncatedRawInternalSaveBuffer.byteLength !== SegaCdUtil.INTERNAL_SAVE_SIZE) {
-        throw new Error(`Internal save RAM is not the correct size. Must be ${SegaCdUtil.INTERNAL_SAVE_SIZE} bytes`);
+    if (rawInternalSaveArrayBuffer !== null) {
+      try {
+        truncatedRawInternalSaveBuffer = SegaCdUtil.truncateToActualSize(rawInternalSaveArrayBuffer);
+        if (truncatedRawInternalSaveBuffer.byteLength !== SegaCdUtil.INTERNAL_SAVE_SIZE) {
+          conversionErrors.internalSaveError = `Internal save RAM is not the correct size. Must be ${SegaCdUtil.INTERNAL_SAVE_SIZE} bytes`;
+        }
+      } catch (error) {
+        conversionErrors.internalSaveError = error.message;
       }
     }
 
     if (rawCartSaveArrayBuffer !== null) {
-      truncatedRawCartSaveArrayBuffer = SegaCdUtil.truncateToActualSize(rawCartSaveArrayBuffer);
+      try {
+        truncatedRawCartSaveArrayBuffer = SegaCdUtil.truncateToActualSize(rawCartSaveArrayBuffer);
+      } catch (error) {
+        conversionErrors.ramCartError = error.message;
+      }
+
+      if (conversionErrors.internalSaveError !== null || conversionErrors.ramCartError !== null) {
+        throw conversionErrors;
+      }
+
       misterRamCartSaveArrayBuffer = SegaCdUtil.resize(truncatedRawCartSaveArrayBuffer, MisterSegaCdSaveData.RAM_CART_SIZE);
     }
 
