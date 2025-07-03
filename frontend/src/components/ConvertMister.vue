@@ -365,10 +365,14 @@ export default {
         } catch (e) {
           if (inputSegaCdType === null) {
             this.errorMessage = 'This file does not seem to be in the correct format';
-          } else if (inputSegaCdType === 'rawInternalSaveArrayBuffer') {
-            this.segaCdInternalMemoryErrorMessage = 'This internal memory save file does not seem to be in the correct format';
-          } else if (inputSegaCdType === 'rawCartSaveArrayBuffer') {
-            this.segaCdRamCartridgeErrorMessage = 'This RAM cartridge save file does not seem to be in the correct format';
+          } else {
+            // SegaCD will throw an error object with separate errors for the two possible input files
+            if (e.internalSaveError !== null) {
+              this.segaCdInternalMemoryErrorMessage = e.internalSaveError;
+            }
+            if (e.ramCartError !== null) {
+              this.segaCdRamCartridgeErrorMessage = e.ramCartError;
+            }
           }
           this.misterSaveData = null;
         }
