@@ -61,14 +61,14 @@
             <div v-if="this.isSegaCd">
               <input-file
                 @load="readEmulatorSaveData($event, 'rawInternalSaveArrayBuffer')"
-                :errorMessage="this.segaCdErrorMessage"
+                :errorMessage="this.segaCdInternalMemoryErrorMessage"
                 placeholderText="Choose an internal memory save file to convert"
                 :leaveRoomForHelpIcon="false"
                 ref="inputFileSegaCdInternalMemory"
               />
               <input-file
                 @load="readEmulatorSaveData($event, 'rawCartSaveArrayBuffer')"
-                :errorMessage="this.segaCdErrorMessage"
+                :errorMessage="this.segaCdRamCartridgeErrorMessage"
                 placeholderText="Choose a RAM cartridge save file to convert"
                 :leaveRoomForHelpIcon="false"
                 ref="inputFileSegaCdRamCart"
@@ -155,7 +155,8 @@ export default {
       misterPlatformPrevious: null,
       misterPlatformClass: null,
       errorMessage: null,
-      segaCdErrorMessage: null,
+      segaCdInternalMemoryErrorMessage: null,
+      segaCdRamCartridgeErrorMessage: null,
       outputFilename: null,
       outputFilesize: null,
       conversionDirection: 'convertToRaw',
@@ -200,7 +201,8 @@ export default {
       this.misterPlatformPrevious = null;
       this.misterPlatformClass = null;
       this.errorMessage = null;
-      this.segaCdErrorMessage = null;
+      this.segaCdInternalMemoryErrorMessage = null;
+      this.segaCdRamCartridgeErrorMessage = null;
       this.outputFilename = null;
       this.outputFilesize = null;
       this.inputArrayBuffer = null;
@@ -333,7 +335,8 @@ export default {
     },
     updateMisterSaveData(inputSegaCdType) {
       this.errorMessage = null;
-      this.segaCdErrorMessage = null;
+      this.segaCdInternalMemoryErrorMessage = null;
+      this.segaCdRamCartridgeErrorMessage = null;
       this.outputFilesize = null;
 
       if ((this.misterPlatformClass !== null) && (this.inputArrayBuffer !== null) && (this.inputFilename !== null) && (this.inputFileType !== null)) {
@@ -363,7 +366,13 @@ export default {
           if (inputSegaCdType === null) {
             this.errorMessage = 'This file does not seem to be in the correct format';
           } else {
-            this.segaCdErrorMessage = 'At least one of these files does not seem to be in the correct format';
+            // SegaCD will throw an error object with separate errors for the two possible input files
+            if (e.internalSaveError !== null) {
+              this.segaCdInternalMemoryErrorMessage = e.internalSaveError;
+            }
+            if (e.ramCartError !== null) {
+              this.segaCdRamCartridgeErrorMessage = e.ramCartError;
+            }
           }
           this.misterSaveData = null;
         }
