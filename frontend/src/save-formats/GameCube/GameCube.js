@@ -161,6 +161,15 @@ export default class GameCubeSaveData {
     return GameCubeSaveData.createFromSaveFiles(gameCubeSaveData.getSaveFiles(), volumeInfo);
   }
 
+  static createWithNewEncoding(gameCubeSaveData, newEncoding) {
+    const volumeInfo = {
+      ...gameCubeSaveData.getVolumeInfo(),
+      encodingCode: GameCubeUtil.getEncodingCode(newEncoding),
+    };
+
+    return GameCubeSaveData.createFromSaveFiles(gameCubeSaveData.getSaveFiles(), volumeInfo);
+  }
+
   static createFromGameCubeData(arrayBuffer) {
     if (arrayBuffer.byteLength < (NUM_RESERVED_BLOCKS * BLOCK_SIZE)) {
       throw new Error('This does not appear to be a GameCube memory card image');
