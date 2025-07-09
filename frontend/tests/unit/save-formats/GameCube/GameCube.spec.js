@@ -41,6 +41,8 @@ const NEW_MEMCARD_IMAGE_SAME_FLASH_ID_DIFFERENT_DATE = `${DIR}/mine-same-flash-i
 const NEW_MEMCARD_IMAGE_DIFFERENT_FLASH_ID = `${DIR}/mine-different-flash-id.raw`;
 const NEW_MEMCARD_IMAGE_DIFFERENT_FLASH_ID_DIFFERENT_DATE = `${DIR}/mine-different-flash-id-different-date.raw`;
 
+const NINTENDONT_JAPANESE_MEMCARD = `${DIR}/memcard-image-japan-nintendont.raw`;
+
 describe('GameCube', () => {
   it('should correctly read an empty ASCII GameCube file', async () => {
     const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMPTY_ASCII_FILENAME);
@@ -668,5 +670,27 @@ describe('GameCube', () => {
     const gameCubeDataResized = GameCubeSaveData.createWithNewSize(gameCubeSaveData, 8388608); // 64 megabits/1019 blocks
 
     expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeDataResized.getArrayBuffer(), arrayBufferResized)).to.equal(true);
+  });
+
+  it('should load a GameCube file that works for a Japanese game in Nintendont', async () => {
+    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(NINTENDONT_JAPANESE_MEMCARD);
+
+    const gameCubeSaveData = GameCubeSaveData.createFromGameCubeData(arrayBuffer);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getVolumeInfo().cardFlashId, EMPTY_CARDS_FLASH_ID)).to.equal(true);
+    expect(gameCubeSaveData.getVolumeInfo().formatTime.toUTCString()).to.equal('Sat, 01 Jan 2000 00:00:19 GMT'); // 19 seconds after epoch
+    expect(gameCubeSaveData.getVolumeInfo().formatOsTimeCode).to.equal(779957113n);
+    expect(gameCubeSaveData.getVolumeInfo().rtcBias).to.equal(0);
+    expect(gameCubeSaveData.getVolumeInfo().language).to.equal('English');
+    expect(gameCubeSaveData.getVolumeInfo().viDtvStatus).to.equal(0);
+    expect(gameCubeSaveData.getVolumeInfo().memcardSlot).to.equal(GameCubeHeader.MEMCARD_SLOT_A);
+    expect(gameCubeSaveData.getVolumeInfo().memcardSizeMegabits).to.equal(16);
+    expect(gameCubeSaveData.getVolumeInfo().encodingString).to.equal('shift-jis');
+    expect(gameCubeSaveData.getVolumeInfo().numTotalBlocks).to.equal(251);
+    expect(gameCubeSaveData.getVolumeInfo().numUsedBlocks).to.equal(2);
+    expect(gameCubeSaveData.getVolumeInfo().numFreeBlocks).to.equal(249);
+    expect(gameCubeSaveData.getVolumeInfo().lastAllocatedBlock).to.equal(6);
+
+    expect(gameCubeSaveData.getSaveFiles().length).to.equal(1);
   });
 });

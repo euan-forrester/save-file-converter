@@ -35,6 +35,11 @@
               :customFormatter="formatSize"
               overrideHelpText="Select the size of memory card that you wish to create"
             />
+            <game-cube-encoding-selector
+              :value="this.outputEncoding"
+              @input="changeOutputEncoding($event)"
+              id="gameCubeEncodingSelector"
+            />
             <input-file
               @load="readGameCubeExampleFileSaveData($event)"
               :errorMessage="this.errorMessageExampleFile"
@@ -44,6 +49,7 @@
               helpText="When copying a .raw file to an original memory card, the file must contain a special ID number specific to that individual memory card.
               Provide an example file here from that memory card so that the ID number can be copied from it. This is not required when using an emulator or the Memcard Pro GC."
               ref="inputFileGameCubeExampleSaveData"
+              id="inputFileGameCubeExampleSaveData"
             />
           </div>
         </b-col>
@@ -171,6 +177,7 @@ import OutputFilesize from './OutputFilesize.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import FileList from './FileList.vue';
 import IndividualSavesOrMemoryCardSelector from './IndividualSavesOrMemoryCardSelector.vue';
+import GameCubeEncodingSelector from './GameCubeEncodingSelector.vue';
 
 import GameCubeSaveData from '../save-formats/GameCube/GameCube';
 import GameCubeGciSaveData from '../save-formats/GameCube/Gci';
@@ -180,6 +187,7 @@ import GameCubeHeader from '../save-formats/GameCube/Components/Header';
 import PlatformSaveSizes from '../save-formats/PlatformSaveSizes';
 
 const DEFAULT_OUTPUT_FILE_SIZE = 2097152; // 251 blocks (16 megabits)
+const DEFAULT_OUTPUT_ENCODING = 'US-ASCII';
 
 export default {
   name: 'ConvertGameCube',
@@ -193,6 +201,7 @@ export default {
       inputFilename: null,
       outputFilename: null,
       outputFilesize: DEFAULT_OUTPUT_FILE_SIZE,
+      outputEncoding: DEFAULT_OUTPUT_ENCODING,
       conversionDirection: 'convertToRaw',
       selectedSaveData: null,
       individualSavesOrMemoryCard: 'individual-saves',
@@ -207,6 +216,7 @@ export default {
     OutputFilesize,
     FileList,
     IndividualSavesOrMemoryCardSelector,
+    GameCubeEncodingSelector,
   },
   computed: {
     convertButtonDisabled() {
@@ -262,6 +272,22 @@ export default {
 
       this.getGameCubeDataResized();
     },
+    changeOutputEncoding(newValue) {
+      this.outputEncoding = newValue;
+      this.errorMessage = null;
+
+      if (this.gameCubeSaveDataLargest !== null) {
+        try {
+          this.gameCubeSaveDataLargest = GameCubeSaveData.createWithNewEncoding(this.gameCubeSaveDataLargest, this.outputEncoding);
+        } catch (e) {
+          this.errorMessage = 'Could not create save file for this region';
+          this.gameCubeSaveDataLargest = null;
+          this.selectedSaveData = null;
+        }
+      }
+
+      this.getGameCubeDataResized();
+    },
     changeIndividualSavesOrMemoryCard(newValue) {
       this.errorMessage = null;
 
@@ -298,6 +324,7 @@ export default {
       this.inputFilename = null;
       this.outputFilename = null;
       this.outputFilesize = DEFAULT_OUTPUT_FILE_SIZE;
+      this.outputEncoding = DEFAULT_OUTPUT_ENCODING;
       this.selectedSaveData = null;
       this.individualSavesOrMemoryCard = 'individual-saves';
 
@@ -359,10 +386,8 @@ export default {
       this.inputFilename = null;
       try {
         const saveFileArrayBuffers = event.map((f) => f.arrayBuffer);
-        const saveFiles = GameCubeGciSaveData.convertGcisToSaveFiles(saveFileArrayBuffers); // Note that here we assume the default encoding. We probably can't deduce the encoding automatically: see comments in this function
+        const saveFiles = GameCubeGciSaveData.convertGcisToSaveFiles(saveFileArrayBuffers); // Note that here we use the inferred encoding. This will be overwritten when we convert to a memory card image below
 
-        // Let's hardcode the language/encoding/memcard slot to avoid cluttering our UI
-        // Reevaluate if we get feedback that being able to set these would be helpful
         let volumeInfo = {
           formatOsTimeCode: GameCubeUtil.getOsTimeFromDate(new Date()), // Represents now, by the brower's clock. Will be ignored if no cardFlashId specified: see GameCubeHeader.writeHeader()
           rtcBias: 0,
@@ -370,7 +395,7 @@ export default {
           viDtvStatus: 0,
           memcardSlot: GameCubeHeader.MEMCARD_SLOT_A,
           memcardSizeMegabits: GameCubeUtil.bytesToMegabits(this.largestSaveSize),
-          encodingCode: GameCubeUtil.getEncodingCode('US-ASCII'),
+          encodingCode: GameCubeUtil.getEncodingCode(this.outputEncoding),
         };
 
         if (this.gameCubeSaveDataExample !== null) {
