@@ -11,6 +11,7 @@ In the example saves I was given, one of them was a 520kB (8kB + 512kB) file but
 
 import SegaCdUtil from '../../util/SegaCd';
 import Util from '../../util/util';
+import SegaError from '../SegaError';
 
 export default class MisterSegaCdSaveData {
   static INTERNAL_MEMORY = 'internal-memory';
@@ -82,15 +83,14 @@ export default class MisterSegaCdSaveData {
     if (rawCartSaveArrayBuffer !== null) {
       try {
         truncatedRawCartSaveArrayBuffer = SegaCdUtil.truncateToActualSize(rawCartSaveArrayBuffer);
+        misterRamCartSaveArrayBuffer = SegaCdUtil.resize(truncatedRawCartSaveArrayBuffer, MisterSegaCdSaveData.RAM_CART_SIZE);
       } catch (error) {
         conversionErrors.ramCartError = error.message;
       }
+    }
 
-      if (conversionErrors.internalSaveError !== null || conversionErrors.ramCartError !== null) {
-        throw conversionErrors;
-      }
-
-      misterRamCartSaveArrayBuffer = SegaCdUtil.resize(truncatedRawCartSaveArrayBuffer, MisterSegaCdSaveData.RAM_CART_SIZE);
+    if ((conversionErrors.internalSaveError !== null) || (conversionErrors.ramCartError !== null)) {
+      throw new SegaError(conversionErrors.internalSaveError, conversionErrors.ramCartError);
     }
 
     // Now that we've got our pieces resized and ready, we can see what we've got and figure out

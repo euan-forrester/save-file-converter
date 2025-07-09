@@ -145,6 +145,7 @@ import MisterSegaSaturnSaveData from '../save-formats/Mister/SegaSaturn';
 import MisterPcEngineSaveData from '../save-formats/Mister/PcEngine';
 import MisterPs1SaveData from '../save-formats/Mister/Ps1';
 import MisterWonderSwanSaveData from '../save-formats/Mister/WonderSwan';
+import SegaError from '../save-formats/SegaError';
 
 export default {
   name: 'ConvertMister',
@@ -363,16 +364,15 @@ export default {
             this.outputFilesize = this.misterSaveData.getRawArrayBuffer().byteLength;
           }
         } catch (e) {
-          if (inputSegaCdType === null) {
-            this.errorMessage = 'This file does not seem to be in the correct format';
-          } else {
-            // SegaCD will throw an error object with separate errors for the two possible input files
+          if (e instanceof SegaError) {
             if (e.internalSaveError !== null) {
-              this.segaCdInternalMemoryErrorMessage = e.internalSaveError;
+              this.segaCdInternalMemoryErrorMessage = 'This file does not seem to be in the correct format';
             }
             if (e.ramCartError !== null) {
-              this.segaCdRamCartridgeErrorMessage = e.ramCartError;
+              this.segaCdRamCartridgeErrorMessage = 'This file does not seem to be in the correct format';
             }
+          } else if (inputSegaCdType === null) {
+            this.errorMessage = 'This file does not seem to be in the correct format';
           }
           this.misterSaveData = null;
         }
