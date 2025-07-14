@@ -61,13 +61,13 @@ export default class GameCubeGciSaveData {
   }
 
   // Based on https://github.com/dolphin-emu/dolphin/blob/master/Source/Core/Core/HW/GCMemcard/GCMemcardUtils.cpp#L131
-  static convertGcisToSaveFiles(arrayBuffers) {
+  static convertGcisToSaveFiles(arrayBuffers, checkSaveSizes = true) {
     return arrayBuffers.map((arrayBuffer) => {
       const directoryEntry = GameCubeDirectoryEntry.readDirectoryEntry(arrayBuffer, GAME_CODE_AND_FILE_NAME_ENCODING);
       const rawData = arrayBuffer.slice(DATA_OFFSET);
       const inferredCommentEncoding = (SHIFT_JIS_COMMENT_REGIONS.indexOf(directoryEntry.region) >= 0) ? 'shift-jis' : 'US-ASCII'; // Note that this can be incorrect for Korean games: they can have the region E (USA)
 
-      if (rawData.byteLength !== (directoryEntry.saveSizeBlocks * BLOCK_SIZE)) {
+      if (checkSaveSizes && (rawData.byteLength !== (directoryEntry.saveSizeBlocks * BLOCK_SIZE))) {
         throw new Error(`File appears to be corrupt. Save size specified as ${directoryEntry.saveSizeBlocks} blocks (${directoryEntry.saveSizeBlocks * BLOCK_SIZE} bytes)`
           + ` but save data is ${rawData.byteLength} bytes`);
       }
