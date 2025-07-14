@@ -20,6 +20,7 @@ const REGION_DECODE = new Map([
   ['S', 'Spain'],
   ['K', 'Korea'],
   ['U', 'Korea'],
+  ['W', 'Korea'],
 ]);
 
 const UNKNOWN_REGION_STRING = 'Unknown';

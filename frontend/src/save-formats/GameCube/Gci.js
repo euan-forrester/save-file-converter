@@ -39,7 +39,7 @@ const { BLOCK_SIZE } = GameCubeBasics;
 
 const GAME_CODE_AND_FILE_NAME_ENCODING = 'US-ASCII';
 
-const SHIFT_JIS_COMMENT_REGION = 'Japan';
+const SHIFT_JIS_COMMENT_REGIONS = ['Japan', 'Korea'];
 
 const DATA_OFFSET = GameCubeDirectoryEntry.LENGTH;
 
@@ -65,7 +65,7 @@ export default class GameCubeGciSaveData {
     return arrayBuffers.map((arrayBuffer) => {
       const directoryEntry = GameCubeDirectoryEntry.readDirectoryEntry(arrayBuffer, GAME_CODE_AND_FILE_NAME_ENCODING);
       const rawData = arrayBuffer.slice(DATA_OFFSET);
-      const inferredCommentEncoding = (directoryEntry.region === SHIFT_JIS_COMMENT_REGION) ? 'shift-jis' : 'US-ASCII'; // Note that this can be incorrect for Korean games: they can have the region E (USA), and also simultaneously, K, U, or even W
+      const inferredCommentEncoding = (SHIFT_JIS_COMMENT_REGIONS.indexOf(directoryEntry.region) >= 0) ? 'shift-jis' : 'US-ASCII'; // Note that this can be incorrect for Korean games: they can have the region E (USA)
 
       if (rawData.byteLength !== (directoryEntry.saveSizeBlocks * BLOCK_SIZE)) {
         throw new Error(`File appears to be corrupt. Save size specified as ${directoryEntry.saveSizeBlocks} blocks (${directoryEntry.saveSizeBlocks * BLOCK_SIZE} bytes)`
