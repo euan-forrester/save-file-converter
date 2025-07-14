@@ -43,7 +43,7 @@ export default {
     },
     shiftJisText: {
       type: String,
-      default: 'Japan',
+      default: 'Japan/Korea',
     },
     id: {
       type: String,
