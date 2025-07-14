@@ -388,7 +388,7 @@ export default {
         const saveFileArrayBuffers = event.map((f) => f.arrayBuffer);
         const saveFiles = GameCubeGciSaveData.convertGcisToSaveFiles(saveFileArrayBuffers); // Note that here we use the inferred encoding. This will be overwritten when we convert to a memory card image below
 
-        let volumeInfo = {
+        const volumeInfo = {
           formatOsTimeCode: GameCubeUtil.getOsTimeFromDate(new Date()), // Represents now, by the brower's clock. Will be ignored if no cardFlashId specified: see GameCubeHeader.writeHeader()
           rtcBias: 0,
           languageCode: GameCubeUtil.getLanguageCode('English'),
@@ -397,13 +397,6 @@ export default {
           memcardSizeMegabits: GameCubeUtil.bytesToMegabits(this.largestSaveSize),
           encodingCode: GameCubeUtil.getEncodingCode(this.outputEncoding),
         };
-
-        if (this.gameCubeSaveDataExample !== null) {
-          volumeInfo = {
-            ...volumeInfo,
-            cardFlashId: this.gameCubeSaveDataExample.getVolumeInfo().cardFlashId,
-          };
-        }
 
         this.gameCubeSaveDataLargest = GameCubeSaveData.createFromSaveFiles(saveFiles, volumeInfo);
 
@@ -427,6 +420,18 @@ export default {
         const individualArrayBuffers = GameCubeGciSaveData.convertSaveFilesToGcis(this.gameCubeSaveDataLargest.getSaveFiles());
         outputArrayBuffer = individualArrayBuffers[this.selectedSaveData];
       } else {
+        if (this.gameCubeSaveDataExample !== null) {
+          console.log('Trying to set the card flash id');
+          const volumeInfo = {
+            ...this.gameCubeSaveDataLargest.getVolumeInfo(),
+            cardFlashId: this.gameCubeSaveDataExample.getVolumeInfo().cardFlashId,
+          };
+
+          this.gameCubeSaveDataLargest = GameCubeSaveData.createFromSaveFiles(this.gameCubeSaveDataLargest.getSaveFiles(), volumeInfo);
+
+          this.getGameCubeDataResized();
+        }
+
         outputArrayBuffer = this.gameCubeSaveDataResized.getArrayBuffer();
       }
 
