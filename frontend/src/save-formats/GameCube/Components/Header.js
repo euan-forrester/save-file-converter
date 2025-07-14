@@ -55,8 +55,7 @@ const CHECKSUM_INVERSE_OFFSET = 0x01FE;
 const CHECKSUMMED_DATA_BEGIN_OFFSET = 0; // Checksummed data offset and size are taken from https://github.com/dolphin-emu/dolphin/blob/4f210df86a2d2362ef8087cf81b817b18c3d32e9/Source/Core/Core/HW/GCMemcard/GCMemcard.cpp#L1284
 const CHECKSUMMED_DATA_SIZE = CHECKSUM_OFFSET - CHECKSUMMED_DATA_BEGIN_OFFSET;
 
-const DEFAULT_SERIAL = Util.getFilledArrayBuffer(SERIAL_LENGTH, 0x00);
-const DEFAULT_FORMAT_OS_TIME_CODE = 0n; // For the Memcard Pro GC, it requires that both the serial and the format time be set to all 0's, otherwise it will read the image as corrupted
+const DEFAULT_FLASH_ID = Util.getFilledArrayBuffer(SERIAL_LENGTH, 0x00);
 
 // Taken from https://github.com/dolphin-emu/dolphin/blob/4f210df86a2d2362ef8087cf81b817b18c3d32e9/Source/Core/Core/HW/GCMemcard/GCMemcard.cpp#L1210
 function getSerial(cardFlashId, formatTime) {
@@ -100,23 +99,21 @@ export default class GameCubeHeader {
   static MEMCARD_SLOT_B = MEMCARD_SLOT_B;
 
   static writeHeader(volumeInfo) {
-    let serialArrayBuffer = DEFAULT_SERIAL;
-    let formatOsTimeCode = DEFAULT_FORMAT_OS_TIME_CODE;
+    let cardFlashId = DEFAULT_FLASH_ID;
 
-    if ((volumeInfo.cardFlashId !== undefined) && (volumeInfo.formatOsTimeCode !== undefined)) {
-      // For the Memcard Pro GC, it requires that both the serial and format time be all 0's otherwise it will read the image as invalid.
-      // So, if a card flash ID isn't specified then make sure that both of these are all 0's so that the resulting image can
-      // be read by a Memcard Pro GC if needed
-      serialArrayBuffer = getSerial(volumeInfo.cardFlashId, volumeInfo.formatOsTimeCode);
-      formatOsTimeCode = volumeInfo.formatOsTimeCode;
+    if (volumeInfo.cardFlashId !== undefined) {
+      // For the Memcard Pro GC it requires that flash ID be all 0's otherwise it will read the image as invalid.
+      // So keep it at this default value unless it's specified
+      cardFlashId = volumeInfo.cardFlashId;
     }
 
+    const serialArrayBuffer = getSerial(cardFlashId, volumeInfo.formatOsTimeCode);
     let headerArrayBuffer = Util.getFilledArrayBuffer(BLOCK_SIZE, HEADER_PADDING_VALUE);
     headerArrayBuffer = Util.setArrayBufferPortion(headerArrayBuffer, serialArrayBuffer, SERIAL_OFFSET, 0, SERIAL_LENGTH);
 
     const headerDataView = new DataView(headerArrayBuffer);
 
-    headerDataView.setBigUint64(FORMAT_OSTIME_OFFSET, formatOsTimeCode, LITTLE_ENDIAN);
+    headerDataView.setBigUint64(FORMAT_OSTIME_OFFSET, volumeInfo.formatOsTimeCode, LITTLE_ENDIAN);
     headerDataView.setUint32(RTC_BIAS_OFFSET, volumeInfo.rtcBias, LITTLE_ENDIAN);
     headerDataView.setUint32(LANGUAGE_CODE_OFFSET, volumeInfo.languageCode, LITTLE_ENDIAN);
     headerDataView.setUint32(VI_DTV_STATUS_OFFSET, volumeInfo.viDtvStatus, LITTLE_ENDIAN);

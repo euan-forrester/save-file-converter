@@ -595,11 +595,12 @@ describe('GameCube', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer)).to.equal(true);
   });
 
-  it('should create a GameCube file with an empty serial and format time for the Memcard Pro GC', async () => {
+  it('should create a GameCube file with an empty serial for the Memcard Pro GC', async () => {
     const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(NEW_MEMCARD_IMAGE_NO_SERIAL_FILENAME);
 
     const volumeInfo = {
-      // No cardFlashId specified, so formatOsTimeCode is unneeded
+      // No cardFlashId specified
+      formatOsTimeCode: 0n,
       rtcBias: 0,
       languageCode: GameCubeUtil.getLanguageCode('English'),
       viDtvStatus: 0,
@@ -613,15 +614,15 @@ describe('GameCube', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(gameCubeSaveData.getArrayBuffer(), arrayBuffer)).to.equal(true);
   });
 
-  // This image just has my F-Zero save, but with no serial number or format time so that the Memcard Pro GC will accept it
+  // This image just has my F-Zero save, but with no serial number so that the Memcard Pro GC will accept it
   // With this game, it requires that the actual save data be updated to reflect the card's serial
-  it('should create a GameCube file with F-Zero and an empty serial and format time for the Memcard Pro GC', async () => {
+  it('should create a GameCube file with F-Zero and an empty serial for the Memcard Pro GC', async () => {
     const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEMCARD_IMAGE_RECREATED_FZERO_NO_SERIAL_FILENAME);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MEMCARD_SAVE_FILENAME[8]);
 
     const volumeInfo = {
       // No cardFlashId specified
-      formatOsTimeCode: GameCubeUtil.getOsTimeFromDate(new Date('June 26, 2019 12:00:00 GMT')), // format time is ignored because cardFlashId is not specified
+      formatOsTimeCode: GameCubeUtil.getOsTimeFromDate(new Date('July 14, 2025 12:00:00 GMT')),
       rtcBias: 0,
       languageCode: GameCubeUtil.getLanguageCode('English'),
       viDtvStatus: 0,
