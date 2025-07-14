@@ -9,7 +9,7 @@ Available at https://savefileconverter.com
 ## Upcoming features
 
 - PS2 formats (check out https://gamefaqs.gamespot.com/ps2/536777-suikoden-iii/saves for a potential list)
-- GameCube formats (check out https://gamefaqs.gamespot.com/gamecube/533008-soulcalibur-ii/saves for a potential list)
+- Dreamcast formats
 
 ## Contact
 
