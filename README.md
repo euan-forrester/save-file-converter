@@ -25,7 +25,7 @@ Everything on this site is free and open source with no advertising. If you find
 
 ## Emulators with incompatible save formats
 
-- (GBA) Pizza Boy (support for this emulator has been discontinued) files incompatible with mGBA (believe mGBA uses raw files)
+- (GBA) Pizza Boy files incompatible with mGBA (believe mGBA uses raw files)
 - (PS1) Beetle HW incompatible with DuckStation
 - (Saturn) SSF incompatible with Mednafen/Beetle Saturn
 - (N64) Mupen64Plus Next files incompatible with Wii64
