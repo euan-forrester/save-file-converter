@@ -17,7 +17,7 @@ describe('GameCube - GameShark', () => {
     const gcsArrayBuffer = await ArrayBufferUtil.readArrayBuffer(GAMESHARK_FILENAME);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_FILENAME);
 
-    const gameCubeSaveFile = GameCubeGameSharkSaveData.convertGameSharkToSaveFile(gcsArrayBuffer);
+    const gameCubeSaveFile = GameCubeGameSharkSaveData.convertIndividualSaveToSaveFile(gcsArrayBuffer);
 
     expect(gameCubeSaveFile.gameCode).to.equal('GRSE');
     expect(gameCubeSaveFile.region).to.equal('North America');
@@ -45,7 +45,7 @@ describe('GameCube - GameShark', () => {
     const gcsArrayBuffer = await ArrayBufferUtil.readArrayBuffer(JAPANESE_GAMESHARK_FILENAME);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(JAPANESE_RAW_FILENAME);
 
-    const gameCubeSaveFile = GameCubeGameSharkSaveData.convertGameSharkToSaveFile(gcsArrayBuffer);
+    const gameCubeSaveFile = GameCubeGameSharkSaveData.convertIndividualSaveToSaveFile(gcsArrayBuffer);
 
     expect(gameCubeSaveFile.gameCode).to.equal('GRSJ');
     expect(gameCubeSaveFile.region).to.equal('Japan');

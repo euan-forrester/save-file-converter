@@ -35,7 +35,7 @@ const BYTE_SWAP_OFFSETS = [ // https://github.com/dolphin-emu/dolphin/blob/maste
 ];
 
 export default class GameCubeMaxDriveSaveData {
-  static convertMaxDriveToSaveFile(arrayBuffer) {
+  static convertIndividualSaveToSaveFile(arrayBuffer) {
     Util.checkMagic(arrayBuffer, MAGIC_OFFSET, MAGIC, MAGIC_ENCODING);
 
     const uint8Array = new Uint8Array(arrayBuffer);

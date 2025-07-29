@@ -21,7 +21,7 @@ const COMMENT_OFFSET = 0x10;
 const COMMENT_LENGTH = HEADER_LENGTH - COMMENT_OFFSET;
 
 export default class GameCubeGameSharkSaveData {
-  static convertGameSharkToSaveFile(arrayBuffer) {
+  static convertIndividualSaveToSaveFile(arrayBuffer) {
     Util.checkMagic(arrayBuffer, MAGIC_OFFSET, MAGIC, MAGIC_ENCODING);
 
     const uint8Array = new Uint8Array(arrayBuffer);

@@ -17,7 +17,7 @@ describe('GameCube - MaxDrive', () => {
     const gcsArrayBuffer = await ArrayBufferUtil.readArrayBuffer(MAXDRIVE_FILENAME);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_FILENAME);
 
-    const gameCubeSaveFile = GameCubeMaxDriveSaveData.convertMaxDriveToSaveFile(gcsArrayBuffer);
+    const gameCubeSaveFile = GameCubeMaxDriveSaveData.convertIndividualSaveToSaveFile(gcsArrayBuffer);
 
     expect(gameCubeSaveFile.gameCode).to.equal('GRSE');
     expect(gameCubeSaveFile.region).to.equal('North America');
@@ -46,7 +46,7 @@ describe('GameCube - MaxDrive', () => {
     const gcsArrayBuffer = await ArrayBufferUtil.readArrayBuffer(JAPANESE_MAXDRIVE_FILENAME);
     const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(JAPANESE_RAW_FILENAME);
 
-    const gameCubeSaveFile = GameCubeMaxDriveSaveData.convertMaxDriveToSaveFile(gcsArrayBuffer);
+    const gameCubeSaveFile = GameCubeMaxDriveSaveData.convertIndividualSaveToSaveFile(gcsArrayBuffer);
 
     expect(gameCubeSaveFile.gameCode).to.equal('GRSJ');
     expect(gameCubeSaveFile.region).to.equal('Japan');
