@@ -24,7 +24,7 @@ import GameCubeHeader from './Components/Header';
 import GameCubeDirectory from './Components/Directory';
 import GameCubeDirectoryEntry from './Components/DirectoryEntry';
 import GameCubeBlockAllocationTable from './Components/BlockAllocationTable';
-import GameSpecificFixups from './GameSpecificFixups';
+import GameSpecificFixups from './GameSpecificFixups/GameSpecificFixups';
 
 const { BLOCK_SIZE, NUM_RESERVED_BLOCKS } = GameCubeBasics;
 
