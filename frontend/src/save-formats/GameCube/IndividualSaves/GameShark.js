@@ -5,9 +5,9 @@
 // 0x110-EOF:  .gci file
 
 import GameCubeGciSaveData from './Gci';
-import GameCubeBasics from './Components/Basics';
+import GameCubeBasics from '../Components/Basics';
 
-import Util from '../../util/util';
+import Util from '../../../util/util';
 
 const { BLOCK_SIZE } = GameCubeBasics;
 

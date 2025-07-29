@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-import GameCubeMaxDriveSaveData from '@/save-formats/GameCube/MaxDrive';
+import GameCubeMaxDriveSaveData from '@/save-formats/GameCube/IndividualSaves/MaxDrive';
 import GameCubeDirectoryEntry from '@/save-formats/GameCube/Components/DirectoryEntry';
 
 const DIR = './tests/data/save-formats/gamecube/MaxDrive';

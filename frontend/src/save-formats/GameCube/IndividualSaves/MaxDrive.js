@@ -9,7 +9,7 @@
 
 import GameCubeGciSaveData from './Gci';
 
-import Util from '../../util/util';
+import Util from '../../../util/util';
 
 const HEADER_LENGTH = 0x80;
 

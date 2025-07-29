@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-import GameCubeGameSharkSaveData from '@/save-formats/GameCube/GameShark';
+import GameCubeGameSharkSaveData from '@/save-formats/GameCube/IndividualSaves/GameShark';
 import GameCubeDirectoryEntry from '@/save-formats/GameCube/Components/DirectoryEntry';
 
 const DIR = './tests/data/save-formats/gamecube/GameShark';

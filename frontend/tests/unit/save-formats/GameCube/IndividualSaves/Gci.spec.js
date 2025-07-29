@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-import GameCubeGciSaveData from '@/save-formats/GameCube/Gci';
+import GameCubeGciSaveData from '@/save-formats/GameCube/IndividualSaves/Gci';
 import GameCubeDirectoryEntry from '@/save-formats/GameCube/Components/DirectoryEntry';
 import GameCubeUtil from '@/save-formats/GameCube/Util';
 

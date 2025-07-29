@@ -180,7 +180,7 @@ import IndividualSavesOrMemoryCardSelector from './IndividualSavesOrMemoryCardSe
 import GameCubeEncodingSelector from './GameCubeEncodingSelector.vue';
 
 import GameCubeSaveData from '../save-formats/GameCube/GameCube';
-import GameCubeGciSaveData from '../save-formats/GameCube/Gci';
+import GameCubeGciSaveData from '../save-formats/GameCube/IndividualSaves/Gci';
 import GameCubeUtil from '../save-formats/GameCube/Util';
 import GameCubeHeader from '../save-formats/GameCube/Components/Header';
 

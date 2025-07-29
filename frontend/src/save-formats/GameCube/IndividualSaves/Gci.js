@@ -17,10 +17,10 @@ Note that the starting block number in the directory entry is irrelevant here
 0x40-EOF:  Game data (including the comment and icons)
 */
 
-import Util from '../../util/util';
+import Util from '../../../util/util';
 
-import GameCubeBasics from './Components/Basics';
-import GameCubeDirectoryEntry from './Components/DirectoryEntry';
+import GameCubeBasics from '../Components/Basics';
+import GameCubeDirectoryEntry from '../Components/DirectoryEntry';
 
 const { BLOCK_SIZE } = GameCubeBasics;
 
