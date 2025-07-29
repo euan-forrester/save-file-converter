@@ -15,15 +15,15 @@ const INDIVIDUAL_SAVE_CLASSES = [
   GameCubeGciSaveData, // This one last because it doesn't have any handy magic bytes in the header to easily distinguish it
 ];
 
-export default class IndividualSaves {
+export default class GameCubeIndividualSaves {
   static convertIndividualSaveToSaveFile(individualSave) {
-    INDIVIDUAL_SAVE_CLASSES.forEach((individualSaveClass) => {
+    for (let i = 0; i < INDIVIDUAL_SAVE_CLASSES.length; i += 1) {
       try {
-        return individualSaveClass.convertIndividualSaveToSaveFile(individualSave);
+        return INDIVIDUAL_SAVE_CLASSES[i].convertIndividualSaveToSaveFile(individualSave);
       } catch (e) {
         // Move onto the next individual save type
       }
-    });
+    }
 
     throw new Error('This does not appear to be a GameCube individual save file');
   }

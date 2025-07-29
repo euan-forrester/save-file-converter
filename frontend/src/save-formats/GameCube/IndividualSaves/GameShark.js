@@ -27,7 +27,7 @@ export default class GameCubeGameSharkSaveData {
     const uint8Array = new Uint8Array(arrayBuffer);
     const gciArrayBuffer = arrayBuffer.slice(HEADER_LENGTH);
 
-    const [saveFile] = GameCubeGciSaveData.convertGcisToSaveFiles([gciArrayBuffer], false); // Save size in blocks may be set incorrectly, so don't check it: https://github.com/dolphin-emu/dolphin/blob/master/Source/Core/Core/HW/GCMemcard/GCMemcardUtils.cpp#L162
+    const saveFile = GameCubeGciSaveData.convertIndividualSaveToSaveFile(gciArrayBuffer, false); // Save size in blocks may be set incorrectly, so don't check it: https://github.com/dolphin-emu/dolphin/blob/master/Source/Core/Core/HW/GCMemcard/GCMemcardUtils.cpp#L162
 
     const gameSharkComment = Util.readNullTerminatedString(uint8Array, COMMENT_OFFSET, saveFile.inferredCommentEncoding, COMMENT_LENGTH);
 

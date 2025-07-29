@@ -44,7 +44,7 @@ export default class GameCubeMaxDriveSaveData {
 
     BYTE_SWAP_OFFSETS.forEach((offset) => gciDataView.setUint16(offset, gciDataView.getUint16(offset, false), true)); // Weirdly, most but not all entries are a different endianness
 
-    const [saveFile] = GameCubeGciSaveData.convertGcisToSaveFiles([gciArrayBuffer]);
+    const saveFile = GameCubeGciSaveData.convertIndividualSaveToSaveFile(gciArrayBuffer);
 
     const maxDriveComments = COMMENT_OFFSETS.map((commentOffset) => Util.readNullTerminatedString(uint8Array, commentOffset, saveFile.inferredCommentEncoding, COMMENT_LENGTH));
 
