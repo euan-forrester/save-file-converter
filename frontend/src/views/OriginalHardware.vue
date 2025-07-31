@@ -1978,7 +1978,7 @@ export default {
         },
         {
           index: 64,
-          gtmClass: 'vmu-sd-card-adapter',
+          gtmClass: 'dreamcast-sd-card-adapter',
           hardware: {
             name: 'DreamCast SD Card Adaptor',
             link: 'https://kaicolabs.com/product/sega-dreamcast-dreamshell-serial-adaptor-and-disc/',
