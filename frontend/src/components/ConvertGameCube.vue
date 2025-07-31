@@ -105,10 +105,10 @@
             <input-file
               @load="readEmulatorSaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose files to add (*.gci)"
+              placeholderText="Choose files to add (*.gci, *.gcs, *.sav)"
               :leaveRoomForHelpIcon="false"
               :allowMultipleFiles="true"
-              acceptExtension=".gci"
+              acceptExtension=".gci,.gcs,.sav"
             />
             <file-list
               :display="this.gameCubeSaveDataLargest !== null"
@@ -180,7 +180,8 @@ import IndividualSavesOrMemoryCardSelector from './IndividualSavesOrMemoryCardSe
 import GameCubeEncodingSelector from './GameCubeEncodingSelector.vue';
 
 import GameCubeSaveData from '../save-formats/GameCube/GameCube';
-import GameCubeGciSaveData from '../save-formats/GameCube/Gci';
+import GameCubeGciSaveData from '../save-formats/GameCube/IndividualSaves/Gci';
+import GameCubeIndividualSaves from '../save-formats/GameCube/IndividualSaves/IndividualSaves';
 import GameCubeUtil from '../save-formats/GameCube/Util';
 import GameCubeHeader from '../save-formats/GameCube/Components/Header';
 
@@ -386,7 +387,7 @@ export default {
       this.inputFilename = null;
       try {
         const saveFileArrayBuffers = event.map((f) => f.arrayBuffer);
-        const saveFiles = GameCubeGciSaveData.convertGcisToSaveFiles(saveFileArrayBuffers); // Note that here we use the inferred encoding. This will be overwritten when we convert to a memory card image below
+        const saveFiles = saveFileArrayBuffers.map((saveFileArrayBuffer) => GameCubeIndividualSaves.convertIndividualSaveToSaveFile(saveFileArrayBuffer)); // Note that here we use the inferred encoding. This will be overwritten when we convert to a memory card image below
 
         const volumeInfo = {
           formatOsTimeCode: GameCubeUtil.getOsTimeFromDate(new Date()), // Represents now, by the brower's clock

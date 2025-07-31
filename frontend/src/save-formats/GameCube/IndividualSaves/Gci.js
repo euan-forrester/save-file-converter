@@ -17,10 +17,10 @@ Note that the starting block number in the directory entry is irrelevant here
 0x40-EOF:  Game data (including the comment and icons)
 */
 
-import Util from '../../util/util';
+import Util from '../../../util/util';
 
-import GameCubeBasics from './Components/Basics';
-import GameCubeDirectoryEntry from './Components/DirectoryEntry';
+import GameCubeBasics from '../Components/Basics';
+import GameCubeDirectoryEntry from '../Components/DirectoryEntry';
 
 const { BLOCK_SIZE } = GameCubeBasics;
 
@@ -39,7 +39,7 @@ const { BLOCK_SIZE } = GameCubeBasics;
 
 const GAME_CODE_AND_FILE_NAME_ENCODING = 'US-ASCII';
 
-const SHIFT_JIS_COMMENT_REGION = 'Japan';
+const SHIFT_JIS_COMMENT_REGIONS = ['Japan', 'Korea'];
 
 const DATA_OFFSET = GameCubeDirectoryEntry.LENGTH;
 
@@ -61,25 +61,23 @@ export default class GameCubeGciSaveData {
   }
 
   // Based on https://github.com/dolphin-emu/dolphin/blob/master/Source/Core/Core/HW/GCMemcard/GCMemcardUtils.cpp#L131
-  static convertGcisToSaveFiles(arrayBuffers) {
-    return arrayBuffers.map((arrayBuffer) => {
-      const directoryEntry = GameCubeDirectoryEntry.readDirectoryEntry(arrayBuffer, GAME_CODE_AND_FILE_NAME_ENCODING);
-      const rawData = arrayBuffer.slice(DATA_OFFSET);
-      const inferredCommentEncoding = (directoryEntry.region === SHIFT_JIS_COMMENT_REGION) ? 'shift-jis' : 'US-ASCII'; // Note that this can be incorrect for Korean games: they can have the region E (USA), and also simultaneously, K, U, or even W
+  static convertIndividualSaveToSaveFile(arrayBuffer, checkSaveSizes = true) {
+    const directoryEntry = GameCubeDirectoryEntry.readDirectoryEntry(arrayBuffer, GAME_CODE_AND_FILE_NAME_ENCODING);
+    const rawData = arrayBuffer.slice(DATA_OFFSET);
+    const inferredCommentEncoding = (SHIFT_JIS_COMMENT_REGIONS.indexOf(directoryEntry.region) >= 0) ? 'shift-jis' : 'US-ASCII'; // Note that this can be incorrect for Korean games: they can have the region E (USA)
 
-      if (rawData.byteLength !== (directoryEntry.saveSizeBlocks * BLOCK_SIZE)) {
-        throw new Error(`File appears to be corrupt. Save size specified as ${directoryEntry.saveSizeBlocks} blocks (${directoryEntry.saveSizeBlocks * BLOCK_SIZE} bytes)`
-          + ` but save data is ${rawData.byteLength} bytes`);
-      }
+    if (checkSaveSizes && (rawData.byteLength !== (directoryEntry.saveSizeBlocks * BLOCK_SIZE))) {
+      throw new Error(`File appears to be corrupt. Save size specified as ${directoryEntry.saveSizeBlocks} blocks (${directoryEntry.saveSizeBlocks * BLOCK_SIZE} bytes)`
+        + ` but save data is ${rawData.byteLength} bytes`);
+    }
 
-      const comments = GameCubeDirectoryEntry.getComments(directoryEntry.commentStart, rawData, inferredCommentEncoding);
+    const comments = GameCubeDirectoryEntry.getComments(directoryEntry.commentStart, rawData, inferredCommentEncoding);
 
-      return {
-        ...directoryEntry,
-        inferredCommentEncoding,
-        comments,
-        rawData,
-      };
-    });
+    return {
+      ...directoryEntry,
+      inferredCommentEncoding,
+      comments,
+      rawData,
+    };
   }
 }

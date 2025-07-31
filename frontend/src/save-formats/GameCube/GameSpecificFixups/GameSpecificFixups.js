@@ -6,10 +6,10 @@ There are various games for the GameCube where the save data depends on specific
 will result in the game thinking the save is corrupted
 */
 
-import GameCubeBasics from './Components/Basics';
+import GameCubeBasics from '../Components/Basics';
 
-import FZeroGxFixups from './GameSpecificFixups/FZeroGx';
-import PhantasyStarOnlineFixups from './GameSpecificFixups/PhantasyStarOnline';
+import FZeroGxFixups from './FZeroGx';
+import PhantasyStarOnlineFixups from './PhantasyStarOnline';
 
 const { LITTLE_ENDIAN } = GameCubeBasics;
 
