@@ -188,7 +188,11 @@ Everything on this site is free and open source with no advertising. If you find
   - https://github.com/ekeeke/Genesis-Plus-GX/issues/449
   - savesplitter tool here: https://krikzz.com/pub/support/mega-everdrive/pro-series/
 - Dreamcast
-  - https://github.com/DerekPascarella/VMU-Disc-Builder
+  - https://github.com/DerekPascarella/VMU-Disc-Builder (just packs up save files and doesn't do much parsing, so not much info about their format)
+  - https://bswirl.kitsunet.org/dci_converter/ (old and unmaintained, only parts of it worK: https://www.dreamcast-talk.com/forum/viewtopic.php?t=17425)
+  - https://segaretro.org/VMU_Explorer (Old Windows-only tool without source code)
+  - https://github.com/sizious/vmu-tool-pc
+  - https://github.com/bucanero/dc-save-converter
 - Analogue Pocket:
   - List of available cores: https://openfpga-cores-inventory.github.io/analogue-pocket/
     - Note that there are sometimes multiple cores for a particular platform (e.g. Genesis)
@@ -203,7 +207,7 @@ Everything on this site is free and open source with no advertising. If you find
   - `.ggz` files when unzipped apparently contain one or more pairs of `.gba`/`.snes`/etc and `.png` file: a save state and a thumbnail
   - There's a port of Retroarch available online here: https://binbashbanana.github.io/webretro/ with code here: https://github.com/BinBashBanana/webretro . Its save file compatibility is the same as regular Retroarch and the emulators therein
 - Retroarch
-  - Some save files are compressed with ZLIB compression. I'm not sure the circumstances under which this happens: https://github.com/libretro/RetroArch/issues/14031#issuecomment-1159400581
+  - Some save files are compressed with ZLIB compression. I'm not sure the circumstances under which this happens: https://github.com/libretro/RetroArch/issues/14031#issuecomment-1159400581`
 - iOS
   - The Delta emulator uses .svs for save states. Instructions for creating a raw save instead: https://www.reddit.com/r/Delta_Emulator/comments/1helbo1/svs_to_sav/
 
