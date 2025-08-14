@@ -25,12 +25,12 @@ export default class DreamcastUtil {
     const hour = dataView.getUint8(TIMESTAMP_HOUR_OFFSET);
     const minute = dataView.getUint8(TIMESTAMP_MINUTE_OFFSET);
     const second = dataView.getUint8(TIMESTAMP_SECOND_OFFSET);
-    const dayOfWeek = dataView.getUint8(TIMESTAMP_DAY_OF_WEEK_OFFSET); // The link above is incorrect: 0 represents Monday. But in a Javascript Date, 0 represents Sunday
+    const dayOfWeek = dataView.getUint8(TIMESTAMP_DAY_OF_WEEK_OFFSET); // Different files appear to be inconsistent. In some 0 represents Sunday and in some 0 represents Monday. In a Javascript Date, 0 represents Sunday
 
     const date = new Date(year, month, day, hour, minute, second); // No timezone information is given in the Dreamcast format. This Date object is in the local timezone
 
-    if (((dayOfWeek + 1) % 7) !== date.getDay()) {
-      throw new Error('Date appears to be corrupted: day of week does not match');
+    if ((dayOfWeek !== date.getDay()) && (((dayOfWeek + 1) % 7) !== date.getDay())) {
+      throw new Error(`Date appears to be corrupted: day of week does not match. Day of week found: ${dayOfWeek}, day of week calculated: ${date.getDay()}`);
     }
 
     return date;
