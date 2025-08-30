@@ -103,6 +103,7 @@ Everything on this site is free and open source with no advertising. If you find
     - https://bryc.github.io/mempak/ (online preview)
   - https://github.com/bryc/mempak/wiki/DexDrive-.N64-format
   - https://github.com/bryc/mempak/wiki/MemPak-structure
+  - https://github.com/DragonMinded/libdragon/wiki/Cpaktool
   - https://github.com/heuripedes/pj64tosrm (convert raw save to emulator format)
   - http://micro-64.com/database/gamesave.shtml (list of games which use each save type)
   - https://www.reddit.com/r/n64/comments/ezhleg/guide_how_to_backup_your_n64_saves_to_your_pc/
