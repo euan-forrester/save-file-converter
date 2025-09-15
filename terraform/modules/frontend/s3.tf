@@ -1,32 +1,45 @@
 resource "aws_s3_bucket" "frontend" {
   bucket        = "${var.application_name}${var.bucketname_user_string}-${var.environment}"
   force_destroy = true
+}
 
-  logging {
-    target_bucket = aws_s3_bucket.frontend_access_logs.id
-    target_prefix = "access-log/"
-  }
+resource "aws_s3_bucket_logging" "frontend" {
+  bucket = aws_s3_bucket.frontend.bucket
 
-  lifecycle_rule {
-    id      = "expire-old-versions-after-N-days"
-    enabled = true
+  target_bucket = aws_s3_bucket.frontend_access_logs.bucket
+  target_prefix = "access-log/"
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "frontend" {
+  bucket = aws_s3_bucket.frontend.id
+
+  rule {
+    id = "expire-old-versions-after-N-days"
+
+    filter {}
 
     noncurrent_version_expiration {
-      days = var.days_to_keep_old_versions
+      noncurrent_days = 90
     }
+
+    status = "Enabled"
   }
 
-  lifecycle_rule {
-    id      = "expire-tagged-files-after-N-days"
-    enabled = true
+  rule {
+    id = "expire-tagged-files-after-N-days"
 
-    tags = {
-      "DeployLifecycle" = "DeleteMe"
+    filter {
+      tag {
+        key = "DeployLifecycle"
+        value = "DeleteMe"
+      }
     }
 
     expiration {
       days = var.days_to_keep_old_versions
     }
+
+    status = "Enabled"
   }
 }
 
@@ -41,7 +54,7 @@ resource "aws_s3_bucket_metric" "frontend" {
 
 resource "aws_s3_bucket_versioning" "frontend" {
   bucket = aws_s3_bucket.frontend.id
-  
+
   versioning_configuration {
     status = "Enabled"
   }
@@ -67,10 +80,10 @@ resource "aws_s3_bucket_acl" "frontend" {
 resource "aws_s3_bucket_public_access_block" "frontend" {
   bucket = aws_s3_bucket.frontend.id
 
-  block_public_acls = false # Needed to allow deployment into this bucket. I don't understand why. 
+  block_public_acls = false # Needed to allow deployment into this bucket. I don't understand why.
 
-  # Giving explicit permission to the IAM user doing the deployment doesn't help. 
-  # The console still says "bucket and objects not public" (as desired), 
+  # Giving explicit permission to the IAM user doing the deployment doesn't help.
+  # The console still says "bucket and objects not public" (as desired),
   # and trying to go to the website link for this bucket gives a 403 forbidden (as desired)
   # I wrote up an issue here: https://github.com/multiplegeorges/vue-cli-plugin-s3-deploy/issues/79
   block_public_policy     = true
@@ -118,16 +131,21 @@ resource "aws_s3_bucket_policy" "frontend_cloudfront_current_user" {
 resource "aws_s3_bucket" "frontend_access_logs" {
   bucket        = "${var.frontend_access_logs_bucket}${var.bucketname_user_string}-${var.environment}"
   force_destroy = false == var.retain_frontend_access_logs_after_destroy
+}
 
-  lifecycle_rule {
-    id      = "expire-logs-after-N-days"
-    enabled = true
+resource "aws_s3_bucket_lifecycle_configuration" "frontend_access_logs" {
+  bucket = aws_s3_bucket.frontend_access_logs.id
 
-    prefix = "*"
+  rule {
+    id = "expire-logs-after-N-days"
+
+    filter {}
 
     expiration {
       days = var.days_to_keep_frontend_access_logs
     }
+
+    status = "Enabled"
   }
 }
 

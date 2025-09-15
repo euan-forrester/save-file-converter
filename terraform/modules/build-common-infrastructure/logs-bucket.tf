@@ -1,21 +1,28 @@
 resource "aws_s3_bucket" "build_logs" {
   bucket        = "${var.build_logs_bucket}${var.bucketname_user_string}-${var.environment}"
   force_destroy = false == var.retain_build_logs_after_destroy
+}
 
-  lifecycle_rule {
-    id      = "expire-logs-after-N-days"
-    enabled = true
+resource "aws_s3_bucket_lifecycle_configuration" "build_logs" {
+  bucket = aws_s3_bucket.build_logs.id
 
-    prefix = "*"
+  rule {
+    id = "expire-logs-after-N-days"
+
+    filter {
+      prefix = "*"
+    }
 
     expiration {
       days = var.days_to_keep_build_logs
     }
+
+    status = "Enabled"
   }
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "build_logs" {
-  bucket = aws_s3_bucket.build_logs.id 
+  bucket = aws_s3_bucket.build_logs.id
 
   rule {
     apply_server_side_encryption_by_default {
