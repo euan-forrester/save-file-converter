@@ -19,7 +19,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "frontend" {
     filter {}
 
     noncurrent_version_expiration {
-      noncurrent_days = 90
+      noncurrent_days = var.days_to_keep_old_versions
     }
 
     status = "Enabled"
