@@ -23,9 +23,12 @@ data "aws_iam_policy_document" "assume_role" {
 resource "aws_iam_role" "iam_for_lambda" {
   name               = "${var.lambda_function_name}-iam_for_lambda"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
+}
 
-  inline_policy {
-    name = "email-logs-lambda-policy-${var.environment}"
+resource "aws_iam_role_policy" "iam_for_lambda_policy" {
+  name = "email-logs-lambda-policy-${var.environment}"
+  role = aws_iam_role.iam_for_lambda.id
+
     policy = <<POLICY
 {
   "Version": "2012-10-17",
@@ -72,7 +75,6 @@ resource "aws_iam_role" "iam_for_lambda" {
   ]
 }
 POLICY
-  }
 }
 
 resource "aws_lambda_permission" "allow_cloudwatch_events" {
@@ -98,7 +100,7 @@ resource "aws_lambda_function" "email_build_logs" {
 
   source_code_hash = data.archive_file.email_logs_lambda_function.output_base64sha256
 
-  runtime = "python3.9"
+  runtime = "python3.13"
 
   environment {
     variables = {
