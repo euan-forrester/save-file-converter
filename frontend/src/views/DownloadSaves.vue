@@ -108,10 +108,10 @@
     <div class="blank-line"/>
     <b-row align-h="center">
       <b-col cols=12 md=5 lg=5 xl=4>
-        <b-link href="https://bswirl.kitsunet.org/vmu/save/public/index.php?lg=en&menu=on">Blue Swirl</b-link>
+        <b-link href="http://www.fightingstreet.com/folders/downloadsfolder/dreamcast/dreamcastsaves.html">Fighting Street</b-link>
       </b-col>
       <b-col cols=12 md=5 lg=5 xl=4>
-        Lots of Dreamcast games.
+        A small selection of Dreamcast games.
       </b-col>
     </b-row>
     <div class="blank-line"/>
