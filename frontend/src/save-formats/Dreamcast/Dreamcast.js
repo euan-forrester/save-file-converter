@@ -13,10 +13,12 @@ Block  255:     System information
 */
 
 import Util from '../../util/util';
+import ArrayUtil from '../../util/Array';
 
 import DreamcastBasics from './Components/Basics';
 import DreamcastSystemInfo from './Components/SystemInfo';
 import DreamcastFileAllocationTable from './Components/FileAllocationTable';
+import DreamcastDirectory from './Components/Directory';
 
 const {
   BLOCK_SIZE,
@@ -28,8 +30,15 @@ const {
 const FILL_VALUE = 0x00;
 
 function getBlocks(arrayBuffer, blockNumber, sizeInBlocks) {
-  const startOffset = blockNumber * BLOCK_SIZE;
-  return arrayBuffer.slice(startOffset, startOffset + (BLOCK_SIZE * sizeInBlocks));
+  // The starting block as specified in the SystemInfo block is the one closest to the end of the file.
+  // We fill each block starting at the end of the block closest to the beginning of the file.
+  // So to make a contiguous blob of data here we need to concat our blocks starting from the end of the file
+
+  const startingBlockNumber = blockNumber - sizeInBlocks + 1;
+  const blockNumbers = ArrayUtil.createSequentialArray(startingBlockNumber, sizeInBlocks).reverse();
+  const blocks = blockNumbers.map((i) => arrayBuffer.slice(i * BLOCK_SIZE, (i + 1) * BLOCK_SIZE));
+
+  return Util.concatArrayBuffers(blocks);
 }
 
 export default class DreamcastSaveData {
@@ -40,12 +49,11 @@ export default class DreamcastSaveData {
 
     const volumeInfo = DreamcastSystemInfo.readSystemInfo(getBlocks(arrayBuffer, SYSTEM_INFO_BLOCK_NUMBER, SYSTEM_INFO_SIZE_IN_BLOCKS));
     const nextBlockInFile = DreamcastFileAllocationTable.readFileAllocationTable(getBlocks(arrayBuffer, volumeInfo.fileAllocationTable.blockNumber, volumeInfo.fileAllocationTable.sizeInBlocks));
-    // const directoryEntries = DreamcastDirectory.readDirectory(getBlocks(arrayBuffer, volumeInfo.directory.blockNumber, volumeInfo.directoyr.sizeInBlocks));
+    const directoryEntries = DreamcastDirectory.readDirectory(getBlocks(arrayBuffer, volumeInfo.directory.blockNumber, volumeInfo.directory.sizeInBlocks));
 
-    const saveFiles = [];
+    const saveFiles = directoryEntries;
 
     console.log('Next block in file 0:', nextBlockInFile[0]);
-    // console.log('Directory entry 0:', directoryEntries[0]);
 
     return new DreamcastSaveData(arrayBuffer, saveFiles, volumeInfo);
   }

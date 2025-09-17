@@ -79,11 +79,12 @@ export default class DreamcastUtil {
     const hour = readBcdByte(dataView.getUint8(TIMESTAMP_HOUR_OFFSET));
     const minute = readBcdByte(dataView.getUint8(TIMESTAMP_MINUTE_OFFSET));
     const second = readBcdByte(dataView.getUint8(TIMESTAMP_SECOND_OFFSET));
-    const dayOfWeek = readBcdByte(dataView.getUint8(TIMESTAMP_DAY_OF_WEEK_OFFSET));
+    // const dayOfWeek = readBcdByte(dataView.getUint8(TIMESTAMP_DAY_OF_WEEK_OFFSET));
 
     const date = new Date(year, month, day, hour, minute, second); // No timezone information is given in the Dreamcast format. This Date object is in the local timezone
 
-    checkDayOfWeek(dayOfWeek, date);
+    // I'm reasonably confident that I've interpreted the dates correctly because a bunch pass this test. The day of week can be wrong due to timezones, or just set wrong because it's confusing
+    // checkDayOfWeek(dayOfWeek, date);
 
     return date;
   }

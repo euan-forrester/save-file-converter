@@ -37,6 +37,78 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getVolumeInfo().saveArea.numberOfSaveBlocks).to.equal(DreamcastBasics.NUMBER_OF_SAVE_BLOCKS);
     expect(dreamcastSaveData.getVolumeInfo().reserved).to.equal(0);
 
-    expect(dreamcastSaveData.getSaveFiles().length).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles().length).to.equal(9);
+
+    expect(dreamcastSaveData.getSaveFiles()[0].fileType).to.equal('Data');
+    expect(dreamcastSaveData.getSaveFiles()[0].copyProtected).to.equal(false);
+    expect(dreamcastSaveData.getSaveFiles()[0].firstBlockNumber).to.equal(199);
+    expect(dreamcastSaveData.getSaveFiles()[0].filename).to.equal('MVLVSCP2_SYS');
+    expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[0].fileCreationTime)).to.equal('1999-11-27 07:37:16');
+    expect(dreamcastSaveData.getSaveFiles()[0].fileSizeInBlocks).to.equal(5);
+    expect(dreamcastSaveData.getSaveFiles()[0].fileHeaderOffsetInBlocks).to.equal(0);
+
+    expect(dreamcastSaveData.getSaveFiles()[1].fileType).to.equal('Data');
+    expect(dreamcastSaveData.getSaveFiles()[1].copyProtected).to.equal(false);
+    expect(dreamcastSaveData.getSaveFiles()[1].firstBlockNumber).to.equal(194);
+    expect(dreamcastSaveData.getSaveFiles()[1].filename).to.equal('CVS.S2___SYS');
+    expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[1].fileCreationTime)).to.equal('2001-09-13 11:42:43');
+    expect(dreamcastSaveData.getSaveFiles()[1].fileSizeInBlocks).to.equal(12);
+    expect(dreamcastSaveData.getSaveFiles()[1].fileHeaderOffsetInBlocks).to.equal(0);
+
+    expect(dreamcastSaveData.getSaveFiles()[2].fileType).to.equal('Data');
+    expect(dreamcastSaveData.getSaveFiles()[2].copyProtected).to.equal(false);
+    expect(dreamcastSaveData.getSaveFiles()[2].firstBlockNumber).to.equal(182);
+    expect(dreamcastSaveData.getSaveFiles()[2].filename).to.equal('18WHDATA.SYS');
+    expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[2].fileCreationTime)).to.equal('2001-05-27 17:01:06');
+    expect(dreamcastSaveData.getSaveFiles()[2].fileSizeInBlocks).to.equal(5);
+    expect(dreamcastSaveData.getSaveFiles()[2].fileHeaderOffsetInBlocks).to.equal(0);
+
+    expect(dreamcastSaveData.getSaveFiles()[3].fileType).to.equal('Data');
+    expect(dreamcastSaveData.getSaveFiles()[3].copyProtected).to.equal(false);
+    expect(dreamcastSaveData.getSaveFiles()[3].firstBlockNumber).to.equal(177);
+    expect(dreamcastSaveData.getSaveFiles()[3].filename).to.equal('SPAWNTDH.SYS');
+    expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[3].fileCreationTime)).to.equal('2000-11-05 18:44:10');
+    expect(dreamcastSaveData.getSaveFiles()[3].fileSizeInBlocks).to.equal(2);
+    expect(dreamcastSaveData.getSaveFiles()[3].fileHeaderOffsetInBlocks).to.equal(0);
+
+    expect(dreamcastSaveData.getSaveFiles()[4].fileType).to.equal('Data');
+    expect(dreamcastSaveData.getSaveFiles()[4].copyProtected).to.equal(true); // The only save in this image that is copy protected
+    expect(dreamcastSaveData.getSaveFiles()[4].firstBlockNumber).to.equal(175);
+    expect(dreamcastSaveData.getSaveFiles()[4].filename).to.equal('PJUSTICE_SYS');
+    expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[4].fileCreationTime)).to.equal('2001-05-21 22:04:08');
+    expect(dreamcastSaveData.getSaveFiles()[4].fileSizeInBlocks).to.equal(2);
+    expect(dreamcastSaveData.getSaveFiles()[4].fileHeaderOffsetInBlocks).to.equal(0);
+
+    expect(dreamcastSaveData.getSaveFiles()[5].fileType).to.equal('Data');
+    expect(dreamcastSaveData.getSaveFiles()[5].copyProtected).to.equal(false);
+    expect(dreamcastSaveData.getSaveFiles()[5].firstBlockNumber).to.equal(173);
+    expect(dreamcastSaveData.getSaveFiles()[5].filename).to.equal('POWSTONE_DAT');
+    expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[5].fileCreationTime)).to.equal('2000-03-27 12:46:29');
+    expect(dreamcastSaveData.getSaveFiles()[5].fileSizeInBlocks).to.equal(4);
+    expect(dreamcastSaveData.getSaveFiles()[5].fileHeaderOffsetInBlocks).to.equal(0);
+
+    expect(dreamcastSaveData.getSaveFiles()[6].fileType).to.equal('Data');
+    expect(dreamcastSaveData.getSaveFiles()[6].copyProtected).to.equal(false);
+    expect(dreamcastSaveData.getSaveFiles()[6].firstBlockNumber).to.equal(169);
+    expect(dreamcastSaveData.getSaveFiles()[6].filename).to.equal('P_STONE2_DAT');
+    expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[6].fileCreationTime)).to.equal('2000-09-13 22:49:56');
+    expect(dreamcastSaveData.getSaveFiles()[6].fileSizeInBlocks).to.equal(5);
+    expect(dreamcastSaveData.getSaveFiles()[6].fileHeaderOffsetInBlocks).to.equal(0);
+
+    expect(dreamcastSaveData.getSaveFiles()[7].fileType).to.equal('Data');
+    expect(dreamcastSaveData.getSaveFiles()[7].copyProtected).to.equal(false);
+    expect(dreamcastSaveData.getSaveFiles()[7].firstBlockNumber).to.equal(164);
+    expect(dreamcastSaveData.getSaveFiles()[7].filename).to.equal('ROMANCER_DAT');
+    expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[7].fileCreationTime)).to.equal('2000-06-18 01:18:59');
+    expect(dreamcastSaveData.getSaveFiles()[7].fileSizeInBlocks).to.equal(3);
+    expect(dreamcastSaveData.getSaveFiles()[7].fileHeaderOffsetInBlocks).to.equal(0);
+
+    expect(dreamcastSaveData.getSaveFiles()[8].fileType).to.equal('Data');
+    expect(dreamcastSaveData.getSaveFiles()[8].copyProtected).to.equal(false);
+    expect(dreamcastSaveData.getSaveFiles()[8].firstBlockNumber).to.equal(161);
+    expect(dreamcastSaveData.getSaveFiles()[8].filename).to.equal('R2RUMBLE.001');
+    expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[8].fileCreationTime)).to.equal('2025-07-20 15:15:35');
+    expect(dreamcastSaveData.getSaveFiles()[8].fileSizeInBlocks).to.equal(6);
+    expect(dreamcastSaveData.getSaveFiles()[8].fileHeaderOffsetInBlocks).to.equal(0);
   });
 });

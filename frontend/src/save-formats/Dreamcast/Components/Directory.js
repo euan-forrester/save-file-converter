@@ -43,12 +43,10 @@ export default class DreamcastDirectory {
   }
 
   static readDirectory(arrayBuffer) {
-    const dataView = new DataView(arrayBuffer);
-
     const directoryEntries = ArrayUtil.createSequentialArray(0, MAX_DIRECTORY_ENTRIES).map((i) => {
       const directoryEntryArrayBuffer = arrayBuffer.slice(i * DIRECTORY_ENTRY_LENGTH, (i + 1) * DIRECTORY_ENTRY_LENGTH);
 
-      return GameCubeDirectoryEntry.readDirectoryEntry(directoryEntryArrayBuffer);
+      return DreamcastDirectoryEntry.readDirectoryEntry(directoryEntryArrayBuffer);
     }).filter((directoryEntry) => directoryEntry !== null);
 
     return directoryEntries;
