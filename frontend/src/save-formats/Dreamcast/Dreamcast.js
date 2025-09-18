@@ -29,16 +29,42 @@ const {
 
 const FILL_VALUE = 0x00;
 
-function getBlocks(arrayBuffer, blockNumber, sizeInBlocks) {
+function concatBlocks(blockNumbers, arrayBuffer) {
+  const blocks = blockNumbers.map((i) => arrayBuffer.slice(i * BLOCK_SIZE, (i + 1) * BLOCK_SIZE));
+
+  return Util.concatArrayBuffers(blocks);
+}
+
+function getBlocks(blockNumber, sizeInBlocks, arrayBuffer) {
   // The starting block as specified in the SystemInfo block is the one closest to the end of the file.
-  // We fill each block starting at the end of the block closest to the beginning of the file.
+  // However, we fill each block starting at the end of the block closest to the beginning of the file.
   // So to make a contiguous blob of data here we need to concat our blocks starting from the end of the file
 
   const startingBlockNumber = blockNumber - sizeInBlocks + 1;
   const blockNumbers = ArrayUtil.createSequentialArray(startingBlockNumber, sizeInBlocks).reverse();
-  const blocks = blockNumbers.map((i) => arrayBuffer.slice(i * BLOCK_SIZE, (i + 1) * BLOCK_SIZE));
 
-  return Util.concatArrayBuffers(blocks);
+  return concatBlocks(blockNumbers, arrayBuffer);
+}
+
+function getBlockNumbers(directoryEntry, fileAllocationTable) {
+  const blockNumbers = [];
+  let currentBlockNumber = directoryEntry.firstBlockNumber;
+
+  do {
+    if (fileAllocationTable[currentBlockNumber] === DreamcastFileAllocationTable.UNALLOCATED_BLOCK) {
+      throw new Error('Save file appears to be corrupted: save file appears to contain a block that is unallocated');
+    }
+
+    blockNumbers.push(currentBlockNumber);
+    currentBlockNumber = fileAllocationTable[currentBlockNumber];
+  } while (currentBlockNumber !== DreamcastFileAllocationTable.LAST_BLOCK_IN_FILE);
+
+  if (blockNumbers.length !== directoryEntry.fileSizeInBlocks) {
+    throw new Error(`Save file appears to be corrupted: expected to find ${directoryEntry.fileSizeInBlocks} blocks for file `
+      + `${directoryEntry.filename} but instead found ${blockNumbers.length} blocks when traversing file allocation table`);
+  }
+
+  return blockNumbers;
 }
 
 export default class DreamcastSaveData {
@@ -47,13 +73,19 @@ export default class DreamcastSaveData {
       throw new Error('This does not appear to be a Dreamcast VMU image');
     }
 
-    const volumeInfo = DreamcastSystemInfo.readSystemInfo(getBlocks(arrayBuffer, SYSTEM_INFO_BLOCK_NUMBER, SYSTEM_INFO_SIZE_IN_BLOCKS));
-    const nextBlockInFile = DreamcastFileAllocationTable.readFileAllocationTable(getBlocks(arrayBuffer, volumeInfo.fileAllocationTable.blockNumber, volumeInfo.fileAllocationTable.sizeInBlocks));
-    const directoryEntries = DreamcastDirectory.readDirectory(getBlocks(arrayBuffer, volumeInfo.directory.blockNumber, volumeInfo.directory.sizeInBlocks));
+    const volumeInfo = DreamcastSystemInfo.readSystemInfo(getBlocks(SYSTEM_INFO_BLOCK_NUMBER, SYSTEM_INFO_SIZE_IN_BLOCKS, arrayBuffer));
+    const fileAllocationTable = DreamcastFileAllocationTable.readFileAllocationTable(getBlocks(volumeInfo.fileAllocationTable.blockNumber, volumeInfo.fileAllocationTable.sizeInBlocks, arrayBuffer));
+    const directoryEntries = DreamcastDirectory.readDirectory(getBlocks(volumeInfo.directory.blockNumber, volumeInfo.directory.sizeInBlocks, arrayBuffer));
 
-    const saveFiles = directoryEntries;
+    const saveFiles = directoryEntries.map((directoryEntry) => {
+      const blockNumberList = getBlockNumbers(directoryEntry, fileAllocationTable);
 
-    console.log('Next block in file 0:', nextBlockInFile[0]);
+      return {
+        ...directoryEntry,
+        blockNumberList,
+        rawData: concatBlocks(blockNumberList, arrayBuffer),
+      };
+    });
 
     return new DreamcastSaveData(arrayBuffer, saveFiles, volumeInfo);
   }

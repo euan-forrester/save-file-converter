@@ -2,6 +2,7 @@
 
 import { expect } from 'chai';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
+import ArrayUtil from '@/util/Array';
 
 import DreamcastBasics from '@/save-formats/Dreamcast/Components/Basics';
 import DreamcastSaveData from '@/save-formats/Dreamcast/Dreamcast';
@@ -10,10 +11,22 @@ import DreamcastUtil from '@/save-formats/Dreamcast/Util';
 const DIR = './tests/data/save-formats/dreamcast';
 
 const DREAMCAST_FILENAME = `${DIR}/vmu_save_A1.bin`;
+const DREAMCAST_SAVE_FILENAME = [
+  `${DIR}/vmu_save_A1-0.bin`,
+  `${DIR}/vmu_save_A1-1.bin`,
+  `${DIR}/vmu_save_A1-2.bin`,
+  `${DIR}/vmu_save_A1-3.bin`,
+  `${DIR}/vmu_save_A1-4.bin`,
+  `${DIR}/vmu_save_A1-5.bin`,
+  `${DIR}/vmu_save_A1-6.bin`,
+  `${DIR}/vmu_save_A1-7.bin`,
+  `${DIR}/vmu_save_A1-8.bin`,
+];
 
 describe('Dreamcast', () => {
   it('should correctly read a Dreamcast VMU image', async () => {
     const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(DREAMCAST_FILENAME);
+    const rawArrayBuffers = await Promise.all(DREAMCAST_SAVE_FILENAME.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
 
     const dreamcastSaveData = DreamcastSaveData.createFromDreamcastData(arrayBuffer);
 
@@ -46,6 +59,8 @@ describe('Dreamcast', () => {
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[0].fileCreationTime)).to.equal('1999-11-27 07:37:16');
     expect(dreamcastSaveData.getSaveFiles()[0].fileSizeInBlocks).to.equal(5);
     expect(dreamcastSaveData.getSaveFiles()[0].fileHeaderOffsetInBlocks).to.equal(0);
+    expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[0].blockNumberList, ArrayUtil.createReverseSequentialArray(199, 5))).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[0].rawData, rawArrayBuffers[0])).to.equal(true);
 
     expect(dreamcastSaveData.getSaveFiles()[1].fileType).to.equal('Data');
     expect(dreamcastSaveData.getSaveFiles()[1].copyProtected).to.equal(false);
@@ -54,6 +69,8 @@ describe('Dreamcast', () => {
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[1].fileCreationTime)).to.equal('2001-09-13 11:42:43');
     expect(dreamcastSaveData.getSaveFiles()[1].fileSizeInBlocks).to.equal(12);
     expect(dreamcastSaveData.getSaveFiles()[1].fileHeaderOffsetInBlocks).to.equal(0);
+    expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[1].blockNumberList, ArrayUtil.createReverseSequentialArray(194, 12))).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[1].rawData, rawArrayBuffers[1])).to.equal(true);
 
     expect(dreamcastSaveData.getSaveFiles()[2].fileType).to.equal('Data');
     expect(dreamcastSaveData.getSaveFiles()[2].copyProtected).to.equal(false);
@@ -62,6 +79,8 @@ describe('Dreamcast', () => {
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[2].fileCreationTime)).to.equal('2001-05-27 17:01:06');
     expect(dreamcastSaveData.getSaveFiles()[2].fileSizeInBlocks).to.equal(5);
     expect(dreamcastSaveData.getSaveFiles()[2].fileHeaderOffsetInBlocks).to.equal(0);
+    expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[2].blockNumberList, ArrayUtil.createReverseSequentialArray(182, 5))).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[2].rawData, rawArrayBuffers[2])).to.equal(true);
 
     expect(dreamcastSaveData.getSaveFiles()[3].fileType).to.equal('Data');
     expect(dreamcastSaveData.getSaveFiles()[3].copyProtected).to.equal(false);
@@ -70,6 +89,8 @@ describe('Dreamcast', () => {
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[3].fileCreationTime)).to.equal('2000-11-05 18:44:10');
     expect(dreamcastSaveData.getSaveFiles()[3].fileSizeInBlocks).to.equal(2);
     expect(dreamcastSaveData.getSaveFiles()[3].fileHeaderOffsetInBlocks).to.equal(0);
+    expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[3].blockNumberList, ArrayUtil.createReverseSequentialArray(177, 2))).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[3].rawData, rawArrayBuffers[3])).to.equal(true);
 
     expect(dreamcastSaveData.getSaveFiles()[4].fileType).to.equal('Data');
     expect(dreamcastSaveData.getSaveFiles()[4].copyProtected).to.equal(true); // The only save in this image that is copy protected
@@ -78,6 +99,8 @@ describe('Dreamcast', () => {
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[4].fileCreationTime)).to.equal('2001-05-21 22:04:08');
     expect(dreamcastSaveData.getSaveFiles()[4].fileSizeInBlocks).to.equal(2);
     expect(dreamcastSaveData.getSaveFiles()[4].fileHeaderOffsetInBlocks).to.equal(0);
+    expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[4].blockNumberList, ArrayUtil.createReverseSequentialArray(175, 2))).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[4].rawData, rawArrayBuffers[4])).to.equal(true);
 
     expect(dreamcastSaveData.getSaveFiles()[5].fileType).to.equal('Data');
     expect(dreamcastSaveData.getSaveFiles()[5].copyProtected).to.equal(false);
@@ -86,6 +109,8 @@ describe('Dreamcast', () => {
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[5].fileCreationTime)).to.equal('2000-03-27 12:46:29');
     expect(dreamcastSaveData.getSaveFiles()[5].fileSizeInBlocks).to.equal(4);
     expect(dreamcastSaveData.getSaveFiles()[5].fileHeaderOffsetInBlocks).to.equal(0);
+    expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[5].blockNumberList, ArrayUtil.createReverseSequentialArray(173, 4))).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[5].rawData, rawArrayBuffers[5])).to.equal(true);
 
     expect(dreamcastSaveData.getSaveFiles()[6].fileType).to.equal('Data');
     expect(dreamcastSaveData.getSaveFiles()[6].copyProtected).to.equal(false);
@@ -94,6 +119,8 @@ describe('Dreamcast', () => {
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[6].fileCreationTime)).to.equal('2000-09-13 22:49:56');
     expect(dreamcastSaveData.getSaveFiles()[6].fileSizeInBlocks).to.equal(5);
     expect(dreamcastSaveData.getSaveFiles()[6].fileHeaderOffsetInBlocks).to.equal(0);
+    expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[6].blockNumberList, ArrayUtil.createReverseSequentialArray(169, 5))).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[6].rawData, rawArrayBuffers[6])).to.equal(true);
 
     expect(dreamcastSaveData.getSaveFiles()[7].fileType).to.equal('Data');
     expect(dreamcastSaveData.getSaveFiles()[7].copyProtected).to.equal(false);
@@ -102,6 +129,8 @@ describe('Dreamcast', () => {
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[7].fileCreationTime)).to.equal('2000-06-18 01:18:59');
     expect(dreamcastSaveData.getSaveFiles()[7].fileSizeInBlocks).to.equal(3);
     expect(dreamcastSaveData.getSaveFiles()[7].fileHeaderOffsetInBlocks).to.equal(0);
+    expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[7].blockNumberList, ArrayUtil.createReverseSequentialArray(164, 3))).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[7].rawData, rawArrayBuffers[7])).to.equal(true);
 
     expect(dreamcastSaveData.getSaveFiles()[8].fileType).to.equal('Data');
     expect(dreamcastSaveData.getSaveFiles()[8].copyProtected).to.equal(false);
@@ -110,5 +139,7 @@ describe('Dreamcast', () => {
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[8].fileCreationTime)).to.equal('2025-07-20 15:15:35');
     expect(dreamcastSaveData.getSaveFiles()[8].fileSizeInBlocks).to.equal(6);
     expect(dreamcastSaveData.getSaveFiles()[8].fileHeaderOffsetInBlocks).to.equal(0);
+    expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[8].blockNumberList, ArrayUtil.createReverseSequentialArray(161, 6))).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[8].rawData, rawArrayBuffers[8])).to.equal(true);
   });
 });
