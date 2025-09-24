@@ -2,6 +2,8 @@
 
 import DreamcastBasics from './Components/Basics';
 
+import Util from '../../util/util';
+
 const { LITTLE_ENDIAN } = DreamcastBasics;
 
 const TIMESTAMP_YEAR_OFFSET = 0;
@@ -22,6 +24,13 @@ function readBcdByte(val) {
   const ones = val % 16;
 
   return (tens * 10) + ones;
+}
+
+function writeBcdByte(val) {
+  const highByte = Math.floor(val / 10);
+  const lowByte = val % 10;
+
+  return (highByte << 4) | lowByte;
 }
 
 function formatDateWithoutTimezone(date) {
@@ -87,6 +96,28 @@ export default class DreamcastUtil {
     // checkDayOfWeek(dayOfWeek, date);
 
     return date;
+  }
+
+  static writeBcdTimestamp(arrayBuffer, offset, date) {
+    const timestampArrayBuffer = new ArrayBuffer(TIMESTAMP_LENGTH);
+    const dataView = new DataView(timestampArrayBuffer);
+
+    const century = Math.floor(date.getFullYear() / 100);
+    const yearWithinCentury = date.getFullYear() % 100;
+
+    dataView.setUint8(BCD_TIMESTAMP_CENTURY_OFFSET, writeBcdByte(century));
+    dataView.setUint8(BCD_TIMESTAMP_YEAR_WITHIN_CENTURY_OFFSET, writeBcdByte(yearWithinCentury));
+    dataView.setUint8(TIMESTAMP_MONTH_OFFSET, writeBcdByte(date.getMonth() + 1)); // Dreamcast months are 1-12, Javascript months are 0-11
+    dataView.setUint8(TIMESTAMP_DAY_OFFSET, writeBcdByte(date.getDate()));
+    dataView.setUint8(TIMESTAMP_HOUR_OFFSET, writeBcdByte(date.getHours()));
+    dataView.setUint8(TIMESTAMP_MINUTE_OFFSET, writeBcdByte(date.getMinutes()));
+    dataView.setUint8(TIMESTAMP_SECOND_OFFSET, writeBcdByte(date.getSeconds()));
+
+    const dreamcastDayOfWeek = (date.getDay() === 0) ? 6 : date.getDay() - 1; // Dreamcast Monday is 0, Javascript Sunday is 0: https://mc.pp.se/dc/vms/flashmem.html
+
+    dataView.setUint8(TIMESTAMP_DAY_OF_WEEK_OFFSET, writeBcdByte(dreamcastDayOfWeek));
+
+    return Util.setArrayBufferPortion(arrayBuffer, timestampArrayBuffer, offset, 0, TIMESTAMP_LENGTH);
   }
 
   // Dreamcast timestamps do not have a timezone, so are all in local time. So we want to print them without timezone information so that the tests work wherever they are executed

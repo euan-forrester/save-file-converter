@@ -10,6 +10,7 @@ import DreamcastUtil from '@/save-formats/Dreamcast/Util';
 
 const DIR = './tests/data/save-formats/dreamcast';
 
+const EMPTY_DREAMCAST_FILENAME = `${DIR}/empty_vmu_image.bin`;
 const DREAMCAST_FILENAME = `${DIR}/vmu_save_A1.bin`;
 const DREAMCAST_SAVE_FILENAME = [
   `${DIR}/vmu_save_A1-0.bin`,
@@ -48,7 +49,7 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getVolumeInfo().saveArea.blockNumber).to.equal(DreamcastBasics.SAVE_AREA_BLOCK_NUMBER);
     expect(dreamcastSaveData.getVolumeInfo().saveArea.sizeInBlocks).to.equal(DreamcastBasics.SAVE_AREA_SIZE_IN_BLOCKS);
     expect(dreamcastSaveData.getVolumeInfo().saveArea.numberOfSaveBlocks).to.equal(DreamcastBasics.NUMBER_OF_SAVE_BLOCKS);
-    expect(dreamcastSaveData.getVolumeInfo().reserved).to.equal(0);
+    expect(dreamcastSaveData.getVolumeInfo().reserved).to.equal(0x800000);
 
     expect(dreamcastSaveData.getSaveFiles().length).to.equal(9);
 
@@ -141,5 +142,31 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getSaveFiles()[8].fileHeaderOffsetInBlocks).to.equal(0);
     expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[8].blockNumberList, ArrayUtil.createReverseSequentialArray(161, 6))).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[8].rawData, rawArrayBuffers[8])).to.equal(true);
+  });
+
+  it('should correctly create an empty Dreamcast VMU image', async () => {
+    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMPTY_DREAMCAST_FILENAME);
+
+    const volumeInfo = {
+      useCustomColor: true,
+      customColor: {
+        blue: 0xAB,
+        green: 0xCD,
+        red: 0xEF,
+        alpha: 0x42,
+      },
+      timestamp: new Date('2025-10-18 13:42:00'),
+      iconShape: 42,
+    };
+
+    const dreamcastSaveData = DreamcastSaveData.createFromSaveFiles([], volumeInfo);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getArrayBuffer(), arrayBuffer)).to.equal(true);
+  });
+
+  it('should correctly create a Dreamcast VMU image', async () => {
+    // const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(DREAMCAST_FILENAME);
+    // const rawArrayBuffers = await Promise.all(DREAMCAST_SAVE_FILENAME.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
+
   });
 });

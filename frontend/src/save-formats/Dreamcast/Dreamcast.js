@@ -91,7 +91,11 @@ export default class DreamcastSaveData {
   }
 
   static createFromSaveFiles(saveFiles, volumeInfo) {
-    const memcardArrayBuffer = Util.getFilledArrayBuffer(TOTAL_SIZE, FILL_VALUE);
+    const systemInfoBlock = DreamcastSystemInfo.writeSystemInfo(volumeInfo);
+
+    const paddingArrayBuffer = Util.getFilledArrayBuffer(TOTAL_SIZE - BLOCK_SIZE, FILL_VALUE);
+
+    const memcardArrayBuffer = Util.concatArrayBuffers([paddingArrayBuffer, systemInfoBlock]);
 
     return new DreamcastSaveData(memcardArrayBuffer, saveFiles, volumeInfo);
   }
