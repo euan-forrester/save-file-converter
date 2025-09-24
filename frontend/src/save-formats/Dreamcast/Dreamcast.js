@@ -25,6 +25,7 @@ const {
   TOTAL_SIZE,
   SYSTEM_INFO_BLOCK_NUMBER,
   SYSTEM_INFO_SIZE_IN_BLOCKS,
+  // DIRECTORY_BLOCK_NUMBER,
 } = DreamcastBasics;
 
 const FILL_VALUE = 0x00;
@@ -44,6 +45,15 @@ function getBlocks(blockNumber, sizeInBlocks, arrayBuffer) {
   const blockNumbers = ArrayUtil.createSequentialArray(startingBlockNumber, sizeInBlocks).reverse();
 
   return concatBlocks(blockNumbers, arrayBuffer);
+}
+
+function createBlocks(arrayBuffer) {
+  // Similar to getBlocks() we will split our array buffer into blocks and then reverse them
+
+  const numBlocks = Math.ceil(arrayBuffer.byteLength / BLOCK_SIZE);
+  const blocks = ArrayUtil.createSequentialArray(0, numBlocks).map((i) => arrayBuffer.slice(i * BLOCK_SIZE, (i + 1) * BLOCK_SIZE));
+
+  return blocks.reverse();
 }
 
 function getBlockNumbers(directoryEntry, fileAllocationTable) {
@@ -91,11 +101,19 @@ export default class DreamcastSaveData {
   }
 
   static createFromSaveFiles(saveFiles, volumeInfo) {
-    const systemInfoBlock = DreamcastSystemInfo.writeSystemInfo(volumeInfo);
+    const systemInfo = DreamcastSystemInfo.writeSystemInfo(volumeInfo);
+    const fileAllocationTable = DreamcastFileAllocationTable.writeFileAllocationTable(saveFiles);
+    const directory = DreamcastDirectory.writeDirectory(saveFiles);
 
-    const paddingArrayBuffer = Util.getFilledArrayBuffer(TOTAL_SIZE - BLOCK_SIZE, FILL_VALUE);
+    const systemInfoBlocks = createBlocks(systemInfo);
+    const fileAllocationTableBlocks = createBlocks(fileAllocationTable);
+    const directoryBlocks = createBlocks(directory);
 
-    const memcardArrayBuffer = Util.concatArrayBuffers([paddingArrayBuffer, systemInfoBlock]);
+    const blocksUsed = systemInfoBlocks.length + fileAllocationTableBlocks.length + directoryBlocks.length;
+
+    const paddingArrayBuffer = Util.getFilledArrayBuffer(TOTAL_SIZE - (BLOCK_SIZE * blocksUsed), FILL_VALUE);
+
+    const memcardArrayBuffer = Util.concatArrayBuffers([paddingArrayBuffer, ...directoryBlocks, ...fileAllocationTableBlocks, ...systemInfoBlocks]);
 
     return new DreamcastSaveData(memcardArrayBuffer, saveFiles, volumeInfo);
   }

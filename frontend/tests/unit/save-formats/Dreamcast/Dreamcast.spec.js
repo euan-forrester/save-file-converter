@@ -24,6 +24,8 @@ const DREAMCAST_SAVE_FILENAME = [
   `${DIR}/vmu_save_A1-8.bin`,
 ];
 
+const OUTPUT_DREAMCAST_FILENAME = `${DIR}/vmu_save_A1-created.bin`;
+
 describe('Dreamcast', () => {
   it('should correctly read a Dreamcast VMU image', async () => {
     const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(DREAMCAST_FILENAME);
@@ -164,9 +166,127 @@ describe('Dreamcast', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getArrayBuffer(), arrayBuffer)).to.equal(true);
   });
 
+  it('should correctly read an empty Dreamcast VMU image', async () => {
+    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(EMPTY_DREAMCAST_FILENAME);
+
+    const dreamcastSaveData = DreamcastSaveData.createFromDreamcastData(arrayBuffer);
+
+    expect(dreamcastSaveData.getVolumeInfo().useCustomColor).to.equal(true);
+    expect(dreamcastSaveData.getVolumeInfo().customColor.blue).to.equal(0xAB);
+    expect(dreamcastSaveData.getVolumeInfo().customColor.green).to.equal(0xCD);
+    expect(dreamcastSaveData.getVolumeInfo().customColor.red).to.equal(0xEF);
+    expect(dreamcastSaveData.getVolumeInfo().customColor.alpha).to.equal(0x42);
+    expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getVolumeInfo().timestamp)).to.equal('2025-10-18 13:42:00');
+    expect(dreamcastSaveData.getVolumeInfo().largestBlockNumber).to.equal(DreamcastBasics.NUM_BLOCKS - 1);
+    expect(dreamcastSaveData.getVolumeInfo().partitionNumber).to.equal(0);
+    expect(dreamcastSaveData.getVolumeInfo().systemInfo.blockNumber).to.equal(DreamcastBasics.SYSTEM_INFO_BLOCK_NUMBER);
+    expect(dreamcastSaveData.getVolumeInfo().systemInfo.sizeInBlocks).to.equal(DreamcastBasics.SYSTEM_INFO_SIZE_IN_BLOCKS);
+    expect(dreamcastSaveData.getVolumeInfo().fileAllocationTable.blockNumber).to.equal(DreamcastBasics.FILE_ALLOCATION_TABLE_BLOCK_NUMBER);
+    expect(dreamcastSaveData.getVolumeInfo().fileAllocationTable.sizeInBlocks).to.equal(DreamcastBasics.FILE_ALLOCATION_TABLE_SIZE_IN_BLOCKS);
+    expect(dreamcastSaveData.getVolumeInfo().directory.blockNumber).to.equal(DreamcastBasics.DIRECTORY_BLOCK_NUMBER);
+    expect(dreamcastSaveData.getVolumeInfo().directory.sizeInBlocks).to.equal(DreamcastBasics.DIRECTORY_SIZE_IN_BLOCKS);
+    expect(dreamcastSaveData.getVolumeInfo().iconShape).to.equal(42);
+    expect(dreamcastSaveData.getVolumeInfo().saveArea.blockNumber).to.equal(DreamcastBasics.SAVE_AREA_BLOCK_NUMBER);
+    expect(dreamcastSaveData.getVolumeInfo().saveArea.sizeInBlocks).to.equal(DreamcastBasics.SAVE_AREA_SIZE_IN_BLOCKS);
+    expect(dreamcastSaveData.getVolumeInfo().saveArea.numberOfSaveBlocks).to.equal(DreamcastBasics.NUMBER_OF_SAVE_BLOCKS);
+    expect(dreamcastSaveData.getVolumeInfo().reserved).to.equal(0x800000);
+  });
+
   it('should correctly create a Dreamcast VMU image', async () => {
     // const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(DREAMCAST_FILENAME);
-    // const rawArrayBuffers = await Promise.all(DREAMCAST_SAVE_FILENAME.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
+    const rawArrayBuffers = await Promise.all(DREAMCAST_SAVE_FILENAME.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
 
+    const volumeInfo = {
+      useCustomColor: true,
+      customColor: {
+        blue: 255,
+        green: 255,
+        red: 255,
+        alpha: 255,
+      },
+      timestamp: new Date('2024-10-12 19:56:48'),
+      iconShape: 0,
+    };
+
+    const saveFiles = [
+      {
+        fileType: 'Data',
+        copyProtected: false,
+        filename: 'MVLVSCP2_SYS',
+        fileCreationTime: new Date('1999-11-27 07:37:16'),
+        fileHeaderOffsetInBlocks: 0,
+        rawData: rawArrayBuffers[0],
+      },
+      {
+        fileType: 'Data',
+        copyProtected: false,
+        filename: 'CVS.S2___SYS',
+        fileCreationTime: new Date('2001-09-13 11:42:43'),
+        fileHeaderOffsetInBlocks: 0,
+        rawData: rawArrayBuffers[1],
+      },
+      {
+        fileType: 'Data',
+        copyProtected: false,
+        filename: '18WHDATA.SYS',
+        fileCreationTime: new Date('2001-05-27 17:01:06'),
+        fileHeaderOffsetInBlocks: 0,
+        rawData: rawArrayBuffers[2],
+      },
+      {
+        fileType: 'Data',
+        copyProtected: false,
+        filename: 'SPAWNTDH.SYS',
+        fileCreationTime: new Date('2000-11-05 18:44:10'),
+        fileHeaderOffsetInBlocks: 0,
+        rawData: rawArrayBuffers[3],
+      },
+      {
+        fileType: 'Data',
+        copyProtected: true, // The only save in this image that is copy protected
+        filename: 'PJUSTICE_SYS',
+        fileCreationTime: new Date('2001-05-21 22:04:08'),
+        fileHeaderOffsetInBlocks: 0,
+        rawData: rawArrayBuffers[4],
+      },
+      {
+        fileType: 'Data',
+        copyProtected: false,
+        filename: 'SPOWSTONE_DAT',
+        fileCreationTime: new Date('2000-03-27 12:46:29'),
+        fileHeaderOffsetInBlocks: 0,
+        rawData: rawArrayBuffers[5],
+      },
+      {
+        fileType: 'Data',
+        copyProtected: false,
+        filename: 'P_STONE2_DAT',
+        fileCreationTime: new Date('2000-09-13 22:49:56'),
+        fileHeaderOffsetInBlocks: 0,
+        rawData: rawArrayBuffers[6],
+      },
+      {
+        fileType: 'Data',
+        copyProtected: false,
+        filename: 'ROMANCER_DAT',
+        fileCreationTime: new Date('2000-06-18 01:18:59'),
+        fileHeaderOffsetInBlocks: 0,
+        rawData: rawArrayBuffers[7],
+      },
+      {
+        fileType: 'Data',
+        copyProtected: false,
+        filename: 'R2RUMBLE.001',
+        fileCreationTime: new Date('2025-07-20 15:15:35'),
+        fileHeaderOffsetInBlocks: 0,
+        rawData: rawArrayBuffers[8],
+      },
+    ];
+
+    const dreamcastSaveData = DreamcastSaveData.createFromSaveFiles(saveFiles, volumeInfo);
+
+    ArrayBufferUtil.writeArrayBuffer(OUTPUT_DREAMCAST_FILENAME, dreamcastSaveData.getArrayBuffer());
+
+    // expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getArrayBuffer(), arrayBuffer)).to.equal(true);
   });
 });

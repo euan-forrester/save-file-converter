@@ -38,20 +38,52 @@ const FILE_TYPE_LOOKUP = {
   0xCC: 'Game',
 };
 
-const UNKNOWN_FILE_TYPE = 'Unknown';
+const UNKNOWN_FILE_TYPE_STRING = 'Unknown';
+const UNKNOWN_FILE_TYPE = 0xFF;
+
+const POSSIBLE_FILE_TYPES = Object.keys(FILE_TYPE_LOOKUP);
 
 const COPY_PROTECT_COPY_OKAY = 0x00;
-// const COPY_PROTECT_NO_COPY = 0xFF;
+const COPY_PROTECT_NO_COPY = 0xFF;
 
 const DIRECTORY_ENTRY_PADDING_VALUE = 0x00;
 
 const DIRECTORY_ENTRY_LENGTH = 32;
 
+function getFileTypeString(fileType) {
+  if (Object.hasOwn(FILE_TYPE_LOOKUP, fileType)) {
+    return FILE_TYPE_LOOKUP[fileType];
+  }
+
+  return UNKNOWN_FILE_TYPE_STRING;
+}
+
+function getFileTypeValue(fileTypeString) {
+  const fileType = POSSIBLE_FILE_TYPES.find((key) => FILE_TYPE_LOOKUP[key] === fileTypeString);
+
+  if (fileType === undefined) {
+    return UNKNOWN_FILE_TYPE;
+  }
+
+  return fileType;
+}
+
 export default class DreamcastDirectoryEntry {
   static LENGTH = DIRECTORY_ENTRY_LENGTH;
 
-  static writeDirectoryEntry(/* saveFile */) {
-    const arrayBuffer = Util.getFilledArrayBuffer(DIRECTORY_ENTRY_LENGTH, DIRECTORY_ENTRY_PADDING_VALUE);
+  static writeDirectoryEntry(saveFile) {
+    let arrayBuffer = Util.getFilledArrayBuffer(DIRECTORY_ENTRY_LENGTH, DIRECTORY_ENTRY_PADDING_VALUE);
+
+    arrayBuffer = Util.setString(arrayBuffer, FILENAME_OFFSET, saveFile.filename, FILENAME_ENCODING, FILENAME_LENGTH);
+    arrayBuffer = DreamcastUtil.writeBcdTimestamp(arrayBuffer, FILE_CREATION_TIME_OFFSET, saveFile.fileCreationTime);
+
+    const dataView = new DataView(arrayBuffer);
+
+    dataView.setUint8(FILE_TYPE_OFFSET, getFileTypeValue(saveFile.fileType));
+    dataView.setUint8(COPY_PROTECT_OFFSET, saveFile.copyProtected ? COPY_PROTECT_NO_COPY : COPY_PROTECT_COPY_OKAY);
+    dataView.setUint16(FIRST_BLOCK_NUMBER_OFFSET, saveFile.firstBlockNumber, LITTLE_ENDIAN);
+    dataView.setUint16(FILE_SIZE_IN_BLOCKS_OFFSET, saveFile.fileSizeInBlocks, LITTLE_ENDIAN);
+    dataView.setUint16(FILE_HEADER_OFFSET_IN_BLOCKS_OFFSET, saveFile.fileHeaderOffsetInBlocks, LITTLE_ENDIAN);
 
     return arrayBuffer;
   }
@@ -68,7 +100,7 @@ export default class DreamcastDirectoryEntry {
     }
 
     const fileTypeVal = dataView.getUint8(FILE_TYPE_OFFSET);
-    const fileType = Object.hasOwn(FILE_TYPE_LOOKUP, fileTypeVal) ? FILE_TYPE_LOOKUP[fileTypeVal] : UNKNOWN_FILE_TYPE;
+    const fileType = getFileTypeString(fileTypeVal);
     const copyProtected = dataView.getUint8(COPY_PROTECT_OFFSET) !== COPY_PROTECT_COPY_OKAY;
     const firstBlockNumber = dataView.getUint16(FIRST_BLOCK_NUMBER_OFFSET, LITTLE_ENDIAN);
     const filename = Util.readNullTerminatedString(uint8Array, FILENAME_OFFSET, FILENAME_ENCODING, FILENAME_LENGTH);
