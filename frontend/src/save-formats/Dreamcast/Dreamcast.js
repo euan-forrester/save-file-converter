@@ -10,6 +10,10 @@ Blocks 200-240: Not used
 Blocks 241-253: Directory
 Block  254:     File allocation table
 Block  255:     System information
+
+Note that the file is written back-to-front: we first write the blocks nearest the end of the file.
+But within each block we write it from the end of the block closest to the start of the file.
+This applies to all sections, but most notably to the Directory and User save area sections.
 */
 
 import Util from '../../util/util';
@@ -41,7 +45,7 @@ function concatBlocks(blockNumbers, arrayBuffer) {
 }
 
 function getBlocks(blockNumber, sizeInBlocks, arrayBuffer) {
-  // The starting block as specified in the SystemInfo block is the one closest to the end of the file.
+  // The starting block is the one closest to the end of the file.
   // However, we fill each block starting at the end of the block closest to the beginning of the file.
   // So to make a contiguous blob of data here we need to concat our blocks starting from the end of the file
 
