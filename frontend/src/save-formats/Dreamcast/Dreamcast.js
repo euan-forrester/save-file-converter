@@ -53,6 +53,12 @@ function createBlocks(arrayBuffer) {
   const numBlocks = Math.ceil(arrayBuffer.byteLength / BLOCK_SIZE);
   const blocks = ArrayUtil.createSequentialArray(0, numBlocks).map((i) => arrayBuffer.slice(i * BLOCK_SIZE, (i + 1) * BLOCK_SIZE));
 
+  if (blocks[blocks.length - 1].byteLength < BLOCK_SIZE) {
+    const paddingLength = BLOCK_SIZE - blocks[blocks.length - 1].byteLength;
+
+    blocks[blocks.length - 1] = Util.concatArrayBuffers([blocks[blocks.length - 1], Util.getFilledArrayBuffer(paddingLength, FILL_VALUE)]);
+  }
+
   return blocks.reverse();
 }
 
@@ -105,15 +111,21 @@ export default class DreamcastSaveData {
     const fileAllocationTable = DreamcastFileAllocationTable.writeFileAllocationTable(saveFiles);
     const directory = DreamcastDirectory.writeDirectory(saveFiles);
 
+    // Blocks 0 - 199 are for the save area, but the directory begins on block 241 leaving 41 blocks unused in between
+    const numPaddingBlocks = DreamcastBasics.DIRECTORY_BLOCK_NUMBER - DreamcastBasics.DIRECTORY_SIZE_IN_BLOCKS - DreamcastBasics.SAVE_AREA_SIZE_IN_BLOCKS - DreamcastBasics.SAVE_AREA_BLOCK_NUMBER + 1;
+
     const systemInfoBlocks = createBlocks(systemInfo);
     const fileAllocationTableBlocks = createBlocks(fileAllocationTable);
     const directoryBlocks = createBlocks(directory);
+    const paddingBlocks = Util.getFilledArrayBuffer(numPaddingBlocks * BLOCK_SIZE, FILL_VALUE);
 
-    const blocksUsed = systemInfoBlocks.length + fileAllocationTableBlocks.length + directoryBlocks.length;
+    const saveFileBlocks = saveFiles.map((saveFile) => createBlocks(saveFile.rawData)).reverse().flat(); // We write our save files from the back of the file to the front
 
-    const paddingArrayBuffer = Util.getFilledArrayBuffer(TOTAL_SIZE - (BLOCK_SIZE * blocksUsed), FILL_VALUE);
+    const blocksUsed = systemInfoBlocks.length + fileAllocationTableBlocks.length + directoryBlocks.length + numPaddingBlocks + saveFileBlocks.length;
 
-    const memcardArrayBuffer = Util.concatArrayBuffers([paddingArrayBuffer, ...directoryBlocks, ...fileAllocationTableBlocks, ...systemInfoBlocks]);
+    const fileStartPaddingArrayBuffer = Util.getFilledArrayBuffer(TOTAL_SIZE - (BLOCK_SIZE * blocksUsed), FILL_VALUE);
+
+    const memcardArrayBuffer = Util.concatArrayBuffers([fileStartPaddingArrayBuffer, ...saveFileBlocks, paddingBlocks, ...directoryBlocks, ...fileAllocationTableBlocks, ...systemInfoBlocks]);
 
     return new DreamcastSaveData(memcardArrayBuffer, saveFiles, volumeInfo);
   }
