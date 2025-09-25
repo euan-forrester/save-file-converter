@@ -12,6 +12,7 @@ const DIR = './tests/data/save-formats/dreamcast';
 
 const EMPTY_DREAMCAST_FILENAME = `${DIR}/empty_vmu_image.bin`;
 const DREAMCAST_FILENAME = `${DIR}/vmu_save_A1.bin`;
+const RECREATED_DREAMCAST_FILENAME = `${DIR}/vmu_save_A1-created.bin`; // Contains the same data as DREAMCAST_FILENAME, but 2 of 10 dates in the above file contain inconsistent day-of-week numbers, so they differ when we re-create the file
 const DREAMCAST_SAVE_FILENAME = [
   `${DIR}/vmu_save_A1-0.bin`,
   `${DIR}/vmu_save_A1-1.bin`,
@@ -23,8 +24,6 @@ const DREAMCAST_SAVE_FILENAME = [
   `${DIR}/vmu_save_A1-7.bin`,
   `${DIR}/vmu_save_A1-8.bin`,
 ];
-
-const OUTPUT_DREAMCAST_FILENAME = `${DIR}/vmu_save_A1-created.bin`;
 
 describe('Dreamcast', () => {
   it('should correctly read a Dreamcast VMU image', async () => {
@@ -193,7 +192,7 @@ describe('Dreamcast', () => {
   });
 
   it('should correctly create a Dreamcast VMU image', async () => {
-    // const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(DREAMCAST_FILENAME);
+    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(RECREATED_DREAMCAST_FILENAME);
     const rawArrayBuffers = await Promise.all(DREAMCAST_SAVE_FILENAME.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
 
     const volumeInfo = {
@@ -252,7 +251,7 @@ describe('Dreamcast', () => {
       {
         fileType: 'Data',
         copyProtected: false,
-        filename: 'SPOWSTONE_DAT',
+        filename: 'POWSTONE_DAT',
         fileCreationTime: new Date('2000-03-27 12:46:29'),
         fileHeaderOffsetInBlocks: 0,
         rawData: rawArrayBuffers[5],
@@ -285,8 +284,6 @@ describe('Dreamcast', () => {
 
     const dreamcastSaveData = DreamcastSaveData.createFromSaveFiles(saveFiles, volumeInfo);
 
-    ArrayBufferUtil.writeArrayBuffer(OUTPUT_DREAMCAST_FILENAME, dreamcastSaveData.getArrayBuffer());
-
-    // expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getArrayBuffer(), arrayBuffer)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getArrayBuffer(), arrayBuffer)).to.equal(true);
   });
 });

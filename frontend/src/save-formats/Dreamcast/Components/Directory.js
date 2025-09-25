@@ -18,7 +18,6 @@ const {
   BLOCK_SIZE,
   DIRECTORY_SIZE_IN_BLOCKS,
   SAVE_AREA_SIZE_IN_BLOCKS,
-  SAVE_AREA_BLOCK_NUMBER,
 } = DreamcastBasics;
 
 const DIRECTORY_PADDING_VALUE = 0x00;
@@ -27,26 +26,9 @@ const MAX_DIRECTORY_ENTRIES = SAVE_AREA_SIZE_IN_BLOCKS;
 const DIRECTORY_ENTRY_LENGTH = DreamcastDirectoryEntry.LENGTH;
 
 export default class DreamcastDirectory {
-  static writeDirectory(saveFiles) {
-    if (saveFiles.length > MAX_DIRECTORY_ENTRIES) {
-      throw new Error(`Unable to fit ${saveFiles.length} saves into a single VMU image. Max is ${MAX_DIRECTORY_ENTRIES}`);
-    }
+  static writeDirectory(saveFilesWithBlockInfo) {
+    const directoryEntries = saveFilesWithBlockInfo.map((saveFile) => DreamcastDirectoryEntry.writeDirectoryEntry(saveFile));
 
-    let currentBlockNumber = SAVE_AREA_SIZE_IN_BLOCKS + SAVE_AREA_BLOCK_NUMBER - 1; // Start at the end of the save area and work towards the beginning of the file
-
-    const directoryEntries = saveFiles.map((saveFile) => {
-      const fileSizeInBlocks = Math.ceil(saveFile.rawData.byteLength / BLOCK_SIZE);
-
-      const saveFileWithBlockInfo = {
-        ...saveFile,
-        firstBlockNumber: currentBlockNumber,
-        fileSizeInBlocks,
-      };
-
-      currentBlockNumber -= fileSizeInBlocks;
-
-      return DreamcastDirectoryEntry.writeDirectoryEntry(saveFileWithBlockInfo);
-    });
     const directoryEntriesSize = directoryEntries.length * DreamcastDirectoryEntry.LENGTH;
 
     const padding = Util.getFilledArrayBuffer((BLOCK_SIZE * DIRECTORY_SIZE_IN_BLOCKS) - directoryEntriesSize, DIRECTORY_PADDING_VALUE);

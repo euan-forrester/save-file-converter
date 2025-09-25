@@ -37,7 +37,7 @@ const {
 } = DreamcastBasics;
 
 const MAGIC_OFFSET = 0;
-const MAGIC_LENGTH = 0xF;
+const MAGIC_LENGTH = 0x10;
 const MAGIC_VALUE = 0x55;
 const MAGIC_BYTES = new Uint8Array(Util.getFilledArrayBuffer(MAGIC_LENGTH, MAGIC_VALUE));
 

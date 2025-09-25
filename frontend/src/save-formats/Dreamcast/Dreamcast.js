@@ -23,9 +23,13 @@ import DreamcastDirectory from './Components/Directory';
 const {
   BLOCK_SIZE,
   TOTAL_SIZE,
+  MAX_DIRECTORY_ENTRIES,
+  SAVE_AREA_BLOCK_NUMBER,
+  SAVE_AREA_SIZE_IN_BLOCKS,
+  DIRECTORY_BLOCK_NUMBER,
+  DIRECTORY_SIZE_IN_BLOCKS,
   SYSTEM_INFO_BLOCK_NUMBER,
   SYSTEM_INFO_SIZE_IN_BLOCKS,
-  // DIRECTORY_BLOCK_NUMBER,
 } = DreamcastBasics;
 
 const FILL_VALUE = 0x00;
@@ -83,6 +87,24 @@ function getBlockNumbers(directoryEntry, fileAllocationTable) {
   return blockNumbers;
 }
 
+function getSaveFilesWithBlockInfo(saveFiles) {
+  let currentBlockNumber = SAVE_AREA_SIZE_IN_BLOCKS + SAVE_AREA_BLOCK_NUMBER - 1; // Start at the end of the save area and work towards the beginning of the file
+
+  return saveFiles.map((saveFile) => {
+    const fileSizeInBlocks = Math.ceil(saveFile.rawData.byteLength / BLOCK_SIZE);
+
+    const saveFileWithBlockInfo = {
+      ...saveFile,
+      firstBlockNumber: currentBlockNumber,
+      fileSizeInBlocks,
+    };
+
+    currentBlockNumber -= fileSizeInBlocks;
+
+    return saveFileWithBlockInfo;
+  });
+}
+
 export default class DreamcastSaveData {
   static createFromDreamcastData(arrayBuffer) {
     if (arrayBuffer.byteLength < TOTAL_SIZE) {
@@ -107,22 +129,31 @@ export default class DreamcastSaveData {
   }
 
   static createFromSaveFiles(saveFiles, volumeInfo) {
+    if (saveFiles.length > MAX_DIRECTORY_ENTRIES) {
+      throw new Error(`Unable to fit ${saveFiles.length} saves into a single VMU image. Max is ${MAX_DIRECTORY_ENTRIES}`);
+    }
+
+    const saveFilesWithBlockInfo = getSaveFilesWithBlockInfo(saveFiles);
+
+    const totalBlocks = saveFilesWithBlockInfo.reduce(((accumulator, x) => accumulator + x.fileSizeInBlocks), 0);
+    if (totalBlocks > SAVE_AREA_SIZE_IN_BLOCKS) {
+      throw new Error(`Save files contain a total of ${totalBlocks} blocks of data but a VMU image can only hold ${SAVE_AREA_SIZE_IN_BLOCKS} blocks`);
+    }
+
     const systemInfo = DreamcastSystemInfo.writeSystemInfo(volumeInfo);
-    const fileAllocationTable = DreamcastFileAllocationTable.writeFileAllocationTable(saveFiles);
-    const directory = DreamcastDirectory.writeDirectory(saveFiles);
+    const fileAllocationTable = DreamcastFileAllocationTable.writeFileAllocationTable(saveFilesWithBlockInfo);
+    const directory = DreamcastDirectory.writeDirectory(saveFilesWithBlockInfo);
 
     // Blocks 0 - 199 are for the save area, but the directory begins on block 241 leaving 41 blocks unused in between
-    const numPaddingBlocks = DreamcastBasics.DIRECTORY_BLOCK_NUMBER - DreamcastBasics.DIRECTORY_SIZE_IN_BLOCKS - DreamcastBasics.SAVE_AREA_SIZE_IN_BLOCKS - DreamcastBasics.SAVE_AREA_BLOCK_NUMBER + 1;
+    const numPaddingBlocks = DIRECTORY_BLOCK_NUMBER - DIRECTORY_SIZE_IN_BLOCKS - SAVE_AREA_SIZE_IN_BLOCKS - SAVE_AREA_BLOCK_NUMBER + 1;
 
     const systemInfoBlocks = createBlocks(systemInfo);
     const fileAllocationTableBlocks = createBlocks(fileAllocationTable);
     const directoryBlocks = createBlocks(directory);
     const paddingBlocks = Util.getFilledArrayBuffer(numPaddingBlocks * BLOCK_SIZE, FILL_VALUE);
-
     const saveFileBlocks = saveFiles.map((saveFile) => createBlocks(saveFile.rawData)).reverse().flat(); // We write our save files from the back of the file to the front
 
     const blocksUsed = systemInfoBlocks.length + fileAllocationTableBlocks.length + directoryBlocks.length + numPaddingBlocks + saveFileBlocks.length;
-
     const fileStartPaddingArrayBuffer = Util.getFilledArrayBuffer(TOTAL_SIZE - (BLOCK_SIZE * blocksUsed), FILL_VALUE);
 
     const memcardArrayBuffer = Util.concatArrayBuffers([fileStartPaddingArrayBuffer, ...saveFileBlocks, paddingBlocks, ...directoryBlocks, ...fileAllocationTableBlocks, ...systemInfoBlocks]);
