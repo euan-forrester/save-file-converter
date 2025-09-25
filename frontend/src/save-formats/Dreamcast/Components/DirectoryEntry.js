@@ -1,10 +1,10 @@
 /* eslint-disable no-bitwise */
 
 /*
-Format taken from https://mc.pp.se/dc/vms/flashmem.html
+Format taken from https://mc.pp.se/dc/vms/flashmem.html and https://segaxtreme.net/resources/maple-bus-1-0-function-type-specifications-ft1-storage-function.195/
 
 0x00      : 8 bit int : file type (0x00 = no file, 0x33 = data, 0xcc = game)
-0x01      : 8 bit int : copy protect (0x00 = copy ok, 0xff = copy protected)
+0x01      : 8 bit int : copy protect (0xff = copy protected, anything else = copy okay. Can limit number of times file can be copied by incrementing this value when it's copied)
 0x02-0x03 : 16 bit int (little endian) : location of first block
 0x04-0x0f : ASCII string : filename (12 characters)
 0x10-0x17 : BCD timestamp (see below) : file creation time
@@ -101,7 +101,7 @@ export default class DreamcastDirectoryEntry {
 
     const fileTypeVal = dataView.getUint8(FILE_TYPE_OFFSET);
     const fileType = getFileTypeString(fileTypeVal);
-    const copyProtected = dataView.getUint8(COPY_PROTECT_OFFSET) !== COPY_PROTECT_COPY_OKAY;
+    const copyProtected = dataView.getUint8(COPY_PROTECT_OFFSET) === COPY_PROTECT_NO_COPY; // Any value other than 0xFF means that the file can be copied: https://segaxtreme.net/resources/maple-bus-1-0-function-type-specifications-ft1-storage-function.195/
     const firstBlockNumber = dataView.getUint16(FIRST_BLOCK_NUMBER_OFFSET, LITTLE_ENDIAN);
     const filename = Util.readNullTerminatedString(uint8Array, FILENAME_OFFSET, FILENAME_ENCODING, FILENAME_LENGTH);
     const fileCreationTime = DreamcastUtil.readBcdTimestamp(arrayBuffer, FILE_CREATION_TIME_OFFSET);

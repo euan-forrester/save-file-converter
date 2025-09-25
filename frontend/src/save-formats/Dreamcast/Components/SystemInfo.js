@@ -3,7 +3,10 @@
 /*
 Dreamcast system info block
 
-Format taken from https://mc.pp.se/dc/vms/flashmem.html and https://github.com/flyinghead/flycast/blob/33833cfd1ed2d94d907223442fdb8cdafd8d5d80/core/hw/maple/maple_devs.cpp#L510
+Format taken from:
+- https://mc.pp.se/dc/vms/flashmem.html
+- https://segaxtreme.net/resources/maple-bus-1-0-function-type-specifications-ft1-storage-function.195/
+- https://github.com/flyinghead/flycast/blob/33833cfd1ed2d94d907223442fdb8cdafd8d5d80/core/hw/maple/maple_devs.cpp#L510
 
 0x00-0x0f : All these bytes contain 0x55 to indicate a properly formatted card.
 0x10      : custom VMS colour (1 = use custom colours below, 0 = standard colour)

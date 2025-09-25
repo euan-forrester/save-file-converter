@@ -5,6 +5,8 @@ The format for a memory card image
 
 Taken from https://mc.pp.se/dc/vms/flashmem.html
 
+Official documentation here: https://segaxtreme.net/resources/maple-bus-1-0-function-type-specifications-ft1-storage-function.195/
+
 Blocks 0-199:   User save area
 Blocks 200-240: Not used
 Blocks 241-253: Directory
