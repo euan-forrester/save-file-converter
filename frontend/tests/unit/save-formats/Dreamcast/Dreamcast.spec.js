@@ -206,7 +206,7 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getVolumeInfo().saveArea.blockNumber).to.equal(DreamcastBasics.SAVE_AREA_BLOCK_NUMBER);
     expect(dreamcastSaveData.getVolumeInfo().saveArea.sizeInBlocks).to.equal(DreamcastBasics.SAVE_AREA_SIZE_IN_BLOCKS);
     expect(dreamcastSaveData.getVolumeInfo().saveArea.numberOfSaveBlocks).to.equal(DreamcastBasics.NUMBER_OF_SAVE_BLOCKS);
-    expect(dreamcastSaveData.getVolumeInfo().reserved).to.equal(0x800000);
+    expect(dreamcastSaveData.getVolumeInfo().reserved).to.equal(0);
   });
 
   it('should correctly create a Dreamcast VMU image', async () => {
@@ -223,6 +223,7 @@ describe('Dreamcast', () => {
       },
       timestamp: new Date('2024-10-12 19:56:48'),
       iconShape: 0,
+      reserved: 0x800000,
     };
 
     const saveFiles = [

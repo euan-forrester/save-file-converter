@@ -7,9 +7,9 @@ Format taken from https://mc.pp.se/dc/vms/flashmem.html and https://segaxtreme.n
 0x01      : 8 bit int : copy protect (0xff = copy protected, anything else = copy okay. Can limit number of times file can be copied by incrementing this value when it's copied)
 0x02-0x03 : 16 bit int (little endian) : location of first block
 0x04-0x0f : ASCII string : filename (12 characters)
-0x10-0x17 : BCD timestamp (see below) : file creation time
+0x10-0x17 : BCD timestamp (see below) : file update time
 0x18-0x19 : 16 bit int (little endian) : file size (in blocks)
-0x1a-0x1b : 16 bit int (little endian) : file header blocks number
+0x1a-0x1b : 16 bit int (little endian) : file header block number
 0x1c-0x1f : unused (all zero)
 
 Then in the save data there is the file header block. It can be anywhere in the file data and its location is specified in the directory entry.

@@ -18,16 +18,21 @@ Format taken from:
 0x30-0x37 : BCD timestamp (see Directory below)
 0x38-0x3f : not used (all zeroes)
 0x40-0x41 : largest block number (255): https://github.com/flyinghead/flycast/blob/33833cfd1ed2d94d907223442fdb8cdafd8d5d80/core/hw/maple/maple_devs.cpp#L512
-0x42-0x43 : partitian number (0): https://github.com/flyinghead/flycast/blob/33833cfd1ed2d94d907223442fdb8cdafd8d5d80/core/hw/maple/maple_devs.cpp#L514
-0x44-0x45 : location of system area block (255): https://github.com/flyinghead/flycast/blob/33833cfd1ed2d94d907223442fdb8cdafd8d5d80/core/hw/maple/maple_devs.cpp#L516
+0x42-0x43 : partitian number (0): the official docs indicate there were plans for this but in practice it seems to always be zero
+0x44-0x45 : location of system area block (255)
 0x46-0x47 : location of FAT block (254)
 0x48-0x49 : size of FAT in blocks (1)
 0x4a-0x4b : location of directory (253)
 0x4c-0x4d : size of directory in blocks (13)
 0x4e-0x4f : icon shape for this VMS (0-123) (this is described as one byte for volume icon and one byte reserved here: https://github.com/flyinghead/flycast/blob/33833cfd1ed2d94d907223442fdb8cdafd8d5d80/core/hw/maple/maple_devs.cpp#L525)
-0x50-0x51 : number of user blocks (200)
-0x52-0x53 : number of save blocks (31) (unsure what this means): https://github.com/flyinghead/flycast/blob/33833cfd1ed2d94d907223442fdb8cdafd8d5d80/core/hw/maple/maple_devs.cpp#L531
-0x54-0x57 : reserved (something for execution files?): https://github.com/flyinghead/flycast/blob/33833cfd1ed2d94d907223442fdb8cdafd8d5d80/core/hw/maple/maple_devs.cpp#L533
+0x50-0x51 : number of save blocks (200) (the official docs say that this is the block number of the start of the save area, however that would be 199 and this contains 200)
+0x52-0x53 : number of save blocks (31) (unsure what this means): https://github.com/flyinghead/flycast/blob/33833cfd1ed2d94d907223442fdb8cdafd8d5d80/core/hw/maple/maple_devs.cpp#L531. It's listed in the official docs along with the previous value as specifying the save area: start block number and then number of blocks. However, that would be the values 199 and 200 respectively. I don't know what 31 represents
+0x54-0x57 : reserved (something for execution files): https://github.com/flyinghead/flycast/blob/33833cfd1ed2d94d907223442fdb8cdafd8d5d80/core/hw/maple/maple_devs.cpp#L533. The official docs don't shed much light here either "This is fixed at "0000h" when an execution file cannot be executed from this partition. If an execution file can be executed, refer to the specifications for that peripheral for further details."
+
+Notes:
+
+0x10-0x2f : the official docs say that this is the volume label "The contents of this field can be anything.".
+            https://mc.pp.se/dc/vms/flashmem.html says it's the VMU color then unused bytes as listed above. The sample file I found in practice conformed to this format.
 */
 
 import Util from '../../../util/util';
@@ -62,8 +67,8 @@ const SAVE_AREA_SIZE_IN_BLOCKS_OFFSET = 0x50;
 const NUMBER_OF_SAVE_BLOCKS_OFFSET = 0x52;
 const RESERVED_OFFSET = 0x54;
 
-const DEFAULT_PARTITION_NUMBER = 0; // I'm not sure what this number represents, but it appears to be set to 0 in the files I've seen
-const DEFAULT_RESERVED_VALUE = 0x800000; // I'm not sure what this number represents. This is the only value that I've seen
+const DEFAULT_PARTITION_NUMBER = 0;
+const DEFAULT_RESERVED_VALUE = 0;
 
 const PADDING_VALUE = 0x00;
 
@@ -108,7 +113,11 @@ export default class DreamcastSystemInfo {
     dataView.setUint16(SAVE_AREA_SIZE_IN_BLOCKS_OFFSET, DreamcastBasics.SAVE_AREA_SIZE_IN_BLOCKS, LITTLE_ENDIAN);
     dataView.setUint16(NUMBER_OF_SAVE_BLOCKS_OFFSET, DreamcastBasics.NUMBER_OF_SAVE_BLOCKS, LITTLE_ENDIAN);
 
-    dataView.setUint32(RESERVED_OFFSET, DEFAULT_RESERVED_VALUE, LITTLE_ENDIAN);
+    if (Object.hasOwn(volumeInfo, 'reserved')) {
+      dataView.setUint32(RESERVED_OFFSET, volumeInfo.reserved, LITTLE_ENDIAN);
+    } else {
+      dataView.setUint32(RESERVED_OFFSET, DEFAULT_RESERVED_VALUE, LITTLE_ENDIAN);
+    }
 
     return arrayBuffer;
   }

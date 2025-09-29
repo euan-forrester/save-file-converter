@@ -79,7 +79,11 @@ function getBlockNumbers(directoryEntry, fileAllocationTable) {
 
   do {
     if (fileAllocationTable[currentBlockNumber] === DreamcastFileAllocationTable.UNALLOCATED_BLOCK) {
-      throw new Error('Save file appears to be corrupted: save file appears to contain a block that is unallocated');
+      throw new Error(`Save file ${directoryEntry.filename} appears to be corrupted: save file appears to contain a block that is unallocated`);
+    }
+
+    if (fileAllocationTable[currentBlockNumber] === DreamcastFileAllocationTable.BLOCK_PHYSICALLY_DAMAGED) {
+      throw new Error(`Save file ${directoryEntry.filename} appears to be corrupted: save file appears to contain a block that is physically damaged`);
     }
 
     blockNumbers.push(currentBlockNumber);
@@ -87,8 +91,8 @@ function getBlockNumbers(directoryEntry, fileAllocationTable) {
   } while (currentBlockNumber !== DreamcastFileAllocationTable.LAST_BLOCK_IN_FILE);
 
   if (blockNumbers.length !== directoryEntry.fileSizeInBlocks) {
-    throw new Error(`Save file appears to be corrupted: expected to find ${directoryEntry.fileSizeInBlocks} blocks for file `
-      + `${directoryEntry.filename} but instead found ${blockNumbers.length} blocks when traversing file allocation table`);
+    throw new Error(`Save file ${directoryEntry.filename} appears to be corrupted: expected to find ${directoryEntry.fileSizeInBlocks} blocks `
+      + `but instead found ${blockNumbers.length} blocks when traversing file allocation table`);
   }
 
   return blockNumbers;
