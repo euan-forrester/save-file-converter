@@ -74,7 +74,7 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getSaveFiles()[1].fileSizeInBlocks).to.equal(12);
     expect(dreamcastSaveData.getSaveFiles()[1].fileHeaderBlockNumber).to.equal(0);
     expect(dreamcastSaveData.getSaveFiles()[1].storageComment).to.equal('CVS.S 2 ｼｽﾃﾑﾌｧｲﾙ'); // "CVS.S 2 system files"
-    expect(dreamcastSaveData.getSaveFiles()[1].fileComment.substring(0, 32)).to.equal('CAPCOM VS. SNK 2 ｼｽﾃﾑﾌｧｲﾙ       '); // "CAPCOM VS. SNK 2 System File". We take a substring here because the remainder of the bytes, when interpreted as shift-jis, are various random-seeming control codes
+    expect(dreamcastSaveData.getSaveFiles()[1].fileComment).to.equal('CAPCOM VS. SNK 2 ｼｽﾃﾑﾌｧｲﾙ       '); // "CAPCOM VS. SNK 2 System File"
     expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[1].blockNumberList, ArrayUtil.createReverseSequentialArray(194, 12))).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[1].rawData, rawArrayBuffers[1])).to.equal(true);
 
@@ -98,7 +98,7 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getSaveFiles()[3].fileSizeInBlocks).to.equal(2);
     expect(dreamcastSaveData.getSaveFiles()[3].fileHeaderBlockNumber).to.equal(0);
     expect(dreamcastSaveData.getSaveFiles()[3].storageComment).to.equal('SPAWN SYSTEM    ');
-    expect(dreamcastSaveData.getSaveFiles()[3].fileComment.substring(0, 24)).to.equal('スポーンシステム                '); // "Spawning System". We take a substring here because the remainder of the bytes, when interpreted as shift-jis, are various random-seeming control codes
+    expect(dreamcastSaveData.getSaveFiles()[3].fileComment).to.equal('スポーンシステム                '); // "Spawning System"
     expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[3].blockNumberList, ArrayUtil.createReverseSequentialArray(177, 2))).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[3].rawData, rawArrayBuffers[3])).to.equal(true);
 
@@ -122,7 +122,7 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getSaveFiles()[5].fileSizeInBlocks).to.equal(4);
     expect(dreamcastSaveData.getSaveFiles()[5].fileHeaderBlockNumber).to.equal(0);
     expect(dreamcastSaveData.getSaveFiles()[5].storageComment).to.equal('ﾊﾟﾜｰｽﾄｰﾝｾｰﾌﾞﾃﾞｰﾀ'); // "Power Stone save data"
-    expect(dreamcastSaveData.getSaveFiles()[5].fileComment.substring(0, 18)).to.equal('パワーストーン　セーブデータ    '); // "Power Stone save data". We take a substring here because the remainder of the bytes, when interpreted as shift-jis, are various random-seeming control codes
+    expect(dreamcastSaveData.getSaveFiles()[5].fileComment).to.equal('パワーストーン　セーブデータ    2O'); // "Power Stone save data"
     expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[5].blockNumberList, ArrayUtil.createReverseSequentialArray(173, 4))).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[5].rawData, rawArrayBuffers[5])).to.equal(true);
 
@@ -134,7 +134,7 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getSaveFiles()[6].fileSizeInBlocks).to.equal(5);
     expect(dreamcastSaveData.getSaveFiles()[6].fileHeaderBlockNumber).to.equal(0);
     expect(dreamcastSaveData.getSaveFiles()[6].storageComment).to.equal('ﾊﾟﾜｰｽﾄｰﾝ2 ｾｰﾌﾞ  '); // "Power Stone 2 Save"
-    expect(dreamcastSaveData.getSaveFiles()[6].fileComment.substring(0, 16)).to.equal('パワーストーン２　セーブデータ　'); // "Power Stone 2 save data". We take a substring here because the remainder of the bytes, when interpreted as shift-jis, are various random-seeming control codes
+    expect(dreamcastSaveData.getSaveFiles()[6].fileComment).to.equal('パワーストーン２　セーブデータ　2O'); // "Power Stone 2 save data"
     expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[6].blockNumberList, ArrayUtil.createReverseSequentialArray(169, 5))).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[6].rawData, rawArrayBuffers[6])).to.equal(true);
 
@@ -146,7 +146,7 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getSaveFiles()[7].fileSizeInBlocks).to.equal(3);
     expect(dreamcastSaveData.getSaveFiles()[7].fileHeaderBlockNumber).to.equal(0);
     expect(dreamcastSaveData.getSaveFiles()[7].storageComment).to.equal('ｷｶｲｵｰ ｾｰﾌﾞﾃﾞｰﾀ  '); // "Machine save data"
-    expect(dreamcastSaveData.getSaveFiles()[7].fileComment.substring(0, 20)).to.equal('キカイオー　セーブデータ        '); // "Kikaioh save data". We take a substring here because the remainder of the bytes, when interpreted as shift-jis, are various random-seeming control codes
+    expect(dreamcastSaveData.getSaveFiles()[7].fileComment).to.equal('キカイオー　セーブデータ        '); // "Kikaioh save data"
     expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[7].blockNumberList, ArrayUtil.createReverseSequentialArray(164, 3))).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[7].rawData, rawArrayBuffers[7])).to.equal(true);
 

@@ -105,9 +105,17 @@ export default class DreamcastDirectoryEntry {
     const fileHeaderBlock = rawData.slice(fileHeaderBlockNumber * BLOCK_SIZE, (fileHeaderBlockNumber + 1) * BLOCK_SIZE);
     const uint8Array = new Uint8Array(fileHeaderBlock);
 
+    // Some of these strings contain control characters and other garbage at the end. We can try to filter them out
+    let endOfStringIndex = uint8Array.findIndex((val) => val < 0x20); // 0x20 is a space character, and all the ones prior are control codes
+    if (endOfStringIndex < 0) {
+      endOfStringIndex = uint8Array.length;
+    }
+
+    const uint8ArrayTruncated = uint8Array.slice(0, endOfStringIndex);
+
     return {
-      storageComment: Util.readNullTerminatedString(uint8Array, FILE_HEADER_STORAGE_COMMENT_OFFSET, FILE_HEADER_COMMENT_ENCODING, FILE_HEADER_STORAGE_COMMENT_LENGTH),
-      fileComment: Util.readNullTerminatedString(uint8Array, FILE_HEADER_FILE_COMMENT_OFFSET, FILE_HEADER_COMMENT_ENCODING, FILE_HEADER_FILE_COMMENT_LENGTH),
+      storageComment: Util.readNullTerminatedString(uint8ArrayTruncated, FILE_HEADER_STORAGE_COMMENT_OFFSET, FILE_HEADER_COMMENT_ENCODING, FILE_HEADER_STORAGE_COMMENT_LENGTH),
+      fileComment: Util.readNullTerminatedString(uint8ArrayTruncated, FILE_HEADER_FILE_COMMENT_OFFSET, FILE_HEADER_COMMENT_ENCODING, FILE_HEADER_FILE_COMMENT_LENGTH),
     };
   }
 
