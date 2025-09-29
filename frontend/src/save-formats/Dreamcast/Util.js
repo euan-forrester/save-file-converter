@@ -46,13 +46,6 @@ function formatDateWithoutTimezone(date) {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-function checkDayOfWeek(dayOfWeek, date) {
-  if ((dayOfWeek !== date.getDay()) && (((dayOfWeek + 1) % 7) !== date.getDay())) {
-    throw new Error(`Date appears to be corrupted: day of week does not match for date ${formatDateWithoutTimezone(date)}. `
-    + `Day of week found: ${dayOfWeek}, day of week calculated: ${date.getDay()}`);
-  }
-}
-
 export default class DreamcastUtil {
   static readTimestamp(arrayBuffer, offset) {
     // Date conversion based on https://mc.pp.se/dc/vms/vmi.html
@@ -65,11 +58,11 @@ export default class DreamcastUtil {
     const hour = dataView.getUint8(TIMESTAMP_HOUR_OFFSET);
     const minute = dataView.getUint8(TIMESTAMP_MINUTE_OFFSET);
     const second = dataView.getUint8(TIMESTAMP_SECOND_OFFSET);
-    const dayOfWeek = dataView.getUint8(TIMESTAMP_DAY_OF_WEEK_OFFSET); // Different files appear to be inconsistent. In some 0 represents Sunday and in some 0 represents Monday. In a Javascript Date, 0 represents Sunday
+    // For the day of week, different files appear to be inconsistent. In some 0 represents Sunday and in some 0 represents Monday.
+    // The official dreamcast docs say that 0 represents Sunday. In a Javascript Date, 0 represents Sunday
+    // https://mc.pp.se/dc/vms/vmi.html says that Sunday is 0
 
     const date = new Date(year, month, day, hour, minute, second); // No timezone information is given in the Dreamcast format. This Date object is in the local timezone
-
-    checkDayOfWeek(dayOfWeek, date);
 
     return date;
   }
@@ -88,12 +81,11 @@ export default class DreamcastUtil {
     const hour = readBcdByte(dataView.getUint8(TIMESTAMP_HOUR_OFFSET));
     const minute = readBcdByte(dataView.getUint8(TIMESTAMP_MINUTE_OFFSET));
     const second = readBcdByte(dataView.getUint8(TIMESTAMP_SECOND_OFFSET));
-    // const dayOfWeek = readBcdByte(dataView.getUint8(TIMESTAMP_DAY_OF_WEEK_OFFSET));
+    // For the day of week, different files appear to be inconsistent. In some 0 represents Sunday and in some 0 represents Monday.
+    // The official dreamcast docs say that 0 represents Sunday. In a Javascript Date, 0 represents Sunday
+    // https://mc.pp.se/dc/vms/flashmem.html says that Monday is 0
 
     const date = new Date(year, month, day, hour, minute, second); // No timezone information is given in the Dreamcast format. This Date object is in the local timezone
-
-    // I'm reasonably confident that I've interpreted the dates correctly because a bunch pass this test. The day of week can be wrong due to timezones, or just set wrong because it's confusing
-    // checkDayOfWeek(dayOfWeek, date);
 
     return date;
   }
@@ -112,10 +104,7 @@ export default class DreamcastUtil {
     dataView.setUint8(TIMESTAMP_HOUR_OFFSET, writeBcdByte(date.getHours()));
     dataView.setUint8(TIMESTAMP_MINUTE_OFFSET, writeBcdByte(date.getMinutes()));
     dataView.setUint8(TIMESTAMP_SECOND_OFFSET, writeBcdByte(date.getSeconds()));
-
-    const dreamcastDayOfWeek = (date.getDay() === 0) ? 6 : date.getDay() - 1; // Dreamcast Monday is 0, Javascript Sunday is 0: https://mc.pp.se/dc/vms/flashmem.html
-
-    dataView.setUint8(TIMESTAMP_DAY_OF_WEEK_OFFSET, writeBcdByte(dreamcastDayOfWeek));
+    dataView.setUint8(TIMESTAMP_DAY_OF_WEEK_OFFSET, writeBcdByte(date.getDay())); // The official docs say that Dreamcast Sunday is 0, and JavaScript Sunday is 0 so we're going with that. https://mc.pp.se/dc/vms/flashmem.html says that Monday is 0
 
     return Util.setArrayBufferPortion(arrayBuffer, timestampArrayBuffer, offset, 0, TIMESTAMP_LENGTH);
   }
