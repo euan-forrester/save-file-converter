@@ -1,6 +1,8 @@
 export default class DreamcastBasics {
   static LITTLE_ENDIAN = true;
 
+  static WORD_SIZE_IN_BYTES = 4;
+
   static BLOCK_SIZE = 512;
 
   static NUM_BLOCKS = 256;

@@ -9,8 +9,14 @@ Format taken from https://mc.pp.se/dc/vms/flashmem.html and https://segaxtreme.n
 0x04-0x0f : ASCII string : filename (12 characters)
 0x10-0x17 : BCD timestamp (see below) : file creation time
 0x18-0x19 : 16 bit int (little endian) : file size (in blocks)
-0x1a-0x1b : 16 bit int (little endian) : offset of header (in blocks) from file start
+0x1a-0x1b : 16 bit int (little endian) : file header blocks number
 0x1c-0x1f : unused (all zero)
+
+Then in the save data there is the file header block. It can be anywhere in the file data and its location is specified in the directory entry.
+
+0x00-0x0F : Storage comment (note that comments are stored with little endian byte ordering)
+0x10-0x3F : File comment
+0x40-0x1FF : Icon data
 */
 
 import Util from '../../../util/util';
@@ -20,6 +26,7 @@ import DreamcastUtil from '../Util';
 
 const {
   LITTLE_ENDIAN,
+  BLOCK_SIZE,
 } = DreamcastBasics;
 
 const FILE_TYPE_OFFSET = 0x00;
@@ -30,7 +37,7 @@ const FILENAME_LENGTH = 12;
 const FILENAME_ENCODING = 'US-ASCII';
 const FILE_CREATION_TIME_OFFSET = 0x10;
 const FILE_SIZE_IN_BLOCKS_OFFSET = 0x18;
-const FILE_HEADER_OFFSET_IN_BLOCKS_OFFSET = 0x1A;
+const FILE_HEADER_BLOCK_NUMBER_OFFSET = 0x1A;
 
 const FILE_TYPE_LOOKUP = {
   0x00: 'No file',
@@ -49,6 +56,12 @@ const COPY_PROTECT_NO_COPY = 0xFF;
 const DIRECTORY_ENTRY_PADDING_VALUE = 0x00;
 
 const DIRECTORY_ENTRY_LENGTH = 32;
+
+const FILE_HEADER_COMMENT_ENCODING = 'shift-jis'; // The official docs say that the storage comment is ascii and the file comment is either one- or two-byte encoding. In practice, I've found that both comments can be encoded with shift-jis (which is identical with ascii for most of the first 127 ascii characters).
+const FILE_HEADER_STORAGE_COMMENT_OFFSET = 0x00;
+const FILE_HEADER_STORAGE_COMMENT_LENGTH = 0x10;
+const FILE_HEADER_FILE_COMMENT_OFFSET = 0x10;
+const FILE_HEADER_FILE_COMMENT_LENGTH = 0x30;
 
 function getFileTypeString(fileType) {
   if (Object.hasOwn(FILE_TYPE_LOOKUP, fileType)) {
@@ -83,9 +96,19 @@ export default class DreamcastDirectoryEntry {
     dataView.setUint8(COPY_PROTECT_OFFSET, saveFile.copyProtected ? COPY_PROTECT_NO_COPY : COPY_PROTECT_COPY_OKAY);
     dataView.setUint16(FIRST_BLOCK_NUMBER_OFFSET, saveFile.firstBlockNumber, LITTLE_ENDIAN);
     dataView.setUint16(FILE_SIZE_IN_BLOCKS_OFFSET, saveFile.fileSizeInBlocks, LITTLE_ENDIAN);
-    dataView.setUint16(FILE_HEADER_OFFSET_IN_BLOCKS_OFFSET, saveFile.fileHeaderOffsetInBlocks, LITTLE_ENDIAN);
+    dataView.setUint16(FILE_HEADER_BLOCK_NUMBER_OFFSET, saveFile.fileHeaderBlockNumber, LITTLE_ENDIAN);
 
     return arrayBuffer;
+  }
+
+  static getComments(fileHeaderBlockNumber, rawData) {
+    const fileHeaderBlock = rawData.slice(fileHeaderBlockNumber * BLOCK_SIZE, (fileHeaderBlockNumber + 1) * BLOCK_SIZE);
+    const uint8Array = new Uint8Array(fileHeaderBlock);
+
+    return {
+      storageComment: Util.readNullTerminatedString(uint8Array, FILE_HEADER_STORAGE_COMMENT_OFFSET, FILE_HEADER_COMMENT_ENCODING, FILE_HEADER_STORAGE_COMMENT_LENGTH),
+      fileComment: Util.readNullTerminatedString(uint8Array, FILE_HEADER_FILE_COMMENT_OFFSET, FILE_HEADER_COMMENT_ENCODING, FILE_HEADER_FILE_COMMENT_LENGTH),
+    };
   }
 
   static readDirectoryEntry(arrayBuffer) {
@@ -106,7 +129,7 @@ export default class DreamcastDirectoryEntry {
     const filename = Util.readNullTerminatedString(uint8Array, FILENAME_OFFSET, FILENAME_ENCODING, FILENAME_LENGTH);
     const fileCreationTime = DreamcastUtil.readBcdTimestamp(arrayBuffer, FILE_CREATION_TIME_OFFSET);
     const fileSizeInBlocks = dataView.getUint16(FILE_SIZE_IN_BLOCKS_OFFSET, LITTLE_ENDIAN);
-    const fileHeaderOffsetInBlocks = dataView.getUint16(FILE_HEADER_OFFSET_IN_BLOCKS_OFFSET, LITTLE_ENDIAN);
+    const fileHeaderBlockNumber = dataView.getUint16(FILE_HEADER_BLOCK_NUMBER_OFFSET, LITTLE_ENDIAN);
 
     return {
       fileType,
@@ -115,7 +138,7 @@ export default class DreamcastDirectoryEntry {
       filename,
       fileCreationTime,
       fileSizeInBlocks,
-      fileHeaderOffsetInBlocks,
+      fileHeaderBlockNumber,
     };
   }
 }

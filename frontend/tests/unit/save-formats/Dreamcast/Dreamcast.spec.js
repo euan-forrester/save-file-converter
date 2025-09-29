@@ -1,4 +1,4 @@
-/* eslint-disable no-bitwise */
+/* eslint-disable no-bitwise, no-multi-str */
 
 import { expect } from 'chai';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
@@ -60,7 +60,9 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getSaveFiles()[0].filename).to.equal('MVLVSCP2_SYS');
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[0].fileCreationTime)).to.equal('1999-11-27 07:37:16');
     expect(dreamcastSaveData.getSaveFiles()[0].fileSizeInBlocks).to.equal(5);
-    expect(dreamcastSaveData.getSaveFiles()[0].fileHeaderOffsetInBlocks).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[0].fileHeaderBlockNumber).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[0].storageComment).to.equal('MVS.C2_SYSTEM   ');
+    expect(dreamcastSaveData.getSaveFiles()[0].fileComment).to.equal('MARVEL VS.CAPCOM 2_SYSTEM FILE  ');
     expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[0].blockNumberList, ArrayUtil.createReverseSequentialArray(199, 5))).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[0].rawData, rawArrayBuffers[0])).to.equal(true);
 
@@ -70,7 +72,9 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getSaveFiles()[1].filename).to.equal('CVS.S2___SYS');
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[1].fileCreationTime)).to.equal('2001-09-13 11:42:43');
     expect(dreamcastSaveData.getSaveFiles()[1].fileSizeInBlocks).to.equal(12);
-    expect(dreamcastSaveData.getSaveFiles()[1].fileHeaderOffsetInBlocks).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[1].fileHeaderBlockNumber).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[1].storageComment).to.equal('CVS.S 2 ｼｽﾃﾑﾌｧｲﾙ'); // "CVS.S 2 system files"
+    expect(dreamcastSaveData.getSaveFiles()[1].fileComment.substring(0, 32)).to.equal('CAPCOM VS. SNK 2 ｼｽﾃﾑﾌｧｲﾙ       '); // "CAPCOM VS. SNK 2 System File". We take a substring here because the remainder of the bytes, when interpreted as shift-jis, are various random-seeming control codes
     expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[1].blockNumberList, ArrayUtil.createReverseSequentialArray(194, 12))).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[1].rawData, rawArrayBuffers[1])).to.equal(true);
 
@@ -80,7 +84,9 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getSaveFiles()[2].filename).to.equal('18WHDATA.SYS');
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[2].fileCreationTime)).to.equal('2001-05-27 17:01:06');
     expect(dreamcastSaveData.getSaveFiles()[2].fileSizeInBlocks).to.equal(5);
-    expect(dreamcastSaveData.getSaveFiles()[2].fileHeaderOffsetInBlocks).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[2].fileHeaderBlockNumber).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[2].storageComment).to.equal('18W SYS         ');
+    expect(dreamcastSaveData.getSaveFiles()[2].fileComment).to.equal('18WHEELER AMERICAN_PRO_TRUCKER  ');
     expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[2].blockNumberList, ArrayUtil.createReverseSequentialArray(182, 5))).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[2].rawData, rawArrayBuffers[2])).to.equal(true);
 
@@ -90,7 +96,9 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getSaveFiles()[3].filename).to.equal('SPAWNTDH.SYS');
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[3].fileCreationTime)).to.equal('2000-11-05 18:44:10');
     expect(dreamcastSaveData.getSaveFiles()[3].fileSizeInBlocks).to.equal(2);
-    expect(dreamcastSaveData.getSaveFiles()[3].fileHeaderOffsetInBlocks).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[3].fileHeaderBlockNumber).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[3].storageComment).to.equal('SPAWN SYSTEM    ');
+    expect(dreamcastSaveData.getSaveFiles()[3].fileComment.substring(0, 24)).to.equal('スポーンシステム                '); // "Spawning System". We take a substring here because the remainder of the bytes, when interpreted as shift-jis, are various random-seeming control codes
     expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[3].blockNumberList, ArrayUtil.createReverseSequentialArray(177, 2))).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[3].rawData, rawArrayBuffers[3])).to.equal(true);
 
@@ -100,7 +108,9 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getSaveFiles()[4].filename).to.equal('PJUSTICE_SYS');
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[4].fileCreationTime)).to.equal('2001-05-21 22:04:08');
     expect(dreamcastSaveData.getSaveFiles()[4].fileSizeInBlocks).to.equal(2);
-    expect(dreamcastSaveData.getSaveFiles()[4].fileHeaderOffsetInBlocks).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[4].fileHeaderBlockNumber).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[4].storageComment).to.equal('SYSTEM FILE     ');
+    expect(dreamcastSaveData.getSaveFiles()[4].fileComment).to.equal('PROJECT JUSTICE                 ');
     expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[4].blockNumberList, ArrayUtil.createReverseSequentialArray(175, 2))).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[4].rawData, rawArrayBuffers[4])).to.equal(true);
 
@@ -110,7 +120,9 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getSaveFiles()[5].filename).to.equal('POWSTONE_DAT');
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[5].fileCreationTime)).to.equal('2000-03-27 12:46:29');
     expect(dreamcastSaveData.getSaveFiles()[5].fileSizeInBlocks).to.equal(4);
-    expect(dreamcastSaveData.getSaveFiles()[5].fileHeaderOffsetInBlocks).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[5].fileHeaderBlockNumber).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[5].storageComment).to.equal('ﾊﾟﾜｰｽﾄｰﾝｾｰﾌﾞﾃﾞｰﾀ'); // "Power Stone save data"
+    expect(dreamcastSaveData.getSaveFiles()[5].fileComment.substring(0, 18)).to.equal('パワーストーン　セーブデータ    '); // "Power Stone save data". We take a substring here because the remainder of the bytes, when interpreted as shift-jis, are various random-seeming control codes
     expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[5].blockNumberList, ArrayUtil.createReverseSequentialArray(173, 4))).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[5].rawData, rawArrayBuffers[5])).to.equal(true);
 
@@ -120,7 +132,9 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getSaveFiles()[6].filename).to.equal('P_STONE2_DAT');
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[6].fileCreationTime)).to.equal('2000-09-13 22:49:56');
     expect(dreamcastSaveData.getSaveFiles()[6].fileSizeInBlocks).to.equal(5);
-    expect(dreamcastSaveData.getSaveFiles()[6].fileHeaderOffsetInBlocks).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[6].fileHeaderBlockNumber).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[6].storageComment).to.equal('ﾊﾟﾜｰｽﾄｰﾝ2 ｾｰﾌﾞ  '); // "Power Stone 2 Save"
+    expect(dreamcastSaveData.getSaveFiles()[6].fileComment.substring(0, 16)).to.equal('パワーストーン２　セーブデータ　'); // "Power Stone 2 save data". We take a substring here because the remainder of the bytes, when interpreted as shift-jis, are various random-seeming control codes
     expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[6].blockNumberList, ArrayUtil.createReverseSequentialArray(169, 5))).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[6].rawData, rawArrayBuffers[6])).to.equal(true);
 
@@ -130,7 +144,9 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getSaveFiles()[7].filename).to.equal('ROMANCER_DAT');
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[7].fileCreationTime)).to.equal('2000-06-18 01:18:59');
     expect(dreamcastSaveData.getSaveFiles()[7].fileSizeInBlocks).to.equal(3);
-    expect(dreamcastSaveData.getSaveFiles()[7].fileHeaderOffsetInBlocks).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[7].fileHeaderBlockNumber).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[7].storageComment).to.equal('ｷｶｲｵｰ ｾｰﾌﾞﾃﾞｰﾀ  '); // "Machine save data"
+    expect(dreamcastSaveData.getSaveFiles()[7].fileComment.substring(0, 20)).to.equal('キカイオー　セーブデータ        '); // "Kikaioh save data". We take a substring here because the remainder of the bytes, when interpreted as shift-jis, are various random-seeming control codes
     expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[7].blockNumberList, ArrayUtil.createReverseSequentialArray(164, 3))).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[7].rawData, rawArrayBuffers[7])).to.equal(true);
 
@@ -140,7 +156,9 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getSaveFiles()[8].filename).to.equal('R2RUMBLE.001');
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[8].fileCreationTime)).to.equal('2025-07-20 15:15:35');
     expect(dreamcastSaveData.getSaveFiles()[8].fileSizeInBlocks).to.equal(6);
-    expect(dreamcastSaveData.getSaveFiles()[8].fileHeaderOffsetInBlocks).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[8].fileHeaderBlockNumber).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[8].storageComment).to.equal('POD 5!          ');
+    expect(dreamcastSaveData.getSaveFiles()[8].fileComment).to.equal('Ready 2 Rumble Boxing           Ready 2 Rumble  ');
     expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[8].blockNumberList, ArrayUtil.createReverseSequentialArray(161, 6))).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[8].rawData, rawArrayBuffers[8])).to.equal(true);
   });
@@ -213,7 +231,7 @@ describe('Dreamcast', () => {
         copyProtected: false,
         filename: 'MVLVSCP2_SYS',
         fileCreationTime: new Date('1999-11-27 07:37:16'),
-        fileHeaderOffsetInBlocks: 0,
+        fileHeaderBlockNumber: 0,
         rawData: rawArrayBuffers[0],
       },
       {
@@ -221,7 +239,7 @@ describe('Dreamcast', () => {
         copyProtected: false,
         filename: 'CVS.S2___SYS',
         fileCreationTime: new Date('2001-09-13 11:42:43'),
-        fileHeaderOffsetInBlocks: 0,
+        fileHeaderBlockNumber: 0,
         rawData: rawArrayBuffers[1],
       },
       {
@@ -229,7 +247,7 @@ describe('Dreamcast', () => {
         copyProtected: false,
         filename: '18WHDATA.SYS',
         fileCreationTime: new Date('2001-05-27 17:01:06'),
-        fileHeaderOffsetInBlocks: 0,
+        fileHeaderBlockNumber: 0,
         rawData: rawArrayBuffers[2],
       },
       {
@@ -237,7 +255,7 @@ describe('Dreamcast', () => {
         copyProtected: false,
         filename: 'SPAWNTDH.SYS',
         fileCreationTime: new Date('2000-11-05 18:44:10'),
-        fileHeaderOffsetInBlocks: 0,
+        fileHeaderBlockNumber: 0,
         rawData: rawArrayBuffers[3],
       },
       {
@@ -245,7 +263,7 @@ describe('Dreamcast', () => {
         copyProtected: true, // The only save in this image that is copy protected
         filename: 'PJUSTICE_SYS',
         fileCreationTime: new Date('2001-05-21 22:04:08'),
-        fileHeaderOffsetInBlocks: 0,
+        fileHeaderBlockNumber: 0,
         rawData: rawArrayBuffers[4],
       },
       {
@@ -253,7 +271,7 @@ describe('Dreamcast', () => {
         copyProtected: false,
         filename: 'POWSTONE_DAT',
         fileCreationTime: new Date('2000-03-27 12:46:29'),
-        fileHeaderOffsetInBlocks: 0,
+        fileHeaderBlockNumber: 0,
         rawData: rawArrayBuffers[5],
       },
       {
@@ -261,7 +279,7 @@ describe('Dreamcast', () => {
         copyProtected: false,
         filename: 'P_STONE2_DAT',
         fileCreationTime: new Date('2000-09-13 22:49:56'),
-        fileHeaderOffsetInBlocks: 0,
+        fileHeaderBlockNumber: 0,
         rawData: rawArrayBuffers[6],
       },
       {
@@ -269,7 +287,7 @@ describe('Dreamcast', () => {
         copyProtected: false,
         filename: 'ROMANCER_DAT',
         fileCreationTime: new Date('2000-06-18 01:18:59'),
-        fileHeaderOffsetInBlocks: 0,
+        fileHeaderBlockNumber: 0,
         rawData: rawArrayBuffers[7],
       },
       {
@@ -277,7 +295,7 @@ describe('Dreamcast', () => {
         copyProtected: false,
         filename: 'R2RUMBLE.001',
         fileCreationTime: new Date('2025-07-20 15:15:35'),
-        fileHeaderOffsetInBlocks: 0,
+        fileHeaderBlockNumber: 0,
         rawData: rawArrayBuffers[8],
       },
     ];

@@ -25,6 +25,7 @@ import DreamcastBasics from './Components/Basics';
 import DreamcastSystemInfo from './Components/SystemInfo';
 import DreamcastFileAllocationTable from './Components/FileAllocationTable';
 import DreamcastDirectory from './Components/Directory';
+import DreamcastDirectoryEntry from './Components/DirectoryEntry';
 
 const {
   BLOCK_SIZE,
@@ -123,11 +124,14 @@ export default class DreamcastSaveData {
 
     const saveFiles = directoryEntries.map((directoryEntry) => {
       const blockNumberList = getBlockNumbers(directoryEntry, fileAllocationTable);
+      const rawData = concatBlocks(blockNumberList, arrayBuffer);
+      const comments = DreamcastDirectoryEntry.getComments(directoryEntry.fileHeaderBlockNumber, rawData);
 
       return {
         ...directoryEntry,
+        ...comments,
         blockNumberList,
-        rawData: concatBlocks(blockNumberList, arrayBuffer),
+        rawData,
       };
     });
 

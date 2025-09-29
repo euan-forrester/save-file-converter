@@ -27,7 +27,9 @@ describe('Dreamcast - .DCI', () => {
     expect(dreamcastSaveFile.filename).to.equal('TRMR_KPC.DAT');
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveFile.fileCreationTime)).to.equal('1999-09-23 05:55:04');
     expect(dreamcastSaveFile.fileSizeInBlocks).to.equal(3);
-    expect(dreamcastSaveFile.fileHeaderOffsetInBlocks).to.equal(0);
+    expect(dreamcastSaveFile.fileHeaderBlockNumber).to.equal(0);
+    expect(dreamcastSaveFile.storageComment).to.equal('KISSPSYCHOCIRCUS');
+    expect(dreamcastSaveFile.fileComment).to.equal('');
 
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveFile.rawData, rawArrayBuffer)).to.equal(true);
   });
@@ -41,7 +43,7 @@ describe('Dreamcast - .DCI', () => {
       copyProtected: false,
       filename: 'TRMR_KPC.DAT',
       fileCreationTime: new Date('1999-09-23 05:55:04'),
-      fileHeaderOffsetInBlocks: 0,
+      fileHeaderBlockNumber: 0,
       rawData: rawArrayBuffer,
     };
 
@@ -62,9 +64,9 @@ describe('Dreamcast - .DCI', () => {
     expect(dreamcastSaveFile.filename).to.equal('PJUSTICE_SYS');
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveFile.fileCreationTime)).to.equal('2001-05-30 14:42:42');
     expect(dreamcastSaveFile.fileSizeInBlocks).to.equal(2);
-    expect(dreamcastSaveFile.fileHeaderOffsetInBlocks).to.equal(0);
-
-    ArrayBufferUtil.writeArrayBuffer(RAW_NO_COPY_FILENAME, dreamcastSaveFile.rawData);
+    expect(dreamcastSaveFile.fileHeaderBlockNumber).to.equal(0);
+    expect(dreamcastSaveFile.storageComment).to.equal('SYSTEM FILE     ');
+    expect(dreamcastSaveFile.fileComment).to.equal('PROJECT JUSTICE                 ');
 
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveFile.rawData, rawArrayBuffer)).to.equal(true);
   });
@@ -78,7 +80,7 @@ describe('Dreamcast - .DCI', () => {
       copyProtected: false, // This game sets this flag to be true, but whatever device made this file appears to have set it to false
       filename: 'PJUSTICE_SYS',
       fileCreationTime: new Date('2001-05-30 14:42:42'),
-      fileHeaderOffsetInBlocks: 0,
+      fileHeaderBlockNumber: 0,
       rawData: rawArrayBuffer,
     };
 

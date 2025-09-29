@@ -6,15 +6,19 @@
 Note that the starting block number in the directory entry is irrelevant here
 
 0x00-0x3F: Directory entry
-0x40-EOF:  Game data
+0x40-EOF:  Game data (stored endian-sweapped)
 */
 
 import Util from '../../../util/util';
+import EndianUtil from '../../../util/Endian';
 
 import DreamcastBasics from '../Components/Basics';
 import DreamcastDirectoryEntry from '../Components/DirectoryEntry';
 
-const { BLOCK_SIZE } = DreamcastBasics;
+const {
+  BLOCK_SIZE,
+  WORD_SIZE_IN_BYTES,
+} = DreamcastBasics;
 
 const DATA_OFFSET = DreamcastDirectoryEntry.LENGTH;
 
@@ -30,20 +34,23 @@ export default class DreamcastDciSaveData {
 
     const directoryEntryArrayBuffer = DreamcastDirectoryEntry.writeDirectoryEntry(saveFileWithBlockInfo);
 
-    return Util.concatArrayBuffers([directoryEntryArrayBuffer, saveFileWithBlockInfo.rawData]);
+    return Util.concatArrayBuffers([directoryEntryArrayBuffer, EndianUtil.swap(saveFileWithBlockInfo.rawData, WORD_SIZE_IN_BYTES)]);
   }
 
   static convertIndividualSaveToSaveFile(arrayBuffer, checkSaveSize = true) {
     const directoryEntry = DreamcastDirectoryEntry.readDirectoryEntry(arrayBuffer);
-    const rawData = arrayBuffer.slice(DATA_OFFSET);
+    const rawData = EndianUtil.swap(arrayBuffer.slice(DATA_OFFSET), WORD_SIZE_IN_BYTES);
 
     if (checkSaveSize && (rawData.byteLength !== (directoryEntry.fileSizeInBlocks * BLOCK_SIZE))) {
       throw new Error(`File appears to be corrupt. Save size specified as ${directoryEntry.fileSizeInBlocks} blocks (${directoryEntry.fileSizeInBlocks * BLOCK_SIZE} bytes)`
         + ` but save data is ${rawData.byteLength} bytes`);
     }
 
+    const comments = DreamcastDirectoryEntry.getComments(directoryEntry.fileHeaderBlockNumber, rawData);
+
     return {
       ...directoryEntry,
+      ...comments,
       rawData,
     };
   }
