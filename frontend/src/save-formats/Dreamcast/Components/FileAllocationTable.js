@@ -30,8 +30,6 @@ const {
   DIRECTORY_SIZE_IN_BLOCKS,
 } = DreamcastBasics;
 
-const LAST_SAVE_AREA_BLOCK_NUMBER = SAVE_AREA_SIZE_IN_BLOCKS - SAVE_AREA_BLOCK_NUMBER - 1;
-
 const UNALLOCATED_BLOCK = 0xFFFC;
 const LAST_BLOCK_IN_FILE = 0xFFFA;
 const BLOCK_PHYSICALLY_DAMAGED = 0xFFFF;
@@ -55,7 +53,7 @@ export default class DreamcastFileAllocationTable {
 
     ArrayUtil.createReverseSequentialArray(DIRECTORY_BLOCK_NUMBER, DIRECTORY_SIZE_IN_BLOCKS - 1).map((i) => dataView.setUint16(i * 2, i - 1, LITTLE_ENDIAN));
 
-    let lastUnusedBlockNumber = SAVE_AREA_SIZE_IN_BLOCKS - SAVE_AREA_BLOCK_NUMBER - 1;
+    let lastUnusedBlockNumber = SAVE_AREA_BLOCK_NUMBER;
 
     saveFilesWithBlockInfo.forEach((saveFile) => {
       ArrayUtil.createReverseSequentialArray(saveFile.firstBlockNumber, saveFile.fileSizeInBlocks - 1).map((i) => dataView.setUint16(i * 2, i - 1, LITTLE_ENDIAN));
@@ -64,7 +62,8 @@ export default class DreamcastFileAllocationTable {
       lastUnusedBlockNumber = saveFile.firstBlockNumber - saveFile.fileSizeInBlocks;
     });
 
-    ArrayUtil.createSequentialArray(SAVE_AREA_BLOCK_NUMBER, lastUnusedBlockNumber - SAVE_AREA_BLOCK_NUMBER + 1).map((i) => dataView.setUint16(i * 2, UNALLOCATED_BLOCK, LITTLE_ENDIAN));
+    const numUnallocatedBlocks = SAVE_AREA_SIZE_IN_BLOCKS - (SAVE_AREA_BLOCK_NUMBER - lastUnusedBlockNumber);
+    ArrayUtil.createReverseSequentialArray(lastUnusedBlockNumber, numUnallocatedBlocks).map((i) => dataView.setUint16(i * 2, UNALLOCATED_BLOCK, LITTLE_ENDIAN));
 
     return arrayBuffer;
   }
@@ -78,7 +77,7 @@ export default class DreamcastFileAllocationTable {
       const offset = i * 2;
       nextBlockInFile[i] = dataView.getUint16(offset, LITTLE_ENDIAN);
 
-      if ((nextBlockInFile[i] > LAST_SAVE_AREA_BLOCK_NUMBER)
+      if ((nextBlockInFile[i] > SAVE_AREA_BLOCK_NUMBER)
         && (nextBlockInFile[i] !== UNALLOCATED_BLOCK)
         && (nextBlockInFile[i] !== LAST_BLOCK_IN_FILE)
         && (nextBlockInFile[i] !== BLOCK_PHYSICALLY_DAMAGED)) {

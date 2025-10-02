@@ -26,7 +26,7 @@ Format taken from:
 0x4c-0x4d : size of directory in blocks (13)
 0x4e-0x4f : icon shape for this VMS (0-123) (this is described as one byte for volume icon and one byte reserved here: https://github.com/flyinghead/flycast/blob/33833cfd1ed2d94d907223442fdb8cdafd8d5d80/core/hw/maple/maple_devs.cpp#L525)
 0x50-0x51 : number of save blocks (200) (the official docs say that this is the block number of the start of the save area, however that would be 199 and this contains 200)
-0x52-0x53 : number of save blocks (31) (unsure what this means): https://github.com/flyinghead/flycast/blob/33833cfd1ed2d94d907223442fdb8cdafd8d5d80/core/hw/maple/maple_devs.cpp#L531. It's listed in the official docs along with the previous value as specifying the save area: start block number and then number of blocks. However, that would be the values 199 and 200 respectively. I don't know what 31 represents
+0x52-0x53 : unknown value (31): listed in flycast as "number of save blocks" but 31 doesn't match the size or location of the save area, nor the number of empty blocks between the save area and the system blocks. https://github.com/flyinghead/flycast/blob/33833cfd1ed2d94d907223442fdb8cdafd8d5d80/core/hw/maple/maple_devs.cpp#L531. It's listed in the official docs along with the previous value as specifying the save area: start block number and then number of blocks. However, that would be the values 199 and 200 respectively
 0x54-0x57 : reserved (something for execution files): https://github.com/flyinghead/flycast/blob/33833cfd1ed2d94d907223442fdb8cdafd8d5d80/core/hw/maple/maple_devs.cpp#L533. The official docs don't shed much light here either "This is fixed at "0000h" when an execution file cannot be executed from this partition. If an execution file can be executed, refer to the specifications for that peripheral for further details."
 
 Notes:
@@ -64,11 +64,13 @@ const DIRECTORY_BLOCK_NUMBER_OFFSET = 0x4A;
 const DIRECTORY_SIZE_IN_BLOCKS_OFFSET = 0x4C;
 const ICON_SHAPE_OFFSET = 0x4E;
 const SAVE_AREA_SIZE_IN_BLOCKS_OFFSET = 0x50;
-const NUMBER_OF_SAVE_BLOCKS_OFFSET = 0x52;
+const UNKNOWN_VALUE_OFFSET = 0x52;
 const RESERVED_OFFSET = 0x54;
 
 const DEFAULT_PARTITION_NUMBER = 0;
 const DEFAULT_RESERVED_VALUE = 0;
+
+const UNKNOWN_VALUE = 31; // See above at offset 0x52
 
 const PADDING_VALUE = 0x00;
 
@@ -111,7 +113,7 @@ export default class DreamcastSystemInfo {
     dataView.setUint16(ICON_SHAPE_OFFSET, volumeInfo.iconShape, LITTLE_ENDIAN);
 
     dataView.setUint16(SAVE_AREA_SIZE_IN_BLOCKS_OFFSET, DreamcastBasics.SAVE_AREA_SIZE_IN_BLOCKS, LITTLE_ENDIAN);
-    dataView.setUint16(NUMBER_OF_SAVE_BLOCKS_OFFSET, DreamcastBasics.NUMBER_OF_SAVE_BLOCKS, LITTLE_ENDIAN);
+    dataView.setUint16(UNKNOWN_VALUE_OFFSET, UNKNOWN_VALUE, LITTLE_ENDIAN);
 
     if (Object.hasOwn(volumeInfo, 'reserved')) {
       dataView.setUint32(RESERVED_OFFSET, volumeInfo.reserved, LITTLE_ENDIAN);
@@ -150,7 +152,6 @@ export default class DreamcastSystemInfo {
     const iconShape = dataView.getUint16(ICON_SHAPE_OFFSET, LITTLE_ENDIAN);
 
     const saveAreaSizeInBlocks = dataView.getUint16(SAVE_AREA_SIZE_IN_BLOCKS_OFFSET, LITTLE_ENDIAN);
-    const numberOfSaveBlocks = dataView.getUint16(NUMBER_OF_SAVE_BLOCKS_OFFSET, LITTLE_ENDIAN);
 
     const reserved = dataView.getUint32(RESERVED_OFFSET, LITTLE_ENDIAN);
 
@@ -176,7 +177,6 @@ export default class DreamcastSystemInfo {
       saveArea: {
         blockNumber: DreamcastBasics.SAVE_AREA_BLOCK_NUMBER,
         sizeInBlocks: saveAreaSizeInBlocks,
-        numberOfSaveBlocks,
       },
       reserved,
     };

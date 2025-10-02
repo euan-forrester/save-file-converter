@@ -21,9 +21,7 @@ export default class DreamcastBasics {
 
   static DIRECTORY_SIZE_IN_BLOCKS = 13;
 
-  static SAVE_AREA_BLOCK_NUMBER = 0;
-
   static SAVE_AREA_SIZE_IN_BLOCKS = 200;
 
-  static NUMBER_OF_SAVE_BLOCKS = 31; // I don't know what this represents: https://github.com/flyinghead/flycast/blob/33833cfd1ed2d94d907223442fdb8cdafd8d5d80/core/hw/maple/maple_devs.cpp#L531
+  static SAVE_AREA_BLOCK_NUMBER = this.SAVE_AREA_SIZE_IN_BLOCKS - 1; // All of the block numbers specify the final block number, so this one needs to too
 }

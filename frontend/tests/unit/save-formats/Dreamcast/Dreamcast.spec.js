@@ -49,7 +49,6 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getVolumeInfo().iconShape).to.equal(0);
     expect(dreamcastSaveData.getVolumeInfo().saveArea.blockNumber).to.equal(DreamcastBasics.SAVE_AREA_BLOCK_NUMBER);
     expect(dreamcastSaveData.getVolumeInfo().saveArea.sizeInBlocks).to.equal(DreamcastBasics.SAVE_AREA_SIZE_IN_BLOCKS);
-    expect(dreamcastSaveData.getVolumeInfo().saveArea.numberOfSaveBlocks).to.equal(DreamcastBasics.NUMBER_OF_SAVE_BLOCKS);
     expect(dreamcastSaveData.getVolumeInfo().reserved).to.equal(0x800000);
 
     expect(dreamcastSaveData.getSaveFiles().length).to.equal(9);
@@ -205,7 +204,6 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getVolumeInfo().iconShape).to.equal(42);
     expect(dreamcastSaveData.getVolumeInfo().saveArea.blockNumber).to.equal(DreamcastBasics.SAVE_AREA_BLOCK_NUMBER);
     expect(dreamcastSaveData.getVolumeInfo().saveArea.sizeInBlocks).to.equal(DreamcastBasics.SAVE_AREA_SIZE_IN_BLOCKS);
-    expect(dreamcastSaveData.getVolumeInfo().saveArea.numberOfSaveBlocks).to.equal(DreamcastBasics.NUMBER_OF_SAVE_BLOCKS);
     expect(dreamcastSaveData.getVolumeInfo().reserved).to.equal(0);
   });
 

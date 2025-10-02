@@ -99,7 +99,7 @@ function getBlockNumbers(directoryEntry, fileAllocationTable) {
 }
 
 function getSaveFilesWithBlockInfo(saveFiles) {
-  let currentBlockNumber = SAVE_AREA_SIZE_IN_BLOCKS + SAVE_AREA_BLOCK_NUMBER - 1; // Start at the end of the save area and work towards the beginning of the file
+  let currentBlockNumber = SAVE_AREA_BLOCK_NUMBER; // Start at the end of the save area and work towards the beginning of the file
 
   return saveFiles.map((saveFile) => {
     const fileSizeInBlocks = Math.ceil(saveFile.rawData.byteLength / BLOCK_SIZE);
@@ -159,7 +159,7 @@ export default class DreamcastSaveData {
     const directory = DreamcastDirectory.writeDirectory(saveFilesWithBlockInfo);
 
     // Blocks 0 - 199 are for the save area, but the directory begins on block 241 leaving 41 blocks unused in between
-    const numPaddingBlocks = DIRECTORY_BLOCK_NUMBER - DIRECTORY_SIZE_IN_BLOCKS - SAVE_AREA_SIZE_IN_BLOCKS - SAVE_AREA_BLOCK_NUMBER + 1;
+    const numPaddingBlocks = DIRECTORY_BLOCK_NUMBER - DIRECTORY_SIZE_IN_BLOCKS - SAVE_AREA_BLOCK_NUMBER;
 
     const systemInfoBlocks = createBlocks(systemInfo);
     const fileAllocationTableBlocks = createBlocks(fileAllocationTable);
