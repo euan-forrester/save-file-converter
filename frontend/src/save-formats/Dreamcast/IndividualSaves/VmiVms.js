@@ -19,10 +19,16 @@ the file metadata while the .VMS file contains the actual file data
 */
 
 import DreamcastBasics from '../Components/Basics';
+import DreamcastDirectoryEntry from '../Components/DirectoryEntry';
 import DreamcastUtil from '../Util';
 import Util from '../../../util/util';
 
-const { LITTLE_ENDIAN } = DreamcastBasics;
+const {
+  LITTLE_ENDIAN,
+  BLOCK_SIZE,
+  FILE_TYPE_DATA,
+  FILE_TYPE_GAME,
+} = DreamcastBasics;
 
 const ENCODING = 'US-ASCII';
 
@@ -54,6 +60,10 @@ const FILE_SIZE_OFFSET = 0x68;
 const FILE_MODE_GAME = 0x02;
 const FILE_MODE_COPY_PROTECTED = 0x01;
 
+const DEFAULT_FIRST_BLOCK_NUMBER = 0; // Doesn't matter: the concept of where the save is located doesn't mean anything in this format
+
+const DEFAULT_HEADER_BLOCK_NUMBER = 0; // I'm not sure how we would calculate this since it's missing from the .vmi file. dc-save-converter just leaves this as 0, and it's been 0 in all the files I've seen: https://github.com/bucanero/dc-save-converter/blob/a19fc3361805358d474acd772cdb20a328453d5b/dcvmu.cpp#L192
+
 /*
 // Based on https://github.com/bucanero/dc-save-converter/blob/a19fc3361805358d474acd772cdb20a328453d5b/dcvmu.cpp#L428
 function calculateChecksum(resourceName) {
@@ -84,10 +94,12 @@ export default class DreamcastVmiVmsSaveData {
     const vmiDataView = new DataView(vmiArrayBuffer);
     const vmiUint8Array = new Uint8Array(vmiArrayBuffer);
 
+    // Read what's stored in the file
+
     const checksum = vmiDataView.getUint32(CHECKSUM_OFFSET, CHECKSUM_LITTLE_ENDIAN);
     const description = Util.readNullTerminatedString(vmiUint8Array, DESCRIPTION_OFFSET, ENCODING, DESCRIPTION_LENGTH);
     const copyright = Util.readNullTerminatedString(vmiUint8Array, COPYRIGHT_OFFSET, ENCODING, COPYRIGHT_LENGTH);
-    const timestamp = DreamcastUtil.readTimestamp(vmiArrayBuffer, TIMESTAMP_OFFSET);
+    const fileCreationTime = DreamcastUtil.readTimestamp(vmiArrayBuffer, TIMESTAMP_OFFSET);
     const version = vmiDataView.getUint16(VERSION_OFFSET, LITTLE_ENDIAN);
     const fileNumber = vmiDataView.getUint16(FILE_NUMBER_OFFSET, LITTLE_ENDIAN);
     const resourceName = Util.readNullTerminatedString(vmiUint8Array, RESOURCE_NAME_OFFSET, ENCODING, RESOURCE_NAME_LENGTH);
@@ -99,17 +111,35 @@ export default class DreamcastVmiVmsSaveData {
       throw new Error(`This does not appear to be a Dreamcast individual save: file size in header ${fileSize} does not match .VMS file size ${vmsArrayBuffer.byteLength}`);
     }
 
+    // Calculate the parts common to all dreamcast saves
+
+    const fileSizeInBlocks = Math.ceil(fileSize / BLOCK_SIZE);
+    const firstBlockNumber = DEFAULT_FIRST_BLOCK_NUMBER;
+    const fileType = ((fileMode & FILE_MODE_GAME) !== 0) ? FILE_TYPE_GAME : FILE_TYPE_DATA;
+    const copyProtected = ((fileMode & FILE_MODE_COPY_PROTECTED) !== 0);
+    const fileHeaderBlockNumber = DEFAULT_HEADER_BLOCK_NUMBER;
+    const comments = DreamcastDirectoryEntry.getComments(fileHeaderBlockNumber, vmsArrayBuffer);
+
     return {
+      // These parts are specific to the .vmi/.vms format
       checksum,
       description,
       copyright,
-      timestamp,
       version,
       fileNumber,
       resourceName,
-      fileName,
       fileMode,
       fileSize,
+
+      // These parts are common to all dreamcast saves
+      fileName,
+      fileType,
+      fileCreationTime,
+      copyProtected,
+      fileSizeInBlocks,
+      firstBlockNumber,
+      fileHeaderBlockNumber,
+      ...comments,
       rawData: vmsArrayBuffer,
     };
   }

@@ -22,13 +22,13 @@ const {
 
 const DATA_OFFSET = DreamcastDirectoryEntry.LENGTH;
 
-const DEFAULT_START_BLOCK_NUMBER = 0; // Doesn't matter: the concept of where the save is located doesn't mean anything in this format
+const DEFAULT_FIRST_BLOCK_NUMBER = 0; // Doesn't matter: the concept of where the save is located doesn't mean anything in this format
 
 export default class DreamcastDciSaveData {
   static convertSaveFileToDci(saveFile) {
     const saveFileWithBlockInfo = {
       ...saveFile,
-      firstBlockNumber: DEFAULT_START_BLOCK_NUMBER,
+      firstBlockNumber: DEFAULT_FIRST_BLOCK_NUMBER,
       fileSizeInBlocks: Math.ceil(saveFile.rawData.byteLength / BLOCK_SIZE),
     };
 

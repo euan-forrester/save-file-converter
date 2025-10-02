@@ -27,6 +27,8 @@ import DreamcastUtil from '../Util';
 const {
   LITTLE_ENDIAN,
   BLOCK_SIZE,
+  FILE_TYPE_DATA,
+  FILE_TYPE_GAME,
 } = DreamcastBasics;
 
 const FILE_TYPE_OFFSET = 0x00;
@@ -41,8 +43,8 @@ const FILE_HEADER_BLOCK_NUMBER_OFFSET = 0x1A;
 
 const FILE_TYPE_LOOKUP = {
   0x00: 'No file',
-  0x33: 'Data',
-  0xCC: 'Game',
+  0x33: FILE_TYPE_DATA,
+  0xCC: FILE_TYPE_GAME,
 };
 
 const UNKNOWN_FILE_TYPE_STRING = 'Unknown';
