@@ -35,7 +35,6 @@ const {
   SAVE_AREA_SIZE_IN_BLOCKS,
   DIRECTORY_BLOCK_NUMBER,
   DIRECTORY_SIZE_IN_BLOCKS,
-  SYSTEM_INFO_BLOCK_NUMBER,
   SYSTEM_INFO_SIZE_IN_BLOCKS,
 } = DreamcastBasics;
 
@@ -122,7 +121,13 @@ export default class DreamcastSaveData {
       throw new Error('This does not appear to be a Dreamcast VMU image');
     }
 
-    const volumeInfo = DreamcastSystemInfo.readSystemInfo(getBlocks(SYSTEM_INFO_BLOCK_NUMBER, SYSTEM_INFO_SIZE_IN_BLOCKS, arrayBuffer));
+    // In theory a dreamcast image can be any number of blocks, with the final block specifying the system info and thus
+    // how the rest of the file is laid out.
+    // In practice I think all dreamcast images are the same size, but we may as well not assume they are
+
+    const finalBlockNumber = Math.floor(arrayBuffer.byteLength / BLOCK_SIZE) - 1;
+
+    const volumeInfo = DreamcastSystemInfo.readSystemInfo(getBlocks(finalBlockNumber, SYSTEM_INFO_SIZE_IN_BLOCKS, arrayBuffer));
     const fileAllocationTable = DreamcastFileAllocationTable.readFileAllocationTable(getBlocks(volumeInfo.fileAllocationTable.blockNumber, volumeInfo.fileAllocationTable.sizeInBlocks, arrayBuffer));
     const directoryEntries = DreamcastDirectory.readDirectory(getBlocks(volumeInfo.directory.blockNumber, volumeInfo.directory.sizeInBlocks, arrayBuffer));
 
