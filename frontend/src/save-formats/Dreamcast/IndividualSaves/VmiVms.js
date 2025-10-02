@@ -32,8 +32,6 @@ const {
 
 const ENCODING = 'US-ASCII';
 
-// const PADDING = 0x00;
-
 // Based on https://mc.pp.se/dc/vms/vmi.html
 // Same struct found here: https://github.com/bucanero/dc-save-converter/blob/master/vmufs.h#L44
 // Same struct found here: https://github.com/DC-SWAT/DreamShell/blob/0eb2ebe888b31438a131f20ec15abdd66964505a/applications/vmu_manager/modules/module.c#L149
@@ -42,7 +40,7 @@ const HEADER_LENGTH = 108;
 
 const CHECKSUM_OFFSET = 0;
 const CHECKSUM_LITTLE_ENDIAN = false; // The checksum isn't really a number per se, but instead the combination of 2 strings so it's better read from left to right
-// const CHECKSUM_MASK = 'SEGA';
+const CHECKSUM_MASK = 'SEGA';
 const DESCRIPTION_OFFSET = 0x04;
 const DESCRIPTION_LENGTH = 32;
 const COPYRIGHT_OFFSET = 0x24;
@@ -60,11 +58,15 @@ const FILE_SIZE_OFFSET = 0x68;
 const FILE_MODE_GAME = 0x02;
 const FILE_MODE_COPY_PROTECTED = 0x01;
 
+const DEFAULT_HEADER_FILL_VALUE = 0x00;
+
+const DEFAULT_VERSION = 0; // Not sure what this represents. Most files I've seen have 0 here
+const DEFAULT_FILE_NUMBER = 1; // Not sure what this represents. Most files I've seen have 1 here
+
 const DEFAULT_FIRST_BLOCK_NUMBER = 0; // Doesn't matter: the concept of where the save is located doesn't mean anything in this format
 
 const DEFAULT_HEADER_BLOCK_NUMBER = 0; // I'm not sure how we would calculate this since it's missing from the .vmi file. dc-save-converter just leaves this as 0, and it's been 0 in all the files I've seen: https://github.com/bucanero/dc-save-converter/blob/a19fc3361805358d474acd772cdb20a328453d5b/dcvmu.cpp#L192
 
-/*
 // Based on https://github.com/bucanero/dc-save-converter/blob/a19fc3361805358d474acd772cdb20a328453d5b/dcvmu.cpp#L428
 function calculateChecksum(resourceName) {
   let checksum = 0;
@@ -78,12 +80,51 @@ function calculateChecksum(resourceName) {
 
   return checksum;
 }
-*/
 
 export default class DreamcastVmiVmsSaveData {
   static FILE_MODE_GAME = FILE_MODE_GAME;
 
   static FILE_MODE_COPY_PROTECTED = FILE_MODE_COPY_PROTECTED;
+
+  // saveFile needs to set the additional fields:
+  // - description
+  // - copyright
+  // - resourceName
+  static convertSaveFileToVmiVms(saveFile) {
+    let vmiArrayBuffer = Util.getFilledArrayBuffer(HEADER_LENGTH, DEFAULT_HEADER_FILL_VALUE);
+    const vmsArrayBuffer = saveFile.rawData;
+
+    vmiArrayBuffer = Util.setString(vmiArrayBuffer, DESCRIPTION_OFFSET, saveFile.description, ENCODING, DESCRIPTION_LENGTH);
+    vmiArrayBuffer = Util.setString(vmiArrayBuffer, COPYRIGHT_OFFSET, saveFile.copyright, ENCODING, COPYRIGHT_LENGTH);
+    vmiArrayBuffer = Util.setString(vmiArrayBuffer, RESOURCE_NAME_OFFSET, saveFile.resourceName, ENCODING, RESOURCE_NAME_LENGTH);
+    vmiArrayBuffer = Util.setString(vmiArrayBuffer, FILE_NAME_OFFSET, saveFile.fileName, ENCODING, FILE_NAME_LENGTH);
+    vmiArrayBuffer = DreamcastUtil.writeTimestamp(vmiArrayBuffer, TIMESTAMP_OFFSET, saveFile.fileCreationTime);
+
+    const vmiDataView = new DataView(vmiArrayBuffer);
+
+    const checksum = calculateChecksum(saveFile.resourceName);
+
+    let fileMode = 0;
+
+    if (saveFile.copyProtected) {
+      fileMode |= FILE_MODE_COPY_PROTECTED;
+    }
+
+    if (saveFile.fileType === FILE_TYPE_GAME) {
+      fileMode |= FILE_MODE_GAME;
+    }
+
+    vmiDataView.setUint32(CHECKSUM_OFFSET, checksum, CHECKSUM_LITTLE_ENDIAN);
+    vmiDataView.setUint16(VERSION_OFFSET, DEFAULT_VERSION, LITTLE_ENDIAN);
+    vmiDataView.setUint16(FILE_NUMBER_OFFSET, DEFAULT_FILE_NUMBER, LITTLE_ENDIAN);
+    vmiDataView.setUint16(FILE_MODE_OFFSET, fileMode, LITTLE_ENDIAN);
+    vmiDataView.setUint32(FILE_SIZE_OFFSET, vmsArrayBuffer.byteLength, LITTLE_ENDIAN);
+
+    return {
+      vmiArrayBuffer,
+      vmsArrayBuffer,
+    };
+  }
 
   // Based on https://github.com/bucanero/dc-save-converter/blob/a19fc3361805358d474acd772cdb20a328453d5b/dcvmu.cpp#L388
   static convertIndividualSaveToSaveFile(vmiArrayBuffer, vmsArrayBuffer) {

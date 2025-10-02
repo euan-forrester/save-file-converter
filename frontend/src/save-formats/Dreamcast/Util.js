@@ -58,13 +58,29 @@ export default class DreamcastUtil {
     const hour = dataView.getUint8(TIMESTAMP_HOUR_OFFSET);
     const minute = dataView.getUint8(TIMESTAMP_MINUTE_OFFSET);
     const second = dataView.getUint8(TIMESTAMP_SECOND_OFFSET);
-    // For the day of week, different files appear to be inconsistent. In some 0 represents Sunday and in some 0 represents Monday.
-    // The official dreamcast docs say that 0 represents Sunday. In a Javascript Date, 0 represents Sunday
-    // https://mc.pp.se/dc/vms/vmi.html says that Sunday is 0
 
     const date = new Date(year, month, day, hour, minute, second); // No timezone information is given in the Dreamcast format. This Date object is in the local timezone
 
     return date;
+  }
+
+  static writeTimestamp(arrayBuffer, offset, date) {
+    const timestampArrayBuffer = new ArrayBuffer(TIMESTAMP_LENGTH);
+    const dataView = new DataView(timestampArrayBuffer);
+
+    dataView.setUint16(TIMESTAMP_YEAR_OFFSET, date.getFullYear(), LITTLE_ENDIAN);
+    dataView.setUint8(TIMESTAMP_MONTH_OFFSET, date.getMonth() + 1); // Dreamcast months are 1-12, Javascript months are 0-11
+    dataView.setUint8(TIMESTAMP_DAY_OFFSET, date.getDate());
+    dataView.setUint8(TIMESTAMP_HOUR_OFFSET, date.getHours());
+    dataView.setUint8(TIMESTAMP_MINUTE_OFFSET, date.getMinutes());
+    dataView.setUint8(TIMESTAMP_SECOND_OFFSET, date.getSeconds());
+    dataView.setUint8(TIMESTAMP_DAY_OF_WEEK_OFFSET, date.getDay());
+
+    // For the day of week, different files appear to be inconsistent. In some 0 represents Sunday and in some 0 represents Monday.
+    // The official dreamcast docs say that 0 represents Sunday. In a Javascript Date, 0 represents Sunday
+    // https://mc.pp.se/dc/vms/vmi.html says that Sunday is 0
+
+    return Util.setArrayBufferPortion(arrayBuffer, timestampArrayBuffer, offset, 0, TIMESTAMP_LENGTH);
   }
 
   static readBcdTimestamp(arrayBuffer, offset) {
