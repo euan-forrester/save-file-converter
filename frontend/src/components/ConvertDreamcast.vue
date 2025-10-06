@@ -44,14 +44,14 @@
               <b-jumbotron
                 fluid
                 :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })"
-                :class="($mq === 'md') && (this.individualSavesOrMemoryCard === 'individual-saves') ? 'fix-jumbotron' : ''"
+                :class="($mq === 'md') ? 'fix-jumbotron' : ''"
               >
                 <template v-slot:header>Individual saves</template>
               </b-jumbotron>
             </b-col>
           </b-row>
           <div v-if="this.conversionDirection === 'convertToRaw'">
-            <div v-if="this.individualSavesOrMemoryCard === 'individual-saves'">
+            <div v-if="this.individualSaveType === 'dci'">
               <output-filename
                 v-model="outputFilename"
                 :leaveRoomForHelpIcon="true"
@@ -59,8 +59,21 @@
               />
             </div>
             <div v-else>
-             <output-filename v-model="outputFilename" :leaveRoomForHelpIcon="false"/>
+              <output-filename
+                v-model="outputFilenameVmi"
+                :leaveRoomForHelpIcon="true"
+                :disabled="false"
+              />
+              <output-filename
+                v-model="outputFilenameVms"
+                :leaveRoomForHelpIcon="true"
+                :disabled="false"
+              />
             </div>
+            <dreamcast-individual-save-type-selector
+              :value="this.individualSaveType"
+              @change="changeIndividualSaveType($event)"
+            />
           </div>
           <div v-else>
             <input-file
@@ -119,7 +132,7 @@
   margin-top: -1em;
 }
 
-/* We have so much text in our jumbotron that at the md size it wants to be vertically larger than the other one. So let's constrain it and move the text upwards insie it */
+/* We have so much text in our jumbotron that at the md size it wants to be vertically larger than the other one. So let's constrain it and move the text upwards inside it */
 .fix-jumbotron {
   max-height: 11.5em;
 }
@@ -136,11 +149,14 @@ import InputFile from './InputFile.vue';
 import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import FileList from './FileList.vue';
+import DreamcastIndividualSaveTypeSelector from './DreamcastIndividualSaveTypeSelector.vue';
 
 import DreamcastSaveData from '../save-formats/Dreamcast/Dreamcast';
 import DreamcastDciSaveData from '../save-formats/Dreamcast/IndividualSaves/Dci';
+import DreamcastVmiVmsSaveData from '../save-formats/Dreamcast/IndividualSaves/VmiVms';
 
 const DEFAULT_ICON_SHAPE = 0;
+const DEFAULT_INDIVIDUAL_SAVE_TYPE = 'dci';
 
 export default {
   name: 'ConvertDreamcast',
@@ -150,11 +166,11 @@ export default {
       errorMessage: null,
       inputFilename: null,
       outputFilename: null,
+      outputFilenameVmi: null,
+      outputFilenameVms: null,
       conversionDirection: 'convertToRaw',
       selectedSaveData: null,
-      individualSavesOrMemoryCard: 'individual-saves',
-      individualSavesText: 'Individual saves',
-      memoryCardText: 'Raw/emulator',
+      individualSaveType: DEFAULT_INDIVIDUAL_SAVE_TYPE,
     };
   },
   components: {
@@ -162,19 +178,31 @@ export default {
     InputFile,
     OutputFilename,
     FileList,
+    DreamcastIndividualSaveTypeSelector,
   },
   computed: {
     convertButtonDisabled() {
       const haveDataSelected = (this.conversionDirection === 'convertToRaw') ? true : this.selectedSaveData === null;
 
-      return !this.dreamcastSaveData || this.dreamcastSaveData.getSaveFiles().length === 0 || !haveDataSelected || !this.outputFilename;
+      const hasOutputFilename = ((this.individualSaveType === 'dci') && (this.outputFilename !== null))
+        || ((this.individualSaveType !== 'dci') && (this.outputFilenameVmi !== null) && (this.outputFilenameVms !== null));
+
+      return !this.dreamcastSaveData || this.dreamcastSaveData.getSaveFiles().length === 0 || !haveDataSelected || !hasOutputFilename;
     },
   },
   methods: {
-    getFileNameFromSaveFile(saveFile) {
-      const sanitizedFilename = Util.convertDescriptionToFilename(`${saveFile.filename}`);
+    changeIndividualSaveType(newValue) {
+      if (this.individualSaveType !== newValue) {
+        this.individualSaveType = newValue;
+        this.outputFilename = null;
+        this.outputFilenameVmi = null;
+        this.outputFilenameVms = null;
 
-      return `${sanitizedFilename}.dci`;
+        this.changeSelectedSaveData(this.selectedSaveData);
+      }
+    },
+    getFileNameFromSaveFile(saveFile) {
+      return Util.convertDescriptionToFilename(`${saveFile.filename}`);
     },
     getFileListNames() {
       if ((this.dreamcastSaveData !== null) && (this.dreamcastSaveData.getSaveFiles() !== null)) {
@@ -189,7 +217,10 @@ export default {
       this.errorMessage = null;
       this.inputFilename = null;
       this.outputFilename = null;
+      this.outputFilenameVmi = null;
+      this.outputFilenameVms = null;
       this.selectedSaveData = null;
+      this.individualSaveType = DEFAULT_INDIVIDUAL_SAVE_TYPE;
 
       // The refs become undefined when the components are removed using a v-if
       if (this.$refs.inputFileDreamcastSaveData) {
@@ -200,10 +231,20 @@ export default {
       if (newSaveData !== null) {
         if ((this.dreamcastSaveData !== null) && (this.dreamcastSaveData.getSaveFiles().length > 0)) {
           this.selectedSaveData = newSaveData;
-          this.outputFilename = this.getFileNameFromSaveFile(this.dreamcastSaveData.getSaveFiles()[this.selectedSaveData]);
+
+          const filename = this.getFileNameFromSaveFile(this.dreamcastSaveData.getSaveFiles()[this.selectedSaveData]);
+
+          if (this.individualSaveType === 'dci') {
+            this.outputFilename = `${filename}.dci`;
+          } else {
+            this.outputFilenameVmi = `${filename}.vmi`;
+            this.outputFilenameVms = `${filename}.vms`;
+          }
         } else {
           this.selectedSaveData = null;
           this.outputFilename = null;
+          this.outputFilenameVmi = null;
+          this.outputFilenameVms = null;
         }
       }
     },
@@ -236,7 +277,7 @@ export default {
         this.dreamcastSaveData = DreamcastSaveData.createFromSaveFiles(saveFiles, volumeInfo);
 
         if (this.dreamcastSaveData.getSaveFiles().length > 0) {
-          this.outputFilename = `${Util.removeFilenameExtension(this.getFileNameFromSaveFile(this.dreamcastSaveData.getSaveFiles()[0]))}.bin`;
+          this.outputFilename = `${this.getFileNameFromSaveFile(this.dreamcastSaveData.getSaveFiles()[0])}.bin`;
         } else {
           this.outputFilename = 'output.bin';
         }
@@ -244,21 +285,55 @@ export default {
         this.errorMessage = e.message;
         this.dreamcastSaveData = null;
         this.selectedSaveData = null;
+        this.outputFilename = null;
+        this.outputFilenameVmi = null;
+        this.outputFilenameVms = null;
       }
     },
     convertFile() {
-      let outputArrayBuffer = null;
+      const outputFileList = [];
 
       if (this.conversionDirection === 'convertToRaw') {
         const saveFile = this.dreamcastSaveData.getSaveFiles()[this.selectedSaveData];
-        outputArrayBuffer = DreamcastDciSaveData.convertSaveFileToDci(saveFile);
+
+        if (this.individualSaveType === 'dci') {
+          outputFileList.push({
+            arrayBuffer: DreamcastDciSaveData.convertSaveFileToDci(saveFile),
+            filename: this.outputFilename,
+          });
+        } else {
+          const vmiVmsSaveFile = {
+            ...saveFile,
+            description: 'Created by savefileconverter.com',
+            copyright: 'savefileconverter.com',
+            resourceName: saveFile.filename, // Will be truncated from 12 -> 8 characters
+          };
+
+          const { vmiArrayBuffer, vmsArrayBuffer } = DreamcastVmiVmsSaveData.convertSaveFileToVmiVms(vmiVmsSaveFile);
+
+          outputFileList.push(
+            {
+              arrayBuffer: vmiArrayBuffer,
+              filename: this.outputFilenameVmi,
+            },
+            {
+              arrayBuffer: vmsArrayBuffer,
+              filename: this.outputFilenameVms,
+            },
+          );
+        }
       } else {
-        outputArrayBuffer = this.dreamcastSaveData.getArrayBuffer();
+        outputFileList.push({
+          arrayBuffer: this.dreamcastSaveData.getArrayBuffer(),
+          filename: this.outputFilename,
+        });
       }
 
-      const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
+      outputFileList.forEach((outputFile) => {
+        const outputBlob = new Blob([outputFile.arrayBuffer], { type: 'application/octet-stream' });
 
-      saveAs(outputBlob, this.outputFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
+        saveAs(outputBlob, outputFile.filename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
+      });
     },
   },
 };
