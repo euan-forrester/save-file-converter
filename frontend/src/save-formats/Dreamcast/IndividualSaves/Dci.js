@@ -42,8 +42,7 @@ export default class DreamcastDciSaveData {
     const rawData = EndianUtil.swap(arrayBuffer.slice(DATA_OFFSET), WORD_SIZE_IN_BYTES);
 
     if (checkSaveSize && (rawData.byteLength !== (directoryEntry.fileSizeInBlocks * BLOCK_SIZE))) {
-      throw new Error(`File appears to be corrupt. Save size specified as ${directoryEntry.fileSizeInBlocks} blocks (${directoryEntry.fileSizeInBlocks * BLOCK_SIZE} bytes)`
-        + ` but save data is ${rawData.byteLength} bytes`);
+      throw new Error('This file appears to be corrupt');
     }
 
     const comments = DreamcastDirectoryEntry.getComments(directoryEntry.fileHeaderBlockNumber, rawData);
