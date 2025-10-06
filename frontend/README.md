@@ -1,29 +1,5 @@
-# sample-project
+# Vue 3 upgrade notes
 
-## Project setup
-```
-yarn install
-```
+Need to undo these changes made for vscode: https://github.com/vuejs/language-tools/wiki/Vue-2-Compat-Guides
 
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
-
-### Compiles and minifies for production
-```
-yarn build
-```
-
-### Run your unit tests
-```
-yarn test:unit
-```
-
-### Lints and fixes files
-```
-yarn lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+Described here: https://github.com/vuejs/language-tools/discussions/5455

@@ -13,6 +13,7 @@ https://savefileconverter.com/#/psp
 https://savefileconverter.com/#/sega-cd
 https://savefileconverter.com/#/sega-saturn/emulator
 https://savefileconverter.com/#/sega-saturn/saroo
+https://savefileconverter.com/#/dreamcast
 https://savefileconverter.com/#/gamecube
 https://savefileconverter.com/#/n64/dexdrive
 https://savefileconverter.com/#/n64/controller-pak
@@ -21,7 +22,6 @@ https://savefileconverter.com/#/flash-carts
 https://savefileconverter.com/#/online-emulators
 https://savefileconverter.com/#/srm-sav
 https://savefileconverter.com/#/utilities/erase-save
-https://savefileconverter.com/#/utilities/troubleshooting
 https://savefileconverter.com/#/utilities/advanced
 https://savefileconverter.com/#/other-converters
 https://savefileconverter.com/#/download-saves
