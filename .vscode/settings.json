@@ -1,0 +1,3 @@
+{
+  "vue.server.path": "node_modules/@vue/language-server",
+}
