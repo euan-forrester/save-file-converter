@@ -38,7 +38,7 @@ describe('Dreamcast - .VMI/.VMS', () => {
     expect(dreamcastSaveFile.fileMode).to.equal(0);
     expect(dreamcastSaveFile.fileSize).to.equal(17408);
 
-    expect(dreamcastSaveFile.fileName).to.equal('IKARUGA_DATA');
+    expect(dreamcastSaveFile.filename).to.equal('IKARUGA_DATA');
     expect(dreamcastSaveFile.fileType).to.equal('Data');
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveFile.fileCreationTime)).to.equal('2002-09-07 20:22:06');
     expect(dreamcastSaveFile.copyProtected).to.equal(false);
@@ -62,7 +62,7 @@ describe('Dreamcast - .VMI/.VMS', () => {
       resourceName: 'IKARUGA',
 
       // These parts are common to dreamcast save files
-      fileName: 'IKARUGA_DATA',
+      filename: 'IKARUGA_DATA',
       fileType: 'Data',
       fileCreationTime: new Date('2002-09-07 20:22:06'),
       copyProtected: false,
@@ -90,7 +90,7 @@ describe('Dreamcast - .VMI/.VMS', () => {
     expect(dreamcastSaveFile.fileMode).to.equal(0);
     expect(dreamcastSaveFile.fileSize).to.equal(1536);
 
-    expect(dreamcastSaveFile.fileName).to.equal('GAUNTLET.001');
+    expect(dreamcastSaveFile.filename).to.equal('GAUNTLET.001');
     expect(dreamcastSaveFile.fileType).to.equal('Data');
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveFile.fileCreationTime)).to.equal('1998-12-25 12:00:00');
     expect(dreamcastSaveFile.copyProtected).to.equal(false);
@@ -114,7 +114,7 @@ describe('Dreamcast - .VMI/.VMS', () => {
       resourceName: 'v93102',
 
       // These parts are common to dreamcast save files
-      fileName: 'GAUNTLET.001',
+      filename: 'GAUNTLET.001',
       fileType: 'Data',
       fileCreationTime: new Date('1998-12-25 12:00:00'),
       copyProtected: false,
@@ -142,7 +142,7 @@ describe('Dreamcast - .VMI/.VMS', () => {
     expect(dreamcastSaveFile.fileMode).to.equal(0);
     expect(dreamcastSaveFile.fileSize).to.equal(1024);
 
-    expect(dreamcastSaveFile.fileName).to.equal('ICONDATA_VMS');
+    expect(dreamcastSaveFile.filename).to.equal('ICONDATA_VMS');
     expect(dreamcastSaveFile.fileType).to.equal('Data');
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveFile.fileCreationTime)).to.equal('1998-12-25 12:00:00');
     expect(dreamcastSaveFile.copyProtected).to.equal(false);
@@ -166,7 +166,7 @@ describe('Dreamcast - .VMI/.VMS', () => {
       resourceName: 'v4596',
 
       // These parts are common to dreamcast save files
-      fileName: 'ICONDATA_VMS',
+      filename: 'ICONDATA_VMS',
       fileType: 'Data',
       fileCreationTime: new Date('1998-12-25 12:00:00'),
       copyProtected: false,
@@ -194,7 +194,7 @@ describe('Dreamcast - .VMI/.VMS', () => {
     expect(dreamcastSaveFile.fileMode).to.equal(0);
     expect(dreamcastSaveFile.fileSize).to.equal(1536);
 
-    expect(dreamcastSaveFile.fileName).to.equal('TRMR_KPC.DAT');
+    expect(dreamcastSaveFile.filename).to.equal('TRMR_KPC.DAT');
     expect(dreamcastSaveFile.fileType).to.equal('Data');
     expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveFile.fileCreationTime)).to.equal('2004-09-16 08:55:18');
     expect(dreamcastSaveFile.fileSizeInBlocks).to.equal(3);
@@ -218,7 +218,7 @@ describe('Dreamcast - .VMI/.VMS', () => {
       resourceName: 'KISSPC',
 
       // These parts are common to dreamcast save files
-      fileName: 'TRMR_KPC.DAT',
+      filename: 'TRMR_KPC.DAT',
       fileType: 'Data',
       fileCreationTime: new Date('2004-09-16 08:55:18'),
       copyProtected: false,

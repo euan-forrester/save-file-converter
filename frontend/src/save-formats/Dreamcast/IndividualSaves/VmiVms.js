@@ -97,7 +97,7 @@ export default class DreamcastVmiVmsSaveData {
     vmiArrayBuffer = Util.setString(vmiArrayBuffer, DESCRIPTION_OFFSET, saveFile.description, ENCODING, DESCRIPTION_LENGTH);
     vmiArrayBuffer = Util.setString(vmiArrayBuffer, COPYRIGHT_OFFSET, saveFile.copyright, ENCODING, COPYRIGHT_LENGTH);
     vmiArrayBuffer = Util.setString(vmiArrayBuffer, RESOURCE_NAME_OFFSET, saveFile.resourceName, ENCODING, RESOURCE_NAME_LENGTH);
-    vmiArrayBuffer = Util.setString(vmiArrayBuffer, FILE_NAME_OFFSET, saveFile.fileName, ENCODING, FILE_NAME_LENGTH);
+    vmiArrayBuffer = Util.setString(vmiArrayBuffer, FILE_NAME_OFFSET, saveFile.filename, ENCODING, FILE_NAME_LENGTH);
     vmiArrayBuffer = DreamcastUtil.writeTimestamp(vmiArrayBuffer, TIMESTAMP_OFFSET, saveFile.fileCreationTime);
 
     const vmiDataView = new DataView(vmiArrayBuffer);
@@ -144,7 +144,7 @@ export default class DreamcastVmiVmsSaveData {
     const version = vmiDataView.getUint16(VERSION_OFFSET, LITTLE_ENDIAN);
     const fileNumber = vmiDataView.getUint16(FILE_NUMBER_OFFSET, LITTLE_ENDIAN);
     const resourceName = Util.readNullTerminatedString(vmiUint8Array, RESOURCE_NAME_OFFSET, ENCODING, RESOURCE_NAME_LENGTH);
-    const fileName = Util.readNullTerminatedString(vmiUint8Array, FILE_NAME_OFFSET, ENCODING, FILE_NAME_LENGTH);
+    const filename = Util.readNullTerminatedString(vmiUint8Array, FILE_NAME_OFFSET, ENCODING, FILE_NAME_LENGTH);
     const fileMode = vmiDataView.getUint16(FILE_MODE_OFFSET, LITTLE_ENDIAN);
     const fileSize = vmiDataView.getUint32(FILE_SIZE_OFFSET, LITTLE_ENDIAN);
 
@@ -173,7 +173,7 @@ export default class DreamcastVmiVmsSaveData {
       fileSize,
 
       // These parts are common to all dreamcast saves
-      fileName,
+      filename,
       fileType,
       fileCreationTime,
       copyProtected,
