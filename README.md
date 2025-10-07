@@ -193,6 +193,7 @@ Everything on this site is free and open source with no advertising. If you find
   - https://segaretro.org/VMU_Explorer (Old Windows-only tool without source code)
   - https://github.com/sizious/vmu-tool-pc
   - https://github.com/bucanero/dc-save-converter
+  - Official docs: https://segaxtreme.net/resources/maple-bus-1-0-function-type-specifications-ft1-storage-function.195/ (these were apparently leaked, apparently have been translated back and forth, and do not appear to be final as they contain multiple descrepancies vs the actual files)
 - Analogue Pocket:
   - List of available cores: https://openfpga-cores-inventory.github.io/analogue-pocket/
     - Note that there are sometimes multiple cores for a particular platform (e.g. Genesis)
@@ -207,7 +208,7 @@ Everything on this site is free and open source with no advertising. If you find
   - `.ggz` files when unzipped apparently contain one or more pairs of `.gba`/`.snes`/etc and `.png` file: a save state and a thumbnail
   - There's a port of Retroarch available online here: https://binbashbanana.github.io/webretro/ with code here: https://github.com/BinBashBanana/webretro . Its save file compatibility is the same as regular Retroarch and the emulators therein
 - Retroarch
-  - Some save files are compressed with ZLIB compression. I'm not sure the circumstances under which this happens: https://github.com/libretro/RetroArch/issues/14031#issuecomment-1159400581`
+  - Some save files are compressed with ZLIB compression. I'm not sure the circumstances under which this happens: https://github.com/libretro/RetroArch/issues/14031#issuecomment-1159400581
 - iOS
   - The Delta emulator uses .svs for save states. Instructions for creating a raw save instead: https://www.reddit.com/r/Delta_Emulator/comments/1helbo1/svs_to_sav/
 
