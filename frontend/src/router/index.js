@@ -120,6 +120,11 @@ const routes = [
     component: () => import(/* webpackChunkName: "sega-saturn-saroo" */ '../views/SegaSaturnSaroo.vue'),
   },
   {
+    path: '/dreamcast',
+    name: 'Dreamcast',
+    component: () => import(/* webpackChunkName: "dreamcast" */ '../views/Dreamcast.vue'),
+  },
+  {
     path: '/nintendo-switch-online',
     name: 'Nintendo Switch Online',
     component: () => import(/* webpackChunkName: "nintendo-switch-online" */ '../views/NintendoSwitchOnline.vue'),

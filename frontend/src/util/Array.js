@@ -16,4 +16,8 @@ export default class ArrayUtil {
   static createSequentialArray(startValue, numValues) {
     return Array(numValues).fill().map((_, index) => index + startValue);
   }
+
+  static createReverseSequentialArray(endValue, numValues) {
+    return ArrayUtil.createSequentialArray(endValue - numValues + 1, numValues).reverse();
+  }
 }
