@@ -46,7 +46,7 @@
                 :header-level="$mq | mq({ xs: 5, sm: 5, md: 5, lg: 5, xl: 4 })"
                 :class="($mq === 'md') ? 'fix-jumbotron' : ''"
               >
-                <template v-slot:header>Individual saves</template>
+                <template v-slot:header>{{ individualSavesOrSaveText }}</template>
               </b-jumbotron>
             </b-col>
           </b-row>
@@ -76,13 +76,40 @@
             />
           </div>
           <div v-else>
-            <input-file
-              @load="readEmulatorSaveData($event)"
-              :errorMessage="this.errorMessage"
-              placeholderText="Choose files to add (*.dci)"
-              :leaveRoomForHelpIcon="false"
-              :allowMultipleFiles="true"
-              acceptExtension=".dci"
+            <div v-if="this.individualSaveType === 'dci'">
+              <input-file
+                @load="readEmulatorSaveData($event)"
+                :errorMessage="this.errorMessage"
+                placeholderText="Choose files to add (*.dci)"
+                :leaveRoomForHelpIcon="false"
+                :allowMultipleFiles="true"
+                ref="inputFileIndividualSaveDci"
+                acceptExtension=".dci"
+              />
+            </div>
+            <div v-else>
+              <input-file
+                @load="readVmiSaveData($event)"
+                :errorMessage="this.errorMessage"
+                placeholderText="Choose file to add (*.vmi)"
+                :leaveRoomForHelpIcon="false"
+                :allowMultipleFiles="false"
+                acceptExtension=".vmi"
+                ref="inputFileIndividualSaveVmi"
+              />
+              <input-file
+                @load="readVmsSaveData($event)"
+                :errorMessage="this.errorMessage"
+                placeholderText="Choose file to add (*.vms)"
+                :leaveRoomForHelpIcon="false"
+                :allowMultipleFiles="false"
+                acceptExtension=".vms"
+                ref="inputFileIndividualSaveVms"
+              />
+            </div>
+            <dreamcast-individual-save-type-selector
+              :value="this.individualSaveType"
+              @change="changeIndividualSaveType($event)"
             />
             <file-list
               :display="this.dreamcastSaveData !== null"
@@ -171,6 +198,7 @@ export default {
       conversionDirection: 'convertToRaw',
       selectedSaveData: null,
       individualSaveType: DEFAULT_INDIVIDUAL_SAVE_TYPE,
+      vmiVmsParts: {},
     };
   },
   components: {
@@ -184,10 +212,19 @@ export default {
     convertButtonDisabled() {
       const haveDataSelected = (this.conversionDirection === 'convertToRaw') ? true : this.selectedSaveData === null;
 
-      const hasOutputFilename = ((this.individualSaveType === 'dci') && (this.outputFilename !== null))
-        || ((this.individualSaveType !== 'dci') && (this.outputFilenameVmi !== null) && (this.outputFilenameVms !== null));
+      let hasOutputFilename = false;
+
+      if (this.conversionDirection === 'convertToRaw') {
+        hasOutputFilename = ((this.individualSaveType === 'dci') && (this.outputFilename !== null))
+          || ((this.individualSaveType !== 'dci') && (this.outputFilenameVmi !== null) && (this.outputFilenameVms !== null));
+      } else {
+        hasOutputFilename = (this.outputFilename !== null);
+      }
 
       return !this.dreamcastSaveData || this.dreamcastSaveData.getSaveFiles().length === 0 || !haveDataSelected || !hasOutputFilename;
+    },
+    individualSavesOrSaveText() {
+      return ((this.individualSaveType === 'vmivms') && (this.conversionDirection === 'convertToFormat')) ? 'Individual save' : 'Individual saves';
     },
   },
   methods: {
@@ -197,6 +234,25 @@ export default {
         this.outputFilename = null;
         this.outputFilenameVmi = null;
         this.outputFilenameVms = null;
+        this.vmiVmsParts = {};
+
+        if (this.conversionDirection === 'convertToFormat') {
+          // When converting to a memcard image, we want to start over when we select a different input file type
+          // When when converting from a memcard image, we want to be able to freely select our output file type without having to start over selecting a new memcard image
+          this.dreamcastSaveData = null;
+        }
+
+        if (this.$refs.inputFileIndividualSaveDci) {
+          this.$refs.inputFileIndividualSaveDci.reset();
+        }
+
+        if (this.$refs.inputFileIndividualSaveVmi) {
+          this.$refs.inputFileIndividualSaveVmi.reset();
+        }
+
+        if (this.$refs.inputFileIndividualSaveVms) {
+          this.$refs.inputFileIndividualSaveVms.reset();
+        }
 
         this.changeSelectedSaveData(this.selectedSaveData);
       }
@@ -221,10 +277,23 @@ export default {
       this.outputFilenameVms = null;
       this.selectedSaveData = null;
       this.individualSaveType = DEFAULT_INDIVIDUAL_SAVE_TYPE;
+      this.vmiVmsParts = {};
 
       // The refs become undefined when the components are removed using a v-if
       if (this.$refs.inputFileDreamcastSaveData) {
         this.$refs.inputFileDreamcastSaveData.reset();
+      }
+
+      if (this.$refs.inputFileIndividualSaveDci) {
+        this.$refs.inputFileIndividualSaveDci.reset();
+      }
+
+      if (this.$refs.inputFileIndividualSaveVmi) {
+        this.$refs.inputFileIndividualSaveVmi.reset();
+      }
+
+      if (this.$refs.inputFileIndividualSaveVms) {
+        this.$refs.inputFileIndividualSaveVms.reset();
       }
     },
     changeSelectedSaveData(newSaveData) {
@@ -260,13 +329,31 @@ export default {
         this.selectedSaveData = null;
       }
     },
+    readVmiSaveData(event) {
+      this.vmiVmsParts.vmiArrayBuffer = event.arrayBuffer;
+      if (Object.hasOwn(this.vmiVmsParts, 'vmiArrayBuffer') && Object.hasOwn(this.vmiVmsParts, 'vmsArrayBuffer')) {
+        this.readEmulatorSaveData(null);
+      }
+    },
+    readVmsSaveData(event) {
+      this.vmiVmsParts.vmsArrayBuffer = event.arrayBuffer;
+      if (Object.hasOwn(this.vmiVmsParts, 'vmiArrayBuffer') && Object.hasOwn(this.vmiVmsParts, 'vmsArrayBuffer')) {
+        this.readEmulatorSaveData(null);
+      }
+    },
     readEmulatorSaveData(event) {
       this.errorMessage = null;
       this.selectedSaveData = null;
       this.inputFilename = null;
       try {
-        const saveFileArrayBuffers = event.map((f) => f.arrayBuffer);
-        const saveFiles = saveFileArrayBuffers.map((saveFileArrayBuffer) => DreamcastDciSaveData.convertIndividualSaveToSaveFile(saveFileArrayBuffer));
+        let saveFiles = [];
+
+        if (this.individualSaveType === 'dci') {
+          const saveFileArrayBuffers = event.map((f) => f.arrayBuffer);
+          saveFiles = saveFileArrayBuffers.map((saveFileArrayBuffer) => DreamcastDciSaveData.convertIndividualSaveToSaveFile(saveFileArrayBuffer));
+        } else {
+          saveFiles = [DreamcastVmiVmsSaveData.convertIndividualSaveToSaveFile(this.vmiVmsParts.vmiArrayBuffer, this.vmiVmsParts.vmsArrayBuffer)];
+        }
 
         const volumeInfo = {
           useCustomColor: false,
