@@ -262,7 +262,24 @@ export default {
     },
     getFileListNames() {
       if ((this.dreamcastSaveData !== null) && (this.dreamcastSaveData.getSaveFiles() !== null)) {
-        return this.dreamcastSaveData.getSaveFiles().map((x) => ({ displayText: `${x.storageComment} - ${x.fileComment}` }));
+        return this.dreamcastSaveData.getSaveFiles().map((x) => {
+          const storageComment = x.storageComment.trim();
+          const fileComment = x.fileComment.trim();
+
+          if ((storageComment.length > 0) && (fileComment.length > 0)) {
+            return { displayText: `${storageComment} - ${fileComment}` };
+          }
+
+          if (storageComment.length > 0) {
+            return { displayText: `${storageComment}` };
+          }
+
+          if (fileComment.length > 0) {
+            return { displayText: `${fileComment}` };
+          }
+
+          return { displayText: '<No description>' };
+        });
       }
 
       return [];
