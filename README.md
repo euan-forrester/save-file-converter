@@ -188,6 +188,7 @@ Everything on this site is free and open source with no advertising. If you find
   - https://github.com/ekeeke/Genesis-Plus-GX/issues/449
   - savesplitter tool here: https://krikzz.com/pub/support/mega-everdrive/pro-series/
 - Dreamcast
+  - https://vmu.falcogirgis.net/filesystem.html
   - https://github.com/DerekPascarella/VMU-Disc-Builder (just packs up save files and doesn't do much parsing, so not much info about their format)
   - https://bswirl.kitsunet.org/dci_converter/ (old and unmaintained, only parts of it worK: https://www.dreamcast-talk.com/forum/viewtopic.php?t=17425)
   - https://segaretro.org/VMU_Explorer (Old Windows-only tool without source code)
