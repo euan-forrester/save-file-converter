@@ -30,7 +30,7 @@ const {
   FILE_TYPE_GAME,
 } = DreamcastBasics;
 
-const ENCODING = 'US-ASCII';
+const ENCODING = 'shift-jis'; // https://github.com/gyrovorbis/libevmu/blob/9d1bf63983d40b81b03ac0bcf887a9a3c114ed86/lib/api/evmu/fs/evmu_vmi.h#L80
 
 // Based on https://mc.pp.se/dc/vms/vmi.html
 // Same struct found here: https://github.com/gyrovorbis/libevmu/blob/libgimbal-refactor/lib/api/evmu/fs/evmu_vmi.h#L86
