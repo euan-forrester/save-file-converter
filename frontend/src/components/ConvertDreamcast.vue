@@ -14,9 +14,9 @@
             <input-file
               @load="readDreamcastSaveData($event)"
               :errorMessage="this.errorMessage"
-              placeholderText="Choose a file to convert (*.bin)"
+              placeholderText="Choose a file to convert (*.bin, *.vmu, *.flash)"
               :leaveRoomForHelpIcon="false"
-              acceptExtension=".bin"
+              acceptExtension=".bin,.vmu,.flash"
               ref="inputFileDreamcastSaveData"
             />
             <file-list
