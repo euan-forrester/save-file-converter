@@ -66,7 +66,7 @@ const DEFAULT_FILE_NUMBER = 1; // Not sure what this represents. Most files I've
 const DEFAULT_FIRST_BLOCK_NUMBER = 0; // Doesn't matter: the concept of where the save is located doesn't mean anything in this format
 
 const HEADER_BLOCK_NUMBER_FOR_DATA = 0; // For save data, the header block is the first one
-const HEADER_BLOCK_NUMBER_FOR_GAME = 1; // But for minigames it's in block 1 because "block 0 of mini games had to have IRQ code so it can’t have that header" according to Falco Girgis
+const HEADER_BLOCK_NUMBER_FOR_GAME = 1; // But for minigames it's in block 1 because "block 0 of mini games had to have IRQ code so it can’t have that header"
 
 // Based on https://github.com/bucanero/dc-save-converter/blob/a19fc3361805358d474acd772cdb20a328453d5b/dcvmu.cpp#L428
 function calculateChecksum(resourceName) {
