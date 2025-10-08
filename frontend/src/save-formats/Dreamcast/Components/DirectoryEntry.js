@@ -1,15 +1,18 @@
 /* eslint-disable no-bitwise */
 
 /*
-Format taken from https://mc.pp.se/dc/vms/flashmem.html and https://segaxtreme.net/resources/maple-bus-1-0-function-type-specifications-ft1-storage-function.195/
+Format taken from
+ - https://mc.pp.se/dc/vms/flashmem.html
+ - https://github.com/gyrovorbis/libevmu/blob/libgimbal-refactor/lib/api/evmu/fs/evmu_fs_utils.h#L68
+ - https://segaxtreme.net/resources/maple-bus-1-0-function-type-specifications-ft1-storage-function.195/
 
 0x00      : 8 bit int : file type (0x00 = no file, 0x33 = data, 0xcc = game)
 0x01      : 8 bit int : copy protect (0xff = copy protected, anything else = copy okay. Can limit number of times file can be copied by incrementing this value when it's copied)
 0x02-0x03 : 16 bit int (little endian) : location of first block
-0x04-0x0f : ASCII string : filename (12 characters)
+0x04-0x0f : shift-jis string : filename (12 characters)
 0x10-0x17 : BCD timestamp (see below) : file update time
 0x18-0x19 : 16 bit int (little endian) : file size (in blocks)
-0x1a-0x1b : 16 bit int (little endian) : file header block number
+0x1a-0x1b : 16 bit int (little endian) : file header block number (0 for data, 1 for game): https://github.com/gyrovorbis/libevmu/blob/libgimbal-refactor/lib/api/evmu/fs/evmu_fs_utils.h#L76
 0x1c-0x1f : unused (all zero)
 
 Then in the save data there is the file header block. It can be anywhere in the file data and its location is specified in the directory entry.
@@ -36,7 +39,7 @@ const COPY_PROTECT_OFFSET = 0x01;
 const FIRST_BLOCK_NUMBER_OFFSET = 0x02;
 const FILENAME_OFFSET = 0x04;
 const FILENAME_LENGTH = 12;
-const FILENAME_ENCODING = 'US-ASCII';
+const FILENAME_ENCODING = 'shift-jis'; // https://github.com/gyrovorbis/libevmu/blob/libgimbal-refactor/lib/api/evmu/fs/evmu_fs_utils.h#L73
 const FILE_CREATION_TIME_OFFSET = 0x10;
 const FILE_SIZE_IN_BLOCKS_OFFSET = 0x18;
 const FILE_HEADER_BLOCK_NUMBER_OFFSET = 0x1A;

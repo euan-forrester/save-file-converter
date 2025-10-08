@@ -12,7 +12,7 @@ const DIR = './tests/data/save-formats/dreamcast';
 
 const EMPTY_DREAMCAST_FILENAME = `${DIR}/empty_vmu_image.bin`;
 const DREAMCAST_FILENAME = `${DIR}/vmu_save_A1.bin`;
-const RECREATED_DREAMCAST_FILENAME = `${DIR}/vmu_save_A1-created.bin`; // Contains the same data as DREAMCAST_FILENAME, but 2 of 10 dates in the above file contain inconsistent day-of-week numbers, so they differ when we re-create the file
+const RECREATED_DREAMCAST_FILENAME = `${DIR}/vmu_save_A1-created.bin`; // Contains the same data as DREAMCAST_FILENAME, but 2 of 10 dates in the above file contain inconsistent day-of-week numbers, so they differ when we re-create the file. Also sets the size of the extra area to 41 instead of 31
 const DREAMCAST_SAVE_FILENAME = [
   `${DIR}/vmu_save_A1-0.bin`,
   `${DIR}/vmu_save_A1-1.bin`,
@@ -47,9 +47,12 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getVolumeInfo().directory.blockNumber).to.equal(DreamcastBasics.DIRECTORY_BLOCK_NUMBER);
     expect(dreamcastSaveData.getVolumeInfo().directory.sizeInBlocks).to.equal(DreamcastBasics.DIRECTORY_SIZE_IN_BLOCKS);
     expect(dreamcastSaveData.getVolumeInfo().iconShape).to.equal(0);
+    expect(dreamcastSaveData.getVolumeInfo().extraArea.blockNumber).to.equal(DreamcastBasics.EXTRA_AREA_BLOCK_NUMBER);
+    expect(dreamcastSaveData.getVolumeInfo().extraArea.sizeInBlocks).to.equal(31); // flycast writes 31 to this field instead of 41. maybe that's where this file is from? https://github.com/flyinghead/flycast/blob/33833cfd1ed2d94d907223442fdb8cdafd8d5d80/core/hw/maple/maple_devs.cpp#L532
     expect(dreamcastSaveData.getVolumeInfo().saveArea.blockNumber).to.equal(DreamcastBasics.SAVE_AREA_BLOCK_NUMBER);
     expect(dreamcastSaveData.getVolumeInfo().saveArea.sizeInBlocks).to.equal(DreamcastBasics.SAVE_AREA_SIZE_IN_BLOCKS);
-    expect(dreamcastSaveData.getVolumeInfo().reserved).to.equal(0x800000);
+    expect(dreamcastSaveData.getVolumeInfo().gameBlock).to.equal(DreamcastBasics.DEFAULT_GAME_BLOCK);
+    expect(dreamcastSaveData.getVolumeInfo().maxGameSize).to.equal(DreamcastBasics.DEFAULT_MAX_GAME_SIZE);
 
     expect(dreamcastSaveData.getSaveFiles().length).to.equal(9);
 
@@ -202,9 +205,12 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getVolumeInfo().directory.blockNumber).to.equal(DreamcastBasics.DIRECTORY_BLOCK_NUMBER);
     expect(dreamcastSaveData.getVolumeInfo().directory.sizeInBlocks).to.equal(DreamcastBasics.DIRECTORY_SIZE_IN_BLOCKS);
     expect(dreamcastSaveData.getVolumeInfo().iconShape).to.equal(42);
+    expect(dreamcastSaveData.getVolumeInfo().extraArea.blockNumber).to.equal(DreamcastBasics.EXTRA_AREA_BLOCK_NUMBER);
+    expect(dreamcastSaveData.getVolumeInfo().extraArea.sizeInBlocks).to.equal(DreamcastBasics.EXTRA_AREA_SIZE_IN_BLOCKS);
     expect(dreamcastSaveData.getVolumeInfo().saveArea.blockNumber).to.equal(DreamcastBasics.SAVE_AREA_BLOCK_NUMBER);
     expect(dreamcastSaveData.getVolumeInfo().saveArea.sizeInBlocks).to.equal(DreamcastBasics.SAVE_AREA_SIZE_IN_BLOCKS);
-    expect(dreamcastSaveData.getVolumeInfo().reserved).to.equal(0);
+    expect(dreamcastSaveData.getVolumeInfo().gameBlock).to.equal(DreamcastBasics.DEFAULT_GAME_BLOCK);
+    expect(dreamcastSaveData.getVolumeInfo().maxGameSize).to.equal(DreamcastBasics.DEFAULT_MAX_GAME_SIZE);
   });
 
   it('should correctly create a Dreamcast VMU image', async () => {
@@ -221,7 +227,6 @@ describe('Dreamcast', () => {
       },
       timestamp: new Date('2024-10-12 19:56:48'),
       iconShape: 0,
-      reserved: 0x800000,
     };
 
     const saveFiles = [

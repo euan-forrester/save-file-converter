@@ -21,9 +21,17 @@ export default class DreamcastBasics {
 
   static DIRECTORY_SIZE_IN_BLOCKS = 13;
 
+  static EXTRA_AREA_BLOCK_NUMBER = this.DIRECTORY_BLOCK_NUMBER - this.DIRECTORY_SIZE_IN_BLOCKS;
+
+  static EXTRA_AREA_SIZE_IN_BLOCKS = 41;
+
   static SAVE_AREA_SIZE_IN_BLOCKS = 200;
 
   static SAVE_AREA_BLOCK_NUMBER = this.SAVE_AREA_SIZE_IN_BLOCKS - 1; // All of the block numbers specify the final block number, so this one needs to too
+
+  static DEFAULT_GAME_BLOCK = 0;
+
+  static DEFAULT_MAX_GAME_SIZE = 128;
 
   static FILE_TYPE_DATA = 'Data';
 

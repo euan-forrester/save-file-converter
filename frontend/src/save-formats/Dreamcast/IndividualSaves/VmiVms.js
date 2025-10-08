@@ -30,9 +30,10 @@ const {
   FILE_TYPE_GAME,
 } = DreamcastBasics;
 
-const ENCODING = 'US-ASCII';
+const ENCODING = 'shift-jis'; // https://github.com/gyrovorbis/libevmu/blob/9d1bf63983d40b81b03ac0bcf887a9a3c114ed86/lib/api/evmu/fs/evmu_vmi.h#L80
 
 // Based on https://mc.pp.se/dc/vms/vmi.html
+// Same struct found here: https://github.com/gyrovorbis/libevmu/blob/libgimbal-refactor/lib/api/evmu/fs/evmu_vmi.h#L86
 // Same struct found here: https://github.com/bucanero/dc-save-converter/blob/master/vmufs.h#L44
 // Same struct found here: https://github.com/DC-SWAT/DreamShell/blob/0eb2ebe888b31438a131f20ec15abdd66964505a/applications/vmu_manager/modules/module.c#L149
 
@@ -66,7 +67,7 @@ const DEFAULT_FILE_NUMBER = 1; // Not sure what this represents. Most files I've
 const DEFAULT_FIRST_BLOCK_NUMBER = 0; // Doesn't matter: the concept of where the save is located doesn't mean anything in this format
 
 const HEADER_BLOCK_NUMBER_FOR_DATA = 0; // For save data, the header block is the first one
-const HEADER_BLOCK_NUMBER_FOR_GAME = 1; // But for minigames it's in block 1 because "block 0 of mini games had to have IRQ code so it can’t have that header"
+const HEADER_BLOCK_NUMBER_FOR_GAME = 1; // But for minigames it's in block 1 because "block 0 of mini games had to have IRQ code so it can’t have that header": https://github.com/gyrovorbis/libevmu/blob/libgimbal-refactor/lib/api/evmu/fs/evmu_fs_utils.h#L76
 
 // Based on https://github.com/bucanero/dc-save-converter/blob/a19fc3361805358d474acd772cdb20a328453d5b/dcvmu.cpp#L428
 function calculateChecksum(resourceName) {
