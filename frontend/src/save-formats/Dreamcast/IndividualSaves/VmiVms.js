@@ -65,7 +65,8 @@ const DEFAULT_FILE_NUMBER = 1; // Not sure what this represents. Most files I've
 
 const DEFAULT_FIRST_BLOCK_NUMBER = 0; // Doesn't matter: the concept of where the save is located doesn't mean anything in this format
 
-const DEFAULT_HEADER_BLOCK_NUMBER = 0; // I'm not sure how we would calculate this since it's missing from the .vmi file. dc-save-converter just leaves this as 0, and it's been 0 in all the files I've seen: https://github.com/bucanero/dc-save-converter/blob/a19fc3361805358d474acd772cdb20a328453d5b/dcvmu.cpp#L192
+const HEADER_BLOCK_NUMBER_FOR_DATA = 0; // For save data, the header block is the first one
+const HEADER_BLOCK_NUMBER_FOR_GAME = 1; // But for minigames it's in block 1 because "block 0 of mini games had to have IRQ code so it can’t have that header" according to Falco Girgis
 
 // Based on https://github.com/bucanero/dc-save-converter/blob/a19fc3361805358d474acd772cdb20a328453d5b/dcvmu.cpp#L428
 function calculateChecksum(resourceName) {
@@ -154,11 +155,13 @@ export default class DreamcastVmiVmsSaveData {
 
     // Calculate the parts common to all dreamcast saves
 
+    const isGame = ((fileMode & FILE_MODE_GAME) !== 0);
+
     const fileSizeInBlocks = Math.ceil(fileSize / BLOCK_SIZE);
     const firstBlockNumber = DEFAULT_FIRST_BLOCK_NUMBER;
-    const fileType = ((fileMode & FILE_MODE_GAME) !== 0) ? FILE_TYPE_GAME : FILE_TYPE_DATA;
+    const fileType = isGame ? FILE_TYPE_GAME : FILE_TYPE_DATA;
     const copyProtected = ((fileMode & FILE_MODE_COPY_PROTECTED) !== 0);
-    const fileHeaderBlockNumber = DEFAULT_HEADER_BLOCK_NUMBER;
+    const fileHeaderBlockNumber = isGame ? HEADER_BLOCK_NUMBER_FOR_GAME : HEADER_BLOCK_NUMBER_FOR_DATA;
     const comments = DreamcastDirectoryEntry.getComments(fileHeaderBlockNumber, vmsArrayBuffer);
 
     return {
