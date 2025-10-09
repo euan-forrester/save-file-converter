@@ -22,6 +22,7 @@ import DreamcastBasics from './Basics';
 const {
   LITTLE_ENDIAN,
   BLOCK_SIZE,
+  DEFAULT_GAME_BLOCK,
   SAVE_AREA_BLOCK_NUMBER,
   SAVE_AREA_SIZE_IN_BLOCKS,
   SYSTEM_INFO_BLOCK_NUMBER,
@@ -43,27 +44,42 @@ export default class DreamcastFileAllocationTable {
 
   static BLOCK_PHYSICALLY_DAMAGED = BLOCK_PHYSICALLY_DAMAGED;
 
-  static writeFileAllocationTable(saveFilesWithBlockInfo) {
+  static writeFileAllocationTable(gameFilesWithBlockInfo, dataFilesWithBlockInfo) {
     const arrayBuffer = Util.getFilledArrayBuffer(BLOCK_SIZE, PADDING_VALUE); // The portion of the table that corresponds to the padding between the save area and the directory is filled with 0x00 rather than UNALLOCATED_BLOCK
     const dataView = new DataView(arrayBuffer);
+
+    // Write out entries for the various system blocks
 
     dataView.setUint16(SYSTEM_INFO_BLOCK_NUMBER * 2, LAST_BLOCK_IN_FILE, LITTLE_ENDIAN);
     dataView.setUint16(FILE_ALLOCATION_TABLE_BLOCK_NUMBER * 2, LAST_BLOCK_IN_FILE, LITTLE_ENDIAN);
     dataView.setUint16((DIRECTORY_BLOCK_NUMBER - DIRECTORY_SIZE_IN_BLOCKS + 1) * 2, LAST_BLOCK_IN_FILE, LITTLE_ENDIAN);
 
-    ArrayUtil.createReverseSequentialArray(DIRECTORY_BLOCK_NUMBER, DIRECTORY_SIZE_IN_BLOCKS - 1).map((i) => dataView.setUint16(i * 2, i - 1, LITTLE_ENDIAN));
+    ArrayUtil.createReverseSequentialArray(DIRECTORY_BLOCK_NUMBER, DIRECTORY_SIZE_IN_BLOCKS - 1).forEach((i) => dataView.setUint16(i * 2, i - 1, LITTLE_ENDIAN));
 
-    let lastUnusedBlockNumber = SAVE_AREA_BLOCK_NUMBER;
+    // Write out entries for games to the beginning of the table
 
-    saveFilesWithBlockInfo.forEach((saveFile) => {
-      ArrayUtil.createReverseSequentialArray(saveFile.firstBlockNumber, saveFile.fileSizeInBlocks - 1).map((i) => dataView.setUint16(i * 2, i - 1, LITTLE_ENDIAN));
+    let lastUnusedGameBlockNumber = DEFAULT_GAME_BLOCK;
+
+    gameFilesWithBlockInfo.forEach((saveFile) => {
+      ArrayUtil.createSequentialArray(saveFile.firstBlockNumber, saveFile.fileSizeInBlocks - 1).forEach((i) => dataView.setUint16(i * 2, i - 1, LITTLE_ENDIAN));
       dataView.setUint16((saveFile.firstBlockNumber - saveFile.fileSizeInBlocks + 1) * 2, LAST_BLOCK_IN_FILE, LITTLE_ENDIAN);
 
-      lastUnusedBlockNumber = saveFile.firstBlockNumber - saveFile.fileSizeInBlocks;
+      lastUnusedGameBlockNumber = saveFile.firstBlockNumber + saveFile.fileSizeInBlocks;
     });
 
-    const numUnallocatedBlocks = SAVE_AREA_SIZE_IN_BLOCKS - (SAVE_AREA_BLOCK_NUMBER - lastUnusedBlockNumber);
-    ArrayUtil.createReverseSequentialArray(lastUnusedBlockNumber, numUnallocatedBlocks).map((i) => dataView.setUint16(i * 2, UNALLOCATED_BLOCK, LITTLE_ENDIAN));
+    // Write out entries for data to the end of the table
+
+    let lastUnusedDataBlockNumber = SAVE_AREA_BLOCK_NUMBER;
+
+    dataFilesWithBlockInfo.forEach((saveFile) => {
+      ArrayUtil.createReverseSequentialArray(saveFile.firstBlockNumber, saveFile.fileSizeInBlocks - 1).forEach((i) => dataView.setUint16(i * 2, i - 1, LITTLE_ENDIAN));
+      dataView.setUint16((saveFile.firstBlockNumber - saveFile.fileSizeInBlocks + 1) * 2, LAST_BLOCK_IN_FILE, LITTLE_ENDIAN);
+
+      lastUnusedDataBlockNumber = saveFile.firstBlockNumber - saveFile.fileSizeInBlocks;
+    });
+
+    const numUnallocatedBlocks = lastUnusedDataBlockNumber - lastUnusedGameBlockNumber + 1;
+    ArrayUtil.createReverseSequentialArray(lastUnusedDataBlockNumber, numUnallocatedBlocks).forEach((i) => dataView.setUint16(i * 2, UNALLOCATED_BLOCK, LITTLE_ENDIAN));
 
     return arrayBuffer;
   }

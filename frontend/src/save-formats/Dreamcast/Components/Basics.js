@@ -33,6 +33,8 @@ export default class DreamcastBasics {
 
   static DEFAULT_MAX_GAME_SIZE = 128;
 
+  static MAX_NUM_GAMES = 1;
+
   static FILE_TYPE_DATA = 'Data';
 
   static FILE_TYPE_GAME = 'Game';

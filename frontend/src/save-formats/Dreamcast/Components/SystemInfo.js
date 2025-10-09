@@ -118,7 +118,7 @@ export default class DreamcastSystemInfo {
     dataView.setUint16(EXTRA_AREA_SIZE_IN_BLOCKS_OFFSET, DreamcastBasics.EXTRA_AREA_SIZE_IN_BLOCKS, LITTLE_ENDIAN);
 
     dataView.setUint16(GAME_BLOCK_OFFSET, DreamcastBasics.DEFAULT_GAME_BLOCK, LITTLE_ENDIAN);
-    dataView.setUint16(MAX_GAME_SIZE_OFFSET, DreamcastBasics.DEFAULT_MAX_GAME_SIZE, LITTLE_ENDIAN);
+    dataView.setUint16(MAX_GAME_SIZE_OFFSET, volumeInfo.maxGameSize, LITTLE_ENDIAN);
 
     return arrayBuffer;
   }
