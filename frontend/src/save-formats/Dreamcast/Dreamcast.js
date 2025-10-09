@@ -16,6 +16,8 @@ Block  255:     System information
 Note that the file is written back-to-front: we first write the blocks nearest the end of the file.
 But within each block we write it from the end of the block closest to the start of the file.
 This applies to all sections, but most notably to the Directory and User save area sections.
+
+The exception is writing a game to the user save area: it starts at block 0 and must be written contiguously going forward
 */
 
 import Util from '../../util/util';
@@ -33,9 +35,12 @@ const {
   MAX_DIRECTORY_ENTRIES,
   SAVE_AREA_BLOCK_NUMBER,
   SAVE_AREA_SIZE_IN_BLOCKS,
-  DIRECTORY_BLOCK_NUMBER,
-  DIRECTORY_SIZE_IN_BLOCKS,
   SYSTEM_INFO_SIZE_IN_BLOCKS,
+  EXTRA_AREA_SIZE_IN_BLOCKS,
+  FILE_TYPE_GAME,
+  MAX_NUM_GAMES,
+  DEFAULT_GAME_BLOCK,
+  DEFAULT_MAX_GAME_SIZE,
 } = DreamcastBasics;
 
 const FILL_VALUE = 0x00;
@@ -51,14 +56,13 @@ function getBlocks(blockNumber, sizeInBlocks, arrayBuffer) {
   // However, we fill each block starting at the end of the block closest to the beginning of the file.
   // So to make a contiguous blob of data here we need to concat our blocks starting from the end of the file
 
-  const startingBlockNumber = blockNumber - sizeInBlocks + 1;
-  const blockNumbers = ArrayUtil.createSequentialArray(startingBlockNumber, sizeInBlocks).reverse();
+  const blockNumbers = ArrayUtil.createReverseSequentialArray(blockNumber, sizeInBlocks);
 
   return concatBlocks(blockNumbers, arrayBuffer);
 }
 
-function createBlocks(arrayBuffer) {
-  // Similar to getBlocks() we will split our array buffer into blocks and then reverse them
+function createBlocksForward(arrayBuffer) {
+  // Split our array buffer into blocks
 
   const numBlocks = Math.ceil(arrayBuffer.byteLength / BLOCK_SIZE);
   const blocks = ArrayUtil.createSequentialArray(0, numBlocks).map((i) => arrayBuffer.slice(i * BLOCK_SIZE, (i + 1) * BLOCK_SIZE));
@@ -69,7 +73,13 @@ function createBlocks(arrayBuffer) {
     blocks[blocks.length - 1] = Util.concatArrayBuffers([blocks[blocks.length - 1], Util.getFilledArrayBuffer(paddingLength, FILL_VALUE)]);
   }
 
-  return blocks.reverse();
+  return blocks;
+}
+
+function createBlocks(arrayBuffer) {
+  // Similar to getBlocks() we will split our array buffer into blocks and then reverse them
+
+  return createBlocksForward(arrayBuffer).reverse();
 }
 
 function getBlockNumbers(directoryEntry, fileAllocationTable) {
@@ -97,22 +107,52 @@ function getBlockNumbers(directoryEntry, fileAllocationTable) {
   return blockNumbers;
 }
 
-function getSaveFilesWithBlockInfo(saveFiles) {
-  let currentBlockNumber = SAVE_AREA_BLOCK_NUMBER; // Start at the end of the save area and work towards the beginning of the file
+function getSaveFileWithBlockInfo(saveFile, currentBlockNumber) {
+  const fileSizeInBlocks = Math.ceil(saveFile.rawData.byteLength / BLOCK_SIZE);
 
-  return saveFiles.map((saveFile) => {
-    const fileSizeInBlocks = Math.ceil(saveFile.rawData.byteLength / BLOCK_SIZE);
+  return {
+    ...saveFile,
+    firstBlockNumber: currentBlockNumber,
+    fileSizeInBlocks,
+  };
+}
 
-    const saveFileWithBlockInfo = {
-      ...saveFile,
-      firstBlockNumber: currentBlockNumber,
-      fileSizeInBlocks,
-    };
+function getGameFilesWithBlockInfo(gameFiles) {
+  let currentBlockNumber = DEFAULT_GAME_BLOCK; // Start at the beginning of the save area and work towards the end of the file
 
-    currentBlockNumber -= fileSizeInBlocks;
+  return gameFiles.map((saveFile) => {
+    const saveFileWithBlockInfo = getSaveFileWithBlockInfo(saveFile, currentBlockNumber);
+
+    currentBlockNumber += saveFileWithBlockInfo.fileSizeInBlocks;
 
     return saveFileWithBlockInfo;
   });
+}
+
+function getDataFilesWithBlockInfo(dataFiles) {
+  let currentBlockNumber = SAVE_AREA_BLOCK_NUMBER; // Start at the end of the save area and work towards the beginning of the file
+
+  return dataFiles.map((saveFile) => {
+    const saveFileWithBlockInfo = getSaveFileWithBlockInfo(saveFile, currentBlockNumber);
+
+    currentBlockNumber -= saveFileWithBlockInfo.fileSizeInBlocks;
+
+    return saveFileWithBlockInfo;
+  });
+}
+
+function splitArray(array, predicate) {
+  return array.reduce(
+    (accumulator, currentValue) => {
+      if (predicate(currentValue)) {
+        accumulator[0].push(currentValue); // Add to the first array if predicate is true
+      } else {
+        accumulator[1].push(currentValue); // Add to the second array if predicate is false
+      }
+      return accumulator;
+    },
+    [[], []],
+  );
 }
 
 export default class DreamcastSaveData {
@@ -152,30 +192,50 @@ export default class DreamcastSaveData {
       throw new Error(`Unable to fit ${saveFiles.length} saves into a single VMU image. Max is ${MAX_DIRECTORY_ENTRIES}`);
     }
 
-    const saveFilesWithBlockInfo = getSaveFilesWithBlockInfo(saveFiles);
+    const [gameFiles, dataFiles] = splitArray(saveFiles, (saveFile) => saveFile.fileType === FILE_TYPE_GAME);
+
+    if (gameFiles.length > MAX_NUM_GAMES) {
+      throw new Error(`Unable to fit ${gameFiles.length} games into a single VMU image. Max is ${MAX_NUM_GAMES}`);
+    }
+
+    // We may want to check that the size of the game is <= DEFAULT_MAX_GAME_SIZE as well? Or do we want to allow homebrew
+    // games that are larger for devices like the VMU Pro?
+
+    const gameFilesWithBlockInfo = getGameFilesWithBlockInfo(gameFiles);
+    const dataFilesWithBlockInfo = getDataFilesWithBlockInfo(dataFiles);
+
+    const saveFilesWithBlockInfo = [...gameFilesWithBlockInfo, ...dataFilesWithBlockInfo];
 
     const totalBlocks = saveFilesWithBlockInfo.reduce(((accumulator, x) => accumulator + x.fileSizeInBlocks), 0);
     if (totalBlocks > SAVE_AREA_SIZE_IN_BLOCKS) {
       throw new Error(`Save files contain a total of ${totalBlocks} blocks of data but a VMU image can only hold ${SAVE_AREA_SIZE_IN_BLOCKS} blocks`);
     }
 
-    const systemInfo = DreamcastSystemInfo.writeSystemInfo(volumeInfo);
-    const fileAllocationTable = DreamcastFileAllocationTable.writeFileAllocationTable(saveFilesWithBlockInfo);
-    const directory = DreamcastDirectory.writeDirectory(saveFilesWithBlockInfo);
+    const maxGameSize = gameFiles.reduce(((maxBlocks, saveFile) => (saveFile.fileSizeInBlocks > maxBlocks ? saveFile.fileSizeInBlocks : maxBlocks)), DEFAULT_MAX_GAME_SIZE);
 
-    // Blocks 0 - 199 are for the save area, but the directory begins on block 241 leaving 41 blocks unused in between
-    const numPaddingBlocks = DIRECTORY_BLOCK_NUMBER - DIRECTORY_SIZE_IN_BLOCKS - SAVE_AREA_BLOCK_NUMBER;
+    const systemInfo = DreamcastSystemInfo.writeSystemInfo({ ...volumeInfo, maxGameSize });
+    const fileAllocationTable = DreamcastFileAllocationTable.writeFileAllocationTable(gameFilesWithBlockInfo, dataFilesWithBlockInfo);
+    const directory = DreamcastDirectory.writeDirectory(saveFilesWithBlockInfo);
 
     const systemInfoBlocks = createBlocks(systemInfo);
     const fileAllocationTableBlocks = createBlocks(fileAllocationTable);
     const directoryBlocks = createBlocks(directory);
-    const paddingBlocks = Util.getFilledArrayBuffer(numPaddingBlocks * BLOCK_SIZE, FILL_VALUE);
-    const saveFileBlocks = saveFiles.map((saveFile) => createBlocks(saveFile.rawData)).reverse().flat(); // We write our save files from the back of the file to the front
+    const extraAreaArrayBuffer = Util.getFilledArrayBuffer(EXTRA_AREA_SIZE_IN_BLOCKS * BLOCK_SIZE, FILL_VALUE); // Blocks 0 - 199 are for the save area, but the directory begins on block 241 leaving 41 blocks unused in between
+    const gameFileBlocks = gameFiles.map((saveFile) => createBlocksForward(saveFile.rawData)).flat(); // We write our game files from the front of the file to the back
+    const dataFileBlocks = dataFiles.reverse().map((saveFile) => createBlocks(saveFile.rawData)).flat(); // We write our data files from the back of the file to the front
 
-    const blocksUsed = systemInfoBlocks.length + fileAllocationTableBlocks.length + directoryBlocks.length + numPaddingBlocks + saveFileBlocks.length;
-    const fileStartPaddingArrayBuffer = Util.getFilledArrayBuffer(TOTAL_SIZE - (BLOCK_SIZE * blocksUsed), FILL_VALUE);
+    const blocksUsed = systemInfoBlocks.length + fileAllocationTableBlocks.length + directoryBlocks.length + EXTRA_AREA_SIZE_IN_BLOCKS + dataFileBlocks.length + gameFileBlocks.length;
+    const paddingArrayBuffer = Util.getFilledArrayBuffer(TOTAL_SIZE - (BLOCK_SIZE * blocksUsed), FILL_VALUE);
 
-    const memcardArrayBuffer = Util.concatArrayBuffers([fileStartPaddingArrayBuffer, ...saveFileBlocks, paddingBlocks, ...directoryBlocks, ...fileAllocationTableBlocks, ...systemInfoBlocks]);
+    const memcardArrayBuffer = Util.concatArrayBuffers([
+      ...gameFileBlocks,
+      paddingArrayBuffer,
+      ...dataFileBlocks,
+      extraAreaArrayBuffer,
+      ...directoryBlocks,
+      ...fileAllocationTableBlocks,
+      ...systemInfoBlocks,
+    ]);
 
     return new DreamcastSaveData(memcardArrayBuffer, saveFiles, volumeInfo);
   }
