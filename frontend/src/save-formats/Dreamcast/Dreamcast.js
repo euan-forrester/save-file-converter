@@ -33,6 +33,7 @@ const {
   BLOCK_SIZE,
   TOTAL_SIZE,
   MAX_DIRECTORY_ENTRIES,
+  DIRECTORY_END_BLOCK_NUMBER,
   SAVE_AREA_BLOCK_NUMBER,
   SAVE_AREA_SIZE_IN_BLOCKS,
   SYSTEM_INFO_SIZE_IN_BLOCKS,
@@ -61,6 +62,12 @@ function getBlocks(blockNumber, sizeInBlocks, arrayBuffer) {
   return concatBlocks(blockNumbers, arrayBuffer);
 }
 
+function getBlocksForward(blockNumber, sizeInBlocks, arrayBuffer) {
+  // Some files are built incorrectly and arrange their blocks starting at the one closest to the beginning of the file
+
+  return arrayBuffer.slice(blockNumber * BLOCK_SIZE, (blockNumber + sizeInBlocks) * BLOCK_SIZE);
+}
+
 function createBlocksForward(arrayBuffer) {
   // Split our array buffer into blocks
 
@@ -87,6 +94,10 @@ function getBlockNumbers(directoryEntry, fileAllocationTable) {
   let currentBlockNumber = directoryEntry.firstBlockNumber;
 
   do {
+    if ((currentBlockNumber < 0) || (currentBlockNumber >= fileAllocationTable.length)) {
+      throw new Error(`Save file ${directoryEntry.filename} appears to be corrupted: it references invalid block ${currentBlockNumber}`);
+    }
+
     if (fileAllocationTable[currentBlockNumber] === DreamcastFileAllocationTable.UNALLOCATED_BLOCK) {
       throw new Error(`Save file ${directoryEntry.filename} appears to be corrupted: save file appears to contain a block that is unallocated`);
     }
@@ -168,8 +179,19 @@ export default class DreamcastSaveData {
     const finalBlockNumber = Math.floor(arrayBuffer.byteLength / BLOCK_SIZE) - 1;
 
     const volumeInfo = DreamcastSystemInfo.readSystemInfo(getBlocks(finalBlockNumber, SYSTEM_INFO_SIZE_IN_BLOCKS, arrayBuffer));
-    const fileAllocationTable = DreamcastFileAllocationTable.readFileAllocationTable(getBlocks(volumeInfo.fileAllocationTable.blockNumber, volumeInfo.fileAllocationTable.sizeInBlocks, arrayBuffer));
-    const directoryEntries = DreamcastDirectory.readDirectory(getBlocks(volumeInfo.directory.blockNumber, volumeInfo.directory.sizeInBlocks, arrayBuffer));
+
+    const fileIsLaidOutForward = (volumeInfo.directory.blockNumber === DIRECTORY_END_BLOCK_NUMBER); // The file allocation table is typically just a single block long so it's not helpful as a hint. Thus we use the directory as a hint: if the last block is how it's specified then we know the file is laid out non-standard aka forwards
+
+    let fileAllocationTableBlocks = getBlocks(volumeInfo.fileAllocationTable.blockNumber, volumeInfo.fileAllocationTable.sizeInBlocks, arrayBuffer);
+    let directoryBlocks = getBlocks(volumeInfo.directory.blockNumber, volumeInfo.directory.sizeInBlocks, arrayBuffer);
+
+    if (fileIsLaidOutForward) {
+      fileAllocationTableBlocks = getBlocksForward(volumeInfo.fileAllocationTable.blockNumber, volumeInfo.fileAllocationTable.sizeInBlocks, arrayBuffer);
+      directoryBlocks = getBlocksForward(volumeInfo.directory.blockNumber, volumeInfo.directory.sizeInBlocks, arrayBuffer);
+    }
+
+    const fileAllocationTable = DreamcastFileAllocationTable.readFileAllocationTable(fileAllocationTableBlocks, volumeInfo.largestBlockNumber);
+    const directoryEntries = DreamcastDirectory.readDirectory(directoryBlocks);
 
     const saveFiles = directoryEntries.map((directoryEntry) => {
       const blockNumberList = getBlockNumbers(directoryEntry, fileAllocationTable);
@@ -211,7 +233,7 @@ export default class DreamcastSaveData {
       throw new Error(`Save files contain a total of ${totalBlocks} blocks of data but a VMU image can only hold ${SAVE_AREA_SIZE_IN_BLOCKS} blocks`);
     }
 
-    const maxGameSize = gameFiles.reduce(((maxBlocks, saveFile) => (saveFile.fileSizeInBlocks > maxBlocks ? saveFile.fileSizeInBlocks : maxBlocks)), DEFAULT_MAX_GAME_SIZE);
+    const maxGameSize = gameFiles.reduce((maxBlocks, saveFile) => Math.max(maxBlocks, saveFile.fileSizeInBlocks), DEFAULT_MAX_GAME_SIZE);
 
     const systemInfo = DreamcastSystemInfo.writeSystemInfo({ ...volumeInfo, maxGameSize });
     const fileAllocationTable = DreamcastFileAllocationTable.writeFileAllocationTable(gameFilesWithBlockInfo, dataFilesWithBlockInfo);
