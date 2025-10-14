@@ -24,7 +24,6 @@ const {
   BLOCK_SIZE,
   DEFAULT_GAME_BLOCK,
   SAVE_AREA_BLOCK_NUMBER,
-  SAVE_AREA_SIZE_IN_BLOCKS,
   SYSTEM_INFO_BLOCK_NUMBER,
   FILE_ALLOCATION_TABLE_BLOCK_NUMBER,
   DIRECTORY_BLOCK_NUMBER,
@@ -84,16 +83,16 @@ export default class DreamcastFileAllocationTable {
     return arrayBuffer;
   }
 
-  static readFileAllocationTable(arrayBuffer) {
+  static readFileAllocationTable(arrayBuffer, largestBlockNumber) {
     const dataView = new DataView(arrayBuffer);
 
-    const nextBlockInFile = new Array(SAVE_AREA_SIZE_IN_BLOCKS);
+    const nextBlockInFile = new Array(largestBlockNumber + 1);
 
-    for (let i = 0; i < SAVE_AREA_SIZE_IN_BLOCKS; i += 1) {
+    for (let i = 0; i <= largestBlockNumber; i += 1) {
       const offset = i * 2;
       nextBlockInFile[i] = dataView.getUint16(offset, LITTLE_ENDIAN);
 
-      if ((nextBlockInFile[i] > SAVE_AREA_BLOCK_NUMBER)
+      if ((nextBlockInFile[i] > largestBlockNumber)
         && (nextBlockInFile[i] !== UNALLOCATED_BLOCK)
         && (nextBlockInFile[i] !== LAST_BLOCK_IN_FILE)
         && (nextBlockInFile[i] !== BLOCK_PHYSICALLY_DAMAGED)) {
