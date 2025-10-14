@@ -41,7 +41,6 @@ const {
   FILE_TYPE_GAME,
   MAX_NUM_GAMES,
   DEFAULT_GAME_BLOCK,
-  DEFAULT_MAX_GAME_SIZE,
 } = DreamcastBasics;
 
 const FILL_VALUE = 0x00;
@@ -233,9 +232,7 @@ export default class DreamcastSaveData {
       throw new Error(`Save files contain a total of ${totalBlocks} blocks of data but a VMU image can only hold ${SAVE_AREA_SIZE_IN_BLOCKS} blocks`);
     }
 
-    const maxGameSize = gameFiles.reduce((maxBlocks, saveFile) => Math.max(maxBlocks, saveFile.fileSizeInBlocks), DEFAULT_MAX_GAME_SIZE);
-
-    const systemInfo = DreamcastSystemInfo.writeSystemInfo({ ...volumeInfo, maxGameSize });
+    const systemInfo = DreamcastSystemInfo.writeSystemInfo(volumeInfo);
     const fileAllocationTable = DreamcastFileAllocationTable.writeFileAllocationTable(gameFilesWithBlockInfo, dataFilesWithBlockInfo);
     const directory = DreamcastDirectory.writeDirectory(saveFilesWithBlockInfo);
 

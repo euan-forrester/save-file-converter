@@ -33,7 +33,7 @@ export default class DreamcastBasics {
 
   static DEFAULT_GAME_BLOCK = 0;
 
-  static DEFAULT_MAX_GAME_SIZE = 128;
+  static DEFAULT_MAX_GAME_SIZE = 128; // The hardware to run a game can't address memory past this boundary so we should never need a value greater than this
 
   static MAX_NUM_GAMES = 1;
 
