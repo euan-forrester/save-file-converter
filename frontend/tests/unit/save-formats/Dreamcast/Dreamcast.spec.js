@@ -11,6 +11,7 @@ import DreamcastUtil from '@/save-formats/Dreamcast/Util';
 const DIR = './tests/data/save-formats/dreamcast';
 
 const EMPTY_DREAMCAST_FILENAME = `${DIR}/empty_vmu_image.bin`;
+
 const DREAMCAST_FILENAME = `${DIR}/vmu_save_A1.bin`;
 const RECREATED_DREAMCAST_FILENAME = `${DIR}/vmu_save_A1-created.bin`; // Contains the same data as DREAMCAST_FILENAME, but 2 of 10 dates in the above file contain inconsistent day-of-week numbers, so they differ when we re-create the file. Also sets the size of the extra area to 41 instead of 31
 const DREAMCAST_SAVE_FILENAME = [
@@ -25,8 +26,8 @@ const DREAMCAST_SAVE_FILENAME = [
   `${DIR}/vmu_save_A1-8.bin`,
 ];
 
-const DREAMCAST_2_FILENAME = `${DIR}/need_defrag_chao_adv2.bin`;
-const DREAMCAST_2_SAVE_FILENAME = [
+const DREAMCAST_EXTRA_SAVE_BLOCKS_FILENAME = `${DIR}/need_defrag_chao_adv2.bin`;
+const DREAMCAST_EXTRA_SAVE_BLOCKS_SAVE_FILENAME = [
   `${DIR}/need_defrag_chao_adv2-0.bin`,
   `${DIR}/need_defrag_chao_adv2-1.bin`,
   `${DIR}/need_defrag_chao_adv2-2.bin`,
@@ -34,9 +35,15 @@ const DREAMCAST_2_SAVE_FILENAME = [
   `${DIR}/need_defrag_chao_adv2-4.bin`,
 ];
 
-const DREAMCAST_3_FILENAME = `${DIR}/vmu_extended_blocks_2.bin`;
-const DREAMCAST_3_SAVE_FILENAME = [
+const DREAMCAST_EMPTY_COMMENTS_FILENAME = `${DIR}/vmu_extended_blocks_2.bin`;
+const DREAMCAST_EMPTY_COMMENTS_SAVE_FILENAME = [
   `${DIR}/vmu_extended_blocks_2-0.bin`,
+];
+
+const DREAMCAST_GAME_FILENAME = `${DIR}/chao_adv2_mod.bin`;
+const RECREATED_DREAMCAST_GAME_FILENAME = `${DIR}/chao_adv2_mod-created.bin`; // The original file contains data from a deleted save for Jet Set Radio, which is in the user area and the file allocation table. Also there's a day-of-week difference, and the original file contains a few nonstandard values in the system info block
+const DREAMCAST_GAME_SAVE_FILENAME = [
+  `${DIR}/chao_adv2_mod-0.bin`,
 ];
 
 describe('Dreamcast', () => {
@@ -323,9 +330,9 @@ describe('Dreamcast', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getArrayBuffer(), arrayBuffer)).to.equal(true);
   });
 
-  it('should correctly read a second Dreamcast VMU image', async () => {
-    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(DREAMCAST_2_FILENAME);
-    const rawArrayBuffers = await Promise.all(DREAMCAST_2_SAVE_FILENAME.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
+  it('should correctly read a Dreamcast VMU image with an expanded save area', async () => {
+    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(DREAMCAST_EXTRA_SAVE_BLOCKS_FILENAME);
+    const rawArrayBuffers = await Promise.all(DREAMCAST_EXTRA_SAVE_BLOCKS_SAVE_FILENAME.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
 
     const dreamcastSaveData = DreamcastSaveData.createFromDreamcastData(arrayBuffer);
 
@@ -414,9 +421,9 @@ describe('Dreamcast', () => {
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[4].rawData, rawArrayBuffers[4])).to.equal(true);
   });
 
-  it('should correctly read a third Dreamcast VMU image', async () => {
-    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(DREAMCAST_3_FILENAME);
-    const rawArrayBuffers = await Promise.all(DREAMCAST_3_SAVE_FILENAME.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
+  it('should correctly read a Dreamcast VMU image containing a file with empty comments', async () => {
+    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(DREAMCAST_EMPTY_COMMENTS_FILENAME);
+    const rawArrayBuffers = await Promise.all(DREAMCAST_EMPTY_COMMENTS_SAVE_FILENAME.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
 
     const dreamcastSaveData = DreamcastSaveData.createFromDreamcastData(arrayBuffer);
 
@@ -455,5 +462,80 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getSaveFiles()[0].fileComment).to.equal('');
     expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[0].blockNumberList, ArrayUtil.createReverseSequentialArray(240, 8))).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[0].rawData, rawArrayBuffers[0])).to.equal(true);
+  });
+
+  it('should correctly read a Dreamcast VMU image containing a game', async () => {
+    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(DREAMCAST_GAME_FILENAME);
+    const rawArrayBuffers = await Promise.all(DREAMCAST_GAME_SAVE_FILENAME.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
+
+    const dreamcastSaveData = DreamcastSaveData.createFromDreamcastData(arrayBuffer);
+
+    expect(dreamcastSaveData.getVolumeInfo().useCustomColor).to.equal(true);
+    expect(dreamcastSaveData.getVolumeInfo().customColor.blue).to.equal(47);
+    expect(dreamcastSaveData.getVolumeInfo().customColor.green).to.equal(79);
+    expect(dreamcastSaveData.getVolumeInfo().customColor.red).to.equal(31);
+    expect(dreamcastSaveData.getVolumeInfo().customColor.alpha).to.equal(255);
+    expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getVolumeInfo().timestamp)).to.equal('2018-11-17 20:06:34');
+    expect(dreamcastSaveData.getVolumeInfo().largestBlockNumber).to.equal(DreamcastBasics.NUM_BLOCKS - 1);
+    expect(dreamcastSaveData.getVolumeInfo().partitionNumber).to.equal(0);
+    expect(dreamcastSaveData.getVolumeInfo().systemInfo.blockNumber).to.equal(DreamcastBasics.SYSTEM_INFO_BLOCK_NUMBER);
+    expect(dreamcastSaveData.getVolumeInfo().systemInfo.sizeInBlocks).to.equal(DreamcastBasics.SYSTEM_INFO_SIZE_IN_BLOCKS);
+    expect(dreamcastSaveData.getVolumeInfo().fileAllocationTable.blockNumber).to.equal(DreamcastBasics.FILE_ALLOCATION_TABLE_BLOCK_NUMBER);
+    expect(dreamcastSaveData.getVolumeInfo().fileAllocationTable.sizeInBlocks).to.equal(DreamcastBasics.FILE_ALLOCATION_TABLE_SIZE_IN_BLOCKS);
+    expect(dreamcastSaveData.getVolumeInfo().directory.blockNumber).to.equal(DreamcastBasics.DIRECTORY_BLOCK_NUMBER);
+    expect(dreamcastSaveData.getVolumeInfo().directory.sizeInBlocks).to.equal(DreamcastBasics.DIRECTORY_SIZE_IN_BLOCKS);
+    expect(dreamcastSaveData.getVolumeInfo().iconShape).to.equal(8); // Not the usual 0
+    expect(dreamcastSaveData.getVolumeInfo().extraArea.blockNumber).to.equal(DreamcastBasics.EXTRA_AREA_BLOCK_NUMBER);
+    expect(dreamcastSaveData.getVolumeInfo().extraArea.sizeInBlocks).to.equal(0); // Not the usual DreamcastBasics.EXTRA_AREA_SIZE_IN_BLOCKS (41)
+    expect(dreamcastSaveData.getVolumeInfo().saveArea.blockNumber).to.equal(DreamcastBasics.SAVE_AREA_BLOCK_NUMBER);
+    expect(dreamcastSaveData.getVolumeInfo().saveArea.sizeInBlocks).to.equal(240); // Not the usual DreamcastBasics.SAVE_AREA_SIZE_IN_BLOCKS (200)
+    expect(dreamcastSaveData.getVolumeInfo().gameBlock).to.equal(DreamcastBasics.DEFAULT_GAME_BLOCK);
+    expect(dreamcastSaveData.getVolumeInfo().maxGameSize).to.equal(0); // Not the usual DreamcastBasics.DEFAULT_MAX_GAME_SIZE
+
+    expect(dreamcastSaveData.getSaveFiles().length).to.equal(1);
+
+    expect(dreamcastSaveData.getSaveFiles()[0].fileType).to.equal('Game');
+    expect(dreamcastSaveData.getSaveFiles()[0].copyProtected).to.equal(true);
+    expect(dreamcastSaveData.getSaveFiles()[0].firstBlockNumber).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[0].filename).to.equal('SONIC2____VM');
+    expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[0].fileCreationTime)).to.equal('2018-11-17 20:50:26');
+    expect(dreamcastSaveData.getSaveFiles()[0].fileSizeInBlocks).to.equal(128);
+    expect(dreamcastSaveData.getSaveFiles()[0].fileHeaderBlockNumber).to.equal(1);
+    expect(dreamcastSaveData.getSaveFiles()[0].storageComment).to.equal('CHAO ADV 2      ');
+    expect(dreamcastSaveData.getSaveFiles()[0].fileComment).to.equal('SONIC ADVENTURE 2 / CHAO ADV 2  ');
+    expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[0].blockNumberList, ArrayUtil.createSequentialArray(0, 128))).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[0].rawData, rawArrayBuffers[0])).to.equal(true);
+  });
+
+  it('should correctly create a Dreamcast VMU image containing a game', async () => {
+    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(RECREATED_DREAMCAST_GAME_FILENAME);
+    const rawArrayBuffers = await Promise.all(DREAMCAST_GAME_SAVE_FILENAME.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
+
+    const volumeInfo = {
+      useCustomColor: true,
+      customColor: {
+        blue: 47,
+        green: 79,
+        red: 31,
+        alpha: 255,
+      },
+      timestamp: new Date('2018-11-17 20:06:34'),
+      iconShape: 8,
+    };
+
+    const saveFiles = [
+      {
+        fileType: 'Game',
+        copyProtected: true,
+        filename: 'SONIC2____VM',
+        fileCreationTime: new Date('2018-11-17 20:50:26'),
+        fileHeaderBlockNumber: 1,
+        rawData: rawArrayBuffers[0],
+      },
+    ];
+
+    const dreamcastSaveData = DreamcastSaveData.createFromSaveFiles(saveFiles, volumeInfo);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getArrayBuffer(), arrayBuffer)).to.equal(true);
   });
 });

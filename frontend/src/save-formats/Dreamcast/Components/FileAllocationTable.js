@@ -60,8 +60,8 @@ export default class DreamcastFileAllocationTable {
     let lastUnusedGameBlockNumber = DEFAULT_GAME_BLOCK;
 
     gameFilesWithBlockInfo.forEach((saveFile) => {
-      ArrayUtil.createSequentialArray(saveFile.firstBlockNumber, saveFile.fileSizeInBlocks - 1).forEach((i) => dataView.setUint16(i * 2, i - 1, LITTLE_ENDIAN));
-      dataView.setUint16((saveFile.firstBlockNumber - saveFile.fileSizeInBlocks + 1) * 2, LAST_BLOCK_IN_FILE, LITTLE_ENDIAN);
+      ArrayUtil.createSequentialArray(saveFile.firstBlockNumber, saveFile.fileSizeInBlocks - 1).forEach((i) => dataView.setUint16(i * 2, i + 1, LITTLE_ENDIAN));
+      dataView.setUint16((saveFile.firstBlockNumber + saveFile.fileSizeInBlocks - 1) * 2, LAST_BLOCK_IN_FILE, LITTLE_ENDIAN);
 
       lastUnusedGameBlockNumber = saveFile.firstBlockNumber + saveFile.fileSizeInBlocks;
     });
