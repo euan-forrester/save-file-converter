@@ -189,7 +189,7 @@ export default class DreamcastSaveData {
       directoryBlocks = getBlocksForward(volumeInfo.directory.blockNumber, volumeInfo.directory.sizeInBlocks, arrayBuffer);
     }
 
-    const fileAllocationTable = DreamcastFileAllocationTable.readFileAllocationTable(fileAllocationTableBlocks, volumeInfo.largestBlockNumber);
+    const fileAllocationTable = DreamcastFileAllocationTable.readFileAllocationTable(fileAllocationTableBlocks, Math.max(volumeInfo.largestBlockNumber, DreamcastBasics.NUM_BLOCKS - 1));
     const directoryEntries = DreamcastDirectory.readDirectory(directoryBlocks);
 
     const saveFiles = directoryEntries.map((directoryEntry) => {
