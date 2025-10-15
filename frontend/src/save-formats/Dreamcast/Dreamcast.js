@@ -167,7 +167,7 @@ function splitArray(array, predicate) {
 
 export default class DreamcastSaveData {
   static createFromDreamcastData(arrayBuffer) {
-    if (arrayBuffer.byteLength < TOTAL_SIZE) {
+    if ((arrayBuffer.byteLength < TOTAL_SIZE) || ((arrayBuffer.byteLength % BLOCK_SIZE) !== 0)) {
       throw new Error('This does not appear to be a Dreamcast VMU image');
     }
 
@@ -189,7 +189,7 @@ export default class DreamcastSaveData {
       directoryBlocks = getBlocksForward(volumeInfo.directory.blockNumber, volumeInfo.directory.sizeInBlocks, arrayBuffer);
     }
 
-    const fileAllocationTable = DreamcastFileAllocationTable.readFileAllocationTable(fileAllocationTableBlocks, volumeInfo.largestBlockNumber);
+    const fileAllocationTable = DreamcastFileAllocationTable.readFileAllocationTable(fileAllocationTableBlocks);
     const directoryEntries = DreamcastDirectory.readDirectory(directoryBlocks);
 
     const saveFiles = directoryEntries.map((directoryEntry) => {

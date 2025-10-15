@@ -61,11 +61,13 @@
             <div v-else>
               <output-filename
                 v-model="outputFilenameVmi"
+                placeholder="Output filename (.vmi)"
                 :leaveRoomForHelpIcon="true"
                 :disabled="false"
               />
               <output-filename
                 v-model="outputFilenameVms"
+                placeholder="Output filename (.vms)"
                 :leaveRoomForHelpIcon="true"
                 :disabled="false"
               />
@@ -181,6 +183,7 @@ import DreamcastIndividualSaveTypeSelector from './DreamcastIndividualSaveTypeSe
 import DreamcastSaveData from '../save-formats/Dreamcast/Dreamcast';
 import DreamcastDciSaveData from '../save-formats/Dreamcast/IndividualSaves/Dci';
 import DreamcastVmiVmsSaveData from '../save-formats/Dreamcast/IndividualSaves/VmiVms';
+import DreamcastBasics from '../save-formats/Dreamcast/Components/Basics';
 
 const DEFAULT_ICON_SHAPE = 0;
 const DEFAULT_INDIVIDUAL_SAVE_TYPE = 'dci';
@@ -263,22 +266,25 @@ export default {
     getFileListNames() {
       if ((this.dreamcastSaveData !== null) && (this.dreamcastSaveData.getSaveFiles() !== null)) {
         return this.dreamcastSaveData.getSaveFiles().map((x) => {
+          const fileTypeText = (x.fileType === DreamcastBasics.FILE_TYPE_GAME) ? 'Game: ' : '';
+
           const storageComment = x.storageComment.trim();
           const fileComment = x.fileComment.trim();
 
           if ((storageComment.length > 0) && (fileComment.length > 0)) {
-            return { displayText: `${storageComment} - ${fileComment}` };
+            return { displayText: `${fileTypeText}${storageComment} - ${fileComment}` };
           }
 
           if (storageComment.length > 0) {
-            return { displayText: `${storageComment}` };
+            return { displayText: `${fileTypeText}${storageComment}` };
           }
 
           if (fileComment.length > 0) {
-            return { displayText: `${fileComment}` };
+            return { displayText: `${fileTypeText}${fileComment}` };
           }
 
-          return { displayText: '<No description>' };
+          // The filename isn't great to display, but it always contains something and none of our comments have anything in them
+          return { displayText: `${fileTypeText}${x.filename}` };
         });
       }
 
@@ -337,6 +343,9 @@ export default {
     readDreamcastSaveData(event) {
       this.errorMessage = null;
       this.selectedSaveData = null;
+      this.outputFilename = null;
+      this.outputFilenameVmi = null;
+      this.outputFilenameVms = null;
       this.inputFilename = event.filename;
       try {
         this.dreamcastSaveData = DreamcastSaveData.createFromDreamcastData(event.arrayBuffer);

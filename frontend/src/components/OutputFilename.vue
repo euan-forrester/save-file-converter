@@ -5,7 +5,7 @@
         <b-form-input
           v-bind:value="value"
           v-on:input="$emit('input', $event)"
-          placeholder="Output filename"
+          :placeholder="this.placeholder"
           :disabled="this.disabled"
         />
         <div v-if="this.helpText !== null">
@@ -46,6 +46,10 @@ export default {
     value: {
       type: String,
       default: '',
+    },
+    placeholder: {
+      type: String,
+      default: 'Output filename',
     },
     disabled: {
       type: Boolean,

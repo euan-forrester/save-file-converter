@@ -60,8 +60,8 @@ export default class DreamcastFileAllocationTable {
     let lastUnusedGameBlockNumber = DEFAULT_GAME_BLOCK;
 
     gameFilesWithBlockInfo.forEach((saveFile) => {
-      ArrayUtil.createSequentialArray(saveFile.firstBlockNumber, saveFile.fileSizeInBlocks - 1).forEach((i) => dataView.setUint16(i * 2, i - 1, LITTLE_ENDIAN));
-      dataView.setUint16((saveFile.firstBlockNumber - saveFile.fileSizeInBlocks + 1) * 2, LAST_BLOCK_IN_FILE, LITTLE_ENDIAN);
+      ArrayUtil.createSequentialArray(saveFile.firstBlockNumber, saveFile.fileSizeInBlocks - 1).forEach((i) => dataView.setUint16(i * 2, i + 1, LITTLE_ENDIAN));
+      dataView.setUint16((saveFile.firstBlockNumber + saveFile.fileSizeInBlocks - 1) * 2, LAST_BLOCK_IN_FILE, LITTLE_ENDIAN);
 
       lastUnusedGameBlockNumber = saveFile.firstBlockNumber + saveFile.fileSizeInBlocks;
     });
@@ -83,16 +83,18 @@ export default class DreamcastFileAllocationTable {
     return arrayBuffer;
   }
 
-  static readFileAllocationTable(arrayBuffer, largestBlockNumber) {
+  static readFileAllocationTable(arrayBuffer) {
+    const numEntries = arrayBuffer.byteLength / 2;
+
     const dataView = new DataView(arrayBuffer);
 
-    const nextBlockInFile = new Array(largestBlockNumber + 1);
+    const nextBlockInFile = new Array(numEntries);
 
-    for (let i = 0; i <= largestBlockNumber; i += 1) {
+    for (let i = 0; i < numEntries; i += 1) {
       const offset = i * 2;
       nextBlockInFile[i] = dataView.getUint16(offset, LITTLE_ENDIAN);
 
-      if ((nextBlockInFile[i] > largestBlockNumber)
+      if ((nextBlockInFile[i] >= numEntries)
         && (nextBlockInFile[i] !== UNALLOCATED_BLOCK)
         && (nextBlockInFile[i] !== LAST_BLOCK_IN_FILE)
         && (nextBlockInFile[i] !== BLOCK_PHYSICALLY_DAMAGED)) {
