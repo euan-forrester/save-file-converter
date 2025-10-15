@@ -53,6 +53,13 @@ const DREAMCAST_INCORRECT_LARGEST_BLOCK_NUMBER_SAVE_FILENAME = [
 
 const DREAMCAST_INCORRECT_SIZE_FILENAME = `${DIR}/vmu5_FUCKED.vmu`;
 
+const DREAMCAST_GAME_AND_DATA_FILENAME = `${DIR}/PACit.bin`;
+const RECREATED_DREAMCAST_GAME_AND_DATA_FILENAME = `${DIR}/PACit-created.bin`; // The recreated file reverses the order of the directory, has differences in how it specifies the extra area in the FAT, and has day-of-week differences. It also has a different size for the extra area
+const DREAMCAST_GAME_AND_DATA_SAVE_FILENAME = [
+  `${DIR}/PACit-0.bin`,
+  `${DIR}/PACit-1.bin`,
+];
+
 describe('Dreamcast', () => {
   it('should correctly read a Dreamcast VMU image', async () => {
     const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(DREAMCAST_FILENAME);
@@ -596,5 +603,101 @@ describe('Dreamcast', () => {
       Error,
       'This does not appear to be a Dreamcast VMU image',
     ));
+  });
+
+  it('should correctly read a Dreamcast VMU image with a game and a data file', async () => {
+    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(DREAMCAST_GAME_AND_DATA_FILENAME);
+    const rawArrayBuffers = await Promise.all(DREAMCAST_GAME_AND_DATA_SAVE_FILENAME.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
+
+    const dreamcastSaveData = DreamcastSaveData.createFromDreamcastData(arrayBuffer);
+
+    expect(dreamcastSaveData.getVolumeInfo().useCustomColor).to.equal(true);
+    expect(dreamcastSaveData.getVolumeInfo().customColor.blue).to.equal(255);
+    expect(dreamcastSaveData.getVolumeInfo().customColor.green).to.equal(255);
+    expect(dreamcastSaveData.getVolumeInfo().customColor.red).to.equal(255);
+    expect(dreamcastSaveData.getVolumeInfo().customColor.alpha).to.equal(255);
+    expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getVolumeInfo().timestamp)).to.equal('1998-11-27 00:00:58');
+    expect(dreamcastSaveData.getVolumeInfo().largestBlockNumber).to.equal(DreamcastBasics.NUM_BLOCKS - 1);
+    expect(dreamcastSaveData.getVolumeInfo().partitionNumber).to.equal(0);
+    expect(dreamcastSaveData.getVolumeInfo().systemInfo.blockNumber).to.equal(DreamcastBasics.SYSTEM_INFO_BLOCK_NUMBER);
+    expect(dreamcastSaveData.getVolumeInfo().systemInfo.sizeInBlocks).to.equal(DreamcastBasics.SYSTEM_INFO_SIZE_IN_BLOCKS);
+    expect(dreamcastSaveData.getVolumeInfo().fileAllocationTable.blockNumber).to.equal(DreamcastBasics.FILE_ALLOCATION_TABLE_BLOCK_NUMBER);
+    expect(dreamcastSaveData.getVolumeInfo().fileAllocationTable.sizeInBlocks).to.equal(DreamcastBasics.FILE_ALLOCATION_TABLE_SIZE_IN_BLOCKS);
+    expect(dreamcastSaveData.getVolumeInfo().directory.blockNumber).to.equal(DreamcastBasics.DIRECTORY_BLOCK_NUMBER);
+    expect(dreamcastSaveData.getVolumeInfo().directory.sizeInBlocks).to.equal(DreamcastBasics.DIRECTORY_SIZE_IN_BLOCKS);
+    expect(dreamcastSaveData.getVolumeInfo().iconShape).to.equal(0);
+    expect(dreamcastSaveData.getVolumeInfo().extraArea.blockNumber).to.equal(DreamcastBasics.EXTRA_AREA_BLOCK_NUMBER);
+    expect(dreamcastSaveData.getVolumeInfo().extraArea.sizeInBlocks).to.equal(31); // Not the usual DreamcastBasics.EXTRA_AREA_SIZE_IN_BLOCKS (41)
+    expect(dreamcastSaveData.getVolumeInfo().saveArea.blockNumber).to.equal(DreamcastBasics.SAVE_AREA_BLOCK_NUMBER);
+    expect(dreamcastSaveData.getVolumeInfo().saveArea.sizeInBlocks).to.equal(DreamcastBasics.SAVE_AREA_SIZE_IN_BLOCKS);
+    expect(dreamcastSaveData.getVolumeInfo().gameBlock).to.equal(DreamcastBasics.DEFAULT_GAME_BLOCK);
+    expect(dreamcastSaveData.getVolumeInfo().maxGameSize).to.equal(DreamcastBasics.DEFAULT_MAX_GAME_SIZE);
+
+    expect(dreamcastSaveData.getSaveFiles().length).to.equal(2);
+
+    expect(dreamcastSaveData.getSaveFiles()[0].fileType).to.equal('Data');
+    expect(dreamcastSaveData.getSaveFiles()[0].copyProtected).to.equal(false);
+    expect(dreamcastSaveData.getSaveFiles()[0].firstBlockNumber).to.equal(199);
+    expect(dreamcastSaveData.getSaveFiles()[0].filename).to.equal('NAMCOMUS.SYS');
+    expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[0].fileCreationTime)).to.equal('2019-04-16 18:19:32');
+    expect(dreamcastSaveData.getSaveFiles()[0].fileSizeInBlocks).to.equal(8);
+    expect(dreamcastSaveData.getSaveFiles()[0].fileHeaderBlockNumber).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[0].storageComment).to.equal('Namco Museum    ');
+    expect(dreamcastSaveData.getSaveFiles()[0].fileComment).to.equal('Namco Museum High-Scores        NAMCOMUS.SYS');
+    expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[0].blockNumberList, ArrayUtil.createReverseSequentialArray(199, 8))).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[0].rawData, rawArrayBuffers[0])).to.equal(true);
+
+    expect(dreamcastSaveData.getSaveFiles()[1].fileType).to.equal('Game');
+    expect(dreamcastSaveData.getSaveFiles()[1].copyProtected).to.equal(true);
+    expect(dreamcastSaveData.getSaveFiles()[1].firstBlockNumber).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[1].filename).to.equal('PACIT_NM.VMU');
+    expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[1].fileCreationTime)).to.equal('2019-04-16 18:19:41');
+    expect(dreamcastSaveData.getSaveFiles()[1].fileSizeInBlocks).to.equal(9);
+    expect(dreamcastSaveData.getSaveFiles()[1].fileHeaderBlockNumber).to.equal(1);
+    expect(dreamcastSaveData.getSaveFiles()[1].storageComment).to.equal('PACit           ');
+    expect(dreamcastSaveData.getSaveFiles()[1].fileComment).to.equal('(c) Copyright 2000 NAMCO Ltd.   ');
+    expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[1].blockNumberList, ArrayUtil.createSequentialArray(0, 9))).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[1].rawData, rawArrayBuffers[1])).to.equal(true);
+  });
+
+  it('should correctly create a Dreamcast VMU image containing a game and a data file', async () => {
+    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(RECREATED_DREAMCAST_GAME_AND_DATA_FILENAME);
+    const rawArrayBuffers = await Promise.all(DREAMCAST_GAME_AND_DATA_SAVE_FILENAME.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
+
+    const volumeInfo = {
+      useCustomColor: true,
+      customColor: {
+        blue: 255,
+        green: 255,
+        red: 255,
+        alpha: 255,
+      },
+      timestamp: new Date('1998-11-27 00:00:58'),
+      iconShape: 0,
+    };
+
+    // Note that these files get reordered in the directory of the outputted file since we always put games first
+    const saveFiles = [
+      {
+        fileType: 'Data',
+        copyProtected: false,
+        filename: 'NAMCOMUS.SYS',
+        fileCreationTime: new Date('2019-04-16 18:19:32'),
+        fileHeaderBlockNumber: 0,
+        rawData: rawArrayBuffers[0],
+      },
+      {
+        fileType: 'Game',
+        copyProtected: true,
+        filename: 'PACIT_NM.VMU',
+        fileCreationTime: new Date('2019-04-16 18:19:41'),
+        fileHeaderBlockNumber: 1,
+        rawData: rawArrayBuffers[1],
+      },
+    ];
+
+    const dreamcastSaveData = DreamcastSaveData.createFromSaveFiles(saveFiles, volumeInfo);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getArrayBuffer(), arrayBuffer)).to.equal(true);
   });
 });
