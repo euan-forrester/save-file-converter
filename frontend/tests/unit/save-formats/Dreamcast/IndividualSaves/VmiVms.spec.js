@@ -22,6 +22,9 @@ const VMI_4_FILENAME = `${DIR}/KISSPC.VMI`;
 const VMI_4_RECREATED_FILENAME = `${DIR}/KISSPC-recreated.VMI`; // This one differs by the day of week and also we just set the version to 0 whereas the original file had a different version number
 const VMS_4_FILENAME = `${DIR}/KISSPC.VMS`;
 
+const VMI_GAME_FILENAME = `${DIR}/FLPPYBRD.VMI`; // Our output file is exactly the same as the original file
+const VMS_GAME_FILENAME = `${DIR}/FLPPYBRD.vms`;
+
 describe('Dreamcast - .VMI/.VMS', () => {
   it('should correctly read a .VMI/.VMS pair of files', async () => {
     const vmiArrayBuffer = await ArrayBufferUtil.readArrayBuffer(VMI_1_FILENAME);
@@ -35,7 +38,7 @@ describe('Dreamcast - .VMI/.VMS', () => {
     expect(dreamcastSaveFile.version).to.equal(0);
     expect(dreamcastSaveFile.fileNumber).to.equal(1);
     expect(dreamcastSaveFile.resourceName).to.equal('IKARUGA');
-    expect(dreamcastSaveFile.fileMode).to.equal(0);
+    expect(dreamcastSaveFile.fileMode).to.equal(DreamcastVmiVmsSaveData.FILE_MODE_NONE);
     expect(dreamcastSaveFile.fileSize).to.equal(17408);
 
     expect(dreamcastSaveFile.filename).to.equal('IKARUGA_DATA');
@@ -87,7 +90,7 @@ describe('Dreamcast - .VMI/.VMS', () => {
     expect(dreamcastSaveFile.version).to.equal(0);
     expect(dreamcastSaveFile.fileNumber).to.equal(1);
     expect(dreamcastSaveFile.resourceName).to.equal('v93102');
-    expect(dreamcastSaveFile.fileMode).to.equal(0);
+    expect(dreamcastSaveFile.fileMode).to.equal(DreamcastVmiVmsSaveData.FILE_MODE_NONE);
     expect(dreamcastSaveFile.fileSize).to.equal(1536);
 
     expect(dreamcastSaveFile.filename).to.equal('GAUNTLET.001');
@@ -139,7 +142,7 @@ describe('Dreamcast - .VMI/.VMS', () => {
     expect(dreamcastSaveFile.version).to.equal(0);
     expect(dreamcastSaveFile.fileNumber).to.equal(1);
     expect(dreamcastSaveFile.resourceName).to.equal('v4596');
-    expect(dreamcastSaveFile.fileMode).to.equal(0);
+    expect(dreamcastSaveFile.fileMode).to.equal(DreamcastVmiVmsSaveData.FILE_MODE_NONE);
     expect(dreamcastSaveFile.fileSize).to.equal(1024);
 
     expect(dreamcastSaveFile.filename).to.equal('ICONDATA_VMS');
@@ -191,7 +194,7 @@ describe('Dreamcast - .VMI/.VMS', () => {
     expect(dreamcastSaveFile.version).to.equal(306);
     expect(dreamcastSaveFile.fileNumber).to.equal(1);
     expect(dreamcastSaveFile.resourceName).to.equal('KISSPC');
-    expect(dreamcastSaveFile.fileMode).to.equal(0);
+    expect(dreamcastSaveFile.fileMode).to.equal(DreamcastVmiVmsSaveData.FILE_MODE_NONE);
     expect(dreamcastSaveFile.fileSize).to.equal(1536);
 
     expect(dreamcastSaveFile.filename).to.equal('TRMR_KPC.DAT');
@@ -221,6 +224,58 @@ describe('Dreamcast - .VMI/.VMS', () => {
       filename: 'TRMR_KPC.DAT',
       fileType: 'Data',
       fileCreationTime: new Date('2004-09-16 08:55:18'),
+      copyProtected: false,
+      rawData: vmsArrayBuffer,
+    };
+
+    const createdFiles = DreamcastVmiVmsSaveData.convertSaveFileToVmiVms(saveFile);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(createdFiles.vmiArrayBuffer, vmiArrayBuffer)).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(createdFiles.vmsArrayBuffer, vmsArrayBuffer)).to.equal(true);
+  });
+
+  it('should correctly read a .VMI/.VMS pair of files containing a game', async () => {
+    const vmiArrayBuffer = await ArrayBufferUtil.readArrayBuffer(VMI_GAME_FILENAME);
+    const vmsArrayBuffer = await ArrayBufferUtil.readArrayBuffer(VMS_GAME_FILENAME);
+
+    const dreamcastSaveFile = DreamcastVmiVmsSaveData.convertIndividualSaveToSaveFile(vmiArrayBuffer, vmsArrayBuffer);
+
+    expect(dreamcastSaveFile.checksum).to.equal(0x42444040); // This checksum matches the calculated checksum
+    expect(dreamcastSaveFile.description).to.equal('@guacasaurus_mex                ');
+    expect(dreamcastSaveFile.copyright).to.equal('Flappy Bird VMU v1.0b           ');
+    expect(dreamcastSaveFile.version).to.equal(0);
+    expect(dreamcastSaveFile.fileNumber).to.equal(1);
+    expect(dreamcastSaveFile.resourceName).to.equal('FLPPYBRD');
+    expect(dreamcastSaveFile.fileMode).to.equal(DreamcastVmiVmsSaveData.FILE_MODE_GAME);
+    expect(dreamcastSaveFile.fileSize).to.equal(18274);
+
+    expect(dreamcastSaveFile.filename).to.equal('FLAPPY.BIRD ');
+    expect(dreamcastSaveFile.fileType).to.equal('Game');
+    expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveFile.fileCreationTime)).to.equal('2016-03-28 15:56:26');
+    expect(dreamcastSaveFile.fileSizeInBlocks).to.equal(36);
+    expect(dreamcastSaveFile.firstBlockNumber).to.equal(0);
+    expect(dreamcastSaveFile.fileHeaderBlockNumber).to.equal(1);
+    expect(dreamcastSaveFile.copyProtected).to.equal(false);
+    expect(dreamcastSaveFile.storageComment).to.equal('@guacasaurus_mex');
+    expect(dreamcastSaveFile.fileComment).to.equal('Flappy Bird VMU v1.0b');
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveFile.rawData, vmsArrayBuffer)).to.equal(true);
+  });
+
+  it('should correctly write a .VMI/.VMS pair of files containing a game', async () => {
+    const vmiArrayBuffer = await ArrayBufferUtil.readArrayBuffer(VMI_GAME_FILENAME);
+    const vmsArrayBuffer = await ArrayBufferUtil.readArrayBuffer(VMS_GAME_FILENAME);
+
+    const saveFile = {
+      // These parts are specific to .vmi/.vms files
+      description: '@guacasaurus_mex                ',
+      copyright: 'Flappy Bird VMU v1.0b           ',
+      resourceName: 'FLPPYBRD',
+
+      // These parts are common to dreamcast save files
+      filename: 'FLAPPY.BIRD ',
+      fileType: 'Game',
+      fileCreationTime: new Date('2016-03-28 15:56:26'),
       copyProtected: false,
       rawData: vmsArrayBuffer,
     };

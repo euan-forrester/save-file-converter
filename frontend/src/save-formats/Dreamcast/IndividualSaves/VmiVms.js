@@ -58,6 +58,7 @@ const FILE_SIZE_OFFSET = 0x68;
 
 const FILE_MODE_GAME = 0x02;
 const FILE_MODE_COPY_PROTECTED = 0x01;
+const FILE_MODE_NONE = 0x00;
 
 const DEFAULT_HEADER_FILL_VALUE = 0x00;
 
@@ -87,6 +88,8 @@ export default class DreamcastVmiVmsSaveData {
   static FILE_MODE_GAME = FILE_MODE_GAME;
 
   static FILE_MODE_COPY_PROTECTED = FILE_MODE_COPY_PROTECTED;
+
+  static FILE_MODE_NONE = FILE_MODE_NONE;
 
   // saveFile needs to set the additional fields:
   // - description
