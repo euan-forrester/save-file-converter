@@ -51,6 +51,8 @@ const DREAMCAST_INCORRECT_LARGEST_BLOCK_NUMBER_SAVE_FILENAME = [
   `${DIR}/vmoooo.bin-0`,
 ];
 
+const DREAMCAST_INCORRECT_SIZE_FILENAME = `${DIR}/vmu5_FUCKED.vmu`;
+
 describe('Dreamcast', () => {
   it('should correctly read a Dreamcast VMU image', async () => {
     const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(DREAMCAST_FILENAME);
@@ -585,5 +587,14 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getSaveFiles()[0].fileComment).to.equal('SONIC ADVENTURE / CHAO Adventure');
     expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[0].blockNumberList, ArrayUtil.createSequentialArray(0, 128))).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[0].rawData, rawArrayBuffers[0])).to.equal(true);
+  });
+
+  it('should throw an error when reading a Dreamcast VMU image with an incorrect size', async () => {
+    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(DREAMCAST_INCORRECT_SIZE_FILENAME);
+
+    expect(() => DreamcastSaveData.createFromDreamcastData(arrayBuffer).to.throw(
+      Error,
+      'This does not appear to be a Dreamcast VMU image',
+    ));
   });
 });
