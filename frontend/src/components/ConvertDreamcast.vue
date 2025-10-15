@@ -269,6 +269,8 @@ export default {
           const storageComment = x.storageComment.trim();
           const fileComment = x.fileComment.trim();
 
+          console.log(`storageComment length: ${storageComment.length}, fileComment length: ${fileComment.length}`);
+
           if ((storageComment.length > 0) && (fileComment.length > 0)) {
             return { displayText: `${fileTypeText}${storageComment} - ${fileComment}` };
           }
@@ -281,7 +283,7 @@ export default {
             return { displayText: `${fileTypeText}${fileComment}` };
           }
 
-          return { displayText: `${fileTypeText}<No description>` };
+          return { displayText: `${fileTypeText}${x.filename}` };
         });
       }
 

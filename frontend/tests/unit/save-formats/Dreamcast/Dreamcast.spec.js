@@ -34,6 +34,11 @@ const DREAMCAST_2_SAVE_FILENAME = [
   `${DIR}/need_defrag_chao_adv2-4.bin`,
 ];
 
+const DREAMCAST_3_FILENAME = `${DIR}/vmu_extended_blocks_2.bin`;
+const DREAMCAST_3_SAVE_FILENAME = [
+  `${DIR}/vmu_extended_blocks_2-0.bin`,
+];
+
 describe('Dreamcast', () => {
   it('should correctly read a Dreamcast VMU image', async () => {
     const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(DREAMCAST_FILENAME);
@@ -407,5 +412,48 @@ describe('Dreamcast', () => {
     expect(dreamcastSaveData.getSaveFiles()[4].fileComment).to.equal('サンバＤＥアミーゴVer2000 メイン'); // "Samba DE Amigo Ver. 2000 Main"
     expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[4].blockNumberList, ArrayUtil.createReverseSequentialArray(138, 17))).to.equal(true);
     expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[4].rawData, rawArrayBuffers[4])).to.equal(true);
+  });
+
+  it('should correctly read a third Dreamcast VMU image', async () => {
+    const arrayBuffer = await ArrayBufferUtil.readArrayBuffer(DREAMCAST_3_FILENAME);
+    const rawArrayBuffers = await Promise.all(DREAMCAST_3_SAVE_FILENAME.map((n) => ArrayBufferUtil.readArrayBuffer(n)));
+
+    const dreamcastSaveData = DreamcastSaveData.createFromDreamcastData(arrayBuffer);
+
+    expect(dreamcastSaveData.getVolumeInfo().useCustomColor).to.equal(true);
+    expect(dreamcastSaveData.getVolumeInfo().customColor.blue).to.equal(255);
+    expect(dreamcastSaveData.getVolumeInfo().customColor.green).to.equal(255);
+    expect(dreamcastSaveData.getVolumeInfo().customColor.red).to.equal(255);
+    expect(dreamcastSaveData.getVolumeInfo().customColor.alpha).to.equal(255);
+    expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getVolumeInfo().timestamp)).to.equal('1998-11-27 00:00:58');
+    expect(dreamcastSaveData.getVolumeInfo().largestBlockNumber).to.equal(DreamcastBasics.NUM_BLOCKS - 1);
+    expect(dreamcastSaveData.getVolumeInfo().partitionNumber).to.equal(0);
+    expect(dreamcastSaveData.getVolumeInfo().systemInfo.blockNumber).to.equal(DreamcastBasics.SYSTEM_INFO_BLOCK_NUMBER);
+    expect(dreamcastSaveData.getVolumeInfo().systemInfo.sizeInBlocks).to.equal(DreamcastBasics.SYSTEM_INFO_SIZE_IN_BLOCKS);
+    expect(dreamcastSaveData.getVolumeInfo().fileAllocationTable.blockNumber).to.equal(DreamcastBasics.FILE_ALLOCATION_TABLE_BLOCK_NUMBER);
+    expect(dreamcastSaveData.getVolumeInfo().fileAllocationTable.sizeInBlocks).to.equal(DreamcastBasics.FILE_ALLOCATION_TABLE_SIZE_IN_BLOCKS);
+    expect(dreamcastSaveData.getVolumeInfo().directory.blockNumber).to.equal(DreamcastBasics.DIRECTORY_BLOCK_NUMBER);
+    expect(dreamcastSaveData.getVolumeInfo().directory.sizeInBlocks).to.equal(DreamcastBasics.DIRECTORY_SIZE_IN_BLOCKS);
+    expect(dreamcastSaveData.getVolumeInfo().iconShape).to.equal(0);
+    expect(dreamcastSaveData.getVolumeInfo().extraArea.blockNumber).to.equal(DreamcastBasics.EXTRA_AREA_BLOCK_NUMBER);
+    expect(dreamcastSaveData.getVolumeInfo().extraArea.sizeInBlocks).to.equal(31); // Not the usual DreamcastBasics.EXTRA_AREA_SIZE_IN_BLOCKS (41)
+    expect(dreamcastSaveData.getVolumeInfo().saveArea.blockNumber).to.equal(DreamcastBasics.SAVE_AREA_BLOCK_NUMBER);
+    expect(dreamcastSaveData.getVolumeInfo().saveArea.sizeInBlocks).to.equal(241); // Not the usual DreamcastBasics.SAVE_AREA_SIZE_IN_BLOCKS (200)
+    expect(dreamcastSaveData.getVolumeInfo().gameBlock).to.equal(DreamcastBasics.DEFAULT_GAME_BLOCK);
+    expect(dreamcastSaveData.getVolumeInfo().maxGameSize).to.equal(DreamcastBasics.DEFAULT_MAX_GAME_SIZE);
+
+    expect(dreamcastSaveData.getSaveFiles().length).to.equal(1);
+
+    expect(dreamcastSaveData.getSaveFiles()[0].fileType).to.equal('Data');
+    expect(dreamcastSaveData.getSaveFiles()[0].copyProtected).to.equal(true);
+    expect(dreamcastSaveData.getSaveFiles()[0].firstBlockNumber).to.equal(240);
+    expect(dreamcastSaveData.getSaveFiles()[0].filename).to.equal('VMUTOOL__OPT');
+    expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveData.getSaveFiles()[0].fileCreationTime)).to.equal('2018-10-26 01:00:24');
+    expect(dreamcastSaveData.getSaveFiles()[0].fileSizeInBlocks).to.equal(8);
+    expect(dreamcastSaveData.getSaveFiles()[0].fileHeaderBlockNumber).to.equal(0);
+    expect(dreamcastSaveData.getSaveFiles()[0].storageComment).to.equal('');
+    expect(dreamcastSaveData.getSaveFiles()[0].fileComment).to.equal('');
+    expect(ArrayUtil.arraysEqual(dreamcastSaveData.getSaveFiles()[0].blockNumberList, ArrayUtil.createReverseSequentialArray(240, 8))).to.equal(true);
+    expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveData.getSaveFiles()[0].rawData, rawArrayBuffers[0])).to.equal(true);
   });
 });
