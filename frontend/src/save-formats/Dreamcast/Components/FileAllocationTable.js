@@ -83,16 +83,18 @@ export default class DreamcastFileAllocationTable {
     return arrayBuffer;
   }
 
-  static readFileAllocationTable(arrayBuffer, largestBlockNumber) {
+  static readFileAllocationTable(arrayBuffer) {
+    const numEntries = arrayBuffer.byteLength / 2;
+
     const dataView = new DataView(arrayBuffer);
 
-    const nextBlockInFile = new Array(largestBlockNumber + 1);
+    const nextBlockInFile = new Array(numEntries);
 
-    for (let i = 0; i <= largestBlockNumber; i += 1) {
+    for (let i = 0; i < numEntries; i += 1) {
       const offset = i * 2;
       nextBlockInFile[i] = dataView.getUint16(offset, LITTLE_ENDIAN);
 
-      if ((nextBlockInFile[i] > largestBlockNumber)
+      if ((nextBlockInFile[i] >= numEntries)
         && (nextBlockInFile[i] !== UNALLOCATED_BLOCK)
         && (nextBlockInFile[i] !== LAST_BLOCK_IN_FILE)
         && (nextBlockInFile[i] !== BLOCK_PHYSICALLY_DAMAGED)) {
