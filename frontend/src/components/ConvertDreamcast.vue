@@ -61,11 +61,13 @@
             <div v-else>
               <output-filename
                 v-model="outputFilenameVmi"
+                placeholder="Output filename (.vmi)"
                 :leaveRoomForHelpIcon="true"
                 :disabled="false"
               />
               <output-filename
                 v-model="outputFilenameVms"
+                placeholder="Output filename (.vms)"
                 :leaveRoomForHelpIcon="true"
                 :disabled="false"
               />
@@ -269,8 +271,6 @@ export default {
           const storageComment = x.storageComment.trim();
           const fileComment = x.fileComment.trim();
 
-          console.log(`storageComment length: ${storageComment.length}, fileComment length: ${fileComment.length}`);
-
           if ((storageComment.length > 0) && (fileComment.length > 0)) {
             return { displayText: `${fileTypeText}${storageComment} - ${fileComment}` };
           }
@@ -283,6 +283,7 @@ export default {
             return { displayText: `${fileTypeText}${fileComment}` };
           }
 
+          // The filename isn't great to display, but it always contains something and none of our comments have anything in them
           return { displayText: `${fileTypeText}${x.filename}` };
         });
       }
@@ -342,6 +343,9 @@ export default {
     readDreamcastSaveData(event) {
       this.errorMessage = null;
       this.selectedSaveData = null;
+      this.outputFilename = null;
+      this.outputFilenameVmi = null;
+      this.outputFilenameVms = null;
       this.inputFilename = event.filename;
       try {
         this.dreamcastSaveData = DreamcastSaveData.createFromDreamcastData(event.arrayBuffer);
