@@ -14,6 +14,10 @@ const DCI_NO_COPY_FILENAME = `${DIR}/project-justice.882.dci`;
 const DCI_NO_COPY_RECREATED_FILENAME = `${DIR}/project-justice.882-recreated.dci`; // The day of week is set incorrectly in the original file, which is the only difference vs this file that we output
 const RAW_NO_COPY_FILENAME = `${DIR}/project-justice.882.bin`;
 
+const DCI_GAME_FILENAME = `${DIR}/tetr.dci`;
+const DCI_GAME_RECREATED_FILENAME = `${DIR}/tetr-recreated.dci`; // The day of week is set incorrectly in the original file, as well as the number of blocks
+const RAW_GAME_FILENAME = `${DIR}/tetr.bin`;
+
 describe('Dreamcast - .DCI', () => {
   it('should correctly read a .DCI file', async () => {
     const dciArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DCI_FILENAME);
@@ -81,6 +85,43 @@ describe('Dreamcast - .DCI', () => {
       filename: 'PJUSTICE_SYS',
       fileCreationTime: new Date('2001-05-30 14:42:42'),
       fileHeaderBlockNumber: 0,
+      rawData: rawArrayBuffer,
+    };
+
+    const dreamcastSaveFile = DreamcastDciSaveData.convertSaveFileToDci(saveFile);
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveFile, dciArrayBuffer)).to.equal(true);
+  });
+
+  it('should correctly read a .DCI file containing a game', async () => {
+    const dciArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DCI_GAME_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GAME_FILENAME);
+
+    const dreamcastSaveFile = DreamcastDciSaveData.convertIndividualSaveToSaveFile(dciArrayBuffer, false); // The number of blocks listed in the directory entry header doesn't match the number of blocks in the actual data
+
+    expect(dreamcastSaveFile.fileType).to.equal('Game');
+    expect(dreamcastSaveFile.copyProtected).to.equal(true);
+    expect(dreamcastSaveFile.firstBlockNumber).to.equal(0);
+    expect(dreamcastSaveFile.filename).to.equal('TINY_TETRIS');
+    expect(DreamcastUtil.formatDateWithoutTimezone(dreamcastSaveFile.fileCreationTime)).to.equal('2018-11-15 20:10:44');
+    expect(dreamcastSaveFile.fileSizeInBlocks).to.equal(7);
+    expect(dreamcastSaveFile.fileHeaderBlockNumber).to.equal(1);
+    expect(dreamcastSaveFile.storageComment).to.equal('Tiny Tetris     ');
+    expect(dreamcastSaveFile.fileComment).to.equal('Mini VMU Tetris by marcus       ');
+
+    expect(ArrayBufferUtil.arrayBuffersEqual(dreamcastSaveFile.rawData, rawArrayBuffer)).to.equal(true);
+  });
+
+  it('should correctly write a .DCI file containing a game', async () => {
+    const dciArrayBuffer = await ArrayBufferUtil.readArrayBuffer(DCI_GAME_RECREATED_FILENAME);
+    const rawArrayBuffer = await ArrayBufferUtil.readArrayBuffer(RAW_GAME_FILENAME);
+
+    const saveFile = {
+      fileType: 'Game',
+      copyProtected: true,
+      filename: 'TINY_TETRIS',
+      fileCreationTime: new Date('2018-11-15 20:10:44'),
+      fileHeaderBlockNumber: 1,
       rawData: rawArrayBuffer,
     };
 

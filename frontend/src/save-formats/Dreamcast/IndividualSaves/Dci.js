@@ -37,7 +37,7 @@ export default class DreamcastDciSaveData {
     return Util.concatArrayBuffers([directoryEntryArrayBuffer, EndianUtil.swap(saveFileWithBlockInfo.rawData, WORD_SIZE_IN_BYTES)]);
   }
 
-  static convertIndividualSaveToSaveFile(arrayBuffer, checkSaveSize = true) {
+  static convertIndividualSaveToSaveFile(arrayBuffer, checkSaveSize = false) {
     const directoryEntry = DreamcastDirectoryEntry.readDirectoryEntry(arrayBuffer);
     const rawData = EndianUtil.swap(arrayBuffer.slice(DATA_OFFSET), WORD_SIZE_IN_BYTES);
 
