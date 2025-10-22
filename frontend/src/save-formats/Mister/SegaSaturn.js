@@ -6,7 +6,7 @@ does it: https://github.com/MiSTer-devel/Saturn_MiSTer/issues/283
 */
 
 import SegaSaturnSaveData from '../SegaSaturn/SegaSaturn';
-import EmulatorSegaSaturnSaveData from '../SegaSaturn/Emulator';
+import EmulatorSegaSaturnSaveData from '../SegaSaturn/Emulators/Emulator';
 
 import GenesisUtil from '../../util/Genesis';
 

@@ -127,7 +127,7 @@ import FileList from './FileList.vue';
 import SegaCdSaveTypeSelector from './SegaCdSaveTypeSelector.vue';
 import SegaSaturnSaveData from '../save-formats/SegaSaturn/SegaSaturn';
 import SegaSaturnBupSaveData from '../save-formats/SegaSaturn/Bup';
-import EmulatorSegaSaturnSaveData from '../save-formats/SegaSaturn/Emulator';
+import EmulatorSegaSaturnSaveData from '../save-formats/SegaSaturn/Emulators/Emulator';
 
 export default {
   name: 'ConvertSegaSaturnEmulator',
