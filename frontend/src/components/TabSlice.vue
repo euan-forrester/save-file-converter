@@ -113,7 +113,6 @@ export default {
       this.changeSliceOffsetOrLength();
     },
     changeSliceLength(value) {
-      console.log('Changed length to: ', value);
       this.sliceLength = value;
       this.changeSliceOffsetOrLength();
     },
