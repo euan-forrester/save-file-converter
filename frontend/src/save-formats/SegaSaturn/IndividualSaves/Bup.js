@@ -30,10 +30,10 @@ Note that we are supposed to prefer the first date in the structure (when the ga
 https://github.com/cafe-alpha/pskai_wtfpl/blob/main/vmem_defs.h#L127
 */
 
-import SegaSaturnSaveData from './SegaSaturn';
-import SegaSaturnUtil from './Util';
+import SegaSaturnSaveData from '../SegaSaturn';
+import SegaSaturnUtil from '../Util';
 
-import Util from '../../util/util';
+import Util from '../../../util/util';
 
 const LITTLE_ENDIAN = false;
 

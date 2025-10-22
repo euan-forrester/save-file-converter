@@ -150,7 +150,7 @@ import OutputFilename from './OutputFilename.vue';
 import ConversionDirection from './ConversionDirection.vue';
 import FileList from './FileList.vue';
 import SegaCdSaveTypeSelector from './SegaCdSaveTypeSelector.vue';
-import SegaSaturnBupSaveData from '../save-formats/SegaSaturn/Bup';
+import SegaSaturnBupSaveData from '../save-formats/SegaSaturn/IndividualSaves/Bup';
 import SarooSegaSaturnInternalSaveData from '../save-formats/SegaSaturn/Saroo/Internal';
 import SarooSegaSaturnCartSaveData from '../save-formats/SegaSaturn/Saroo/Cart';
 import SarooSegaSaturnSystemSaveData from '../save-formats/SegaSaturn/Saroo/System';

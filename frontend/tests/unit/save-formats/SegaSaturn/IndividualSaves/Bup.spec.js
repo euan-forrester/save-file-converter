@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 
-import SegaSaturnBupSaveData from '@/save-formats/SegaSaturn/Bup';
+import SegaSaturnBupSaveData from '@/save-formats/SegaSaturn/IndividualSaves/Bup';
 import SegaSaturnUtil from '@/save-formats/SegaSaturn/Util';
 
 const DIR = './tests/data/save-formats/segasaturn';
