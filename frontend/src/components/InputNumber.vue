@@ -99,7 +99,10 @@ export default {
     checkInput(event) {
       let userInput = event.trim();
 
-      if (userInput.startsWith('0x')) {
+      if (userInput.length === 0) {
+        this.isValid = null;
+        this.$emit('input', null);
+      } else if (userInput.startsWith('0x')) {
         userInput = userInput.substring(2);
 
         if (userInput.match(HEXADECIMAL_REGEX)) {
