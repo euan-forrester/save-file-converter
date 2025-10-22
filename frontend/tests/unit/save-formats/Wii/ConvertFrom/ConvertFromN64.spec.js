@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import ConvertFromN64 from '@/save-formats/Wii/ConvertFromN64';
+import ConvertFromN64 from '@/save-formats/Wii/ConvertFrom/ConvertFromN64';
 
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 

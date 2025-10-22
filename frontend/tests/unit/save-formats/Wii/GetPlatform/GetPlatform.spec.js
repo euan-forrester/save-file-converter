@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import GetPlatform from '@/save-formats/Wii/GetPlatform';
-import getHttpClient from '@/save-formats/Wii/HttpClient';
-import getMockHttpClient from '#/unit/save-formats/Wii/MockHttpClient';
+import GetPlatform from '@/save-formats/Wii/GetPlatform/GetPlatform';
+import getHttpClient from '@/save-formats/Wii/GetPlatform/HttpClient';
+import getMockHttpClient from '#/unit/save-formats/Wii/GetPlatform/MockHttpClient';
 
 const accessInternet = false; // Used to check if the website we're hitting changes their format in the future. Set to false to use the local copies of the HTML stored in this repo, set to true to hit the actual website and download the HTML
 

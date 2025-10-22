@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import ConvertFromSega from '@/save-formats/Wii/ConvertFromSega';
+import ConvertFromSega from '@/save-formats/Wii/ConvertFrom/ConvertFromSega';
 
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 

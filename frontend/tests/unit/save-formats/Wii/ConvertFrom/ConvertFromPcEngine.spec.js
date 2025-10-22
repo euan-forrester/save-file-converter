@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import ConvertFromPcEngine from '@/save-formats/Wii/ConvertFromPcEngine';
+import ConvertFromPcEngine from '@/save-formats/Wii/ConvertFrom/ConvertFromPcEngine';
 
 import ArrayBufferUtil from '#/util/ArrayBuffer';
 

@@ -24,7 +24,7 @@
 // However, the Wii files are 8kB in size and correspondingly they write 0xA000 (0x8000 + 8 kB) to those bytes in their output.
 // So when we truncate the file to 2kB we need to update those values as well.
 
-import Util from '../../util/util';
+import Util from '../../../util/util';
 
 const LITTLE_ENDIAN = true;
 const BLOCK_SIZE = 4;
