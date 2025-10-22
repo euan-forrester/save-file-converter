@@ -20,7 +20,7 @@
 // The Genesis and Master System output is slightly different: just whether it's written out as
 // shorts or bytes
 
-import GenesisUtil from '../../util/Genesis';
+import GenesisUtil from '../../../util/Genesis';
 
 const MAGIC = 'VCSD';
 const SRAM = 'SRAM';

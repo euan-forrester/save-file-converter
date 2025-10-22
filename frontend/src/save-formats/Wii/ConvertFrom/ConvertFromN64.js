@@ -19,7 +19,7 @@
 // - 128kB Flash RAM
 // - 96kB SRAM (one game only: Dezaemon 3D, which wasn't on Virtual Console and was Japan-only)
 
-import N64Util from '../../util/N64';
+import N64Util from '../../../util/N64';
 
 const EEPROM_SIZES = [4 * 1024, 16 * 1024];
 const SRAM_SIZES_SRA = [32 * 1024];

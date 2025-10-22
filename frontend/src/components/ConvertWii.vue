@@ -134,9 +134,9 @@ import ConversionDirection from './ConversionDirection.vue';
 import WiiVcPlatform from './WiiVcPlatform.vue';
 import RegionViewer from './RegionViewer.vue';
 import WiiSaveData from '../save-formats/Wii/Wii';
-import GetPlatform from '../save-formats/Wii/GetPlatform';
-import ConvertFromPlatform from '../save-formats/Wii/ConvertFromPlatform';
-import getHttpClient from '../save-formats/Wii/HttpClient';
+import GetPlatform from '../save-formats/Wii/GetPlatform/GetPlatform';
+import ConvertFromPlatform from '../save-formats/Wii/ConvertFrom/ConvertFromPlatform';
+import getHttpClient from '../save-formats/Wii/GetPlatform/HttpClient';
 
 const getPlatform = new GetPlatform(getHttpClient(GetPlatform.getBaseUrl()));
 
