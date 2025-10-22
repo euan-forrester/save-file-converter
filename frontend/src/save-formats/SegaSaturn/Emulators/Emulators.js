@@ -4,9 +4,9 @@ Since everywhere on the site we tell people that "emulator/raw" format is the li
 be able to read/write any emulator format for the Saturn transparently
 */
 
-import MednafenSegaSaturnSaveData from './Emulators/mednafen';
-import YabauseSegaSaturnSaveData from './Emulators/yabause';
-import YabaSanshiroSegaSaturnSaveData from './Emulators/yabasanshiro';
+import MednafenSegaSaturnSaveData from './mednafen';
+import YabauseSegaSaturnSaveData from './yabause';
+import YabaSanshiroSegaSaturnSaveData from './yabasanshiro';
 
 const EMULATOR_CLASSES = [
   MednafenSegaSaturnSaveData,
