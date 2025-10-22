@@ -18,7 +18,7 @@
         <input-number
           id="input-slice-length"
           labelText="Length:"
-          helpText="The length of data to slice, in bytes. Can be in decimal, or hexadecimal beginning with 0x"
+          helpText="The length of data to slice, in bytes. Leave blank to slice to the end of the file. Can be in decimal, or hexadecimal beginning with 0x"
           @input="changeSliceLength($event)"
           ref="inputNumberSliceLength"
         />
@@ -113,6 +113,7 @@ export default {
       this.changeSliceOffsetOrLength();
     },
     changeSliceLength(value) {
+      console.log('Changed length to: ', value);
       this.sliceLength = value;
       this.changeSliceOffsetOrLength();
     },
@@ -141,7 +142,7 @@ export default {
       }
     },
     canSliceFile() {
-      if ((this.saveData !== null) && (this.sliceStartOffset !== null) && (this.sliceLength !== null)) {
+      if ((this.saveData !== null) && (this.sliceStartOffset !== null)) {
         try {
           this.checkSliceFile();
           return true;
@@ -153,7 +154,14 @@ export default {
       return false;
     },
     sliceFile() {
-      const outputArrayBuffer = this.saveData.slice(this.sliceStartOffset, this.sliceStartOffset + this.sliceLength);
+      let outputArrayBuffer = null;
+
+      if (this.sliceLength === null) {
+        outputArrayBuffer = this.saveData.slice(this.sliceStartOffset);
+      } else {
+        outputArrayBuffer = this.saveData.slice(this.sliceStartOffset, this.sliceStartOffset + this.sliceLength);
+      }
+
       const outputBlob = new Blob([outputArrayBuffer], { type: 'application/octet-stream' });
 
       saveAs(outputBlob, this.outputFilename); // Frustratingly, in Firefox the dialog says "from: blob:" and apparently this can't be changed: https://github.com/eligrey/FileSaver.js/issues/101
