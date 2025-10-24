@@ -1,1 +1,3 @@
-This appears to use the Pico emulator (somehow ported to the browser), judging by the header in the save state. I looked through a save state for Phantasy Star II and couldn't see the SRAM data in any obvious location (SRAM data for this game has a recognizable header)
+This appears to use the Pico emulator (somehow ported to the browser), judging by the header in the save state. 
+
+If you byte swap the file with a word size of 2 bytes, you can find the header for the in-game save somewhere around offset 0xc716
