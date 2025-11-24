@@ -301,8 +301,8 @@ export default {
           gb: true,
           gba: true, // This only partially worked with mine. Some random-seeming games just wouldn't work with it
           lynx: false,
-          gamegear: false,
-          sms: true, // This is just an assumption, given that you can play SMS games with a SMS-to-Genesis adapter
+          gamegear: true, // This is just an assumption, given that you can play GG games with a RetroN 5 3-in-1 Adapter
+          sms: true, // This is just an assumption, given that you can play SMS games with a RetroN 5 3-in-1 Adapter
           genesis: true,
           segacd: false,
           saturn: false,
