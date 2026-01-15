@@ -34,6 +34,7 @@
     "pako": "^2.0.3",
     "path": "^0.12.7",
     "process": "^0.11.10",
+    "rzipjs": "^1.0.0",
     "stream-browserify": "^3.0.0",
     "vue": "^2.6.12",
     "vue-async-computed": "^4.0.1",
@@ -44,7 +45,6 @@
   "devDependencies": {
     "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
-    "@vue/language-server": "~3.0.0",
     "@vue/cli-plugin-babel": "~5.0.4",
     "@vue/cli-plugin-eslint": "~5.0.4",
     "@vue/cli-plugin-router": "~5.0.4",
@@ -52,6 +52,7 @@
     "@vue/cli-plugin-vuex": "~5.0.4",
     "@vue/cli-service": "~5.0.4",
     "@vue/eslint-config-airbnb": "^6.0.0",
+    "@vue/language-server": "~3.0.0",
     "@vue/test-utils": "^1.0.3",
     "chai": "^4.1.2",
     "eslint": "^7.32.0",

@@ -8002,6 +8002,13 @@ run-parallel@^1.1.9:
   dependencies:
     queue-microtask "^1.2.2"
 
+rzipjs@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/rzipjs/-/rzipjs-1.0.0.tgz#ecabfd0b5074719c5f62e4a57d74b6f2ebae5ca1"
+  integrity sha512-8JoG1hgjPWS1aQAMRYSDTxVbZKYW/x0jAjnHJRoOSUNBX8vnnpAbbwFl1YK7vO0dv3en9et30PSPCzLSZLQczg==
+  dependencies:
+    pako "^2.0.3"
+
 safe-buffer@5.1.2, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.1.2.tgz#991ec69d296e0313747d59bdfd2b745c35f8828d"
