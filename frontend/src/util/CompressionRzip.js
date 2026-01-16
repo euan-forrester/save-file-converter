@@ -1,4 +1,4 @@
-import { RzipJS } from 'RzipJS';
+import { RzipJS } from 'rzipjs';
 
 import Util from './util';
 
