@@ -13,7 +13,6 @@ export default class CompressionRzip {
 
       return Util.bufferToArrayBuffer(rzip.rzip_inflate());
     } catch (e) {
-      console.log(e);
       throw new Error('Could not decompress the data using rzip', e);
     }
   }
@@ -28,7 +27,6 @@ export default class CompressionRzip {
 
       return Util.bufferToArrayBuffer(rzip.rzip_deflate());
     } catch (e) {
-      console.log(e);
       throw new Error('Could not compress the data using rzip', e);
     }
   }
