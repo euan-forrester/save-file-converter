@@ -138,7 +138,7 @@
         <b-link href="https://github.com/JagDogger2525/RetroPie-Game-Saves">RetroPie Game Saves</b-link>
       </b-col>
       <b-col cols=12 md=5 lg=5 xl=4>
-        Selection of VB/DC/GB/GBA/N64/NES/PS1/SNES/PSP saves
+        Selection of VB/DC/GCN/GB/GBA/N64/NES/PS1/SNES/PSP saves
       </b-col>
     </b-row>
     <div class="blank-line"/>
