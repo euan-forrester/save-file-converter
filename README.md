@@ -212,6 +212,17 @@ Everything on this site is free and open source with no advertising. If you find
   - Some save files are compressed with ZLIB compression. I'm not sure the circumstances under which this happens: https://github.com/libretro/RetroArch/issues/14031#issuecomment-1159400581
 - iOS
   - The Delta emulator uses .svs for save states. Instructions for creating a raw save instead: https://www.reddit.com/r/Delta_Emulator/comments/1helbo1/svs_to_sav/
+- Gameboy
+  - Games using the MBC2 mapper can have their save files represented differently
+    - Either as half-bytes with the top nybble set to `0x0000` or as packed bytes
+    - Half bytes are more common; mGBA uses packed bytes but can convert
+    - See discussion here: https://github.com/Gronis/gb-save-manager/issues/5#issuecomment-4101338096
+    - See more details here: https://github.com/Gronis/gb-save-manager?tab=readme-ov-file#games-to-watch-out-for---mbc2-cartridges
+    - Game affected:
+      - F-1 Race
+      - Golf
+      - Kirby's Pinball Land
+      - Top Rank Tennis
 
 ## Cart reader notes
 
