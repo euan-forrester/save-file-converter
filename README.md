@@ -44,6 +44,7 @@ Everything on this site is free and open source with no advertising. If you find
 - GameShark (PS2)
   - (partial): https://www.ps2savetools.com/documents/xps-format/
 - PS2
+  - Tool to parse images, contains links to docs describing various parts of the filesystem: https://github.com/sevonj/eightmb
   - Description of PS2 save data: https://babyno.top/en/posts/2023/09/parsing-ps2-memcard-file-system/
   - Parsing PS2 save data: https://babyno.top/en/posts/2023/09/exporting-file-from-ps2-memcard/
   - Parser with 3D icon viewer: https://github.com/caol64/ps2mc-browser
