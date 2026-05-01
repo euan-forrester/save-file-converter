@@ -3,6 +3,13 @@ resource "aws_s3_bucket" "frontend" {
   force_destroy = true
 }
 
+resource "aws_s3_bucket_ownership_controls" "frontend" {
+  bucket = aws_s3_bucket.frontend.id
+  rule {
+    object_ownership = "BucketOwnerEnforced" // Access to bucket + objects is only granted via policies and not ACLs
+  }
+}
+
 resource "aws_s3_bucket_logging" "frontend" {
   bucket = aws_s3_bucket.frontend.bucket
 
@@ -72,11 +79,6 @@ resource "aws_s3_bucket_website_configuration" "frontend" {
   }
 }
 
-resource "aws_s3_bucket_acl" "frontend" {
-  bucket = aws_s3_bucket.frontend.id
-  acl    = "public-read"
-}
-
 resource "aws_s3_bucket_public_access_block" "frontend" {
   bucket = aws_s3_bucket.frontend.id
 
@@ -86,9 +88,11 @@ resource "aws_s3_bucket_public_access_block" "frontend" {
   # The console still says "bucket and objects not public" (as desired),
   # and trying to go to the website link for this bucket gives a 403 forbidden (as desired)
   # I wrote up an issue here: https://github.com/multiplegeorges/vue-cli-plugin-s3-deploy/issues/79
-  block_public_policy     = true
-  ignore_public_acls      = var.use_custom_domain # Need to be able to access this bucket publicly in dev if there's no CloudFront in front of it
-  restrict_public_buckets = true
+
+  # Need to be able to access this bucket publicly in dev if there's no CloudFront in front of it
+  block_public_policy     = var.use_custom_domain
+  ignore_public_acls      = var.use_custom_domain
+  restrict_public_buckets = var.use_custom_domain
 }
 
 # We need to give the cloudfront user the ability to read from this bucket, and our current
@@ -101,36 +105,33 @@ resource "aws_s3_bucket_public_access_block" "frontend" {
 data "aws_caller_identity" "current" {
 }
 
-data "aws_iam_policy_document" "allow_cloudfront_and_current_user" {
-  statement {
-    actions   = ["s3:GetObject"]
-    resources = ["${aws_s3_bucket.frontend.arn}/*"]
-
-    principals {
-      type        = "AWS"
-      identifiers = [aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn]
-    }
-  }
-
-  statement {
-    actions   = ["s3:ListBucket"]
-    resources = [aws_s3_bucket.frontend.arn]
-
-    principals {
-      type        = "AWS"
-      identifiers = [aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn]
-    }
-  }
-}
-
-resource "aws_s3_bucket_policy" "frontend_cloudfront_current_user" {
-  bucket = aws_s3_bucket.frontend.id
-  policy = data.aws_iam_policy_document.allow_cloudfront_and_current_user.json
-}
-
 resource "aws_s3_bucket" "frontend_access_logs" {
   bucket        = "${var.frontend_access_logs_bucket}${var.bucketname_user_string}-${var.environment}"
   force_destroy = false == var.retain_frontend_access_logs_after_destroy
+}
+
+resource "aws_s3_bucket_ownership_controls" "frontend_access_logs" {
+  bucket = aws_s3_bucket.frontend_access_logs.id
+  rule {
+    object_ownership = "BucketOwnerEnforced" // Access to bucket + objects is only granted via policies and not ACLs
+  }
+}
+
+data "aws_iam_policy_document" "allow_log_writing" {
+  statement {
+    actions   = ["s3:PutObject"]
+    resources = ["${aws_s3_bucket.frontend_access_logs.arn}/*"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["delivery.logs.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "allow_log_writing" {
+  bucket = aws_s3_bucket.frontend_access_logs.id
+  policy = data.aws_iam_policy_document.allow_log_writing.json
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "frontend_access_logs" {
@@ -149,16 +150,16 @@ resource "aws_s3_bucket_lifecycle_configuration" "frontend_access_logs" {
   }
 }
 
-resource "aws_s3_bucket_acl" "frontend_access_logs" {
-  bucket = aws_s3_bucket.frontend_access_logs.id
-  acl    = "log-delivery-write"
-}
-
-# It looks like service side encryption has become the default, and this is no long needed: https://docs.aws.amazon.com/AmazonS3/latest/userguide/default-encryption-faq.html
 resource "aws_s3_bucket_server_side_encryption_configuration" "frontend_access_logs" {
   bucket = aws_s3_bucket.frontend_access_logs.id
 
   rule {
+    # Began being enforced Apr 2026, so constantly generates terraform diffs if not listed explicitly
+    blocked_encryption_types = [
+      "SSE-C",
+    ]
+
+    # This is the default: https://docs.aws.amazon.com/AmazonS3/latest/userguide/default-encryption-faq.html
     apply_server_side_encryption_by_default {
       # Keep this as AES for consistency with the load balancer access logs (see note there)
       sse_algorithm = "AES256"
