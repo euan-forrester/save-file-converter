@@ -34,6 +34,8 @@ Everything on this site is free and open source with no advertising. If you find
 
 - Retron5
   - https://www.retro5.net/viewtopic.php?f=5&t=67&start=10
+- Retron SQ (GB/GBC/GBA)
+  - Uses raw/emulator format
 - GameShark (GBA)
   - (partial): https://gbatemp.net/threads/converting-gsv-or-sps-files-to-sav.51838/#post-664786
   - (reading): https://github.com/visualboyadvance-m/visualboyadvance-m/blob/master/src/gba/GBA.cpp#L1025
